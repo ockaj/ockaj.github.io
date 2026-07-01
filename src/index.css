@@ -279,14 +279,3 @@ body {
   inherits: false;
   initial-value: 1;
 }
-
-/* Custom utilities for modern capsule-overflow clipping in Tailwind v4 */
-@utility overflow-x-clip {
-  overflow-x: clip;
-}
-@utility overflow-y-clip {
-  overflow-y: clip;
-}
-@utility clip-margin-4 {
-  overflow-clip-margin: 4px;
-}

@@ -182,7 +182,7 @@ export default function Navbar({
         {prevActive}
       </span>
       <div
-        className={`pointer-events-auto flex items-center justify-between md:justify-start gap-1 md:gap-1.5 rounded-full border border-white/10 bg-surface/40 p-[7px] navbar-capsule overflow-x-clip clip-margin-4 isolate [transform:translateZ(0)] w-full max-w-[85vw] md:w-auto relative z-50 md:max-w-[95vw] ${
+        className={`pointer-events-auto flex items-center justify-between md:justify-start gap-1 md:gap-1.5 rounded-full border border-white/10 bg-surface/40 p-[7px] navbar-capsule overflow-hidden isolate [transform:translateZ(0)] w-full max-w-[85vw] md:w-auto relative z-50 md:max-w-[95vw] ${
           isScrolling ? "backdrop-blur-[3px]" : "backdrop-blur-md"
         } ${scrolled ? "border-white/20 bg-surface/60" : ""}`}
       >

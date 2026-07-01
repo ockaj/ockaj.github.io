@@ -271,7 +271,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                     ? "navbar-highlight-active"
                     : "navbar-highlight-flat"
                 }
-                className="hidden md:flex items-center gap-0.5 bg-white/[0.03] p-2 rounded-full border border-white/5 overflow-x-clip clip-margin-4 isolate [transform:translateZ(0)]"
+                className="hidden md:flex items-center gap-0.5 bg-white/[0.03] p-2 rounded-full border border-white/5 overflow-hidden isolate [transform:translateZ(0)]"
               >
                 <Tab
                   value="pdf"
