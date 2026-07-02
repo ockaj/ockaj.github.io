@@ -1,0 +1,55 @@
+import { memo } from "react";
+import { motion } from "motion/react";
+import BpmnNodeBadge from "./BpmnNodeBadge";
+import Contact from "./Contact";
+import Footer from "./Footer";
+
+const SECTION_INITIAL = { opacity: 0, y: 30 };
+const SECTION_ANIMATE = { opacity: 1, y: 0 };
+const SECTION_VIEWPORT = { once: true, margin: "-100px" } as const;
+const SECTION_TRANSITION = { duration: 1, ease: [0.25, 0.1, 0.25, 1] as const };
+
+function ContactSection() {
+  return (
+    <section
+      id="contact"
+      className="relative w-full min-h-[100dvh] flex items-center justify-center"
+    >
+      <div className="relative z-10">
+        <motion.div
+          initial={SECTION_INITIAL}
+          whileInView={SECTION_ANIMATE}
+          viewport={SECTION_VIEWPORT}
+          transition={SECTION_TRANSITION}
+          className="max-w-[1200px] mx-auto px-6 md:px-10 lg:px-16 text-center pb-2"
+        >
+          <p className="text-xs text-muted uppercase font-semibold mb-5 text-pretty flex items-center justify-center gap-1.5">
+            <BpmnNodeBadge type="end-event-none" />
+            Get in touch
+          </p>
+          <h2 className="text-[clamp(3.5rem,8vw,6rem)] font-display text-text-primary mb-6 leading-[1.1] pb-2 text-balance">
+            Let's work together
+          </h2>
+          <p className="text-sm md:text-base text-muted max-w-md mx-auto mb-10 text-pretty">
+            Looking to analyze, map, and optimize your business processes,
+            design digital transformation solutions, or fill an analyst role?
+            Let's connect.
+          </p>
+        </motion.div>
+        <motion.div
+          initial={SECTION_INITIAL}
+          whileInView={SECTION_ANIMATE}
+          viewport={SECTION_VIEWPORT}
+          transition={SECTION_TRANSITION}
+        >
+          <Contact />
+        </motion.div>
+      </div>
+      <div className="absolute bottom-0 w-full">
+        <Footer />
+      </div>
+    </section>
+  );
+}
+
+export default memo(ContactSection);

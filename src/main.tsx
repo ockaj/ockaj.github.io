@@ -3,6 +3,19 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import "./bones/registry";
+import { configureBoneyard } from "boneyard-js/react";
+
+configureBoneyard({
+  color: "rgba(255, 255, 255, 0.015)",
+  darkColor: "rgba(255, 255, 255, 0.015)",
+  animate: "shimmer",
+  shimmerColor: "rgba(255, 255, 255, 0.08)",
+  darkShimmerColor: "rgba(255, 255, 255, 0.08)",
+  speed: "2s",
+  shimmerAngle: 110,
+  stagger: 80,
+  transition: 300,
+});
 
 if (import.meta.env.DEV) {
   import("web-vitals").then(({ onINP }) => {
