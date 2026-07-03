@@ -293,6 +293,7 @@ const Tab = memo(function Tab({
     : scaleVertical.tap.desktop;
 
   const [isPressed, setIsPressed] = useState(false);
+  const [willChange, setWillChange] = useState(false);
 
   const isNavbarActive = contextHighlightClass?.includes(
     "navbar-highlight-active",
@@ -313,6 +314,21 @@ const Tab = memo(function Tab({
   const showHighlight = hoverSlide
     ? isHovered || (isActive && !isAnyHovered)
     : isActive;
+
+  const [prevValues, setPrevValues] = useState(() => ({
+    targetScaleX,
+    targetScaleY,
+    showHighlight,
+  }));
+
+  if (
+    prevValues.targetScaleX !== targetScaleX ||
+    prevValues.targetScaleY !== targetScaleY ||
+    prevValues.showHighlight !== showHighlight
+  ) {
+    setPrevValues({ targetScaleX, targetScaleY, showHighlight });
+    setWillChange(true);
+  }
 
   const handlePointerDown = useCallback(
     (e: PointerEvent<HTMLButtonElement>) => {
@@ -335,6 +351,10 @@ const Tab = memo(function Tab({
     },
     [disabled, onChange, onClick, value],
   );
+
+  const handleAnimationComplete = useCallback(() => {
+    setWillChange(false);
+  }, []);
 
   const scaleAnimationTarget = useMemo(
     () =>
@@ -422,13 +442,14 @@ const Tab = memo(function Tab({
           <motion.span
             animate={scaleAnimationTarget}
             transition={springs.scale}
+            onAnimationComplete={handleAnimationComplete}
             className={innerHighlightClass}
             style={{
               transform: "scale(var(--scale-x), var(--scale-y))",
               borderRadius:
                 "calc((var(--base-radius) * var(--scale-y)) / var(--scale-x)) / var(--base-radius)",
               transformOrigin: "center center",
-              willChange: "transform",
+              willChange: willChange ? "transform" : "auto",
             }}
           >
             {ripple ? (

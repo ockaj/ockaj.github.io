@@ -2,11 +2,11 @@ import { memo } from "react";
 import { ArrowUp } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 
-function Footer() {
-  const handleScrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+const handleScrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
 
+function Footer() {
   return (
     <footer className="max-w-[1200px] mx-auto px-6 md:px-10 lg:px-16 pb-8 md:pb-12 relative z-10 w-full">
       <div className="w-full h-px bg-stroke/40 mb-6" />

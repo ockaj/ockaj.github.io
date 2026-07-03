@@ -7,6 +7,7 @@ import {
   useCallback,
   useMemo,
   memo,
+  useEffectEvent,
   type CSSProperties,
   type PointerEvent,
   type MouseEvent,
@@ -415,23 +416,27 @@ function LiquidGlassDesktop({
     [onClick],
   );
 
+  const onResize = useEffectEvent(() => {
+    updateRect();
+    if (localRef.current) {
+      setDimensions({
+        width: localRef.current.offsetWidth,
+        height: localRef.current.offsetHeight,
+      });
+    }
+  });
+
   useEffect(() => {
-    const handleResize = () => {
-      updateRect();
-      if (localRef.current) {
-        setDimensions({
-          width: localRef.current.offsetWidth,
-          height: localRef.current.offsetHeight,
-        });
-      }
-    };
     if (interactive && isHovered) {
+      const handleResize = () => {
+        onResize();
+      };
       window.addEventListener("resize", handleResize, { passive: true });
       return () => {
         window.removeEventListener("resize", handleResize);
       };
     }
-  }, [interactive, isHovered, updateRect]);
+  }, [interactive, isHovered]);
 
   const borderGradient = useTransform([springX, springY], ([x, y]) => {
     return `radial-gradient(180px circle at calc(50% + ${x}px) calc(50% + ${y}px), rgba(255, 255, 255, 0.06) 0%, transparent 80%)`;
