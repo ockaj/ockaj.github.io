@@ -280,7 +280,32 @@ export default function Navbar({
             aria-label={isOpen ? "Close menu" : "Open menu"}
             className="size-11 p-0"
           >
-            {isOpen ? <X size={16} /> : <Menu size={16} />}
+            <span className="relative size-4 flex items-center justify-center pointer-events-none">
+              <motion.span
+                className="absolute inset-0 flex items-center justify-center"
+                initial={false}
+                animate={{
+                  opacity: isOpen ? 1 : 0,
+                  scale: isOpen ? 1 : 0.25,
+                  filter: isOpen ? "blur(0px)" : "blur(4px)",
+                }}
+                transition={{ type: "spring", duration: 0.3, bounce: 0 }}
+              >
+                <X size={16} />
+              </motion.span>
+              <motion.span
+                className="absolute inset-0 flex items-center justify-center"
+                initial={false}
+                animate={{
+                  opacity: isOpen ? 0 : 1,
+                  scale: isOpen ? 0.25 : 1,
+                  filter: isOpen ? "blur(4px)" : "blur(0px)",
+                }}
+                transition={{ type: "spring", duration: 0.3, bounce: 0 }}
+              >
+                <Menu size={16} />
+              </motion.span>
+            </span>
           </LiquidGlassButton>
         </div>
       </div>

@@ -119,9 +119,10 @@ export default function BpmnOverlay() {
               <button
                 type="button"
                 onClick={() => setShowHotkeyTip(false)}
-                className="text-muted hover:text-white p-1 flex-shrink-0"
+                className="w-10 h-10 flex items-center justify-center rounded-full text-muted hover:text-white hover:bg-white/[0.05] transition-[background-color,color] duration-200 flex-shrink-0"
+                aria-label="Dismiss tip"
               >
-                <X size={12} />
+                <X size={14} />
               </button>
             </LiquidGlass>
           </motion.div>

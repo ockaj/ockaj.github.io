@@ -164,7 +164,7 @@ const LightboxControls = memo(function LightboxControls({
             roundedClass="rounded-full"
             interactive={isZoomed}
             springScale={isZoomed}
-            className={`h-8 w-16 flex items-center justify-center text-[10px] tracking-wider uppercase select-none font-bold text-text-primary ${
+            className={`h-10 w-16 flex items-center justify-center text-[10px] tracking-wider uppercase select-none font-bold text-text-primary ${
               isZoomed
                 ? "pointer-events-auto cursor-pointer"
                 : "pointer-events-none cursor-default"
@@ -184,7 +184,7 @@ const LightboxControls = memo(function LightboxControls({
           magnetic
           magneticStrength={0.04}
           roundedClass="rounded-full"
-          className="size-8 p-0 flex items-center justify-center text-text-primary"
+          className="size-10 p-0 flex items-center justify-center text-text-primary"
           ariaLabel="Zoom In"
         >
           <Plus size={14} />
@@ -197,7 +197,7 @@ const LightboxControls = memo(function LightboxControls({
           magnetic={isZoomed}
           magneticStrength={0.04}
           roundedClass="rounded-full"
-          className="size-8 p-0 flex items-center justify-center text-text-primary disabled:opacity-40 disabled:pointer-events-none"
+          className="size-10 p-0 flex items-center justify-center text-text-primary disabled:opacity-40 disabled:pointer-events-none"
           ariaLabel="Zoom Out"
         >
           <Minus size={14} />
@@ -213,7 +213,7 @@ const LightboxControls = memo(function LightboxControls({
           magnetic
           magneticStrength={0.04}
           roundedClass="rounded-full"
-          className="size-8 p-0 flex items-center justify-center text-text-primary"
+          className="size-10 p-0 flex items-center justify-center text-text-primary"
         >
           <X size={14} />
         </LiquidGlassButton>

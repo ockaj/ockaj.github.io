@@ -227,7 +227,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                   <LiquidGlassButton
                     href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
                     download="Ondrej_Michal_Ockaj_CV.pdf"
-                    className="p-2 size-9"
+                    className="p-2.5 size-10"
                     ariaLabel="Download PDF CV"
                   >
                     <Download size={14} className="text-text-primary" />
@@ -238,7 +238,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                     href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 size-9"
+                    className="p-2.5 size-10"
                     ariaLabel="Open CV PDF in new tab"
                   >
                     <ExternalLink size={14} className="text-text-primary" />
@@ -248,7 +248,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                   <LiquidGlassButton
                     onClick={onClose}
                     ariaLabel="Close CV Viewer"
-                    className="size-9 p-0"
+                    className="size-10 p-0"
                   >
                     <X size={16} />
                   </LiquidGlassButton>
@@ -306,7 +306,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                 <LiquidGlassButton
                   href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
                   download="Ondrej_Michal_Ockaj_CV.pdf"
-                  className="p-2 size-9"
+                  className="p-2.5 size-10"
                   ariaLabel="Download PDF CV"
                 >
                   <Download size={14} className="text-text-primary" />
@@ -317,7 +317,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                   href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 size-9"
+                  className="p-2.5 size-10"
                   ariaLabel="Open CV PDF in new tab"
                 >
                   <ExternalLink size={14} className="text-text-primary" />
@@ -327,7 +327,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                 <LiquidGlassButton
                   onClick={onClose}
                   ariaLabel="Close CV Viewer"
-                  className="size-9 p-0"
+                  className="size-10 p-0"
                 >
                   <X size={16} />
                 </LiquidGlassButton>

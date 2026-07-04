@@ -83,7 +83,7 @@ function ProcessLibrary() {
               >
                 {/* Badge Index */}
                 <span
-                  className={`relative z-10 text-xs font-body tabular-nums min-w-[20px] transition-all duration-300 ${
+                  className={`relative z-10 text-xs font-body tabular-nums min-w-[20px] transition-colors duration-300 ${
                     activeItem.id === item.id
                       ? "font-bold text-accent"
                       : "font-semibold text-accent/80"
