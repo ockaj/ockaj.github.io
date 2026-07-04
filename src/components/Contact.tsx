@@ -1,10 +1,15 @@
 import { memo } from "react";
 import { ArrowUpRight } from "lucide-react";
+import { siGithub, siX } from "simple-icons";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 
 const SOCIALS = [
-  { label: "GitHub", href: "https://github.com/ockaj" },
-  { label: "X (Twitter)", href: "https://x.com/onkozinternetu" },
+  { label: "GitHub", href: "https://github.com/ockaj", path: siGithub.path },
+  {
+    label: "X (Twitter)",
+    href: "https://x.com/onkozinternetu",
+    path: siX.path,
+  },
 ];
 
 function Contact() {
@@ -49,16 +54,25 @@ function Contact() {
               specularGlow
             >
               <span className="flex items-center justify-center gap-1.5 sm:gap-2 w-full">
-                {social.label}
+                <svg
+                  role="img"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="w-[13px] h-[13px] sm:w-4 sm:h-4 shrink-0"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d={social.path} />
+                </svg>
+                <span>{social.label}</span>
                 <ArrowUpRight
                   aria-hidden="true"
                   size={13}
-                  className="sm:hidden transition-transform duration-300 group-hover/social-btn:translate-x-0.5 group-hover/social-btn:-translate-y-0.5"
+                  className="sm:hidden transition-transform duration-300 group-hover/social-btn:translate-x-0.5 group-hover/social-btn:-translate-y-0.5 shrink-0"
                 />
                 <ArrowUpRight
                   aria-hidden="true"
                   size={16}
-                  className="hidden sm:inline transition-transform duration-300 group-hover/social-btn:translate-x-0.5 group-hover/social-btn:-translate-y-0.5"
+                  className="hidden sm:inline transition-transform duration-300 group-hover/social-btn:translate-x-0.5 group-hover/social-btn:-translate-y-0.5 shrink-0"
                 />
               </span>
             </LiquidGlassButton>

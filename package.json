@@ -23,6 +23,7 @@
     "react-markdown": "^10.1.0",
     "react-zoom-pan-pinch": "^4.0.3",
     "remark-gfm": "^4.0.1",
+    "simple-icons": "^16.24.1",
     "slot-text": "^0.3.2",
     "yaml": "^2.9.0"
   },

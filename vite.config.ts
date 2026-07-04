@@ -47,12 +47,19 @@ export default defineConfig(({ mode }) => ({
     sourcemap: false,
     cssCodeSplit: true,
     cssMinify: true,
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks(id: string) {
-          if (id.includes("Aurora.tsx")) return "vendor-aurora";
-          if (id.includes("react") && id.includes("node_modules"))
-            return "vendor-react";
+        codeSplitting: {
+          groups: [
+            {
+              name: "vendor-aurora",
+              test: /Aurora\.tsx/,
+            },
+            {
+              name: "vendor-react",
+              test: /node_modules[\\/]react/,
+            },
+          ],
         },
       },
     },
