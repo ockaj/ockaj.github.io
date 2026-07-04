@@ -185,10 +185,10 @@ p {
 .navbar-capsule {
   will-change: transform, backdrop-filter;
   transition:
-    border-color 400ms cubic-bezier(0.25, 0.1, 0.25, 1),
-    background-color 400ms cubic-bezier(0.25, 0.1, 0.25, 1),
-    backdrop-filter 400ms cubic-bezier(0.25, 0.1, 0.25, 1),
-    -webkit-backdrop-filter 400ms cubic-bezier(0.25, 0.1, 0.25, 1);
+    border-color 250ms cubic-bezier(0.25, 0.1, 0.25, 1),
+    background-color 250ms cubic-bezier(0.25, 0.1, 0.25, 1),
+    backdrop-filter 250ms cubic-bezier(0.25, 0.1, 0.25, 1),
+    -webkit-backdrop-filter 250ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 /* CV modal scrollbar */

@@ -227,7 +227,7 @@ const backdropVariants: Variants = {
     opacity: 0,
     transition: custom.prefersReducedMotion
       ? { duration: 0.15 }
-      : { duration: custom.isMobile ? 0.35 : 0.2, ease: "easeIn" },
+      : { duration: custom.isMobile ? 0.35 : 0.2, ease: "easeOut" },
   }),
   visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     opacity: 1,
@@ -243,7 +243,7 @@ const dialogVariants: Variants = {
     opacity: 0,
     transition: custom.prefersReducedMotion
       ? { duration: 0.15 }
-      : { duration: custom.isMobile ? 0.35 : 0.18, ease: "easeIn" },
+      : { duration: custom.isMobile ? 0.35 : 0.18, ease: "easeOut" },
   }),
   visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     scale: 1,

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useReducedMotion } from "motion/react";
 import {
   Renderer,
   Program,
@@ -107,7 +108,14 @@ interface AuroraProps {
 const DEFAULT_COLOR_STOPS = ["#1E1B4B", "#312E81", "#6667AB", "#A78BFA"];
 
 export default function Aurora(props: AuroraProps) {
+  const prefersReducedMotion = useReducedMotion();
   const propsRef = useRef<AuroraProps>(props);
+  const prefersReducedMotionRef = useRef(prefersReducedMotion);
+  const triggerRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    prefersReducedMotionRef.current = prefersReducedMotion;
+  }, [prefersReducedMotion]);
 
   useEffect(() => {
     propsRef.current = props;
@@ -225,7 +233,11 @@ export default function Aurora(props: AuroraProps) {
     const frameInterval = isMobile ? 33 : 0;
     let lastFrame = 0;
     const update = (t: number) => {
-      animateId = requestAnimationFrame(update);
+      if (prefersReducedMotionRef.current) {
+        animateId = 0;
+      } else {
+        animateId = requestAnimationFrame(update);
+      }
       if (frameInterval && t - lastFrame < frameInterval) return;
       lastFrame = t;
       const time = propsRef.current.time ?? t * 0.01;
@@ -241,7 +253,15 @@ export default function Aurora(props: AuroraProps) {
       }
       renderer.render({ scene: mesh });
     };
+
+    // Always trigger once initially
     animateId = requestAnimationFrame(update);
+
+    triggerRef.current = () => {
+      if (!animateId) {
+        animateId = requestAnimationFrame(update);
+      }
+    };
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
@@ -250,7 +270,7 @@ export default function Aurora(props: AuroraProps) {
           animateId = 0;
         }
       } else {
-        if (!animateId) {
+        if (!animateId && !prefersReducedMotionRef.current) {
           animateId = requestAnimationFrame(update);
         }
       }
@@ -274,6 +294,12 @@ export default function Aurora(props: AuroraProps) {
       activeGl.getExtension("WEBGL_lose_context")?.loseContext();
     };
   }, []);
+
+  useEffect(() => {
+    if (!prefersReducedMotion && triggerRef.current) {
+      triggerRef.current();
+    }
+  }, [prefersReducedMotion]);
 
   return <div ref={ctnDom} className="w-full h-full" />;
 }

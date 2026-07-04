@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import {
   BoxIcon,
   Zap,
@@ -111,7 +111,10 @@ const containerVariants = {
 };
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: (prefersReducedMotion: boolean) => ({
+    opacity: 0,
+    y: prefersReducedMotion ? 0 : 30,
+  }),
   visible: {
     opacity: 1,
     y: 0,
@@ -120,10 +123,13 @@ const cardVariants = {
 };
 
 function Skills() {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <div className="px-6 md:px-10 lg:px-16">
       {/* Skills Bento Grid */}
       <motion.div
+        custom={prefersReducedMotion}
         className="grid grid-cols-1 md:grid-cols-3 gap-5"
         variants={containerVariants}
         initial={isBuildMode ? "visible" : "hidden"}
@@ -134,6 +140,7 @@ function Skills() {
           <motion.div
             key={category.title}
             variants={cardVariants}
+            custom={prefersReducedMotion}
             className={`${category.gridSpan} h-full`}
           >
             <SkillCard category={category} />
@@ -143,7 +150,11 @@ function Skills() {
 
       {/* Languages — inline tags */}
       <motion.div
-        initial={isBuildMode ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+        initial={
+          isBuildMode
+            ? { opacity: 1, y: 0 }
+            : { opacity: 0, y: prefersReducedMotion ? 0 : 30 }
+        }
         whileInView={isBuildMode ? undefined : { opacity: 1, y: 0 }}
         viewport={isBuildMode ? undefined : { once: true, margin: "-80px" }}
         className="relative z-30 pt-10 md:pt-14"

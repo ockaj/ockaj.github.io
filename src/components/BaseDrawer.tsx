@@ -20,7 +20,7 @@ const drawerVariants: Variants = {
     opacity: custom.prefersReducedMotion ? 0 : 1,
     transition: custom.prefersReducedMotion
       ? { duration: 0.15 }
-      : { type: "tween" as const, duration: 0.18, ease: "easeIn" as const },
+      : { type: "tween" as const, duration: 0.18, ease: "easeOut" as const },
   }),
   visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     x: 0,
@@ -182,7 +182,7 @@ const BaseDrawer = memo(function BaseDrawer({
         ref={overlayRef}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1, transition: { duration: 0.2, ease: "easeOut" } }}
-        exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeIn" } }}
+        exit={{ opacity: 0, transition: { duration: 0.15, ease: "easeOut" } }}
         onClick={onClose}
         className="fixed inset-0 z-[90] bg-black/70 backdrop-blur-none md:backdrop-blur-sm overscroll-contain"
       />

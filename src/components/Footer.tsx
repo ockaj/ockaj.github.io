@@ -3,7 +3,10 @@ import { ArrowUp } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 
 const handleScrollToTop = () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  const isMotionReduced = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+  window.scrollTo({ top: 0, behavior: isMotionReduced ? "auto" : "smooth" });
 };
 
 function Footer() {

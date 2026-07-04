@@ -5,6 +5,7 @@ import {
   animate,
   useMotionValue,
   useTransform,
+  useReducedMotion,
 } from "motion/react";
 import {
   AlertCircle,
@@ -33,7 +34,10 @@ const containerVariants = {
 };
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: (prefersReducedMotion: boolean) => ({
+    opacity: 0,
+    y: prefersReducedMotion ? 0 : 30,
+  }),
   visible: {
     opacity: 1,
     y: 0,
@@ -42,6 +46,7 @@ const cardVariants = {
 };
 
 function CaseStudies() {
+  const prefersReducedMotion = useReducedMotion();
   const [selectedStudy, setSelectedStudy] = useState<CaseStudyDetail | null>(
     null,
   );
@@ -57,6 +62,7 @@ function CaseStudies() {
     <>
       <div className="px-6 md:px-10 lg:px-16">
         <motion.div
+          custom={prefersReducedMotion}
           className="space-y-6 md:space-y-8"
           variants={containerVariants}
           initial={isBuildMode ? "visible" : "hidden"}
@@ -64,7 +70,11 @@ function CaseStudies() {
           viewport={isBuildMode ? undefined : { once: true, margin: "-80px" }}
         >
           {CASE_STUDIES.map((study) => (
-            <motion.article key={study.id} variants={cardVariants}>
+            <motion.article
+              key={study.id}
+              variants={cardVariants}
+              custom={prefersReducedMotion}
+            >
               <CaseStudyCard study={study} onOpen={setSelectedStudy} />
             </motion.article>
           ))}
@@ -227,6 +237,7 @@ const NUMERIC_REGEX = /[-+]?\d*\.?\d+/;
 const MetricCountUp = memo(function MetricCountUp({
   value,
 }: MetricCountUpProps) {
+  const prefersReducedMotion = useReducedMotion();
   const numericPart = value.match(NUMERIC_REGEX);
   const target = numericPart ? parseFloat(numericPart[0]) : 0;
   const isNumeric = !!numericPart;
@@ -248,11 +259,11 @@ const MetricCountUp = memo(function MetricCountUp({
   useEffect(() => {
     if (!isNumeric) return;
     const controls = animate(mv, target, {
-      duration: 0.6,
+      duration: prefersReducedMotion ? 0 : 0.6,
       ease: [0.25, 0.1, 0.25, 1],
     });
     return () => controls.stop();
-  }, [mv, target, isNumeric]);
+  }, [mv, target, isNumeric, prefersReducedMotion]);
 
   if (!isNumeric) return <span>{value}</span>;
 
@@ -270,7 +281,10 @@ const drawerContentVariants = {
 };
 
 const drawerItemVariants = {
-  hidden: { opacity: 0, y: 15 },
+  hidden: (prefersReducedMotion: boolean) => ({
+    opacity: 0,
+    y: prefersReducedMotion ? 0 : 15,
+  }),
   visible: {
     opacity: 1,
     y: 0,
@@ -282,6 +296,8 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
   study,
   onClose,
 }: DrawerProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <BaseDrawer
       title="Process Audit Case File"
@@ -291,6 +307,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
     >
       {/* Scrollable Content Container */}
       <motion.div
+        custom={prefersReducedMotion}
         variants={drawerContentVariants}
         initial="hidden"
         animate="visible"

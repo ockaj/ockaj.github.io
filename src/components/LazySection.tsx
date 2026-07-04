@@ -1,5 +1,5 @@
 import { memo, type ReactNode, type RefObject } from "react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { BoneSuspense } from "boneyard-js/react";
 import { SuspenseTrigger } from "../appReducer";
 
@@ -14,10 +14,9 @@ interface LazySectionProps {
   children: ReactNode;
 }
 
-const SECTION_INITIAL = { opacity: 0, y: 30 };
-const SECTION_ANIMATE = { opacity: 1, y: 0 };
 const SECTION_VIEWPORT = { once: true, margin: "-100px" } as const;
 const SECTION_TRANSITION = { duration: 1, ease: [0.25, 0.1, 0.25, 1] as const };
+const SECTION_ANIMATE = { opacity: 1, y: 0 } as const;
 
 function LazySection({
   id,
@@ -29,6 +28,9 @@ function LazySection({
   isInView,
   children,
 }: LazySectionProps) {
+  const prefersReducedMotion = useReducedMotion();
+  const initialStyle = { opacity: 0, y: prefersReducedMotion ? 0 : 30 };
+
   return (
     <section
       ref={sectionRef}
@@ -37,7 +39,7 @@ function LazySection({
     >
       <div className="max-w-[1200px] mx-auto">
         <motion.div
-          initial={SECTION_INITIAL}
+          initial={initialStyle}
           whileInView={SECTION_ANIMATE}
           viewport={SECTION_VIEWPORT}
           transition={SECTION_TRANSITION}
@@ -46,7 +48,7 @@ function LazySection({
           {header}
         </motion.div>
         <motion.div
-          initial={SECTION_INITIAL}
+          initial={initialStyle}
           whileInView={SECTION_ANIMATE}
           viewport={SECTION_VIEWPORT}
           transition={SECTION_TRANSITION}

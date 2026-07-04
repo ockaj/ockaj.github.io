@@ -203,7 +203,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
 
       {/* Task: Browse Case Studies */}
       <g
-        className="cursor-pointer group/node animate-pulse-slow"
+        className="cursor-pointer group/node"
         onClick={() => onTaskClick("work")}
       >
         <rect

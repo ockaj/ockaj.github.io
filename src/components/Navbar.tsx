@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useReducer } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Menu, X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
@@ -63,6 +63,8 @@ export default function Navbar({
   sentinelRef,
 }: NavbarProps) {
   const isMobile = useIsMobile();
+  const prefersReducedMotion = useReducedMotion();
+  const isMotionReduced = !!prefersReducedMotion;
 
   const [state, dispatch] = useReducer(navbarReducer, {
     scrolled: false,
@@ -151,29 +153,32 @@ export default function Navbar({
     (label: string) => {
       onNavClick(label);
       dispatch({ type: "SET_IS_OPEN", isOpen: false }); // Close mobile menu dropdown
+      const scrollBehavior = isMotionReduced ? "auto" : "smooth";
       if (label === "Home") {
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({ top: 0, behavior: scrollBehavior });
       } else if (label === "Case Studies") {
-        document.getElementById("work")?.scrollIntoView({ behavior: "smooth" });
+        document
+          .getElementById("work")
+          ?.scrollIntoView({ behavior: scrollBehavior });
       } else if (label === "Skills") {
         document
           .getElementById("skills")
-          ?.scrollIntoView({ behavior: "smooth" });
+          ?.scrollIntoView({ behavior: scrollBehavior });
       } else if (label === "Process Library") {
         document
           .getElementById("processes")
-          ?.scrollIntoView({ behavior: "smooth" });
+          ?.scrollIntoView({ behavior: scrollBehavior });
       } else if (label === "Journal") {
         document
           .getElementById("journal")
-          ?.scrollIntoView({ behavior: "smooth" });
+          ?.scrollIntoView({ behavior: scrollBehavior });
       } else if (label === "Contact") {
         document
           .getElementById("contact")
-          ?.scrollIntoView({ behavior: "smooth" });
+          ?.scrollIntoView({ behavior: scrollBehavior });
       }
     },
-    [onNavClick],
+    [onNavClick, isMotionReduced],
   );
 
   return (
@@ -286,10 +291,18 @@ export default function Navbar({
                 initial={false}
                 animate={{
                   opacity: isOpen ? 1 : 0,
-                  scale: isOpen ? 1 : 0.25,
-                  filter: isOpen ? "blur(0px)" : "blur(4px)",
+                  scale: isMotionReduced ? 1 : isOpen ? 1 : 0.25,
+                  filter: isMotionReduced
+                    ? "none"
+                    : isOpen
+                      ? "blur(0px)"
+                      : "blur(4px)",
                 }}
-                transition={{ type: "spring", duration: 0.3, bounce: 0 }}
+                transition={
+                  isMotionReduced
+                    ? { duration: 0.15 }
+                    : { type: "spring", duration: 0.3, bounce: 0 }
+                }
               >
                 <X size={16} />
               </motion.span>
@@ -298,10 +311,18 @@ export default function Navbar({
                 initial={false}
                 animate={{
                   opacity: isOpen ? 0 : 1,
-                  scale: isOpen ? 0.25 : 1,
-                  filter: isOpen ? "blur(4px)" : "blur(0px)",
+                  scale: isMotionReduced ? 1 : isOpen ? 0.25 : 1,
+                  filter: isMotionReduced
+                    ? "none"
+                    : isOpen
+                      ? "blur(4px)"
+                      : "blur(0px)",
                 }}
-                transition={{ type: "spring", duration: 0.3, bounce: 0 }}
+                transition={
+                  isMotionReduced
+                    ? { duration: 0.15 }
+                    : { type: "spring", duration: 0.3, bounce: 0 }
+                }
               >
                 <Menu size={16} />
               </motion.span>
@@ -345,12 +366,15 @@ export default function Navbar({
                 boxShadow:
                   "inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(0, 0, 0, 0.7)",
                 opacity: isOpen ? 1 : 0,
-                transform: isOpen
-                  ? "translateY(0) scale(1)"
-                  : "translateY(-8px) scale(0.96)",
+                transform: isMotionReduced
+                  ? undefined
+                  : isOpen
+                    ? "translateY(0) scale(1)"
+                    : "translateY(-8px) scale(0.96)",
                 pointerEvents: isOpen ? "auto" : "none",
-                transition:
-                  "opacity 0.25s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1)",
+                transition: isMotionReduced
+                  ? "opacity 0.15s linear"
+                  : "opacity 0.25s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1)",
                 transformOrigin: "top",
               }}
               role="none"

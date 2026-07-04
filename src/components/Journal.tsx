@@ -1,5 +1,5 @@
 import { useState, memo, useCallback, useMemo } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { ArrowUpRight, Clock, MessageSquare, BookOpen } from "lucide-react";
 import { ARTICLES, type Article } from "../data/articles";
 import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
@@ -22,7 +22,10 @@ const containerVariants = {
 };
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: (prefersReducedMotion: boolean) => ({
+    opacity: 0,
+    y: prefersReducedMotion ? 0 : 30,
+  }),
   visible: {
     opacity: 1,
     y: 0,
@@ -31,6 +34,7 @@ const cardVariants = {
 };
 
 function Journal() {
+  const prefersReducedMotion = useReducedMotion();
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
 
   const handleCloseArticle = useCallback(() => {
@@ -43,6 +47,7 @@ function Journal() {
     <>
       <div className="px-6 md:px-10 lg:px-16">
         <motion.div
+          custom={prefersReducedMotion}
           className="flex flex-col gap-8 md:gap-10"
           variants={containerVariants}
           initial={isBuildMode ? "visible" : "hidden"}
@@ -50,7 +55,11 @@ function Journal() {
           viewport={isBuildMode ? undefined : { once: true, margin: "-60px" }}
         >
           {ARTICLES.map((article) => (
-            <motion.article key={article.id} variants={cardVariants}>
+            <motion.article
+              key={article.id}
+              variants={cardVariants}
+              custom={prefersReducedMotion}
+            >
               <JournalEntry article={article} onOpen={setSelectedArticle} />
             </motion.article>
           ))}

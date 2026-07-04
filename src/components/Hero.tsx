@@ -11,6 +11,7 @@ import "slot-text/style.css";
 import { SlotText } from "slot-text/react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import BpmnNodeBadge from "./BpmnNodeBadge";
+import { useIsMobile } from "../hooks/useMediaQuery";
 
 const ROLES = [
   "Process Analyst",
@@ -37,7 +38,10 @@ const containerVariants = {
 };
 
 const nameVariants = {
-  hidden: { opacity: 0, y: 50 },
+  hidden: (prefersReducedMotion: boolean) => ({
+    opacity: 0,
+    y: prefersReducedMotion ? 0 : 50,
+  }),
   visible: {
     opacity: 1,
     y: 0,
@@ -49,7 +53,11 @@ const nameVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20, filter: "blur(10px)" },
+  hidden: (prefersReducedMotion: boolean) => ({
+    opacity: 0,
+    y: prefersReducedMotion ? 0 : 20,
+    filter: prefersReducedMotion ? "blur(0px)" : "blur(10px)",
+  }),
   visible: {
     opacity: 1,
     y: 0,
@@ -157,6 +165,7 @@ function Hero({ onViewCv, onViewWork }: HeroProps) {
   const [roleIndex, setRoleIndex] = useState(0);
   const { scrollY } = useScroll();
   const prefersReducedMotion = useReducedMotion();
+  const isMobile = useIsMobile();
 
   const scrollOpacity = useTransform(scrollY, [0, 150], [1, 0]);
   const scrollYOffset = useTransform(scrollY, [0, 150], [0, 15]);
@@ -171,6 +180,7 @@ function Hero({ onViewCv, onViewWork }: HeroProps) {
   return (
     <section className="relative w-full min-h-[100dvh] overflow-hidden flex items-center justify-center pt-24 pb-28 md:py-0">
       <motion.div
+        custom={prefersReducedMotion}
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -278,7 +288,7 @@ function Hero({ onViewCv, onViewWork }: HeroProps) {
         variants={scrollIndicatorVariants}
         initial="initial"
         animate={prefersReducedMotion ? undefined : "animate"}
-        whileHover="hover"
+        whileHover={prefersReducedMotion || isMobile ? undefined : "hover"}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
         onClick={(e) => {
           e.preventDefault();

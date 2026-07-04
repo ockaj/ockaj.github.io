@@ -279,7 +279,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
     <motion.div
       className="fixed inset-0 z-[9999] bg-bg flex flex-col justify-between p-6 md:p-12 overflow-hidden select-none"
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.5, ease: "easeInOut" } }}
+      exit={{ opacity: 0, transition: { duration: 0.25, ease: "easeOut" } }}
     >
       {/* Background aesthetics */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:32px_32px] opacity-60 pointer-events-none" />

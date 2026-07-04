@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback, memo } from "react";
-import { motion, AnimatePresence, Variants } from "motion/react";
+import {
+  motion,
+  AnimatePresence,
+  Variants,
+  useReducedMotion,
+} from "motion/react";
 import { Expand } from "lucide-react";
 import { PROCESS_ITEMS } from "../data/processItems";
 import { LiquidGlass } from "./LiquidGlass/LiquidGlass";
@@ -7,27 +12,28 @@ import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import ProcessLightbox from "./ProcessLightbox";
 
 const tabContentVariants: Variants = {
-  hidden: {
+  hidden: (prefersReducedMotion: boolean) => ({
     opacity: 0,
-    y: 15,
-    scale: 0.98,
+    y: prefersReducedMotion ? 0 : 15,
+    scale: prefersReducedMotion ? 1 : 0.98,
     transition: { duration: 0.15, ease: [0.25, 0.1, 0.25, 1] as const },
-  },
+  }),
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
     transition: { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] as const },
   },
-  exit: {
+  exit: (prefersReducedMotion: boolean) => ({
     opacity: 0,
-    y: 15,
-    scale: 0.98,
+    y: prefersReducedMotion ? 0 : 15,
+    scale: prefersReducedMotion ? 1 : 0.98,
     transition: { duration: 0.15, ease: [0.25, 0.1, 0.25, 1] as const },
-  },
+  }),
 };
 
 function ProcessLibrary() {
+  const prefersReducedMotion = useReducedMotion();
   const [activeItem, setActiveItem] = useState(PROCESS_ITEMS[0]);
   const [lightboxItem, setLightboxItem] = useState<
     (typeof PROCESS_ITEMS)[0] | null
@@ -113,6 +119,7 @@ function ProcessLibrary() {
                 role="tabpanel"
                 id={`tabpanel-${activeItem.id}`}
                 aria-labelledby={`tab-${activeItem.id}`}
+                custom={prefersReducedMotion}
                 initial="hidden"
                 animate="visible"
                 exit="exit"

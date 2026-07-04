@@ -21,6 +21,7 @@ import {
   useMotionValue,
   useSpring,
   useTransform,
+  useReducedMotion,
   type MotionStyle,
 } from "motion/react";
 import { useIsMobile } from "../../hooks/useMediaQuery";
@@ -74,6 +75,11 @@ function LiquidGlassMobile({
   ...rest
 }: LiquidGlassPropsWithRef) {
   /* eslint-enable @typescript-eslint/no-unused-vars */
+  const prefersReducedMotion = useReducedMotion();
+  const isMotionReduced = !!prefersReducedMotion;
+  const effectiveSpringScale = springScale && !isMotionReduced;
+  const effectiveRipple = ripple && !isMotionReduced;
+
   const localRef = useRef<HTMLElement | null>(null);
   const [width, setWidth] = useState(120);
 
@@ -110,7 +116,7 @@ function LiquidGlassMobile({
     rippleRadius,
     rippleOpacity,
     onPointerDown: handlePointerDown,
-  } = useRipple(interactive && springScale && ripple);
+  } = useRipple(interactive && effectiveSpringScale && effectiveRipple);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLElement>) => {
@@ -186,13 +192,13 @@ function LiquidGlassMobile({
 
   const sharedAnimationProps = useMemo(
     () => ({
-      whileTap: springScale
+      whileTap: effectiveSpringScale
         ? { scaleX: tapScaleX, scaleY: tapScaleY }
         : undefined,
-      transition: springScale ? SCALE_TRANSITION : undefined,
+      transition: effectiveSpringScale ? SCALE_TRANSITION : undefined,
       onPointerDown: handlePointerDownWrapper,
     }),
-    [springScale, handlePointerDownWrapper, tapScaleX, tapScaleY],
+    [effectiveSpringScale, handlePointerDownWrapper, tapScaleX, tapScaleY],
   );
 
   const ContentTag =
@@ -210,7 +216,7 @@ function LiquidGlassMobile({
         style={innerGlassStyle}
       />
       {interactive ? (
-        springScale && ripple ? (
+        effectiveSpringScale && effectiveRipple ? (
           <Ripple
             rippleX={rippleX}
             rippleY={rippleY}
@@ -293,6 +299,13 @@ function LiquidGlassDesktop({
   ref,
   ...rest
 }: LiquidGlassPropsWithRef) {
+  const prefersReducedMotion = useReducedMotion();
+  const isMotionReduced = !!prefersReducedMotion;
+  const effectiveMagnetic = magnetic && !isMotionReduced;
+  const effectiveTilt = tilt && !isMotionReduced;
+  const effectiveSpringScale = springScale && !isMotionReduced;
+  const effectiveRipple = ripple && !isMotionReduced;
+
   const localRef = useRef<HTMLElement | null>(null);
   const [dimensions, setDimensions] = useState({ width: 120, height: 36 });
 
@@ -338,21 +351,21 @@ function LiquidGlassDesktop({
   const rectRef = useRef<DOMRect | null>(null);
 
   const springPullX = useTransform(springX, (x) =>
-    magnetic ? x * magneticStrength : 0,
+    effectiveMagnetic ? x * magneticStrength : 0,
   );
   const springPullY = useTransform(springY, (y) =>
-    magnetic ? y * magneticStrength : 0,
+    effectiveMagnetic ? y * magneticStrength : 0,
   );
 
   const springTiltX = useTransform(springY, (y) => {
-    if (!tilt || !rectRef.current) return 0;
+    if (!effectiveTilt || !rectRef.current) return 0;
     const halfHeight = rectRef.current.height / 2;
     const pctY = y / halfHeight;
     return -pctY * effectiveTiltStrength;
   });
 
   const springTiltY = useTransform(springX, (x) => {
-    if (!tilt || !rectRef.current) return 0;
+    if (!effectiveTilt || !rectRef.current) return 0;
     const halfWidth = rectRef.current.width / 2;
     const pctX = x / halfWidth;
     return pctX * effectiveTiltStrength;
@@ -366,7 +379,7 @@ function LiquidGlassDesktop({
     rippleRadius,
     rippleOpacity,
     onPointerDown: handlePointerDown,
-  } = useRipple(interactive && springScale && ripple);
+  } = useRipple(interactive && effectiveSpringScale && effectiveRipple);
 
   const updateRect = useCallback(() => {
     if (localRef.current) {
@@ -490,20 +503,20 @@ function LiquidGlassDesktop({
       WebkitBackfaceVisibility: "hidden",
       backfaceVisibility: "hidden",
       willChange: style?.willChange ?? "transform, filter, backdrop-filter",
-      x: magnetic ? springPullX : undefined,
-      y: magnetic ? springPullY : undefined,
-      rotateX: tilt ? springTiltX : undefined,
-      rotateY: tilt ? springTiltY : undefined,
-      transformStyle: tilt ? "preserve-3d" : undefined,
-      transformPerspective: tilt ? 1000 : undefined,
+      x: effectiveMagnetic ? springPullX : undefined,
+      y: effectiveMagnetic ? springPullY : undefined,
+      rotateX: effectiveTilt ? springTiltX : undefined,
+      rotateY: effectiveTilt ? springTiltY : undefined,
+      transformStyle: effectiveTilt ? "preserve-3d" : undefined,
+      transformPerspective: effectiveTilt ? 1000 : undefined,
       ...style,
     };
   }, [
     style,
-    magnetic,
+    effectiveMagnetic,
     springPullX,
     springPullY,
-    tilt,
+    effectiveTilt,
     springTiltX,
     springTiltY,
   ]);
@@ -529,18 +542,18 @@ function LiquidGlassDesktop({
 
   const sharedAnimationProps = useMemo(
     () => ({
-      whileHover: springScale ? hoverTarget : undefined,
-      whileTap: springScale
+      whileHover: effectiveSpringScale ? hoverTarget : undefined,
+      whileTap: effectiveSpringScale
         ? { scaleX: tapScaleX, scaleY: tapScaleY }
         : undefined,
-      transition: springScale ? SCALE_TRANSITION : undefined,
+      transition: effectiveSpringScale ? SCALE_TRANSITION : undefined,
       onMouseEnter: handleMouseEnter,
       onMouseMove: handleMouseMove,
       onMouseLeave: handleMouseLeave,
       onPointerDown: handlePointerDownWrapper,
     }),
     [
-      springScale,
+      effectiveSpringScale,
       hoverTarget,
       tapScaleX,
       tapScaleY,
@@ -565,7 +578,7 @@ function LiquidGlassDesktop({
         className={`absolute inset-0 pointer-events-none z-0 border ${borderActiveClasses} ${roundedClass} transition-[border-color,background-color,box-shadow] duration-300 ease-out`}
         style={innerGlassStyle}
       />
-      {interactive ? (
+      {interactive && !isMotionReduced ? (
         <>
           <span
             className={`absolute inset-0 pointer-events-none z-0 overflow-hidden ${roundedClass}`}
@@ -592,7 +605,7 @@ function LiquidGlassDesktop({
             />
           </span>
 
-          {springScale && ripple ? (
+          {effectiveSpringScale && effectiveRipple ? (
             <Ripple
               rippleX={rippleX}
               rippleY={rippleY}
@@ -606,6 +619,15 @@ function LiquidGlassDesktop({
             style={{ background: borderGradient, mixBlendMode: "overlay" }}
           />
         </>
+      ) : interactive && isMotionReduced ? (
+        effectiveSpringScale && effectiveRipple ? (
+          <Ripple
+            rippleX={rippleX}
+            rippleY={rippleY}
+            rippleRadius={rippleRadius}
+            rippleOpacity={rippleOpacity}
+          />
+        ) : null
       ) : null}
 
       <ContentTag className={contentClasses}>{children}</ContentTag>

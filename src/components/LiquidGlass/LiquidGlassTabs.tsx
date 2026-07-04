@@ -15,7 +15,7 @@ import {
   type HTMLAttributes,
   type ComponentPropsWithoutRef,
 } from "react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { SPRING } from "../../utils/springConfig";
 import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
@@ -220,8 +220,10 @@ const Tab = memo(function Tab({
     highlightStyle: contextHighlightStyle,
   } = useTabsContext();
 
+  const prefersReducedMotion = useReducedMotion();
+
   const { rippleX, rippleY, rippleRadius, rippleOpacity, onPointerDown } =
-    useRipple(ripple);
+    useRipple(ripple && !prefersReducedMotion);
 
   const isMobile = useIsMobile();
   const isActive = activeValue === value;
@@ -242,11 +244,14 @@ const Tab = memo(function Tab({
   const isMobileNav = layoutId?.includes("mobile") || isMobile;
 
   const layoutTransition = useMemo(() => {
+    if (prefersReducedMotion) {
+      return { layout: { duration: 0 } };
+    }
     if (isMobile) {
       return { layout: SPRING.highlightMobile };
     }
     return HIGHLIGHT_TRANSITION;
-  }, [isMobile]);
+  }, [isMobile, prefersReducedMotion]);
 
   const tabRole = rest.role !== undefined ? rest.role : "tab";
   const isTabRole = tabRole === "tab";

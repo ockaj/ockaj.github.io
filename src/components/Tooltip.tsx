@@ -204,6 +204,8 @@ export default function Tooltip({ content, children }: TooltipProps) {
                 top: coords.top,
                 left: coords.left,
                 zIndex: 9999,
+                transformOrigin:
+                  coords.position === "top" ? "bottom center" : "top center",
               }}
               className="pointer-events-none px-3 py-1.5 rounded-xl border border-white/10 bg-surface/95 backdrop-blur-md shadow-xl text-[10px] font-normal text-text-primary tracking-normal max-w-xs leading-relaxed text-center"
             >

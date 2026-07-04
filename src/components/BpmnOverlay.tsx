@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { X } from "lucide-react";
 import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import BpmnNodeBadge from "./BpmnNodeBadge";
@@ -8,6 +8,7 @@ import { useIsMobile } from "../hooks/useMediaQuery";
 
 export default function BpmnOverlay() {
   const isMobile = useIsMobile();
+  const prefersReducedMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
   const typedBufferRef = useRef<string[]>([]);
   const [showHotkeyTip, setShowHotkeyTip] = useState(false);
@@ -79,7 +80,9 @@ export default function BpmnOverlay() {
     setIsOpen(false);
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+      element.scrollIntoView({
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+      });
     }
   };
 
@@ -90,9 +93,17 @@ export default function BpmnOverlay() {
       <AnimatePresence>
         {showHotkeyTip && !isOpen ? (
           <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            initial={{
+              opacity: 0,
+              y: prefersReducedMotion ? 0 : 30,
+              scale: prefersReducedMotion ? 1 : 0.95,
+            }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            exit={{
+              opacity: 0,
+              y: prefersReducedMotion ? 0 : 20,
+              scale: prefersReducedMotion ? 1 : 0.95,
+            }}
             className="hidden md:block fixed bottom-6 right-6 z-40 max-w-sm text-xs pointer-events-auto"
           >
             <LiquidGlass
