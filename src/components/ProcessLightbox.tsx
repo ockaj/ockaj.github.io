@@ -184,7 +184,7 @@ const LightboxControls = memo(function LightboxControls({
           magnetic
           magneticStrength={0.04}
           roundedClass="rounded-full"
-          className="size-10 p-0 flex items-center justify-center text-text-primary"
+          className="size-11 p-0 flex items-center justify-center text-text-primary"
           ariaLabel="Zoom In"
         >
           <Plus size={14} />
@@ -197,7 +197,7 @@ const LightboxControls = memo(function LightboxControls({
           magnetic={isZoomed}
           magneticStrength={0.04}
           roundedClass="rounded-full"
-          className="size-10 p-0 flex items-center justify-center text-text-primary disabled:opacity-40 disabled:pointer-events-none"
+          className="size-11 p-0 flex items-center justify-center text-text-primary disabled:opacity-40 disabled:pointer-events-none"
           ariaLabel="Zoom Out"
         >
           <Minus size={14} />
@@ -213,7 +213,7 @@ const LightboxControls = memo(function LightboxControls({
           magnetic
           magneticStrength={0.04}
           roundedClass="rounded-full"
-          className="size-10 p-0 flex items-center justify-center text-text-primary"
+          className="size-11 p-0 flex items-center justify-center text-text-primary"
         >
           <X size={14} />
         </LiquidGlassButton>

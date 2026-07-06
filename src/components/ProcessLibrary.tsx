@@ -68,48 +68,70 @@ function ProcessLibrary() {
       <div className="px-6 md:px-10 lg:px-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-stretch relative z-20">
           {/* Left Column: Index Menu Selector */}
-          <Tabs
-            value={activeItem.id}
-            onChange={handleTabChange}
-            layoutId="active-process-highlight"
-            squircle
-            roundedClass="rounded-2xl"
-            className="lg:col-span-5 flex flex-col gap-2 justify-center"
-          >
-            {PROCESS_ITEMS.map((item, idx) => (
-              <Tab
-                key={item.id}
-                value={item.id}
-                aria-controls={`tabpanel-${item.id}`}
-                className={`w-full text-left relative px-8 py-4 rounded-2xl transition-colors duration-300 flex items-center gap-4 select-none cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
-                  activeItem.id === item.id
-                    ? "text-text-primary"
-                    : "text-muted hover:text-text-primary"
-                }`}
+          <div className="lg:col-span-5 flex flex-col justify-center w-full">
+            {/* Scroll wrapper: owns overflow and alignment padding on mobile */}
+            <div className="-mx-6 px-6 md:-mx-10 md:px-10 lg:mx-0 lg:px-0 overflow-x-auto lg:overflow-x-visible py-2 lg:py-0 no-scrollbar process-tabs-mask">
+              <Tabs
+                value={activeItem.id}
+                onChange={handleTabChange}
+                layoutId="active-process-highlight"
+                squircle
+                roundedClass="rounded-2xl"
+                className="flex flex-row lg:flex-col gap-2 justify-start lg:justify-center w-max lg:w-full"
               >
-                {/* Badge Index */}
-                <span
-                  className={`relative z-10 text-xs font-body tabular-nums min-w-[20px] transition-colors duration-300 ${
-                    activeItem.id === item.id
-                      ? "font-bold text-accent"
-                      : "font-semibold text-accent/80"
-                  }`}
-                >
-                  {String(idx + 1).padStart(2, "0")}
-                </span>
+                {PROCESS_ITEMS.map((item, idx) => (
+                  <Tab
+                    key={item.id}
+                    value={item.id}
+                    aria-controls={`tabpanel-${item.id}`}
+                    className={`w-auto lg:w-full text-left relative px-5 py-3 lg:px-8 lg:py-4 rounded-2xl flex-shrink-0 transition-colors duration-300 flex items-center gap-3 lg:gap-4 select-none cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
+                      activeItem.id === item.id
+                        ? "text-text-primary"
+                        : "text-muted hover:text-text-primary"
+                    }`}
+                  >
+                    {/* Badge Index */}
+                    <span
+                      className={`relative z-10 text-xs font-body tabular-nums min-w-[20px] transition-colors duration-300 ${
+                        activeItem.id === item.id
+                          ? "font-bold text-accent"
+                          : "font-semibold text-accent/80"
+                      }`}
+                    >
+                      {String(idx + 1).padStart(2, "0")}
+                    </span>
 
-                {/* Metadata */}
-                <div className="relative z-10">
-                  <h3 className="text-sm font-semibold transition-transform duration-300 group-hover:translate-x-1 text-balance line-clamp-2">
-                    {item.title}
-                  </h3>
-                  <p className="text-[9px] text-muted uppercase mt-0.5 transition-transform duration-300 group-hover:translate-x-1">
-                    {item.type}
-                  </p>
-                </div>
-              </Tab>
-            ))}
-          </Tabs>
+                    {/* Metadata */}
+                    <div className="relative z-10">
+                      <h3 className="text-sm font-semibold font-body transition-transform duration-300 group-hover:translate-x-1 whitespace-nowrap lg:whitespace-normal lg:text-balance line-clamp-1 lg:line-clamp-2">
+                        {item.title}
+                      </h3>
+                      <p className="text-[9px] text-muted uppercase mt-0.5 transition-transform duration-300 group-hover:translate-x-1">
+                        {item.type}
+                      </p>
+                    </div>
+                  </Tab>
+                ))}
+              </Tabs>
+            </div>
+            <div className="flex lg:hidden items-center justify-center gap-3.5 mt-3 select-none pointer-events-none">
+              <span className="text-[9px] tracking-[0.18em] uppercase text-muted/40 font-bold font-body">
+                Swipe to explore
+              </span>
+              <div className="flex gap-1.5 items-center">
+                {PROCESS_ITEMS.map((item) => (
+                  <span
+                    key={item.id}
+                    className={`h-1 rounded-full transition-all duration-300 ${
+                      activeItem.id === item.id
+                        ? "bg-accent w-4 opacity-100"
+                        : "bg-white/10 w-1 opacity-50"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
 
           {/* Right Column: Visual Preview Canvas */}
           <div className="lg:col-span-7 flex flex-col justify-center relative min-h-[500px]">

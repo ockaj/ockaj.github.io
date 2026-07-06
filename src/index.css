@@ -194,6 +194,7 @@ p {
 /* CV modal scrollbar */
 .custom-cv-scrollbar::-webkit-scrollbar {
   width: 4px;
+  height: 4px;
 }
 
 .custom-cv-scrollbar::-webkit-scrollbar-track {
@@ -203,6 +204,16 @@ p {
 .custom-cv-scrollbar::-webkit-scrollbar-thumb {
   background: hsl(var(--stroke));
   border-radius: 2px;
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 /* Fine pointer hover transitions for dynamic lists */
@@ -291,4 +302,67 @@ p {
   syntax: "<number>";
   inherits: false;
   initial-value: 1;
+}
+
+/* Horizontal scroll fade masks */
+@media (max-width: 767px) {
+  .process-tabs-mask {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 24px,
+      black calc(100% - 32px),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 24px,
+      black calc(100% - 32px),
+      transparent 100%
+    );
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .process-tabs-mask {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 40px,
+      black calc(100% - 48px),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 40px,
+      black calc(100% - 48px),
+      transparent 100%
+    );
+  }
+}
+
+/* Elegant scrollbar for process tabs */
+.process-tabs-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) rgba(255, 255, 255, 0.02);
+}
+
+.process-tabs-scrollbar::-webkit-scrollbar {
+  height: 3px;
+}
+
+.process-tabs-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+}
+
+.process-tabs-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+}
+
+.process-tabs-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--accent));
 }
