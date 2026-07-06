@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { createPortal } from "react-dom";
+import FocusLock from "react-focus-lock";
 import { X } from "lucide-react";
 import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import BpmnNodeBadge from "./BpmnNodeBadge";
@@ -141,50 +143,59 @@ export default function BpmnOverlay() {
       </AnimatePresence>
 
       {/* Full Screen Blueprint BPMN Overlay */}
-      <AnimatePresence>
-        {isOpen ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[120] bg-[#05070D]/96 backdrop-blur-md flex flex-col justify-between p-6 md:p-10 select-none overflow-y-auto"
-            style={{
-              backgroundImage:
-                "radial-gradient(rgba(102,103,171,0.06) 1.5px, transparent 1.5px)",
-              backgroundSize: "24px 24px",
-            }}
-          >
-            {/* Header Area */}
-            <div className="flex items-start justify-between border-b border-white/5 pb-4 w-full">
-              <div>
-                <h1 className="text-xl md:text-3xl font-display text-text-primary">
-                  Portfolio System Operation Blueprint
-                </h1>
-                <p className="text-xs text-muted max-w-xl leading-relaxed mt-1 text-pretty">
-                  Click any visitor task box in the upper lane to navigate
-                  directly to that section. Press{" "}
-                  <span className="font-mono bg-white/5 border border-white/10 px-2 py-1 rounded-xl text-accent font-bold">
-                    ESC
-                  </span>{" "}
-                  or click close to dismiss.
-                </p>
-              </div>
-              <LiquidGlassButton
-                onClick={() => setIsOpen(false)}
-                ariaLabel="Close model overlay"
-                className="size-11 p-0 flex-shrink-0"
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {isOpen ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[120] bg-[#05070D]/96 backdrop-blur-md flex flex-col justify-between p-6 md:p-10 select-none overflow-y-auto"
+                style={{
+                  backgroundImage:
+                    "radial-gradient(rgba(102,103,171,0.06) 1.5px, transparent 1.5px)",
+                  backgroundSize: "24px 24px",
+                }}
               >
-                <X size={18} />
-              </LiquidGlassButton>
-            </div>
+                <FocusLock
+                  returnFocus
+                  className="w-full h-full flex flex-col justify-between"
+                >
+                  {/* Header Area */}
+                  <div className="flex items-start justify-between border-b border-white/5 pb-4 w-full">
+                    <div>
+                      <h1 className="text-xl md:text-3xl font-display text-text-primary">
+                        Portfolio System Operation Blueprint
+                      </h1>
+                      <p className="text-xs text-muted max-w-xl leading-relaxed mt-1 text-pretty">
+                        Click any visitor task box in the upper lane to navigate
+                        directly to that section. Press{" "}
+                        <span className="font-mono bg-white/5 border border-white/10 px-2 py-1 rounded-xl text-accent font-bold">
+                          ESC
+                        </span>{" "}
+                        or click close to dismiss.
+                      </p>
+                    </div>
+                    <LiquidGlassButton
+                      onClick={() => setIsOpen(false)}
+                      ariaLabel="Close model overlay"
+                      className="size-11 p-0 flex-shrink-0"
+                    >
+                      <X size={18} />
+                    </LiquidGlassButton>
+                  </div>
 
-            {/* BPMN Diagram Core */}
-            <div className="flex-1 w-full max-w-6xl mx-auto flex items-center justify-center py-6 md:py-10 overflow-x-auto custom-cv-scrollbar">
-              <BpmnDiagram onTaskClick={handleTaskClick} />
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+                  {/* BPMN Diagram Core */}
+                  <div className="flex-1 w-full max-w-6xl mx-auto flex items-center justify-center py-6 md:py-10 overflow-x-auto custom-cv-scrollbar">
+                    <BpmnDiagram onTaskClick={handleTaskClick} />
+                  </div>
+                </FocusLock>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>,
+          document.body,
+        )}
     </>
   );
 }

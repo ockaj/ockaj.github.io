@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { SPRING } from "../utils/springConfig";
 import { useIsMobile } from "../hooks/useMediaQuery";
+import FocusLock from "react-focus-lock";
 
 interface BaseDrawerProps {
   title: string;
@@ -47,7 +48,6 @@ const BaseDrawer = memo(function BaseDrawer({
   const overlayRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
-  const focusTrapRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<Element | null>(null);
 
   // Capture active element on mount and restore it on unmount
@@ -133,46 +133,6 @@ const BaseDrawer = memo(function BaseDrawer({
     }
   }, []);
 
-  // Focus trap inside the drawer
-  useEffect(() => {
-    if (typeof document === "undefined") return;
-    const drawer = focusTrapRef.current;
-    if (!drawer) return;
-
-    const focusableSelector =
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== "Tab") return;
-      const focusables =
-        drawer.querySelectorAll<HTMLElement>(focusableSelector);
-      if (focusables.length === 0) return;
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
-
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus({ preventScroll: true });
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus({ preventScroll: true });
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    // Auto-focus first focusable element
-    const frameId = requestAnimationFrame(() => {
-      const first = drawer.querySelector<HTMLElement>(focusableSelector);
-      first?.focus({ preventScroll: true });
-    });
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      cancelAnimationFrame(frameId);
-    };
-  }, []);
-
   if (typeof document === "undefined") return null;
 
   return createPortal(
@@ -189,7 +149,6 @@ const BaseDrawer = memo(function BaseDrawer({
 
       {/* Drawer Body */}
       <motion.div
-        ref={focusTrapRef}
         custom={{ prefersReducedMotion, isMobile }}
         initial="hidden"
         animate="visible"
@@ -200,26 +159,27 @@ const BaseDrawer = memo(function BaseDrawer({
         aria-labelledby="drawer-title"
         className={`fixed top-0 right-0 h-full w-full ${maxWidthClass || "max-w-2xl"} z-[100] bg-surface md:bg-surface/90 md:backdrop-blur-xl border-l border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden ${isMobile ? "will-change-transform" : ""} overscroll-contain`}
       >
-        {/* Top bar */}
-        <div className="flex items-center justify-between p-6 border-b border-white/10 relative z-20">
-          <div
-            className="flex items-center gap-2 text-xs text-muted uppercase font-semibold"
-            id="drawer-title"
-          >
-            {icon && icon}
-            <span>{title}</span>
+        <FocusLock returnFocus className="w-full h-full flex flex-col">
+          {/* Top bar */}
+          <div className="flex items-center justify-between p-6 border-b border-white/10 relative z-20">
+            <div
+              className="flex items-center gap-2 text-xs text-muted uppercase font-semibold"
+              id="drawer-title"
+            >
+              {icon && icon}
+              <span>{title}</span>
+            </div>
+            <LiquidGlassButton
+              onClick={onClose}
+              ariaLabel="Close panel"
+              className="size-11 p-0"
+            >
+              <X size={16} />
+            </LiquidGlassButton>
           </div>
-          <LiquidGlassButton
-            onClick={onClose}
-            ariaLabel="Close panel"
-            className="size-11 p-0"
-          >
-            <X size={16} />
-          </LiquidGlassButton>
-        </div>
 
-        {/* Content wrapper */}
-        {children}
+          {children}
+        </FocusLock>
       </motion.div>
     </>,
     document.body,

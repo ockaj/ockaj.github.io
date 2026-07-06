@@ -12,6 +12,7 @@ import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { useModalHistory } from "../hooks/useModalHistory";
 import { useIsMobile } from "../hooks/useMediaQuery";
 import { SPRING } from "../utils/springConfig";
+import FocusLock from "react-focus-lock";
 
 interface ProcessLightboxProps {
   item: {
@@ -311,91 +312,96 @@ function ProcessLightbox({ item, onClose }: ProcessLightboxProps) {
         exit="hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Full Viewport for Diagram (Responsive flex) */}
-        <div
-          className={`flex-1 md:h-full w-full bg-surface overflow-hidden flex items-center justify-center relative touch-none ${
-            isZoomed ? "p-0" : "p-4 md:p-6"
-          }`}
+        <FocusLock
+          returnFocus
+          className="w-full h-full flex flex-col justify-between"
         >
-          <TransformWrapper
-            initialScale={1}
-            minScale={1}
-            maxScale={6}
-            centerOnInit
-            centerZoomedOut
-            smooth
-            disablePadding
-            doubleClick={{ disabled: true }}
-            wheel={{ step: 0.00125 }}
-            zoomAnimation={{ disabled: true }}
-            onTransform={(_ref, state) => {
-              const zoomed = state.scale > 1.01;
-              if (zoomed !== isZoomed) {
-                setIsZoomed(zoomed);
-              }
-            }}
-            onPanningStart={() => {
-              setIsPanning(true);
-              wasPanningRef.current = false;
-            }}
-            onPanning={() => {
-              wasPanningRef.current = true;
-            }}
-            onPanningStop={() => setIsPanning(false)}
+          {/* Full Viewport for Diagram (Responsive flex) */}
+          <div
+            className={`flex-1 md:h-full w-full bg-surface overflow-hidden flex items-center justify-center relative touch-none ${
+              isZoomed ? "p-0" : "p-4 md:p-6"
+            }`}
           >
-            {/* Floating Island Control Panel inside context to use useControls */}
-            <LightboxControls
-              isMobile={isMobile}
-              isZoomed={isZoomed}
-              onClose={onClose}
-            />
-
-            <TransformComponent
-              wrapperStyle={{
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                cursor: cursorStyle,
+            <TransformWrapper
+              initialScale={1}
+              minScale={1}
+              maxScale={6}
+              centerOnInit
+              centerZoomedOut
+              smooth
+              disablePadding
+              doubleClick={{ disabled: true }}
+              wheel={{ step: 0.00125 }}
+              zoomAnimation={{ disabled: true }}
+              onTransform={(_ref, state) => {
+                const zoomed = state.scale > 1.01;
+                if (zoomed !== isZoomed) {
+                  setIsZoomed(zoomed);
+                }
               }}
-              contentStyle={{
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                cursor: cursorStyle,
+              onPanningStart={() => {
+                setIsPanning(true);
+                wasPanningRef.current = false;
               }}
+              onPanning={() => {
+                wasPanningRef.current = true;
+              }}
+              onPanningStop={() => setIsPanning(false)}
             >
-              <ZoomClickArea
+              {/* Floating Island Control Panel inside context to use useControls */}
+              <LightboxControls
+                isMobile={isMobile}
                 isZoomed={isZoomed}
-                isPanning={isPanning}
-                wasPanningRef={wasPanningRef}
+                onClose={onClose}
+              />
+
+              <TransformComponent
+                wrapperStyle={{
+                  width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  cursor: cursorStyle,
+                }}
+                contentStyle={{
+                  width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  cursor: cursorStyle,
+                }}
               >
-                <ZoomableImage
-                  src={item.image}
-                  alt={item.title}
+                <ZoomClickArea
                   isZoomed={isZoomed}
                   isPanning={isPanning}
-                />
-              </ZoomClickArea>
-            </TransformComponent>
-          </TransformWrapper>
-        </div>
+                  wasPanningRef={wasPanningRef}
+                >
+                  <ZoomableImage
+                    src={item.image}
+                    alt={item.title}
+                    isZoomed={isZoomed}
+                    isPanning={isPanning}
+                  />
+                </ZoomClickArea>
+              </TransformComponent>
+            </TransformWrapper>
+          </div>
 
-        {/* Bottom text info overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-20 pointer-events-none">
-          <p
-            id="lightbox-title"
-            className="text-sm font-semibold text-white mb-1 text-balance"
-          >
-            {item.title}
-          </p>
-          <p className="text-xs text-white/80 text-pretty">
-            {item.description}
-          </p>
-        </div>
+          {/* Bottom text info overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-20 pointer-events-none">
+            <p
+              id="lightbox-title"
+              className="text-sm font-semibold text-white mb-1 text-balance"
+            >
+              {item.title}
+            </p>
+            <p className="text-xs text-white/80 text-pretty">
+              {item.description}
+            </p>
+          </div>
+        </FocusLock>
       </motion.div>
     </motion.div>,
     document.body,

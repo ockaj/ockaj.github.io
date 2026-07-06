@@ -77,6 +77,8 @@
 
 html {
   scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--stroke)) hsl(var(--bg));
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -192,6 +194,11 @@ p {
 }
 
 /* CV modal scrollbar */
+.custom-cv-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--stroke)) transparent;
+}
+
 .custom-cv-scrollbar::-webkit-scrollbar {
   width: 4px;
   height: 4px;

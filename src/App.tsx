@@ -123,6 +123,7 @@ function App() {
 
       <main
         id="main-content"
+        inert={isLoading}
         className="relative z-10 text-text-primary font-body"
       >
         <div
