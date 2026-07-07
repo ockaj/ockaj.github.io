@@ -178,7 +178,7 @@ function Hero({ onViewCv, onViewWork }: HeroProps) {
   }, []);
 
   return (
-    <section className="relative w-full min-h-[100dvh] overflow-hidden flex items-center justify-center pt-24 pb-28 md:py-0">
+    <section className="relative w-full min-h-[100svh] overflow-hidden flex items-center justify-center pt-24 pb-28 md:py-0">
       <motion.div
         custom={prefersReducedMotion}
         variants={containerVariants}

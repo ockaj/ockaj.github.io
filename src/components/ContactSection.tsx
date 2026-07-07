@@ -15,7 +15,7 @@ function ContactSection() {
   return (
     <section
       id="contact"
-      className="relative w-full min-h-[100dvh] flex items-center justify-center"
+      className="relative w-full min-h-[100lvh] flex items-center justify-center"
     >
       <div className="relative z-10">
         <motion.div
