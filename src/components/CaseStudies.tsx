@@ -168,7 +168,7 @@ const CaseStudyCard = memo(function CaseStudyCard({
             {study.tools.map((tool) => (
               <span
                 key={tool}
-                className="text-xs bg-stroke/20 text-muted rounded-full px-3 py-1 border border-stroke/30"
+                className="text-xs bg-white/5 text-muted rounded-full px-3 py-1 border border-white/10"
               >
                 {tool}
               </span>
@@ -328,7 +328,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
 
         {/* Core Info */}
         <motion.div variants={drawerItemVariants} className="space-y-4">
-          <h3 className="text-xs text-muted uppercase border-b border-stroke pb-1 text-balance">
+          <h3 className="text-xs text-muted uppercase border-b border-white/5 pb-1 text-balance">
             Client Profile
           </h3>
           <ReactMarkdown
@@ -377,7 +377,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
 
         {/* Results Grid */}
         <motion.div variants={drawerItemVariants} className="space-y-4">
-          <h3 className="text-xs text-muted uppercase border-b border-stroke pb-1 text-balance">
+          <h3 className="text-xs text-muted uppercase border-b border-white/5 pb-1 text-balance">
             Proven Operations Impact
           </h3>
           <div className="grid grid-cols-3 gap-3">
@@ -399,7 +399,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
 
         {/* AS-IS vs TO-BE comparison */}
         <motion.div variants={drawerItemVariants} className="space-y-4">
-          <h3 className="text-xs text-muted uppercase border-b border-stroke pb-1 text-balance">
+          <h3 className="text-xs text-muted uppercase border-b border-white/5 pb-1 text-balance">
             Process Modeling & Auditing
           </h3>
           <div className="grid md:grid-cols-2 gap-6">
@@ -446,7 +446,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
           className="grid md:grid-cols-2 gap-6"
         >
           <div className="space-y-3">
-            <h4 className="text-xs text-muted uppercase border-b border-stroke pb-1 text-balance">
+            <h4 className="text-xs text-muted uppercase border-b border-white/5 pb-1 text-balance">
               Methodology
             </h4>
             <ul className="space-y-2">
@@ -463,7 +463,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
           </div>
 
           <div className="space-y-3">
-            <h4 className="text-xs text-muted uppercase border-b border-stroke pb-1 text-balance">
+            <h4 className="text-xs text-muted uppercase border-b border-white/5 pb-1 text-balance">
               Key Deliverables
             </h4>
             <ul className="space-y-2">

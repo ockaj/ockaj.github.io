@@ -12,7 +12,7 @@ const handleScrollToTop = () => {
 function Footer() {
   return (
     <footer className="max-w-[1200px] mx-auto px-6 md:px-10 lg:px-16 pb-8 md:pb-12 relative z-10 w-full">
-      <div className="w-full h-px bg-stroke/40 mb-6" />
+      <div className="w-full h-px bg-white/5 mb-6" />
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         {/* Copyright */}
         <div className="flex items-center gap-4 select-none">

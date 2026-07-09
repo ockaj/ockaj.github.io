@@ -8,7 +8,7 @@ solution: Mapping and modeling 42 management processes in ADONIS using BPMN 2.0,
 results: "42 | management processes mapped; Phase 1 | complete (Ongoing); 100% | logic errors audited"
 tools: "BPMN 2.0, ADONIS, Process Mapping, RACI, Logic Verification"
 timeline: Ongoing (Phase 2 starting Sept)
-client: School Institution — a public educational institution establishing structural transparency.
+client: "School Institution: a public educational institution establishing structural transparency."
 asIsFlow:
   - Processes exist only as flat tabular outlines without visual logic or sequence flows.
   - Process flows contain logical errors, such as incomplete loops or missing decision gateways.
@@ -34,4 +34,4 @@ deliverables:
 
 In this ongoing academic and practical project, which is a key part of my Master's degree project (Ing. projekt), we are analyzing and modeling the management, educational, and supporting processes of the School Institution. The school's existing workflows were gathered from raw materials like Excel spreadsheets, text guidelines, and individual staff interviews.
 
-By applying a structured 7-step modeling pipeline, we are migrating these unstructured legacy inputs into the ADONIS modeling environment. A major focus of this mapping is diagnosing and correcting underlying logical errors—such as process deadlocks, incorrect gateway splits, infinite loops, and undefined role responsibilities. **Phase 1, focusing on mapping and correcting the 42 management processes, has been successfully completed.** The next phase, covering core (educational) and supporting processes, is scheduled to begin in **September** as part of the continuing Master's project.
+By applying a structured 7-step modeling pipeline, we are migrating these unstructured legacy inputs into the ADONIS modeling environment. A major focus of this mapping is diagnosing and correcting underlying logical errors, such as process deadlocks, incorrect gateway splits, infinite loops, and undefined role responsibilities. **Phase 1, focusing on mapping and correcting the 42 management processes, has been successfully completed.** The next phase, covering core (educational) and supporting processes, is scheduled to begin in **September** as part of the continuing Master's project.

@@ -15,7 +15,7 @@ export const PROCESS_ITEMS = [
     title: "Conflict Resolution (Optimized Logic)",
     type: "BPMN 2.0 Validated Model",
     description:
-      "Optimized BPMN process model corrected and enhanced using custom business analyst logic, eliminating bottlenecks and structural process inconsistencies.",
+      "Optimized BPMN process model by eliminating bottlenecks and structural inconsistencies for improved efficiency.",
     image: "/BPMN_models/riesenie_situacii/situacie_v2.svg",
     accent: "#5F7A6B",
     accentTwo: "#101511",

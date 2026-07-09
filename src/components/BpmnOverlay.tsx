@@ -111,7 +111,7 @@ export default function BpmnOverlay() {
             <LiquidGlass
               as="div"
               roundedClass="rounded-xl"
-              className="p-3 shadow-2xl border border-white/10"
+              className="p-3 bg-surface/90"
               innerClassName="flex items-center gap-3 w-full"
               interactive
               specularGlow
@@ -129,14 +129,16 @@ export default function BpmnOverlay() {
                   on your keyboard to reveal the portfolio's meta-diagram.
                 </p>
               </div>
-              <button
-                type="button"
+              <LiquidGlassButton
                 onClick={() => setShowHotkeyTip(false)}
-                className="w-10 h-10 flex items-center justify-center rounded-full text-muted hover:text-white hover:bg-white/[0.05] transition-[background-color,color] duration-200 flex-shrink-0"
-                aria-label="Dismiss tip"
+                className="size-10 flex items-center justify-center text-muted hover:text-text-primary"
+                roundedClass="rounded-full"
+                ariaLabel="Dismiss tip"
+                magnetic
+                magneticStrength={0.03}
               >
                 <X size={14} />
-              </button>
+              </LiquidGlassButton>
             </LiquidGlass>
           </motion.div>
         ) : null}
@@ -151,7 +153,7 @@ export default function BpmnOverlay() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[120] bg-[#05070D]/96 backdrop-blur-md flex flex-col justify-between p-6 md:p-10 select-none overflow-y-auto"
+                className="fixed inset-0 z-[120] bg-bg/95 backdrop-blur-2xl flex flex-col justify-between p-6 md:p-10 select-none overflow-y-auto"
                 style={{
                   backgroundImage:
                     "radial-gradient(rgba(102,103,171,0.06) 1.5px, transparent 1.5px)",

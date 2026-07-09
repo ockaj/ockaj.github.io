@@ -90,6 +90,7 @@ html {
 body {
   @apply bg-bg text-text-primary font-body leading-relaxed;
   letter-spacing: -0.01em;
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -102,6 +103,7 @@ h4,
 h5,
 h6 {
   text-wrap: balance;
+  font-optical-sizing: auto;
 }
 
 p {
@@ -133,6 +135,7 @@ p {
 .font-display {
   font-family: "Libre Caslon Condensed", serif;
   letter-spacing: -0.02em;
+  font-optical-sizing: auto;
 }
 
 .tabular-nums {
@@ -311,21 +314,29 @@ p {
   initial-value: 1;
 }
 
-/* Horizontal scroll fade masks */
+/* Smoothly eased horizontal scroll fade masks for mobile/tablet and vertical masks for desktop */
 @media (max-width: 767px) {
   .process-tabs-mask {
     mask-image: linear-gradient(
       to right,
-      transparent 0%,
-      black 24px,
-      black calc(100% - 32px),
+      transparent 0px,
+      rgba(0, 0, 0, 0.15) 8px,
+      rgba(0, 0, 0, 0.6) 18px,
+      black 32px,
+      black calc(100% - 36px),
+      rgba(0, 0, 0, 0.6) calc(100% - 20px),
+      rgba(0, 0, 0, 0.15) calc(100% - 10px),
       transparent 100%
     );
     -webkit-mask-image: linear-gradient(
       to right,
-      transparent 0%,
-      black 24px,
-      black calc(100% - 32px),
+      transparent 0px,
+      rgba(0, 0, 0, 0.15) 8px,
+      rgba(0, 0, 0, 0.6) 18px,
+      black 32px,
+      black calc(100% - 36px),
+      rgba(0, 0, 0, 0.6) calc(100% - 20px),
+      rgba(0, 0, 0, 0.15) calc(100% - 10px),
       transparent 100%
     );
   }
@@ -335,16 +346,51 @@ p {
   .process-tabs-mask {
     mask-image: linear-gradient(
       to right,
-      transparent 0%,
-      black 40px,
-      black calc(100% - 48px),
+      transparent 0px,
+      rgba(0, 0, 0, 0.15) 12px,
+      rgba(0, 0, 0, 0.6) 26px,
+      black 48px,
+      black calc(100% - 52px),
+      rgba(0, 0, 0, 0.6) calc(100% - 28px),
+      rgba(0, 0, 0, 0.15) calc(100% - 12px),
       transparent 100%
     );
     -webkit-mask-image: linear-gradient(
       to right,
-      transparent 0%,
-      black 40px,
+      transparent 0px,
+      rgba(0, 0, 0, 0.15) 12px,
+      rgba(0, 0, 0, 0.6) 26px,
+      black 48px,
+      black calc(100% - 52px),
+      rgba(0, 0, 0, 0.6) calc(100% - 28px),
+      rgba(0, 0, 0, 0.15) calc(100% - 12px),
+      transparent 100%
+    );
+  }
+}
+
+@media (min-width: 1024px) {
+  .process-tabs-mask {
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0px,
+      rgba(0, 0, 0, 0.15) 12px,
+      rgba(0, 0, 0, 0.6) 26px,
+      black 48px,
       black calc(100% - 48px),
+      rgba(0, 0, 0, 0.6) calc(100% - 26px),
+      rgba(0, 0, 0, 0.15) calc(100% - 12px),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0px,
+      rgba(0, 0, 0, 0.15) 12px,
+      rgba(0, 0, 0, 0.6) 26px,
+      black 48px,
+      black calc(100% - 48px),
+      rgba(0, 0, 0, 0.6) calc(100% - 26px),
+      rgba(0, 0, 0, 0.15) calc(100% - 12px),
       transparent 100%
     );
   }
@@ -372,4 +418,21 @@ p {
 
 .process-tabs-scrollbar::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--accent));
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .navbar-capsule,
+  .highlight-pill,
+  .backdrop-blur-lg,
+  .backdrop-blur-md,
+  .backdrop-blur-2xl,
+  .bg-surface\/40,
+  .bg-surface\/60,
+  .bg-surface\/80,
+  .bg-surface\/85,
+  .md\:bg-surface\/90 {
+    background-color: hsl(var(--surface)) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
 }

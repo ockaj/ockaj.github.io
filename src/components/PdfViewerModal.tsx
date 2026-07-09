@@ -42,23 +42,29 @@ interface PdfViewerModalProps {
 import { CV_DATA } from "../data/cvData";
 
 const modalVariants: Variants = {
-  hidden: (prefersReducedMotion: boolean) => ({
+  hidden: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     opacity: 0,
-    scale: prefersReducedMotion ? 1 : 0.95,
-    y: prefersReducedMotion ? 0 : 15,
-    transition: prefersReducedMotion
+    scale: custom.prefersReducedMotion ? 1 : custom.isMobile ? 0.96 : 0.95,
+    y: custom.prefersReducedMotion ? 0 : 15,
+    transition: custom.prefersReducedMotion
       ? { duration: 0.15 }
-      : {
-          type: "tween" as const,
-          duration: 0.18,
-          ease: [0.25, 0.1, 0.25, 1] as const,
-        },
+      : custom.isMobile
+        ? SPRING.modalMobile
+        : {
+            type: "tween" as const,
+            duration: 0.18,
+            ease: [0.25, 0.1, 0.25, 1] as const,
+          },
   }),
-  visible: (prefersReducedMotion: boolean) => ({
+  visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: prefersReducedMotion ? { duration: 0.15 } : SPRING.modal,
+    transition: custom.prefersReducedMotion
+      ? { duration: 0.15 }
+      : custom.isMobile
+        ? SPRING.modalMobile
+        : SPRING.modal,
   }),
 };
 
@@ -164,7 +170,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
 
           {/* Modal Container */}
           <motion.div
-            custom={prefersReducedMotion}
+            custom={{ prefersReducedMotion, isMobile }}
             initial="hidden"
             animate="visible"
             exit="hidden"
@@ -183,7 +189,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
               <div className="absolute top-0 left-0 right-0 h-1/2 pointer-events-none bg-gradient-to-b from-white/5 to-transparent z-20" />
 
               {/* Header */}
-              <div className="relative z-30 px-4 py-3 md:px-6 md:py-4 border-b border-white/5 bg-surface/30 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="relative z-30 px-4 py-3 md:px-6 md:py-4 border-b border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
                 {/* Title, Avatar & Mobile Action Buttons (Visible only on mobile next to title) */}
                 <div className="flex items-center justify-between w-full sm:w-auto gap-4">
                   {/* Title & Avatar */}
@@ -390,7 +396,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                   {activeTab === "interactive" && (
                     <div className="max-w-4xl mx-auto space-y-10 pb-12">
                       {/* CV Heading Card */}
-                      <div className="relative p-6 md:p-8 rounded-2xl border border-white/5 bg-surface/30 backdrop-blur-md overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                      <div className="relative p-6 md:p-8 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-md overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                         <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-accent/5 to-transparent z-0" />
 
                         <div className="relative z-10">
@@ -554,14 +560,14 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                                         {edu.school}
                                       </p>
                                     </div>
-                                    <span className="text-[10px] text-muted font-mono bg-stroke/20 px-2 py-0.5 rounded-xl tabular-nums">
+                                    <span className="text-[10px] text-muted font-mono bg-white/5 px-2 py-0.5 rounded-xl tabular-nums">
                                       {edu.period}
                                     </span>
                                   </div>
 
                                   {/* Bachelor's Thesis Detail Block */}
                                   {edu.details ? (
-                                    <div className="mt-3 p-3.5 rounded-lg border border-white/5 bg-surface/30">
+                                    <div className="mt-3 p-3.5 rounded-lg border border-white/5 bg-white/5">
                                       <p className="text-xs font-semibold text-text-primary mb-2 flex items-center gap-1.5 text-balance">
                                         <span className="w-1 h-3 rounded bg-accent" />
                                         {edu.details.thesisTitle}
@@ -592,7 +598,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                         {/* Right: Skills & Languages */}
                         <div className="space-y-8">
                           {/* Skills Block */}
-                          <div className="p-5 rounded-2xl border border-white/5 bg-surface/40 space-y-6">
+                          <div className="p-5 rounded-2xl border border-white/5 bg-white/5 space-y-6">
                             <h2 className="text-sm font-extrabold uppercase text-text-primary/90 flex items-center gap-2 pb-2 border-b border-white/5 text-balance">
                               <Globe size={14} className="text-accent" />
                               {activeCv.skills.title}
@@ -608,7 +614,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                                     {cat.items.map((skill, itemIdx) => (
                                       <span
                                         key={itemIdx}
-                                        className="text-[11px] text-muted/95 bg-surface/70 hover:bg-white/[0.04] border border-white/5 rounded-xl px-2 py-1 transition-[background-color,color] select-none hover:text-text-primary"
+                                        className="text-[11px] text-muted/95 bg-white/5 hover:bg-white/[0.08] border border-white/5 rounded-xl px-2 py-1 transition-[background-color,color] select-none hover:text-text-primary"
                                       >
                                         {skill}
                                       </span>
@@ -620,7 +626,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                           </div>
 
                           {/* Languages Block */}
-                          <div className="p-5 rounded-2xl border border-white/5 bg-surface/40 space-y-4">
+                          <div className="p-5 rounded-2xl border border-white/5 bg-white/5 space-y-4">
                             <h2 className="text-sm font-extrabold uppercase text-text-primary/90 flex items-center gap-2 pb-2 border-b border-white/5 text-balance">
                               <Languages size={14} className="text-accent" />
                               {activeCv.languages.title}

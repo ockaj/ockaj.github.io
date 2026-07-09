@@ -21,7 +21,9 @@ const drawerVariants: Variants = {
     opacity: custom.prefersReducedMotion ? 0 : 1,
     transition: custom.prefersReducedMotion
       ? { duration: 0.15 }
-      : { type: "tween" as const, duration: 0.18, ease: "easeOut" as const },
+      : custom.isMobile
+        ? SPRING.drawerMobile
+        : SPRING.drawer,
   }),
   visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     x: 0,
@@ -29,14 +31,13 @@ const drawerVariants: Variants = {
     transition: custom.prefersReducedMotion
       ? { duration: 0.15 }
       : custom.isMobile
-        ? {
-            type: "tween" as const,
-            duration: 0.3,
-            ease: [0.25, 0.1, 0.25, 1] as const,
-          }
+        ? SPRING.drawerMobile
         : SPRING.drawer,
   }),
 };
+
+const DRAG_CONSTRAINTS = { left: 0, right: 0 } as const;
+const DRAG_ELASTIC = { left: 0.05, right: 0.7 } as const;
 
 const BaseDrawer = memo(function BaseDrawer({
   title,
@@ -157,7 +158,15 @@ const BaseDrawer = memo(function BaseDrawer({
         role="dialog"
         aria-modal="true"
         aria-labelledby="drawer-title"
-        className={`fixed top-0 right-0 h-full w-full ${maxWidthClass || "max-w-2xl"} z-[100] bg-surface md:bg-surface/90 md:backdrop-blur-xl border-l border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden ${isMobile ? "will-change-transform" : ""} overscroll-contain`}
+        drag={isMobile ? "x" : false}
+        dragConstraints={DRAG_CONSTRAINTS}
+        dragElastic={DRAG_ELASTIC}
+        onDragEnd={(_e, info) => {
+          if (info.offset.x > 100 || info.velocity.x > 300) {
+            onClose();
+          }
+        }}
+        className={`fixed top-0 right-0 h-full w-full ${maxWidthClass || "max-w-2xl"} z-[100] bg-surface md:bg-surface/90 md:backdrop-blur-2xl border-l border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden ${isMobile ? "will-change-transform select-none touch-none" : ""} overscroll-contain`}
       >
         <FocusLock returnFocus className="w-full h-full flex flex-col">
           {/* Top bar */}

@@ -159,11 +159,12 @@ function Skills() {
         viewport={isBuildMode ? undefined : { once: true, margin: "-80px" }}
         className="relative z-30 pt-10 md:pt-14"
       >
-        <div className="mb-6">
-          <span className="text-xs text-muted uppercase font-semibold flex items-center gap-1.5">
-            <BpmnNodeBadge type="gateway-parallel" />
-            Languages
-          </span>
+        <div className="mb-6 flex items-center gap-3">
+          <BpmnNodeBadge
+            type="gateway-parallel"
+            className="translate-y-[1px]"
+          />
+          <h3 className="text-lg font-semibold text-text-primary">Languages</h3>
         </div>
         <div className="flex flex-wrap gap-4">
           {LANGUAGES.map((lang) => (

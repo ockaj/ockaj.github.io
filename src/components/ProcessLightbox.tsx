@@ -244,7 +244,9 @@ const dialogVariants: Variants = {
     opacity: 0,
     transition: custom.prefersReducedMotion
       ? { duration: 0.15 }
-      : { duration: custom.isMobile ? 0.35 : 0.18, ease: "easeOut" },
+      : custom.isMobile
+        ? SPRING.modalMobile
+        : { duration: 0.18, ease: "easeOut" as const },
   }),
   visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     scale: 1,
@@ -252,7 +254,7 @@ const dialogVariants: Variants = {
     transition: custom.prefersReducedMotion
       ? { duration: 0.15 }
       : custom.isMobile
-        ? { duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }
+        ? SPRING.modalMobile
         : SPRING.modal,
   }),
 };

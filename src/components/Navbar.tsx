@@ -361,7 +361,7 @@ export default function Navbar({
               highlightStyle={{
                 boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.15)",
               }}
-              className="relative w-full p-3 rounded-3xl border border-white/10 bg-surface/35 backdrop-blur-2xl shadow-2xl flex flex-col gap-1.5"
+              className="relative w-full p-3 rounded-3xl border border-white/10 bg-surface/60 backdrop-blur-2xl shadow-2xl flex flex-col gap-1.5"
               style={{
                 boxShadow:
                   "inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(0, 0, 0, 0.7)",

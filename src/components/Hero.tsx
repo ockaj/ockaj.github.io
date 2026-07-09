@@ -296,7 +296,7 @@ function Hero({ onViewCv, onViewWork }: HeroProps) {
         }}
       >
         <span className="text-[10px] text-muted group-hover:text-accent uppercase font-semibold tracking-[0.25em] transition-colors duration-300">
-          Scroll
+          Flow
         </span>
         <svg
           width="24"

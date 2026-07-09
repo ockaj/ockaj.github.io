@@ -149,13 +149,8 @@ function App() {
           headerClassName="mb-12 md:mb-16 relative z-30 px-6 md:px-10 lg:px-16"
           header={
             <>
-              <div className="mb-4">
-                <span className="text-xs text-muted uppercase font-semibold flex items-center gap-1.5">
-                  <BpmnNodeBadge type="task" />
-                  Case Studies
-                </span>
-              </div>
-              <h2 className="text-3xl md:text-5xl font-display text-text-primary mb-3 text-balance">
+              <h2 className="text-3xl md:text-5xl font-display text-text-primary mb-3 text-balance flex items-center gap-3">
+                <BpmnNodeBadge type="task" className="translate-y-[2px]" />
                 Process transformation projects
               </h2>
               <p className="text-sm text-muted max-w-sm text-pretty">
