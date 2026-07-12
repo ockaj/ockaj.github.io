@@ -123,7 +123,7 @@ export default function Tooltip({ content, children }: TooltipProps) {
       }
     };
 
-    updatePosition();
+    window.requestAnimationFrame(updatePosition);
 
     const handleScroll = () => {
       setStatus("hidden");

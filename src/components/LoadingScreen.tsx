@@ -134,18 +134,22 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
   };
 
   // Throttle step state to threshold-crossings only (not every RAF frame)
-  const lastStepSnapshot = useRef({
+  const lastStepSnapshotRef = useRef({
     idx: -1,
     completed: BPMN_STEPS.map(() => false),
   });
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
     if (prefersReducedMotion) {
       if (!doneRef.current) {
         doneRef.current = true;
-        setTimeout(onComplete, 150);
+        timeoutId = setTimeout(onComplete, 150);
       }
-      return;
+      return () => {
+        if (timeoutId) clearTimeout(timeoutId);
+      };
     }
 
     const DURATION = 1800;
@@ -200,7 +204,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
       const stepIdx = BPMN_STEPS.findIndex(
         (s) => current >= s.threshold && current < s.completedThreshold,
       );
-      const prev = lastStepSnapshot.current;
+      const prev = lastStepSnapshotRef.current;
       let stepsDirty = false;
       if (stepIdx !== prev.idx) stepsDirty = true;
       if (!stepsDirty) {
@@ -218,7 +222,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
       let completed: boolean[] = [];
       if (stepsDirty) {
         completed = BPMN_STEPS.map((s) => current >= s.completedThreshold);
-        lastStepSnapshot.current = { idx: stepIdx, completed };
+        lastStepSnapshotRef.current = { idx: stepIdx, completed };
       }
 
       if (nodesUpdated || stepsDirty) {
@@ -244,7 +248,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
         count.set(100);
         if (!doneRef.current) {
           doneRef.current = true;
-          setTimeout(onComplete, 300);
+          timeoutId = setTimeout(onComplete, 300);
         }
       }
     };
@@ -252,6 +256,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
     rafRef.current = requestAnimationFrame(tick);
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [onComplete, prefersReducedMotion, count]);
 

@@ -121,10 +121,10 @@ export default function Aurora(props: AuroraProps) {
     propsRef.current = props;
   });
 
-  const ctnDom = useRef<HTMLDivElement>(null);
+  const ctnRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const ctn = ctnDom.current;
+    const ctn = ctnRef.current;
     if (!ctn) return;
 
     const {
@@ -301,5 +301,5 @@ export default function Aurora(props: AuroraProps) {
     }
   }, [prefersReducedMotion]);
 
-  return <div ref={ctnDom} className="w-full h-full" />;
+  return <div ref={ctnRef} className="w-full h-full" />;
 }

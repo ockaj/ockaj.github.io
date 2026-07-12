@@ -517,9 +517,9 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                                     </span>
                                   </div>
                                   <ul className="space-y-2 mt-3 list-none">
-                                    {job.bullets.map((bullet, bulletIdx) => (
+                                    {job.bullets.map((bullet) => (
                                       <li
-                                        key={bulletIdx}
+                                        key={bullet}
                                         className="text-xs text-muted/90 flex items-start gap-2 leading-relaxed text-pretty"
                                       >
                                         <span className="size-1.5 rounded-full bg-accent/60 flex-shrink-0 mt-1.5" />
@@ -572,19 +572,17 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                                         {edu.details.thesisTitle}
                                       </p>
                                       <ul className="space-y-1.5 list-none">
-                                        {edu.details.bullets.map(
-                                          (bullet, detailIdx) => (
-                                            <li
-                                              key={detailIdx}
-                                              className="text-[11px] text-muted flex items-start gap-1.5 text-pretty"
-                                            >
-                                              <span className="text-accent flex-shrink-0 mt-0.5">
-                                                •
-                                              </span>
-                                              <span>{bullet}</span>
-                                            </li>
-                                          ),
-                                        )}
+                                        {edu.details.bullets.map((bullet) => (
+                                          <li
+                                            key={bullet}
+                                            className="text-[11px] text-muted flex items-start gap-1.5 text-pretty"
+                                          >
+                                            <span className="text-accent flex-shrink-0 mt-0.5">
+                                              •
+                                            </span>
+                                            <span>{bullet}</span>
+                                          </li>
+                                        ))}
                                       </ul>
                                     </div>
                                   ) : null}
@@ -604,15 +602,15 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                             </h2>
 
                             <div className="space-y-4">
-                              {activeCv.skills.categories.map((cat, catIdx) => (
-                                <div key={catIdx} className="space-y-2">
+                              {activeCv.skills.categories.map((cat) => (
+                                <div key={cat.name} className="space-y-2">
                                   <h3 className="text-[11px] font-semibold uppercase text-accent text-balance">
                                     {cat.name}
                                   </h3>
                                   <div className="flex flex-wrap gap-1.5">
-                                    {cat.items.map((skill, itemIdx) => (
+                                    {cat.items.map((skill) => (
                                       <span
-                                        key={itemIdx}
+                                        key={skill}
                                         className="text-[11px] text-muted/95 bg-white/5 hover:bg-white/[0.08] border border-white/5 rounded-xl px-2 py-1 transition-[background-color,color] select-none hover:text-text-primary"
                                       >
                                         {skill}

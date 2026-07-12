@@ -146,7 +146,7 @@ const Tabs = memo(function Tabs({
   );
 
   return (
-    <TabsContext.Provider value={contextValue}>
+    <TabsContext value={contextValue}>
       <div
         role="tablist"
         tabIndex={-1}
@@ -162,7 +162,7 @@ const Tabs = memo(function Tabs({
       >
         {children}
       </div>
-    </TabsContext.Provider>
+    </TabsContext>
   );
 });
 

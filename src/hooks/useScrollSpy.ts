@@ -22,8 +22,8 @@ interface UseScrollSpyProps {
 }
 
 export function useScrollSpy({ isLoading, dispatch }: UseScrollSpyProps) {
-  const ignoreScrollUntil = useRef(0);
-  const visibleSections = useRef<Record<string, boolean>>({});
+  const ignoreScrollUntilRef = useRef(0);
+  const visibleSectionsRef = useRef<Record<string, boolean>>({});
 
   useEffect(() => {
     if (isLoading) return;
@@ -40,14 +40,14 @@ export function useScrollSpy({ isLoading, dispatch }: UseScrollSpyProps) {
       (entries) => {
         // Update the visibility status of all changed entries
         entries.forEach((entry) => {
-          visibleSections.current[entry.target.id] = entry.isIntersecting;
+          visibleSectionsRef.current[entry.target.id] = entry.isIntersecting;
         });
 
         // Ignore updates during programmatic scrolling
-        if (Date.now() < ignoreScrollUntil.current) return;
+        if (Date.now() < ignoreScrollUntilRef.current) return;
 
         // Find all currently visible sections based on our visibility map
-        const visible = sections.filter((id) => visibleSections.current[id]);
+        const visible = sections.filter((id) => visibleSectionsRef.current[id]);
         if (visible.length > 0) {
           const targetId = visible[visible.length - 1];
           dispatch({
@@ -78,7 +78,7 @@ export function useScrollSpy({ isLoading, dispatch }: UseScrollSpyProps) {
       startTransition(() => {
         dispatch({ type: "SET_ACTIVE_SECTION", section });
       });
-      ignoreScrollUntil.current = Date.now() + 1000; // Lock scrollspy updates for 1s during smooth scroll
+      ignoreScrollUntilRef.current = Date.now() + 1000; // Lock scrollspy updates for 1s during smooth scroll
 
       // Synchronize URL hash
       const sectionId = Object.keys(LABEL_MAP).find(

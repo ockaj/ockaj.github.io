@@ -16,6 +16,7 @@ export function usePreloadComponents(isMobile: boolean): void {
     let active = true;
     let idleId: number | null = null;
     let timeoutId: number | null = null;
+    const activeTimeouts = new Set<ReturnType<typeof setTimeout>>();
 
     const yieldToMain = async () => {
       const scheduler = (
@@ -24,7 +25,13 @@ export function usePreloadComponents(isMobile: boolean): void {
       if (typeof scheduler?.yield === "function") {
         await scheduler.yield();
       } else {
-        await new Promise<void>((resolve) => setTimeout(resolve, 0));
+        await new Promise<void>((resolve) => {
+          const id = setTimeout(() => {
+            activeTimeouts.delete(id);
+            resolve();
+          }, 0);
+          activeTimeouts.add(id);
+        });
       }
     };
 
@@ -79,6 +86,8 @@ export function usePreloadComponents(isMobile: boolean): void {
       if (timeoutId !== null) {
         window.clearTimeout(timeoutId);
       }
+      activeTimeouts.forEach((id) => clearTimeout(id));
+      activeTimeouts.clear();
     };
   }, [isMobile]);
 }

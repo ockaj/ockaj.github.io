@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import { ArrowUp } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 
@@ -10,6 +10,8 @@ const handleScrollToTop = () => {
 };
 
 function Footer() {
+  const [currentYear] = useState(() => new Date().getFullYear());
+
   return (
     <footer className="max-w-[1200px] mx-auto px-6 md:px-10 lg:px-16 pb-8 md:pb-12 relative z-10 w-full">
       <div className="w-full h-px bg-white/5 mb-6" />
@@ -20,7 +22,7 @@ function Footer() {
             className="text-xs text-muted text-pretty"
             suppressHydrationWarning
           >
-            © {new Date().getFullYear()} Ondrej Michal Očkaj
+            © {currentYear} Ondrej Michal Očkaj
           </p>
         </div>
 
