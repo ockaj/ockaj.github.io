@@ -6,6 +6,7 @@ import reactCompiler from "eslint-plugin-react-compiler";
 import reactPlugin from "eslint-plugin-react";
 import tseslint from "typescript-eslint";
 import eslintConfigPrettier from "eslint-config-prettier";
+import { fixupPluginRules } from "@eslint/compat";
 
 export default tseslint.config(
   { ignores: ["dist", ".agents"] },
@@ -20,7 +21,7 @@ export default tseslint.config(
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
       "react-compiler": reactCompiler,
-      react: reactPlugin,
+      react: fixupPluginRules(reactPlugin),
     },
     rules: {
       ...reactHooks.configs.recommended.rules,

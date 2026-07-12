@@ -173,7 +173,7 @@ const handleTabKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
       ?.querySelectorAll('[role="tab"]') ?? [],
   );
   const idx = tabs.indexOf(e.currentTarget);
-  let nextIdx = idx;
+  let nextIdx: number;
 
   if (e.key === "ArrowRight" || e.key === "ArrowDown") {
     nextIdx = (idx + 1) % tabs.length;
