@@ -3,10 +3,9 @@ import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import reactCompiler from "eslint-plugin-react-compiler";
-import reactPlugin from "eslint-plugin-react";
+import eslintReact from "@eslint-react/eslint-plugin";
 import tseslint from "typescript-eslint";
 import eslintConfigPrettier from "eslint-config-prettier";
-import { fixupPluginRules } from "@eslint/compat";
 
 export default tseslint.config(
   { ignores: ["dist", ".agents"] },
@@ -21,7 +20,7 @@ export default tseslint.config(
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
       "react-compiler": reactCompiler,
-      react: fixupPluginRules(reactPlugin),
+      "@eslint-react": eslintReact,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -32,12 +31,9 @@ export default tseslint.config(
       "react-compiler/react-compiler": "error",
 
       // React specific rules
-      ...reactPlugin.configs.recommended.rules,
-      ...reactPlugin.configs["jsx-runtime"].rules,
-      "react/jsx-key": ["error", { checkKeyMustBeforeSpread: true }],
-      "react/self-closing-comp": ["warn", { component: true, html: true }],
-      "react/no-array-index-key": "warn",
-      "react/no-unescaped-entities": "off",
+      ...eslintReact.configs.recommended.rules,
+      "@eslint-react/no-missing-key": "error",
+      "@eslint-react/no-array-index-key": "warn",
     },
     settings: {
       react: {
