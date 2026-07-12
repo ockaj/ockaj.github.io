@@ -227,7 +227,7 @@ function ProcessLibrary() {
               {/* Scroll wrapper: owns overflow and alignment padding on mobile, height restricted and padded on desktop */}
               <div
                 ref={scrollWrapperRef}
-                className="-mx-6 px-6 md:-mx-10 md:px-10 lg:-mx-4 lg:px-4 overflow-x-auto lg:overflow-y-auto lg:overflow-x-hidden lg:max-h-[540px] py-2 lg:py-10 no-scrollbar process-tabs-mask"
+                className="-mx-6 px-6 md:-mx-10 md:px-10 lg:-mx-4 lg:px-4 overflow-x-auto lg:overflow-y-auto lg:overflow-x-hidden lg:max-h-[540px] py-2 lg:py-10 no-scrollbar process-tabs-mask overscroll-contain"
               >
                 <div
                   ref={topSentinelRef}

@@ -20,6 +20,7 @@ import { SPRING } from "../../utils/springConfig";
 import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
 import { useIsMobile } from "../../hooks/useMediaQuery";
+import { useResizeObserver } from "../../hooks/useResizeObserver";
 import { DEFAULT_STYLE } from "./types";
 import { scaleDeltas, scaleVertical, springs, hoverDelta } from "./config";
 
@@ -257,28 +258,25 @@ const Tab = memo(function Tab({
   const isTabRole = tabRole === "tab";
 
   const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const [element, setElement] = useState<HTMLButtonElement | null>(null);
   const [dimensions, setDimensions] = useState({ width: 120, height: 36 });
 
   // measure element layout sizes using callback ref instead of mount useEffect to prevent extra render cycles
   const setButtonRef = useCallback((node: HTMLButtonElement | null) => {
     buttonRef.current = node;
+    setElement(node);
     if (!node) return;
     setDimensions({ width: node.offsetWidth, height: node.offsetHeight });
   }, []);
 
-  // standard window resize listener prevents layout thrashing during interactions
-  useEffect(() => {
-    const handleResize = () => {
-      if (buttonRef.current) {
-        setDimensions({
-          width: buttonRef.current.offsetWidth,
-          height: buttonRef.current.offsetHeight,
-        });
-      }
-    };
-    window.addEventListener("resize", handleResize, { passive: true });
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  // useResizeObserver prevents layout thrashing during interactions
+  useResizeObserver(element, (entry) => {
+    const el = entry.target as HTMLElement;
+    setDimensions({
+      width: el.offsetWidth,
+      height: el.offsetHeight,
+    });
+  });
 
   const tapDeltaX = isMobileNav
     ? scaleDeltas.tap.mobile

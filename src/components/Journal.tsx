@@ -7,6 +7,7 @@ import BaseDrawer from "./BaseDrawer";
 import { useModalHistory } from "../hooks/useModalHistory";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { CONTACT_EMAIL } from "../utils/contact";
 
 const isBuildMode =
   typeof window !== "undefined" &&
@@ -250,7 +251,7 @@ const JournalDrawer = memo(function JournalDrawer({
 
         <div className="pt-6 border-t border-white/5 flex justify-between items-center gap-4">
           <LiquidGlassButton
-            href={`mailto:ondrej.michal.ockaj@gmail.com?subject=Regarding Article: ${encodeURIComponent(article.title)}`}
+            href={`mailto:${CONTACT_EMAIL}?subject=Regarding Article: ${encodeURIComponent(article.title)}`}
             className="px-5 py-2.5 text-xs"
             magnetic
             tilt

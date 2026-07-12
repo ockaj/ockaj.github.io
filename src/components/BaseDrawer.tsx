@@ -166,7 +166,7 @@ const BaseDrawer = memo(function BaseDrawer({
             onClose();
           }
         }}
-        className={`fixed top-0 right-0 h-full w-full ${maxWidthClass || "max-w-2xl"} z-[100] bg-surface md:bg-surface/90 md:backdrop-blur-2xl border-l border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden ${isMobile ? "will-change-transform select-none touch-none" : ""} overscroll-contain`}
+        className={`fixed top-0 right-0 h-full w-full ${maxWidthClass || "max-w-2xl"} z-[100] bg-surface md:bg-surface/90 md:backdrop-blur-2xl border-l border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden ${isMobile ? "will-change-transform select-none touch-pan-y" : ""} overscroll-contain`}
       >
         <FocusLock returnFocus className="w-full h-full flex flex-col">
           {/* Top bar */}

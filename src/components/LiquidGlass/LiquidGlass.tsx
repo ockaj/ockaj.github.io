@@ -3,11 +3,9 @@
 import {
   useRef,
   useState,
-  useEffect,
   useCallback,
   useMemo,
   memo,
-  useEffectEvent,
   type CSSProperties,
   type PointerEvent,
   type MouseEvent,
@@ -25,6 +23,7 @@ import {
   type MotionStyle,
 } from "motion/react";
 import { useIsMobile } from "../../hooks/useMediaQuery";
+import { useResizeObserver } from "../../hooks/useResizeObserver";
 import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
 import {
@@ -81,11 +80,13 @@ function LiquidGlassMobile({
   const effectiveRipple = ripple && !isMotionReduced;
 
   const localRef = useRef<HTMLElement | null>(null);
+  const [element, setElement] = useState<HTMLElement | null>(null);
   const [width, setWidth] = useState(120);
 
   const setMergedRef = useCallback(
     (node: HTMLElement | null) => {
       localRef.current = node;
+      setElement(node);
       if (node) {
         setWidth(node.offsetWidth);
       }
@@ -99,16 +100,10 @@ function LiquidGlassMobile({
     [ref],
   );
 
-  // standard window resize listener prevents layout thrashing during interactions
-  useEffect(() => {
-    const handleResize = () => {
-      if (localRef.current) {
-        setWidth(localRef.current.offsetWidth);
-      }
-    };
-    window.addEventListener("resize", handleResize, { passive: true });
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  // useResizeObserver prevents layout thrashing during interactions
+  useResizeObserver(element, (entry) => {
+    setWidth((entry.target as HTMLElement).offsetWidth);
+  });
 
   const {
     rippleX,
@@ -307,6 +302,7 @@ function LiquidGlassDesktop({
   const effectiveRipple = ripple && !isMotionReduced;
 
   const localRef = useRef<HTMLElement | null>(null);
+  const [element, setElement] = useState<HTMLElement | null>(null);
   const [dimensions, setDimensions] = useState({ width: 120, height: 36 });
 
   const rawTilt =
@@ -316,6 +312,7 @@ function LiquidGlassDesktop({
   const setMergedRef = useCallback(
     (node: HTMLElement | null) => {
       localRef.current = node;
+      setElement(node);
       if (node) {
         setDimensions({ width: node.offsetWidth, height: node.offsetHeight });
       }
@@ -429,7 +426,7 @@ function LiquidGlassDesktop({
     [onClick],
   );
 
-  const onResize = useEffectEvent(() => {
+  useResizeObserver(interactive && isHovered ? element : null, () => {
     updateRect();
     if (localRef.current) {
       setDimensions({
@@ -438,18 +435,6 @@ function LiquidGlassDesktop({
       });
     }
   });
-
-  useEffect(() => {
-    if (interactive && isHovered) {
-      const handleResize = () => {
-        onResize();
-      };
-      window.addEventListener("resize", handleResize, { passive: true });
-      return () => {
-        window.removeEventListener("resize", handleResize);
-      };
-    }
-  }, [interactive, isHovered]);
 
   const borderGradient = useTransform([springX, springY], ([x, y]) => {
     return `radial-gradient(180px circle at calc(50% + ${x}px) calc(50% + ${y}px), rgba(255, 255, 255, 0.06) 0%, transparent 80%)`;

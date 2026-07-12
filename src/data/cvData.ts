@@ -1,3 +1,5 @@
+import { CONTACT_EMAIL } from "../utils/contact";
+
 export interface CvExperienceItem {
   role: string;
   company: string;
@@ -65,7 +67,7 @@ export const CV_DATA: CvData = {
     title: "Bc. Ondrej Michal Očkaj",
     role: "Junior Business Analyst | Process Analyst | BPMN | ADONIS",
     location: "Slovensko",
-    email: "ondrej.michal.ockaj@gmail.com",
+    email: CONTACT_EMAIL,
     phone: "Telefónne číslo na vyžiadanie",
     profile: {
       title: "Profil",
@@ -196,7 +198,7 @@ export const CV_DATA: CvData = {
     title: "Bc. Ondrej Michal Očkaj",
     role: "Junior Business Analyst | Process Analyst | BPMN | ADONIS",
     location: "Slovakia",
-    email: "ondrej.michal.ockaj@gmail.com",
+    email: CONTACT_EMAIL,
     phone: "Phone number on request",
     profile: {
       title: "Profile",

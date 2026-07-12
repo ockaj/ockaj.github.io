@@ -119,8 +119,17 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
 
       {/* Task: View Hero */}
       <g
-        className="cursor-pointer group/node"
+        className="cursor-pointer group/node focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 focus-visible:outline-solid"
+        tabIndex={0}
+        role="button"
+        aria-label="Navigate to Home section"
         onClick={() => onTaskClick("home")}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onTaskClick("home");
+          }
+        }}
       >
         <rect
           x="155"
@@ -203,8 +212,17 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
 
       {/* Task: Browse Case Studies */}
       <g
-        className="cursor-pointer group/node"
+        className="cursor-pointer group/node focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 focus-visible:outline-solid"
+        tabIndex={0}
+        role="button"
+        aria-label="Navigate to Case Studies section"
         onClick={() => onTaskClick("work")}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onTaskClick("work");
+          }
+        }}
       >
         <rect
           x="370"
@@ -243,8 +261,17 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
 
       {/* Task: Scan Skills */}
       <g
-        className="cursor-pointer group/node"
+        className="cursor-pointer group/node focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 focus-visible:outline-solid"
+        tabIndex={0}
+        role="button"
+        aria-label="Navigate to Skills section"
         onClick={() => onTaskClick("skills")}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onTaskClick("skills");
+          }
+        }}
       >
         <rect
           x="370"
@@ -283,8 +310,17 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
 
       {/* Task: Review Process Library */}
       <g
-        className="cursor-pointer group/node"
+        className="cursor-pointer group/node focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 focus-visible:outline-solid"
+        tabIndex={0}
+        role="button"
+        aria-label="Navigate to Process Models section"
         onClick={() => onTaskClick("processes")}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onTaskClick("processes");
+          }
+        }}
       >
         <rect
           x="370"
@@ -331,8 +367,17 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
 
       {/* Task: Consume Journal */}
       <g
-        className="cursor-pointer group/node"
+        className="cursor-pointer group/node focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 focus-visible:outline-solid"
+        tabIndex={0}
+        role="button"
+        aria-label="Navigate to Journal section"
         onClick={() => onTaskClick("journal")}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onTaskClick("journal");
+          }
+        }}
       >
         <rect
           x="370"
@@ -460,8 +505,17 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
 
       {/* Task: Get in Touch */}
       <g
-        className="cursor-pointer group/node"
+        className="cursor-pointer group/node focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 focus-visible:outline-solid"
+        tabIndex={0}
+        role="button"
+        aria-label="Navigate to Contact section"
         onClick={() => onTaskClick("contact")}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onTaskClick("contact");
+          }
+        }}
       >
         <rect
           x="675"

@@ -19,6 +19,7 @@ import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import BaseDrawer from "./BaseDrawer";
 import { useModalHistory } from "../hooks/useModalHistory";
 import ReactMarkdown from "react-markdown";
+import { CONTACT_EMAIL } from "../utils/contact";
 
 const isBuildMode =
   typeof window !== "undefined" &&
@@ -486,7 +487,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
           className="pt-6 border-t border-white/5 flex justify-between items-center gap-4"
         >
           <LiquidGlassButton
-            href="mailto:ondrej.michal.ockaj@gmail.com"
+            href={`mailto:${CONTACT_EMAIL}`}
             className="px-5 py-3.5 text-xs"
             magnetic
             tilt

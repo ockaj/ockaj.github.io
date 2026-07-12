@@ -2,6 +2,7 @@ import { memo } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { siGithub, siX } from "simple-icons";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
+import { CONTACT_EMAIL } from "../utils/contact";
 
 const SOCIALS = [
   { label: "GitHub", href: "https://github.com/ockaj", path: siGithub.path },
@@ -19,7 +20,7 @@ function Contact() {
         {/* Email button wrapper */}
         <div className="w-full sm:w-auto flex justify-center">
           <LiquidGlassButton
-            href="mailto:ondrej.michal.ockaj@gmail.com"
+            href={`mailto:${CONTACT_EMAIL}`}
             className="px-6 py-3.5 sm:px-8 sm:py-4 whitespace-nowrap group/email-btn w-fit"
             ariaLabel="Send email"
             magnetic
@@ -28,7 +29,7 @@ function Contact() {
             specularGlow
           >
             <span className="flex items-center justify-center gap-2 w-full">
-              <span>ondrej.michal.ockaj@gmail.com</span>
+              <span>{CONTACT_EMAIL}</span>
               <ArrowUpRight
                 aria-hidden="true"
                 size={16}
