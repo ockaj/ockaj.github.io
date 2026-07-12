@@ -10,17 +10,25 @@ import eslintConfigPrettier from "eslint-config-prettier";
 export default tseslint.config(
   { ignores: ["dist", ".agents"] },
   {
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    extends: [
+      js.configs.recommended,
+      ...tseslint.configs.recommended,
+      eslintReact.configs["recommended-typescript"],
+    ],
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
       ecmaVersion: 2023,
       globals: globals.browser,
+      parser: tseslint.parser,
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
     plugins: {
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
       "react-compiler": reactCompiler,
-      "@eslint-react": eslintReact,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -30,8 +38,7 @@ export default tseslint.config(
       ],
       "react-compiler/react-compiler": "error",
 
-      // React specific rules
-      ...eslintReact.configs.recommended.rules,
+      // Custom React rule overrides
       "@eslint-react/no-missing-key": "error",
       "@eslint-react/no-array-index-key": "warn",
     },
