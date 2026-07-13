@@ -340,7 +340,7 @@ export default function Navbar({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/50 backdrop-blur-[4px] md:hidden z-40 pointer-events-auto"
+                className="fixed top-0 left-0 right-0 bottom-[-20vh] bg-black/50 backdrop-blur-[4px] md:hidden z-40 pointer-events-auto"
                 onClick={() => dispatch({ type: "SET_IS_OPEN", isOpen: false })}
               />
             )}
