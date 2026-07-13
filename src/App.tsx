@@ -89,7 +89,6 @@ function App() {
 
   const handleViewWork = useCallback(() => {
     handleNavClick("Case Studies");
-    document.getElementById("work")?.scrollIntoView({ behavior: "smooth" });
   }, [handleNavClick]);
 
   const handleViewCv = useCallback(() => {

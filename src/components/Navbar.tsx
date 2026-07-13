@@ -153,32 +153,8 @@ export default function Navbar({
     (label: string) => {
       onNavClick(label);
       dispatch({ type: "SET_IS_OPEN", isOpen: false }); // Close mobile menu dropdown
-      const scrollBehavior = isMotionReduced ? "auto" : "smooth";
-      if (label === "Home") {
-        window.scrollTo({ top: 0, behavior: scrollBehavior });
-      } else if (label === "Case Studies") {
-        document
-          .getElementById("work")
-          ?.scrollIntoView({ behavior: scrollBehavior });
-      } else if (label === "Skills") {
-        document
-          .getElementById("skills")
-          ?.scrollIntoView({ behavior: scrollBehavior });
-      } else if (label === "Process Library") {
-        document
-          .getElementById("processes")
-          ?.scrollIntoView({ behavior: scrollBehavior });
-      } else if (label === "Journal") {
-        document
-          .getElementById("journal")
-          ?.scrollIntoView({ behavior: scrollBehavior });
-      } else if (label === "Contact") {
-        document
-          .getElementById("contact")
-          ?.scrollIntoView({ behavior: scrollBehavior });
-      }
     },
-    [onNavClick, isMotionReduced],
+    [onNavClick],
   );
 
   return (

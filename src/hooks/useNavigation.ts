@@ -5,6 +5,7 @@ import {
   useCallback,
   startTransition,
 } from "react";
+import { useReducedMotion } from "motion/react";
 
 export const LABEL_MAP: Record<string, string> = {
   home: "Home",
@@ -23,24 +24,43 @@ export function useNavigation({ isLoading }: UseNavigationOptions) {
   const [activeSection, setActiveSection] = useState("Home");
   const ignoreScrollUntilRef = useRef(0);
   const visibleSectionsRef = useRef<Record<string, boolean>>({});
+  const prefersReducedMotion = useReducedMotion();
+  const isMotionReduced = !!prefersReducedMotion;
 
-  const handleNavClick = useCallback((section: string) => {
-    startTransition(() => {
-      setActiveSection(() => section);
-    });
-    ignoreScrollUntilRef.current = Date.now() + 1000;
+  const handleNavClick = useCallback(
+    (section: string) => {
+      startTransition(() => {
+        setActiveSection(() => section);
+      });
+      ignoreScrollUntilRef.current = Date.now() + 1000;
 
-    // Synchronize URL hash
-    const sectionId = Object.keys(LABEL_MAP).find(
-      (key) => LABEL_MAP[key] === section,
-    );
-    if (sectionId) {
-      const newHash = `#${sectionId}`;
-      if (window.location.hash !== newHash) {
-        window.history.pushState(null, "", newHash);
+      const scrollBehavior = isMotionReduced ? "auto" : "smooth";
+      if (section === "Home") {
+        window.scrollTo({ top: 0, behavior: scrollBehavior });
+      } else {
+        const sectionId = Object.keys(LABEL_MAP).find(
+          (key) => LABEL_MAP[key] === section,
+        );
+        if (sectionId) {
+          document
+            .getElementById(sectionId)
+            ?.scrollIntoView({ behavior: scrollBehavior });
+        }
       }
-    }
-  }, []);
+
+      // Synchronize URL hash
+      const sectionId = Object.keys(LABEL_MAP).find(
+        (key) => LABEL_MAP[key] === section,
+      );
+      if (sectionId) {
+        const newHash = `#${sectionId}`;
+        if (window.location.hash !== newHash) {
+          window.history.pushState(null, "", newHash);
+        }
+      }
+    },
+    [isMotionReduced],
+  );
 
   // Scroll spy effect
   useEffect(() => {
