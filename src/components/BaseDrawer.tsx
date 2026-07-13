@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, ReactNode, memo } from "react";
+import { useEffect, useRef, ReactNode, memo } from "react";
 import { createPortal } from "react-dom";
 import { motion, useReducedMotion, Variants } from "motion/react";
 import { X } from "lucide-react";
@@ -61,77 +61,6 @@ const BaseDrawer = memo(function BaseDrawer({
         triggerRef.current.focus({ preventScroll: true });
       }
     };
-  }, []);
-
-  // Close drawer on Escape key press, active only when drawer is mounted
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
-
-  // Lock body scroll when drawer is open (with iOS Mobile Safari support)
-  useLayoutEffect(() => {
-    if (typeof document === "undefined" || typeof window === "undefined")
-      return;
-
-    // Detect iOS devices
-    const isIOS =
-      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-
-    const originalOverflow = document.body.style.overflow;
-
-    if (isIOS) {
-      const scrollY = window.scrollY;
-      const originalPosition = document.body.style.position;
-      const originalTop = document.body.style.top;
-      const originalWidth = document.body.style.width;
-      const originalHeight = document.body.style.height;
-      const htmlOriginalHeight = document.documentElement.style.height;
-      const htmlOriginalOverflow = document.documentElement.style.overflow;
-
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
-      document.body.style.height = "100%";
-      document.body.style.overflow = "hidden";
-      document.documentElement.style.height = "100%";
-      document.documentElement.style.overflow = "hidden";
-
-      return () => {
-        const htmlEl = document.documentElement;
-        const originalScrollBehavior = htmlEl.style.scrollBehavior;
-        htmlEl.style.scrollBehavior = "auto";
-
-        document.body.style.position = originalPosition;
-        document.body.style.top = originalTop;
-        document.body.style.width = originalWidth;
-        document.body.style.height = originalHeight;
-        document.body.style.overflow = originalOverflow;
-        document.documentElement.style.height = htmlOriginalHeight;
-        document.documentElement.style.overflow = htmlOriginalOverflow;
-
-        // Force browser to recalculate height and reflow before scrolling
-        void document.body.offsetHeight;
-
-        window.scrollTo(0, scrollY);
-
-        // Restore scroll behavior in next frame
-        requestAnimationFrame(() => {
-          htmlEl.style.scrollBehavior = originalScrollBehavior;
-        });
-      };
-    } else {
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = originalOverflow;
-      };
-    }
   }, []);
 
   if (typeof document === "undefined") return null;

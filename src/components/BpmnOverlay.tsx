@@ -7,6 +7,7 @@ import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import BpmnNodeBadge from "./BpmnNodeBadge";
 import BpmnDiagram from "./BpmnDiagram";
 import { useIsMobile } from "../hooks/useMediaQuery";
+import { useModalHistory } from "../hooks/useModalHistory";
 
 export default function BpmnOverlay() {
   const isMobile = useIsMobile();
@@ -14,6 +15,8 @@ export default function BpmnOverlay() {
   const [isOpen, setIsOpen] = useState(false);
   const typedBufferRef = useRef<string[]>([]);
   const [showHotkeyTip, setShowHotkeyTip] = useState(false);
+
+  useModalHistory(isOpen, () => setIsOpen(false), "bpmn");
 
   // Keyboard shortcut listener for 'B-P-M-N'
   useEffect(() => {
@@ -28,11 +31,6 @@ export default function BpmnOverlay() {
           activeEl.tagName === "TEXTAREA" ||
           activeEl.getAttribute("contenteditable") === "true")
       ) {
-        return;
-      }
-
-      if (e.key === "Escape") {
-        setIsOpen(false);
         return;
       }
 
@@ -67,16 +65,6 @@ export default function BpmnOverlay() {
 
     return () => clearTimeout(timer);
   }, [isMobile]);
-
-  // Lock body scroll when overlay is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = "unset";
-      };
-    }
-  }, [isOpen]);
 
   const handleTaskClick = (sectionId: string) => {
     setIsOpen(false);

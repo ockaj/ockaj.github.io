@@ -134,22 +134,6 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
     onCloseRef.current = onClose;
   }, [onClose]);
 
-  // Esc key closes modal & lock body scroll
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onCloseRef.current();
-    };
-
-    if (isOpen) {
-      window.addEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "hidden";
-      return () => {
-        window.removeEventListener("keydown", handleKeyDown);
-        document.body.style.overflow = "unset";
-      };
-    }
-  }, [isOpen]);
-
   const activeCv = useMemo(() => CV_DATA[lang], [lang]);
 
   if (typeof document === "undefined") return null;

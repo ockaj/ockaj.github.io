@@ -20,8 +20,7 @@ import { useModalHistory } from "./hooks/useModalHistory";
 import { useIsMobile } from "./hooks/useMediaQuery";
 import { useLazyMount } from "./hooks/useLazyMount";
 import { usePreloadComponents } from "./hooks/usePreloadComponents";
-import { useScrollSpy } from "./hooks/useScrollSpy";
-import { useHashNavigation } from "./hooks/useHashNavigation";
+import { useNavigation } from "./hooks/useNavigation";
 import { appReducer } from "./appReducer";
 import { getSkeletonHeight } from "./utils/skeletonHeight";
 import {
@@ -53,11 +52,12 @@ function App() {
         return true;
       }
     })(),
-    activeSection: "Home",
     isCvOpen: false,
   }));
 
-  const { isLoading, activeSection, isCvOpen } = state;
+  const { isLoading, isCvOpen } = state;
+
+  const { activeSection, handleNavClick } = useNavigation({ isLoading });
 
   const skeletonHeights = useMemo(
     () => ({
@@ -86,12 +86,6 @@ function App() {
 
   // Preload lazy components concurrently with main-thread yielding to protect INP
   usePreloadComponents(isMobile);
-
-  // Dynamic Scroll Highlighting Observer and nav callbacks
-  const { handleNavClick } = useScrollSpy({ isLoading, dispatch });
-
-  // Handle initial deep-linking based on URL hash
-  useHashNavigation({ isLoading, dispatch });
 
   const handleViewWork = useCallback(() => {
     handleNavClick("Case Studies");

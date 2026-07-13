@@ -270,23 +270,6 @@ function ProcessLightbox({ item, onClose }: ProcessLightboxProps) {
   const [isPanning, setIsPanning] = useState(false);
   const wasPanningRef = useRef(false);
 
-  // Close lightbox on Escape key press & lock body scroll on mobile
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "unset";
-    };
-  }, [onClose]);
-
   if (typeof document === "undefined") return null;
 
   const cursorStyle = isZoomed ? (isPanning ? "grabbing" : "grab") : "zoom-in";
