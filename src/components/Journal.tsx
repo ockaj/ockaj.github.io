@@ -163,7 +163,7 @@ const JournalDrawer = memo(function JournalDrawer({
       onClose={onClose}
       maxWidthClass="max-w-4xl"
     >
-      <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 select-text">
+      <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 select-text touch-pan-y">
         <div className="space-y-3 pb-4 border-b border-white/5">
           <span className="inline-block text-[10px] text-accent uppercase font-bold bg-accent/20 border border-accent/30 rounded-xl px-2.5 py-0.5">
             {article.subtitle}

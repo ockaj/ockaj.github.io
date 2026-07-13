@@ -312,7 +312,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
         variants={drawerContentVariants}
         initial="hidden"
         animate="visible"
-        className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 select-text"
+        className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 select-text touch-pan-y"
       >
         {/* Header */}
         <motion.div variants={drawerItemVariants}>
