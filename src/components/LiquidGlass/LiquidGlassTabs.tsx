@@ -268,7 +268,7 @@ const Tab = memo(function Tab({
   // measure element layout sizes using callback ref instead of mount useEffect to prevent extra render cycles
   const setButtonRef = useCallback((node: HTMLButtonElement | null) => {
     buttonRef.current = node;
-    setElement(node);
+    setElement(() => node);
     if (!node) return;
     setDimensions({ width: node.offsetWidth, height: node.offsetHeight });
   }, []);

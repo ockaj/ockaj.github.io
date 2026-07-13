@@ -84,10 +84,10 @@ function LiquidGlassMobile({
   const [element, setElement] = useState<HTMLElement | null>(null);
   const [width, setWidth] = useState(120);
 
-  const setMergedRef = useCallback(
+  const handleRef = useCallback(
     (node: HTMLElement | null) => {
       localRef.current = node;
-      setElement(node);
+      setElement(() => node);
       if (node) {
         setWidth(node.offsetWidth);
       }
@@ -259,7 +259,7 @@ function LiquidGlassMobile({
   }
 
   return (
-    <Tag ref={setMergedRef} {...tagProps}>
+    <Tag ref={handleRef} {...tagProps}>
       {innerElements}
     </Tag>
   );
@@ -308,10 +308,10 @@ function LiquidGlassDesktop({
     tiltStrength * (tiltConfig.referenceWidth / Math.max(dimensions.width, 1));
   const effectiveTiltStrength = Math.min(rawTilt, tiltConfig.maxStrength);
 
-  const setMergedRef = useCallback(
+  const handleRef = useCallback(
     (node: HTMLElement | null) => {
       localRef.current = node;
-      setElement(node);
+      setElement(() => node);
       if (node) {
         setDimensions({ width: node.offsetWidth, height: node.offsetHeight });
       }
@@ -651,7 +651,7 @@ function LiquidGlassDesktop({
   }
 
   return (
-    <Tag ref={setMergedRef} {...tagProps}>
+    <Tag ref={handleRef} {...tagProps}>
       {innerElements}
     </Tag>
   );

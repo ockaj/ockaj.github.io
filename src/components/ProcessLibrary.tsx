@@ -430,6 +430,7 @@ function ProcessLibrary() {
                   {PROCESS_ITEMS.map((item, idx) => (
                     <button
                       key={item.id}
+                      type="button"
                       onClick={() => handleTabChange(item.id)}
                       aria-label={`Go to process ${idx + 1}`}
                       className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 ${
