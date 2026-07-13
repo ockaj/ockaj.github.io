@@ -24,22 +24,19 @@ import { useResizeObserver } from "../../hooks/useResizeObserver";
 import { DEFAULT_STYLE } from "./types";
 import { scaleDeltas, scaleVertical, springs, hoverDelta } from "./config";
 
-export interface LiquidGlassTabsProps {
+export interface LiquidGlassTabsProps<
+  T extends string | number = string | number,
+> extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
   children: ReactNode;
-  value: string | number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onChange?: (value: any) => void;
+  value: T;
+  onChange?: (value: T) => void;
   layoutId: string;
   hoverSlide?: boolean;
   ripple?: boolean;
   roundedClass?: string;
   squircle?: boolean;
-  className?: string;
   highlightClassName?: string;
   highlightStyle?: CSSProperties;
-  style?: CSSProperties;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
 }
 
 export interface LiquidGlassTabProps extends Omit<
@@ -60,8 +57,7 @@ export interface LiquidGlassTabPanelProps extends HTMLAttributes<HTMLDivElement>
 
 interface TabsContextValue {
   value: string | number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onChange?: (value: any) => void;
+  onChange?: (value: string | number) => void;
   layoutId: string;
   hoverStore: {
     get: () => string | number | null;
@@ -86,7 +82,7 @@ function useTabsContext() {
   return context;
 }
 
-const Tabs = memo(function Tabs({
+function TabsInner<T extends string | number>({
   value,
   onChange,
   layoutId,
@@ -100,7 +96,7 @@ const Tabs = memo(function Tabs({
   highlightStyle = DEFAULT_STYLE,
   style,
   ...rest
-}: LiquidGlassTabsProps) {
+}: LiquidGlassTabsProps<T>) {
   const hoverStore = useMemo(() => {
     const ref = { current: null as string | number | null };
     const listeners = new Set<() => void>();
@@ -119,10 +115,10 @@ const Tabs = memo(function Tabs({
     };
   }, []);
 
-  const contextValue = useMemo(
+  const contextValue = useMemo<TabsContextValue>(
     () => ({
       value,
-      onChange,
+      onChange: onChange as unknown as (value: string | number) => void,
       layoutId,
       hoverStore,
       hoverSlide,
@@ -165,7 +161,15 @@ const Tabs = memo(function Tabs({
       </div>
     </TabsContext>
   );
-});
+}
+
+interface TabsComponent {
+  <T extends string | number>(props: LiquidGlassTabsProps<T>): ReactNode;
+  displayName?: string;
+}
+
+const Tabs = memo(TabsInner) as unknown as TabsComponent;
+Tabs.displayName = "Tabs";
 
 const handleTabKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
   const tabs = Array.from(

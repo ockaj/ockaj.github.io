@@ -13,6 +13,7 @@ import {
   type MutableRefObject,
   type MouseEventHandler,
   type Ref,
+  type ElementType,
 } from "react";
 import {
   motion,
@@ -229,11 +230,9 @@ function LiquidGlassMobile({
     ? motion.a
     : as === "button"
       ? motion.button
-      : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (motion as any)[as];
+      : (motion as unknown as Record<string, ElementType>)[as];
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tagProps: any = {
+  const tagProps: Record<string, unknown> = {
     className: `${baseClasses} ${className}`,
     style: tagStyle,
     "aria-label": ariaLabel,
@@ -623,11 +622,9 @@ function LiquidGlassDesktop({
     ? motion.a
     : as === "button"
       ? motion.button
-      : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (motion as any)[as];
+      : (motion as unknown as Record<string, ElementType>)[as];
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tagProps: any = {
+  const tagProps: Record<string, unknown> = {
     className: `${baseClasses} ${className}`,
     style: tagStyle,
     "aria-label": ariaLabel,

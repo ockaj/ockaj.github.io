@@ -3,12 +3,13 @@ import {
   type ReactNode,
   type MouseEvent,
   type Ref,
+  type AllHTMLAttributes,
 } from "react";
 
 export const DEFAULT_STYLE: CSSProperties = {};
 export const WHITESPACE_REGEX = /\s+/g;
 
-export interface LiquidGlassProps {
+export interface LiquidGlassProps extends AllHTMLAttributes<HTMLElement> {
   children?: ReactNode;
   as?: "div" | "button" | "a" | "article" | "section" | "span";
   href?: string;
@@ -31,8 +32,6 @@ export interface LiquidGlassProps {
   variant?: "flat" | "sunken" | "beveled";
   active?: boolean;
   specularGlow?: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
 }
 
 export type LiquidGlassButtonProps = Omit<
