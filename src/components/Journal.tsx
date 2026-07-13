@@ -4,7 +4,6 @@ import { ArrowUpRight, Clock, MessageSquare, BookOpen } from "lucide-react";
 import { ARTICLES, type Article } from "../data/articles";
 import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import BaseDrawer from "./BaseDrawer";
-import { useModalHistory } from "../hooks/useModalHistory";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CONTACT_EMAIL } from "../utils/contact";
@@ -41,8 +40,6 @@ function Journal() {
   const handleCloseArticle = useCallback(() => {
     setSelectedArticle(null);
   }, []);
-
-  useModalHistory(selectedArticle !== null, handleCloseArticle);
 
   return (
     <>

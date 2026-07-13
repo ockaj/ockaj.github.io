@@ -16,7 +16,6 @@ import LazySection from "./components/LazySection";
 import BackgroundAurora from "./components/BackgroundAurora";
 import ContactSection from "./components/ContactSection";
 
-import { useModalHistory } from "./hooks/useModalHistory";
 import { useIsMobile } from "./hooks/useMediaQuery";
 import { useLazyMount } from "./hooks/useLazyMount";
 import { usePreloadComponents } from "./hooks/usePreloadComponents";
@@ -78,11 +77,6 @@ function App() {
   const [journalRef, journalInView] = useLazyMount({ rootMargin });
 
   const navbarSentinelRef = useRef<HTMLDivElement>(null);
-
-  // Close CV viewer modal on back swipe / browser back button
-  useModalHistory(isCvOpen, () =>
-    dispatch({ type: "SET_CV_OPEN", isOpen: false }),
-  );
 
   // Preload lazy components concurrently with main-thread yielding to protect INP
   usePreloadComponents(isMobile);

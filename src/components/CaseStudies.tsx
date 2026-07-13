@@ -17,7 +17,6 @@ import {
 import { CASE_STUDIES, type CaseStudyDetail } from "../data/caseStudies";
 import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import BaseDrawer from "./BaseDrawer";
-import { useModalHistory } from "../hooks/useModalHistory";
 import ReactMarkdown from "react-markdown";
 import { CONTACT_EMAIL } from "../utils/contact";
 
@@ -55,9 +54,6 @@ function CaseStudies() {
   const handleCloseStudy = useCallback(() => {
     setSelectedStudy(null);
   }, []);
-
-  // Close case study drawer on back swipe / browser back button
-  useModalHistory(selectedStudy !== null, handleCloseStudy);
 
   return (
     <>

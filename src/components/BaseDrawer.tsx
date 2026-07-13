@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { SPRING } from "../utils/springConfig";
 import { useIsMobile } from "../hooks/useMediaQuery";
+import { useModalHistory } from "../hooks/useModalHistory";
 import FocusLock from "react-focus-lock";
 
 interface BaseDrawerProps {
@@ -50,6 +51,8 @@ const BaseDrawer = memo(function BaseDrawer({
   const prefersReducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
   const triggerRef = useRef<Element | null>(null);
+
+  useModalHistory(true, onClose, "drawer");
 
   // Capture active element on mount and restore it on unmount
   useEffect(() => {
