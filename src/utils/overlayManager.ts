@@ -28,13 +28,6 @@ const isIOS =
 const lockScroll = () => {
   if (typeof document === "undefined" || typeof window === "undefined") return;
 
-  // Calculate scrollbar width to prevent page shift
-  const scrollbarWidth =
-    window.innerWidth - document.documentElement.clientWidth;
-  if (scrollbarWidth > 0) {
-    document.body.style.paddingRight = `${scrollbarWidth}px`;
-  }
-
   if (isIOS) {
     if (iosScrollLockActive) return;
     scrollY = window.scrollY;
@@ -62,8 +55,6 @@ const lockScroll = () => {
 
 const unlockScroll = () => {
   if (typeof document === "undefined" || typeof window === "undefined") return;
-
-  document.body.style.paddingRight = "";
 
   if (isIOS) {
     if (!iosScrollLockActive) return;
@@ -95,53 +86,31 @@ const unlockScroll = () => {
 
 const handlePopState = (e: PopStateEvent) => {
   const state = e.state as { stateId?: string } | null;
-  if (!state || !state.stateId) {
-    if (activeStack.length > 0) {
-      const top = activeStack.pop();
-      if (top) {
-        top.onClose();
-        if (activeStack.length === 0) {
-          unlockScroll();
-        }
-      }
-    }
-    return;
-  }
+  const index = state?.stateId
+    ? activeStack.findIndex((item) => item.stateId === state.stateId)
+    : -1;
 
-  const index = activeStack.findIndex((item) => item.stateId === state.stateId);
   if (index === -1) {
-    if (activeStack.length > 0) {
-      const top = activeStack.pop();
-      if (top) {
-        top.onClose();
-        if (activeStack.length === 0) {
-          unlockScroll();
-        }
-      }
-    }
+    activeStack.pop()?.onClose();
   } else {
     while (activeStack.length > index + 1) {
-      const top = activeStack.pop();
-      if (top) {
-        top.onClose();
-      }
+      activeStack.pop()?.onClose();
     }
-    if (activeStack.length === 0) {
-      unlockScroll();
-    }
+  }
+
+  if (activeStack.length === 0) {
+    unlockScroll();
   }
 };
 
 const handleKeyDown = (e: KeyboardEvent) => {
   if (e.key === "Escape" && activeStack.length > 0) {
     e.preventDefault();
-    const top = activeStack[activeStack.length - 1];
-    if (top) {
-      top.onClose();
-    }
+    activeStack[activeStack.length - 1]?.onClose();
   }
 };
 
+const pendingBacks = new Map<string, ReturnType<typeof setTimeout>>();
 let popStateRegistered = false;
 
 const ensurePopStateListener = () => {
@@ -161,21 +130,49 @@ export const registerOverlay = (
     lockScroll();
   }
 
-  const stateId = `overlay-${id}-${Math.random().toString(36).substring(2, 9)}`;
+  const currentHistoryStateId =
+    typeof window !== "undefined" ? window.history.state?.stateId : null;
+  const hasPending = !!(
+    currentHistoryStateId && pendingBacks.has(currentHistoryStateId)
+  );
+  const stateId =
+    hasPending && currentHistoryStateId
+      ? currentHistoryStateId
+      : `overlay-${id}-${Math.random().toString(36).substring(2, 9)}`;
+
+  if (hasPending && currentHistoryStateId) {
+    const timeoutId = pendingBacks.get(currentHistoryStateId);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    pendingBacks.delete(currentHistoryStateId);
+  } else if (typeof window !== "undefined") {
+    window.history.pushState({ stateId }, "");
+  }
+
   const overlayInfo: ActiveOverlay = { id, onClose, stateId };
   activeStack.push(overlayInfo);
 
-  // Push state to browser history to catch the back button
-  window.history.pushState({ stateId }, "");
-
   return () => {
     const idx = activeStack.findIndex((item) => item.stateId === stateId);
-    if (idx !== -1) {
-      activeStack.splice(idx, 1);
+    if (idx === -1) return;
+    activeStack.splice(idx, 1);
 
-      if (window.history.state?.stateId === stateId) {
-        window.history.back();
-      }
+    if (
+      typeof window !== "undefined" &&
+      window.history.state?.stateId === stateId
+    ) {
+      const timeoutId = setTimeout(() => {
+        pendingBacks.delete(stateId);
+        if (window.history.state?.stateId === stateId) {
+          window.history.back();
+        }
+        if (activeStack.length === 0) {
+          unlockScroll();
+        }
+      }, 0);
+      pendingBacks.set(stateId, timeoutId);
+      return;
     }
     if (activeStack.length === 0) {
       unlockScroll();
