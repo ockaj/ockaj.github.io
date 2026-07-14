@@ -106,9 +106,9 @@ const CaseStudyCard = memo(function CaseStudyCard({
       tilt
     >
       {/* Content grid */}
-      <div className="relative z-10 grid md:grid-cols-12 gap-6 md:gap-8 p-6 md:p-8 w-full h-full">
+      <div className="relative z-10 grid md:grid-cols-12 gap-4 md:gap-8 p-6 md:p-8 w-full h-full">
         {/* Left column: Title, challenge, solution */}
-        <div className="md:col-span-7 flex flex-col gap-6">
+        <div className="md:col-span-7 flex flex-col gap-4 md:gap-6">
           {/* Category badge */}
           <div>
             <span className="inline-block text-[10px] text-accent uppercase font-bold bg-accent/20 border border-accent/30 rounded-xl px-2.5 py-0.5">
@@ -125,7 +125,7 @@ const CaseStudyCard = memo(function CaseStudyCard({
           </div>
 
           {/* Challenge */}
-          <div>
+          <div className="hidden md:block">
             <div className="flex items-start gap-3 mb-2">
               <AlertCircle
                 size={16}
@@ -143,7 +143,7 @@ const CaseStudyCard = memo(function CaseStudyCard({
           </div>
 
           {/* Solution */}
-          <div>
+          <div className="hidden md:block">
             <div className="flex items-start gap-3">
               <CheckCircle
                 size={16}
@@ -161,7 +161,7 @@ const CaseStudyCard = memo(function CaseStudyCard({
           </div>
 
           {/* Tools */}
-          <div className="flex flex-wrap gap-2 pt-2">
+          <div className="flex flex-wrap gap-2 pt-1 md:pt-2">
             {study.tools.map((tool) => (
               <span
                 key={tool}
@@ -174,12 +174,12 @@ const CaseStudyCard = memo(function CaseStudyCard({
         </div>
 
         {/* Right column: Results, timeline, CTA */}
-        <div className="md:col-span-5 flex flex-col justify-between gap-6">
+        <div className="md:col-span-5 flex flex-col justify-between gap-4 md:gap-6">
           <div>
             <p className="text-xs text-muted uppercase font-semibold mb-3">
               Key Results
             </p>
-            <div className="space-y-3">
+            <div className="space-y-2 md:space-y-3">
               {study.results.map((result) => (
                 <div
                   key={result.metric}
