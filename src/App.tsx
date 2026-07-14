@@ -1,11 +1,4 @@
-import {
-  Suspense,
-  useCallback,
-  useReducer,
-  useMemo,
-  useRef,
-  memo,
-} from "react";
+import { Suspense, useCallback, useReducer, useMemo, memo } from "react";
 import { AnimatePresence } from "motion/react";
 
 import LoadingScreen from "./components/LoadingScreen";
@@ -76,8 +69,6 @@ function App() {
   const [processesRef, processesInView] = useLazyMount({ rootMargin });
   const [journalRef, journalInView] = useLazyMount({ rootMargin });
 
-  const navbarSentinelRef = useRef<HTMLDivElement>(null);
-
   // Preload lazy components concurrently with main-thread yielding to protect INP
   usePreloadComponents(isMobile);
 
@@ -113,15 +104,7 @@ function App() {
         inert={isLoading}
         className="relative z-10 text-text-primary font-body"
       >
-        <div
-          ref={navbarSentinelRef}
-          className="absolute top-[100px] left-0 w-px h-px pointer-events-none opacity-0"
-        />
-        <Navbar
-          activeSection={activeSection}
-          onNavClick={handleNavClick}
-          sentinelRef={navbarSentinelRef}
-        />
+        <Navbar activeSection={activeSection} onNavClick={handleNavClick} />
 
         <div id="home">
           <Hero onViewCv={handleViewCv} onViewWork={handleViewWork} />

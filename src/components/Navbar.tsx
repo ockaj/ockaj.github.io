@@ -10,7 +10,6 @@ const NAV_LINKS = ["Case Studies", "Skills", "Process Library", "Journal"];
 interface NavbarProps {
   activeSection: string;
   onNavClick: (section: string) => void;
-  sentinelRef: React.RefObject<HTMLDivElement | null>;
 }
 
 interface NavbarState {
@@ -49,14 +48,11 @@ function navbarReducer(state: NavbarState, action: NavbarAction): NavbarState {
   }
 }
 
-export default function Navbar({
-  activeSection,
-  onNavClick,
-  sentinelRef,
-}: NavbarProps) {
+export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
   const isMotionReduced = !!prefersReducedMotion;
+  const localSentinelRef = useRef<HTMLDivElement>(null);
 
   const [state, dispatch] = useReducer(navbarReducer, {
     scrolled: false,
@@ -128,7 +124,7 @@ export default function Navbar({
 
   // Track scroll depth for the navbar backdrop collapse effect
   useEffect(() => {
-    const sentinel = sentinelRef.current;
+    const sentinel = localSentinelRef.current;
     if (!sentinel) return;
     const observer = new IntersectionObserver(
       ([entry]) =>
@@ -137,7 +133,7 @@ export default function Navbar({
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [sentinelRef]);
+  }, []);
 
   const handleNav = useCallback(
     (label: string) => {
@@ -148,219 +144,227 @@ export default function Navbar({
   );
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 flex flex-col items-center pt-4 md:pt-6 px-4 pointer-events-none">
+    <>
       <div
-        className={`pointer-events-auto flex items-center justify-between md:justify-start gap-1 md:gap-1.5 rounded-full border border-white/10 bg-surface/40 p-[7px] navbar-capsule overflow-hidden isolate [transform:translateZ(0)] w-full max-w-[85vw] md:w-auto relative z-50 md:max-w-[95vw] ${
-          isScrolling ? "backdrop-blur-[3px]" : "backdrop-blur-md"
-        } ${scrolled ? "border-white/20 bg-surface/60" : ""}`}
-      >
-        <Tabs
-          value={active}
-          onChange={handleNav}
-          layoutId="active-nav-highlight"
-          onMouseEnter={() =>
-            dispatch({ type: "SET_IS_HOVERED", hovered: true })
-          }
-          onMouseLeave={() =>
-            dispatch({ type: "SET_IS_HOVERED", hovered: false })
-          }
-          highlightClassName={
-            isHovered || isTransitioning
-              ? "navbar-highlight-active"
-              : "navbar-highlight-flat"
-          }
-          className="flex items-center gap-1 md:gap-1.5"
-          role="none"
+        ref={localSentinelRef}
+        className="absolute top-[100px] left-0 w-px h-px pointer-events-none opacity-0"
+      />
+      <nav className="fixed top-0 left-0 right-0 z-50 flex flex-col items-center pt-4 md:pt-6 px-4 pointer-events-none">
+        <div
+          className={`pointer-events-auto flex items-center justify-between md:justify-start gap-1 md:gap-1.5 rounded-full border border-white/10 bg-surface/40 p-[7px] navbar-capsule overflow-hidden isolate [transform:translateZ(0)] w-full max-w-[85vw] md:w-auto relative z-50 md:max-w-[95vw] ${
+            isScrolling ? "backdrop-blur-[3px]" : "backdrop-blur-md"
+          } ${scrolled ? "border-white/20 bg-surface/60" : ""}`}
         >
-          {/* Home Button (Avatar + Name) */}
-          <Tab
-            value="Home"
-            highlightClassName="hidden md:block"
-            className={`relative text-xs sm:text-sm rounded-full pl-1.5 md:pl-[9px] pr-3 md:pr-[15px] py-1.5 md:py-[9px] transition-colors duration-200 select-none z-10 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
-              active === "Home"
-                ? "text-text-primary"
-                : "text-muted hover:text-text-primary"
-            }`}
-            aria-label="Home"
-            role="link"
+          <Tabs
+            value={active}
+            onChange={handleNav}
+            layoutId="active-nav-highlight"
+            onMouseEnter={() =>
+              dispatch({ type: "SET_IS_HOVERED", hovered: true })
+            }
+            onMouseLeave={() =>
+              dispatch({ type: "SET_IS_HOVERED", hovered: false })
+            }
+            highlightClassName={
+              isHovered || isTransitioning
+                ? "navbar-highlight-active"
+                : "navbar-highlight-flat"
+            }
+            className="flex items-center gap-1 md:gap-1.5"
+            role="none"
           >
-            <span className="relative size-6 rounded-full bg-bg flex items-center justify-center z-10 overflow-hidden border border-white/5 flex-shrink-0">
-              {avatarError ? (
-                <span className="text-[9px] font-bold text-accent font-mono leading-none tracking-normal select-none">
-                  OMO
-                </span>
-              ) : (
-                <img
-                  src="https://avatars.githubusercontent.com/u/36997301?v=4&s=24"
-                  onError={() =>
-                    dispatch({ type: "SET_AVATAR_ERROR", error: true })
-                  }
-                  alt="Ondrej Michal Ockaj"
-                  width="24"
-                  height="24"
-                  className="w-full h-full object-cover"
-                />
-              )}
-            </span>
-
-            <span className="text-[13px] font-semibold leading-none whitespace-nowrap">
-              Ondrej Michal Očkaj
-            </span>
-          </Tab>
-
-          {/* Nav links (Desktop Only) */}
-          <div className="hidden md:flex items-center gap-0.5">
-            {NAV_LINKS.map((link) => (
-              <Tab
-                key={link}
-                value={link}
-                className={`relative text-xs md:text-sm rounded-full px-3 md:px-[19px] py-1.5 md:py-[11px] transition-colors duration-200 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
-                  active === link
-                    ? "text-text-primary"
-                    : "text-muted hover:text-text-primary"
-                }`}
-                role="link"
-              >
-                {link}
-              </Tab>
-            ))}
-
-            {/* Contact link (Desktop Only) */}
+            {/* Home Button (Avatar + Name) */}
             <Tab
-              value="Contact"
-              className={`relative text-xs md:text-sm rounded-full px-3 md:px-[19px] py-1.5 md:py-[11px] transition-colors duration-200 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
-                active === "Contact"
+              value="Home"
+              highlightClassName="hidden md:block"
+              className={`relative text-xs sm:text-sm rounded-full pl-1.5 md:pl-[9px] pr-3 md:pr-[15px] py-1.5 md:py-[9px] transition-colors duration-200 select-none z-10 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
+                active === "Home"
                   ? "text-text-primary"
                   : "text-muted hover:text-text-primary"
               }`}
+              aria-label="Home"
               role="link"
             >
-              Contact
+              <span className="relative size-6 rounded-full bg-bg flex items-center justify-center z-10 overflow-hidden border border-white/5 flex-shrink-0">
+                {avatarError ? (
+                  <span className="text-[9px] font-bold text-accent font-mono leading-none tracking-normal select-none">
+                    OMO
+                  </span>
+                ) : (
+                  <img
+                    src="https://avatars.githubusercontent.com/u/36997301?v=4&s=24"
+                    onError={() =>
+                      dispatch({ type: "SET_AVATAR_ERROR", error: true })
+                    }
+                    alt="Ondrej Michal Ockaj"
+                    width="24"
+                    height="24"
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </span>
+
+              <span className="text-[13px] font-semibold leading-none whitespace-nowrap">
+                Ondrej Michal Očkaj
+              </span>
             </Tab>
-          </div>
-        </Tabs>
 
-        {/* Hamburger Menu Toggle (Mobile Only) */}
-        <div className="flex md:hidden">
-          <LiquidGlassButton
-            type="button"
-            onClick={() => dispatch({ type: "SET_IS_OPEN", isOpen: !isOpen })}
-            aria-label={isOpen ? "Close menu" : "Open menu"}
-            className="size-11 p-0"
-          >
-            <span className="relative size-4 flex items-center justify-center pointer-events-none">
-              <motion.span
-                className="absolute inset-0 flex items-center justify-center"
-                initial={false}
-                animate={{
-                  opacity: isOpen ? 1 : 0,
-                  scale: isMotionReduced ? 1 : isOpen ? 1 : 0.25,
-                  filter: isMotionReduced
-                    ? "none"
-                    : isOpen
-                      ? "blur(0px)"
-                      : "blur(4px)",
-                }}
-                transition={
-                  isMotionReduced
-                    ? { duration: 0.15 }
-                    : { type: "spring", duration: 0.3, bounce: 0 }
-                }
-              >
-                <X size={16} />
-              </motion.span>
-              <motion.span
-                className="absolute inset-0 flex items-center justify-center"
-                initial={false}
-                animate={{
-                  opacity: isOpen ? 0 : 1,
-                  scale: isMotionReduced ? 1 : isOpen ? 0.25 : 1,
-                  filter: isMotionReduced
-                    ? "none"
-                    : isOpen
-                      ? "blur(4px)"
-                      : "blur(0px)",
-                }}
-                transition={
-                  isMotionReduced
-                    ? { duration: 0.15 }
-                    : { type: "spring", duration: 0.3, bounce: 0 }
-                }
-              >
-                <Menu size={16} />
-              </motion.span>
-            </span>
-          </LiquidGlassButton>
-        </div>
-      </div>
-
-      {/* Mobile Menu Dropdown Panel (Mobile Only) */}
-      {isMobile && (
-        <>
-          <AnimatePresence>
-            {isOpen && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                aria-hidden="true"
-                className="fixed top-0 left-0 right-0 bottom-[-20vh] bg-black/50 backdrop-blur-[4px] md:hidden z-40 pointer-events-auto"
-                onClick={() => dispatch({ type: "SET_IS_OPEN", isOpen: false })}
-              />
-            )}
-          </AnimatePresence>
-
-          <div className="md:hidden z-50 w-72 mt-2 pointer-events-none">
-            <Tabs
-              value={active}
-              onChange={handleNav}
-              layoutId="active-mobile-nav-highlight"
-              onMouseEnter={() =>
-                dispatch({ type: "SET_IS_HOVERED", hovered: true })
-              }
-              onMouseLeave={() =>
-                dispatch({ type: "SET_IS_HOVERED", hovered: false })
-              }
-              highlightClassName={`border border-white/10 ${isHovered || isTransitioning ? "navbar-highlight-active" : "navbar-highlight-flat"}`}
-              highlightStyle={{
-                boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.15)",
-              }}
-              className="relative w-full p-3 rounded-3xl border border-white/10 bg-surface/60 backdrop-blur-2xl shadow-2xl flex flex-col gap-1.5"
-              style={{
-                boxShadow:
-                  "inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(0, 0, 0, 0.7)",
-                opacity: isOpen ? 1 : 0,
-                transform: isMotionReduced
-                  ? undefined
-                  : isOpen
-                    ? "translateY(0) scale(1)"
-                    : "translateY(-8px) scale(0.96)",
-                pointerEvents: isOpen ? "auto" : "none",
-                transition: isMotionReduced
-                  ? "opacity 0.15s linear"
-                  : "opacity 0.25s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1)",
-                transformOrigin: "top",
-              }}
-              role="none"
-            >
-              {["Home", ...NAV_LINKS, "Contact"].map((link) => (
+            {/* Nav links (Desktop Only) */}
+            <div className="hidden md:flex items-center gap-0.5">
+              {NAV_LINKS.map((link) => (
                 <Tab
                   key={link}
                   value={link}
-                  className={`relative w-full text-center flex justify-center items-center text-sm font-semibold rounded-full px-4 py-3.5 transition-colors duration-300 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
+                  className={`relative text-xs md:text-sm rounded-full px-3 md:px-[19px] py-1.5 md:py-[11px] transition-colors duration-200 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
                     active === link
                       ? "text-text-primary"
-                      : "text-muted hover:text-text-primary hover:bg-white/[0.02]"
+                      : "text-muted hover:text-text-primary"
                   }`}
                   role="link"
                 >
                   {link}
                 </Tab>
               ))}
-            </Tabs>
+
+              {/* Contact link (Desktop Only) */}
+              <Tab
+                value="Contact"
+                className={`relative text-xs md:text-sm rounded-full px-3 md:px-[19px] py-1.5 md:py-[11px] transition-colors duration-200 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
+                  active === "Contact"
+                    ? "text-text-primary"
+                    : "text-muted hover:text-text-primary"
+                }`}
+                role="link"
+              >
+                Contact
+              </Tab>
+            </div>
+          </Tabs>
+
+          {/* Hamburger Menu Toggle (Mobile Only) */}
+          <div className="flex md:hidden">
+            <LiquidGlassButton
+              type="button"
+              onClick={() => dispatch({ type: "SET_IS_OPEN", isOpen: !isOpen })}
+              aria-label={isOpen ? "Close menu" : "Open menu"}
+              className="size-11 p-0"
+            >
+              <span className="relative size-4 flex items-center justify-center pointer-events-none">
+                <motion.span
+                  className="absolute inset-0 flex items-center justify-center"
+                  initial={false}
+                  animate={{
+                    opacity: isOpen ? 1 : 0,
+                    scale: isMotionReduced ? 1 : isOpen ? 1 : 0.25,
+                    filter: isMotionReduced
+                      ? "none"
+                      : isOpen
+                        ? "blur(0px)"
+                        : "blur(4px)",
+                  }}
+                  transition={
+                    isMotionReduced
+                      ? { duration: 0.15 }
+                      : { type: "spring", duration: 0.3, bounce: 0 }
+                  }
+                >
+                  <X size={16} />
+                </motion.span>
+                <motion.span
+                  className="absolute inset-0 flex items-center justify-center"
+                  initial={false}
+                  animate={{
+                    opacity: isOpen ? 0 : 1,
+                    scale: isMotionReduced ? 1 : isOpen ? 0.25 : 1,
+                    filter: isMotionReduced
+                      ? "none"
+                      : isOpen
+                        ? "blur(4px)"
+                        : "blur(0px)",
+                  }}
+                  transition={
+                    isMotionReduced
+                      ? { duration: 0.15 }
+                      : { type: "spring", duration: 0.3, bounce: 0 }
+                  }
+                >
+                  <Menu size={16} />
+                </motion.span>
+              </span>
+            </LiquidGlassButton>
           </div>
-        </>
-      )}
-    </nav>
+        </div>
+
+        {/* Mobile Menu Dropdown Panel (Mobile Only) */}
+        {isMobile && (
+          <>
+            <AnimatePresence>
+              {isOpen && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  aria-hidden="true"
+                  className="fixed top-0 left-0 right-0 bottom-[-20vh] bg-black/50 backdrop-blur-[4px] md:hidden z-40 pointer-events-auto"
+                  onClick={() =>
+                    dispatch({ type: "SET_IS_OPEN", isOpen: false })
+                  }
+                />
+              )}
+            </AnimatePresence>
+
+            <div className="md:hidden z-50 w-72 mt-2 pointer-events-none">
+              <Tabs
+                value={active}
+                onChange={handleNav}
+                layoutId="active-mobile-nav-highlight"
+                onMouseEnter={() =>
+                  dispatch({ type: "SET_IS_HOVERED", hovered: true })
+                }
+                onMouseLeave={() =>
+                  dispatch({ type: "SET_IS_HOVERED", hovered: false })
+                }
+                highlightClassName={`border border-white/10 ${isHovered || isTransitioning ? "navbar-highlight-active" : "navbar-highlight-flat"}`}
+                highlightStyle={{
+                  boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.15)",
+                }}
+                className="relative w-full p-3 rounded-3xl border border-white/10 bg-surface/60 backdrop-blur-2xl shadow-2xl flex flex-col gap-1.5"
+                style={{
+                  boxShadow:
+                    "inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(0, 0, 0, 0.7)",
+                  opacity: isOpen ? 1 : 0,
+                  transform: isMotionReduced
+                    ? undefined
+                    : isOpen
+                      ? "translateY(0) scale(1)"
+                      : "translateY(-8px) scale(0.96)",
+                  pointerEvents: isOpen ? "auto" : "none",
+                  transition: isMotionReduced
+                    ? "opacity 0.15s linear"
+                    : "opacity 0.25s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1)",
+                  transformOrigin: "top",
+                }}
+                role="none"
+              >
+                {["Home", ...NAV_LINKS, "Contact"].map((link) => (
+                  <Tab
+                    key={link}
+                    value={link}
+                    className={`relative w-full text-center flex justify-center items-center text-sm font-semibold rounded-full px-4 py-3.5 transition-colors duration-300 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
+                      active === link
+                        ? "text-text-primary"
+                        : "text-muted hover:text-text-primary hover:bg-white/[0.02]"
+                    }`}
+                    role="link"
+                  >
+                    {link}
+                  </Tab>
+                ))}
+              </Tabs>
+            </div>
+          </>
+        )}
+      </nav>
+    </>
   );
 }
