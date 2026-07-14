@@ -282,6 +282,10 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
 
   return (
     <motion.div
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+      aria-label="Loading portfolio system models"
       className="fixed inset-0 z-[9999] bg-bg flex flex-col justify-between p-6 md:p-12 overflow-hidden select-none"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.25, ease: "easeOut" } }}

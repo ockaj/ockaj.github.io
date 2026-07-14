@@ -56,7 +56,7 @@ function Contact() {
             >
               <span className="flex items-center justify-center gap-1.5 sm:gap-2 w-full">
                 <svg
-                  role="img"
+                  aria-hidden="true"
                   viewBox="0 0 24 24"
                   fill="currentColor"
                   className="w-[13px] h-[13px] sm:w-4 sm:h-4 shrink-0"

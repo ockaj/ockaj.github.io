@@ -265,9 +265,9 @@ function ProcessLibrary() {
 
                       {/* Metadata */}
                       <div className="relative z-10">
-                        <h3 className="text-sm font-semibold font-body transition-transform duration-300 group-hover:translate-x-1 whitespace-nowrap lg:whitespace-normal lg:text-balance line-clamp-1 lg:line-clamp-2">
+                        <span className="block text-sm font-semibold font-body transition-transform duration-300 group-hover:translate-x-1 whitespace-nowrap lg:whitespace-normal lg:text-balance line-clamp-1 lg:line-clamp-2">
                           {item.title}
-                        </h3>
+                        </span>
                         <p className="text-[9px] text-muted uppercase mt-0.5 transition-transform duration-300 group-hover:translate-x-1">
                           {item.type}
                         </p>

@@ -118,9 +118,9 @@ const CaseStudyCard = memo(function CaseStudyCard({
 
           {/* Title */}
           <div>
-            <h3 className="text-2xl md:text-3xl font-display text-text-primary mb-1 text-balance line-clamp-2">
+            <span className="block text-2xl md:text-3xl font-display text-text-primary mb-1 text-balance line-clamp-2">
               {study.title}
-            </h3>
+            </span>
             <p className="text-sm text-muted text-pretty">{study.subtitle}</p>
           </div>
 

@@ -161,6 +161,7 @@ export default function Tooltip({ content, children }: TooltipProps) {
       onClick={() => (visible ? hideTooltip() : showTooltip())}
       onKeyDown={handleKeyDown}
       className="inline-flex cursor-help focus-visible:outline-none text-left bg-transparent border-0 p-0 m-0"
+      aria-label={content}
     >
       {children}
       {createPortal(

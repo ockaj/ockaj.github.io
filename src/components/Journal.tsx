@@ -53,13 +53,13 @@ function Journal() {
           viewport={isBuildMode ? undefined : { once: true, margin: "-60px" }}
         >
           {ARTICLES.map((article) => (
-            <motion.article
+            <motion.div
               key={article.id}
               variants={cardVariants}
               custom={prefersReducedMotion}
             >
               <JournalEntry article={article} onOpen={setSelectedArticle} />
-            </motion.article>
+            </motion.div>
           ))}
         </motion.div>
       </div>
@@ -92,7 +92,7 @@ const JournalEntry = memo(function JournalEntry({
 
   return (
     <LiquidGlass
-      as="div"
+      as="article"
       onClick={() => onOpen(article)}
       roundedClass="rounded-[28px]"
       className="w-full"
@@ -113,9 +113,9 @@ const JournalEntry = memo(function JournalEntry({
             />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-xl md:text-2xl font-display text-text-primary leading-tight text-balance">
+            <span className="block text-xl md:text-2xl font-display text-text-primary leading-tight text-balance">
               {article.title}
-            </h3>
+            </span>
           </div>
         </div>
 
