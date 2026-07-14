@@ -214,7 +214,7 @@ function ProcessLibrary() {
     return () => {
       observer.disconnect();
     };
-  }, [activeItem.id]);
+  }, []);
 
   return (
     <>

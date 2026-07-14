@@ -27,6 +27,7 @@ import { useIsMobile } from "../../hooks/useMediaQuery";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
+import LiquidGlassStatic from "./LiquidGlassStatic";
 import {
   type LiquidGlassProps,
   type LiquidGlassButtonProps,
@@ -664,6 +665,12 @@ const LiquidGlass = memo(function LiquidGlass({
   ...props
 }: LiquidGlassProps & { ref?: Ref<HTMLElement | null> }) {
   const isMobile = useIsMobile();
+  const isInteractive = props.interactive ?? true;
+
+  if (!isInteractive) {
+    return <LiquidGlassStatic ref={ref} {...props} />;
+  }
+
   if (isMobile) {
     return <LiquidGlassMobile ref={ref} {...props} />;
   }

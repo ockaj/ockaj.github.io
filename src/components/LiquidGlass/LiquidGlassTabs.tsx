@@ -237,14 +237,16 @@ const Tab = memo(function Tab({
   const [isAnyHovered, setIsAnyHovered] = useState(
     () => hoverStore.get() !== null,
   );
+  const [willChange, setWillChange] = useState(false);
 
   useEffect(() => {
     return hoverStore.subscribe(() => {
       const currentHovered = hoverStore.get();
       setIsHovered(currentHovered === value);
       setIsAnyHovered(currentHovered !== null);
+      setWillChange(true);
     });
-  }, [hoverStore, value]);
+  }, [hoverStore, value, setWillChange]);
 
   const isMobileNav = layoutId?.includes("mobile") || isMobile;
 
@@ -300,7 +302,6 @@ const Tab = memo(function Tab({
     : scaleVertical.tap.desktop;
 
   const [isPressed, setIsPressed] = useState(false);
-  const [willChange, setWillChange] = useState(false);
 
   const isNavbarActive = contextHighlightClass?.includes(
     "navbar-highlight-active",
@@ -322,20 +323,14 @@ const Tab = memo(function Tab({
     ? isHovered || (isActive && !isAnyHovered)
     : isActive;
 
-  const [prevValues, setPrevValues] = useState(() => ({
-    targetScaleX,
-    targetScaleY,
-    showHighlight,
-  }));
-
-  if (
-    prevValues.targetScaleX !== targetScaleX ||
-    prevValues.targetScaleY !== targetScaleY ||
-    prevValues.showHighlight !== showHighlight
-  ) {
-    setPrevValues({ targetScaleX, targetScaleY, showHighlight });
-    setWillChange(true);
-  }
+  useEffect(() => {
+    if (isActive) {
+      const handle = requestAnimationFrame(() => {
+        setWillChange(true);
+      });
+      return () => cancelAnimationFrame(handle);
+    }
+  }, [isActive, setWillChange]);
 
   const handlePointerDown = useCallback(
     (e: PointerEvent<HTMLButtonElement>) => {
@@ -361,7 +356,7 @@ const Tab = memo(function Tab({
 
   const handleAnimationComplete = useCallback(() => {
     setWillChange(false);
-  }, []);
+  }, [setWillChange]);
 
   const scaleAnimationTarget = useMemo(
     () =>
@@ -382,7 +377,7 @@ const Tab = memo(function Tab({
     ...contextHighlightStyle,
     ...highlightStyle,
     "--base-radius": `${baseRadius}px`,
-    willChange: "transform",
+    willChange: willChange ? "transform" : "auto",
   };
 
   const innerHighlightClass =
@@ -396,6 +391,7 @@ const Tab = memo(function Tab({
       onClick={selectOption}
       onPointerDown={(e) => {
         handlePointerDown(e);
+        setWillChange(true);
         setIsPressed(true);
       }}
       onPointerUp={() => setIsPressed(false)}

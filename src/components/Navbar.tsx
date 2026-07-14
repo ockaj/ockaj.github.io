@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useReducer } from "react";
+import { useEffect, useCallback, useReducer, useRef } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Menu, X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
@@ -19,7 +19,6 @@ interface NavbarState {
   avatarError: boolean;
   isHovered: boolean;
   isTransitioning: boolean;
-  prevActive: string;
   isScrolling: boolean;
 }
 
@@ -29,8 +28,7 @@ type NavbarAction =
   | { type: "SET_AVATAR_ERROR"; error: boolean }
   | { type: "SET_IS_HOVERED"; hovered: boolean }
   | { type: "SET_IS_TRANSIENT"; transitioning: boolean }
-  | { type: "SET_SCROLLING"; scrolling: boolean }
-  | { type: "TRANSITION_SECTION"; prevActive: string; transitioning: boolean };
+  | { type: "SET_SCROLLING"; scrolling: boolean };
 
 function navbarReducer(state: NavbarState, action: NavbarAction): NavbarState {
   switch (action.type) {
@@ -46,12 +44,6 @@ function navbarReducer(state: NavbarState, action: NavbarAction): NavbarState {
       return { ...state, isTransitioning: action.transitioning };
     case "SET_SCROLLING":
       return { ...state, isScrolling: action.scrolling };
-    case "TRANSITION_SECTION":
-      return {
-        ...state,
-        prevActive: action.prevActive,
-        isTransitioning: action.transitioning,
-      };
     default:
       return state;
   }
@@ -72,7 +64,6 @@ export default function Navbar({
     avatarError: false,
     isHovered: false,
     isTransitioning: false,
-    prevActive: "",
     isScrolling: false,
   });
 
@@ -82,7 +73,6 @@ export default function Navbar({
     avatarError,
     isHovered,
     isTransitioning,
-    prevActive,
     isScrolling,
   } = state;
 
@@ -104,14 +94,14 @@ export default function Navbar({
   }, [isMobile]);
 
   const active = activeSection;
+  const prevActiveRef = useRef(activeSection);
 
-  if (activeSection !== prevActive) {
-    dispatch({
-      type: "TRANSITION_SECTION",
-      prevActive: activeSection,
-      transitioning: prevActive !== "",
-    });
-  }
+  useEffect(() => {
+    if (prevActiveRef.current !== activeSection) {
+      dispatch({ type: "SET_IS_TRANSIENT", transitioning: true });
+      prevActiveRef.current = activeSection;
+    }
+  }, [activeSection]);
 
   useEffect(() => {
     if (isTransitioning) {
@@ -159,9 +149,6 @@ export default function Navbar({
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex flex-col items-center pt-4 md:pt-6 px-4 pointer-events-none">
-      <span className="hidden" aria-hidden="true">
-        {prevActive}
-      </span>
       <div
         className={`pointer-events-auto flex items-center justify-between md:justify-start gap-1 md:gap-1.5 rounded-full border border-white/10 bg-surface/40 p-[7px] navbar-capsule overflow-hidden isolate [transform:translateZ(0)] w-full max-w-[85vw] md:w-auto relative z-50 md:max-w-[95vw] ${
           isScrolling ? "backdrop-blur-[3px]" : "backdrop-blur-md"
