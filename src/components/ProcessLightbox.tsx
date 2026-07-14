@@ -9,7 +9,7 @@ import {
   useTransformEffect,
 } from "react-zoom-pan-pinch";
 import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
-import { useModalHistory } from "../hooks/useModalHistory";
+import { useOverlay } from "../hooks/useOverlay";
 import { useIsMobile } from "../hooks/useMediaQuery";
 import { SPRING } from "../utils/springConfig";
 import FocusLock from "react-focus-lock";
@@ -263,7 +263,7 @@ function ProcessLightbox({ item, onClose }: ProcessLightboxProps) {
   const prefersReducedMotion = useReducedMotion();
 
   // Close lightbox on back swipe / browser back button
-  useModalHistory(true, onClose);
+  useOverlay(true, onClose, "lightbox");
 
   const isMobile = useIsMobile();
   const [isZoomed, setIsZoomed] = useState(false);

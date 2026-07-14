@@ -7,7 +7,7 @@ import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import BpmnNodeBadge from "./BpmnNodeBadge";
 import BpmnDiagram from "./BpmnDiagram";
 import { useIsMobile } from "../hooks/useMediaQuery";
-import { useModalHistory } from "../hooks/useModalHistory";
+import { useOverlay } from "../hooks/useOverlay";
 
 export default function BpmnOverlay() {
   const isMobile = useIsMobile();
@@ -16,7 +16,7 @@ export default function BpmnOverlay() {
   const typedBufferRef = useRef<string[]>([]);
   const [showHotkeyTip, setShowHotkeyTip] = useState(false);
 
-  useModalHistory(isOpen, () => setIsOpen(false), "bpmn");
+  useOverlay(isOpen, () => setIsOpen(false), "bpmn");
 
   // Keyboard shortcut listener for 'B-P-M-N'
   useEffect(() => {

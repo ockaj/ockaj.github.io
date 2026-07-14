@@ -33,7 +33,7 @@ import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import { SPRING } from "../utils/springConfig";
 import { useIsMobile } from "../hooks/useMediaQuery";
-import { useModalHistory } from "../hooks/useModalHistory";
+import { useOverlay } from "../hooks/useOverlay";
 
 interface PdfViewerModalProps {
   isOpen: boolean;
@@ -105,7 +105,7 @@ function pdfReducer(state: PdfState, action: PdfAction): PdfState {
 function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
   const isMobile = useIsMobile();
 
-  useModalHistory(isOpen, onClose, "cv");
+  useOverlay(isOpen, onClose, "cv");
 
   const [state, dispatch] = useReducer(pdfReducer, {
     activeTab: "interactive",

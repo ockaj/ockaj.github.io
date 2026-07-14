@@ -254,11 +254,8 @@ const Tab = memo(function Tab({
     if (prefersReducedMotion) {
       return { layout: { duration: 0 } };
     }
-    if (isMobile) {
-      return { layout: SPRING.highlightMobile };
-    }
     return HIGHLIGHT_TRANSITION;
-  }, [isMobile, prefersReducedMotion]);
+  }, [prefersReducedMotion]);
 
   const tabRole = rest.role !== undefined ? rest.role : "tab";
   const isTabRole = tabRole === "tab";

@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import { useIsMobile } from "../hooks/useMediaQuery";
+import { useOverlay } from "../hooks/useOverlay";
 
 const NAV_LINKS = ["Case Studies", "Skills", "Process Library", "Journal"];
 
@@ -72,13 +73,26 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
     isScrolling,
   } = state;
 
+  const isScrollingRef = useRef(false);
+
+  // Lock background scroll and integrate with browser history when mobile menu is open
+  useOverlay(
+    isMobile && isOpen,
+    () => dispatch({ type: "SET_IS_OPEN", isOpen: false }),
+    "mobile-nav",
+  );
+
   useEffect(() => {
     if (!isMobile) return;
     let t: number;
     const handleScroll = () => {
-      dispatch({ type: "SET_SCROLLING", scrolling: true });
+      if (!isScrollingRef.current) {
+        isScrollingRef.current = true;
+        dispatch({ type: "SET_SCROLLING", scrolling: true });
+      }
       clearTimeout(t);
       t = window.setTimeout(() => {
+        isScrollingRef.current = false;
         dispatch({ type: "SET_SCROLLING", scrolling: false });
       }, 120);
     };
@@ -328,7 +342,7 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
                 highlightStyle={{
                   boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.15)",
                 }}
-                className="relative w-full p-3 rounded-3xl border border-white/10 bg-surface/60 backdrop-blur-2xl shadow-2xl flex flex-col gap-1.5"
+                className="relative w-full p-3 rounded-3xl border border-white/10 bg-surface/60 backdrop-blur-2xl shadow-2xl flex flex-col gap-1.5 max-h-[calc(100svh-100px)] overflow-y-auto overscroll-contain no-scrollbar"
                 style={{
                   boxShadow:
                     "inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(0, 0, 0, 0.7)",
@@ -353,7 +367,7 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
                     className={`relative w-full text-center flex justify-center items-center text-sm font-semibold rounded-full px-4 py-3.5 transition-colors duration-300 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
                       active === link
                         ? "text-text-primary"
-                        : "text-muted hover:text-text-primary hover:bg-white/[0.02]"
+                        : "text-muted hover:text-text-primary"
                     }`}
                     role="link"
                   >

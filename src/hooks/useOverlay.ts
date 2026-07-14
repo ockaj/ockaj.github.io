@@ -1,4 +1,5 @@
-// Central manager for browser history and scroll-locking of all overlay panels (modals, drawers, lightboxes)
+import { useEffect, useRef } from "react";
+
 type OverlayCallback = () => void;
 
 interface ActiveOverlay {
@@ -100,6 +101,7 @@ const handlePopState = (e: PopStateEvent) => {
 
   if (activeStack.length === 0) {
     unlockScroll();
+    cleanupListeners();
   }
 };
 
@@ -110,72 +112,98 @@ const handleKeyDown = (e: KeyboardEvent) => {
   }
 };
 
-const pendingBacks = new Map<string, ReturnType<typeof setTimeout>>();
-let popStateRegistered = false;
+let listenersRegistered = false;
 
-const ensurePopStateListener = () => {
-  if (typeof window === "undefined" || popStateRegistered) return;
+const setupListeners = () => {
+  if (typeof window === "undefined" || listenersRegistered) return;
   window.addEventListener("popstate", handlePopState);
   window.addEventListener("keydown", handleKeyDown);
-  popStateRegistered = true;
+  listenersRegistered = true;
 };
 
-export const registerOverlay = (
-  id: string,
+const cleanupListeners = () => {
+  if (typeof window === "undefined" || !listenersRegistered) return;
+  window.removeEventListener("popstate", handlePopState);
+  window.removeEventListener("keydown", handleKeyDown);
+  listenersRegistered = false;
+};
+
+const pendingBacks = new Map<string, ReturnType<typeof setTimeout>>();
+
+export function useOverlay(
+  isOpen: boolean,
   onClose: OverlayCallback,
-): (() => void) => {
-  ensurePopStateListener();
+  id = "modal",
+) {
+  const onCloseRef = useRef(onClose);
 
-  if (activeStack.length === 0) {
-    lockScroll();
-  }
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
-  const currentHistoryStateId =
-    typeof window !== "undefined" ? window.history.state?.stateId : null;
-  const hasPending = !!(
-    currentHistoryStateId && pendingBacks.has(currentHistoryStateId)
-  );
-  const stateId =
-    hasPending && currentHistoryStateId
-      ? currentHistoryStateId
-      : `overlay-${id}-${Math.random().toString(36).substring(2, 9)}`;
+  useEffect(() => {
+    if (!isOpen) return;
 
-  if (hasPending && currentHistoryStateId) {
-    const timeoutId = pendingBacks.get(currentHistoryStateId);
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-    pendingBacks.delete(currentHistoryStateId);
-  } else if (typeof window !== "undefined") {
-    window.history.pushState({ stateId }, "");
-  }
-
-  const overlayInfo: ActiveOverlay = { id, onClose, stateId };
-  activeStack.push(overlayInfo);
-
-  return () => {
-    const idx = activeStack.findIndex((item) => item.stateId === stateId);
-    if (idx === -1) return;
-    activeStack.splice(idx, 1);
-
-    if (
-      typeof window !== "undefined" &&
-      window.history.state?.stateId === stateId
-    ) {
-      const timeoutId = setTimeout(() => {
-        pendingBacks.delete(stateId);
-        if (window.history.state?.stateId === stateId) {
-          window.history.back();
-        }
-        if (activeStack.length === 0) {
-          unlockScroll();
-        }
-      }, 0);
-      pendingBacks.set(stateId, timeoutId);
-      return;
-    }
     if (activeStack.length === 0) {
-      unlockScroll();
+      lockScroll();
+      setupListeners();
     }
-  };
-};
+
+    const currentHistoryStateId =
+      typeof window !== "undefined" ? window.history.state?.stateId : null;
+    const hasPending = !!(
+      currentHistoryStateId && pendingBacks.has(currentHistoryStateId)
+    );
+    const stateId =
+      hasPending && currentHistoryStateId
+        ? currentHistoryStateId
+        : `overlay-${id}-${Math.random().toString(36).substring(2, 9)}`;
+
+    if (hasPending && currentHistoryStateId) {
+      const timeoutId = pendingBacks.get(currentHistoryStateId);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      pendingBacks.delete(currentHistoryStateId);
+    } else if (typeof window !== "undefined") {
+      window.history.pushState({ stateId }, "");
+    }
+
+    const overlayInfo: ActiveOverlay = {
+      id,
+      onClose: () => {
+        onCloseRef.current();
+      },
+      stateId,
+    };
+    activeStack.push(overlayInfo);
+
+    return () => {
+      const idx = activeStack.findIndex((item) => item.stateId === stateId);
+      if (idx === -1) return;
+      activeStack.splice(idx, 1);
+
+      if (
+        typeof window !== "undefined" &&
+        window.history.state?.stateId === stateId
+      ) {
+        const timeoutId = setTimeout(() => {
+          pendingBacks.delete(stateId);
+          if (window.history.state?.stateId === stateId) {
+            window.history.back();
+          }
+          if (activeStack.length === 0) {
+            unlockScroll();
+            cleanupListeners();
+          }
+        }, 0);
+        pendingBacks.set(stateId, timeoutId);
+        return;
+      }
+      if (activeStack.length === 0) {
+        unlockScroll();
+        cleanupListeners();
+      }
+    };
+  }, [isOpen, id]);
+}
