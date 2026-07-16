@@ -33,7 +33,6 @@ import {
   type LiquidGlassButtonProps,
   type LiquidGlassPropsWithRef,
   DEFAULT_STYLE,
-  WHITESPACE_REGEX,
 } from "./types";
 import {
   hoverDelta,
@@ -48,34 +47,48 @@ const SCALE_TRANSITION = {
   scaleY: springs.scale,
 } as const;
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-function LiquidGlassMobile({
-  children,
-  as = "div",
-  href,
-  download,
-  target,
-  rel,
-  ariaLabel,
-  onClick,
-  className = "",
-  innerClassName = "",
-  style = DEFAULT_STYLE,
-  interactive = true,
-  springScale = false,
-  roundedClass = "rounded-full",
-  magnetic = false,
-  tilt = false,
-  magneticStrength = 0.02,
-  tiltStrength = 2,
-  ripple = true,
-  variant = "flat",
-  active = false,
-  specularGlow = false,
-  ref,
-  ...rest
-}: LiquidGlassPropsWithRef) {
-  /* eslint-enable @typescript-eslint/no-unused-vars */
+const omit = <T extends object, K extends keyof T>(
+  obj: T,
+  keys: K[],
+): Omit<T, K> => {
+  const result = { ...obj };
+  keys.forEach((key) => {
+    delete result[key];
+  });
+  return result;
+};
+
+function LiquidGlassMobile(props: LiquidGlassPropsWithRef) {
+  const {
+    children,
+    as = "div",
+    href,
+    download,
+    target,
+    rel,
+    ariaLabel,
+    onClick,
+    className = "",
+    innerClassName = "",
+    style = DEFAULT_STYLE,
+    interactive = true,
+    springScale = false,
+    roundedClass = "rounded-full",
+    ripple = true,
+    variant = "flat",
+    active = false,
+    specularGlow = false,
+    ref,
+    ...rest
+  } = props;
+
+  const domProps = omit(rest, [
+    "magnetic",
+    "tilt",
+    "magneticStrength",
+    "tiltStrength",
+  ]);
+
   const prefersReducedMotion = useReducedMotion();
   const isMotionReduced = !!prefersReducedMotion;
   const effectiveSpringScale = springScale && !isMotionReduced;
@@ -104,7 +117,7 @@ function LiquidGlassMobile({
 
   // useResizeObserver prevents layout thrashing during interactions
   useResizeObserver(element, (entry) => {
-    setWidth((entry.target as HTMLElement).offsetWidth);
+    setWidth(entry.contentRect.width);
   });
 
   const {
@@ -129,18 +142,12 @@ function LiquidGlassMobile({
     ? "border-white/[0.15] bg-white/[0.04]"
     : "border-white/[0.04] group-hover:border-white/[0.08] bg-white/[0.015] group-hover:bg-white/[0.03]";
 
-  const baseClasses = `
-    group relative inline-flex items-center justify-center
-    backdrop-blur-lg
-    text-text-primary select-none
-    overflow-hidden ${
-      as === "button" || href || onClick
-        ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-        : "cursor-default"
-    } ${roundedClass}
-  `
-    .replace(WHITESPACE_REGEX, " ")
-    .trim();
+  const cursorAndFocusClasses =
+    as === "button" || href || onClick
+      ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+      : "cursor-default";
+
+  const baseClasses = `group relative inline-flex items-center justify-center backdrop-blur-lg text-text-primary select-none overflow-hidden ${cursorAndFocusClasses} ${roundedClass}`;
 
   const innerGlassStyle = useMemo<CSSProperties>(() => {
     if (variant === "sunken") {
@@ -238,7 +245,7 @@ function LiquidGlassMobile({
     style: tagStyle,
     "aria-label": ariaLabel,
     ...sharedAnimationProps,
-    ...rest,
+    ...domProps,
   };
 
   if (href) {
@@ -426,14 +433,12 @@ function LiquidGlassDesktop({
     [onClick],
   );
 
-  useResizeObserver(interactive && isHovered ? element : null, () => {
+  useResizeObserver(interactive && isHovered ? element : null, (entry) => {
     updateRect();
-    if (localRef.current) {
-      setDimensions({
-        width: localRef.current.offsetWidth,
-        height: localRef.current.offsetHeight,
-      });
-    }
+    setDimensions({
+      width: entry.contentRect.width,
+      height: entry.contentRect.height,
+    });
   });
 
   const borderGradient = useTransform([springX, springY], ([x, y]) => {
@@ -444,18 +449,12 @@ function LiquidGlassDesktop({
     ? "border-white/[0.15] bg-white/[0.04]"
     : "border-white/[0.04] group-hover:border-white/[0.08] bg-white/[0.015] group-hover:bg-white/[0.03]";
 
-  const baseClasses = `
-    group relative inline-flex items-center justify-center
-    backdrop-blur-lg
-    text-text-primary select-none
-    overflow-hidden ${
-      as === "button" || href || onClick
-        ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-        : "cursor-default"
-    } ${roundedClass}
-  `
-    .replace(WHITESPACE_REGEX, " ")
-    .trim();
+  const cursorAndFocusClasses =
+    as === "button" || href || onClick
+      ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+      : "cursor-default";
+
+  const baseClasses = `group relative inline-flex items-center justify-center backdrop-blur-lg text-text-primary select-none overflow-hidden ${cursorAndFocusClasses} ${roundedClass}`;
 
   const innerGlassStyle = useMemo<CSSProperties>(() => {
     const isEffectivelyActive = active || isHovered;
