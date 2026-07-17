@@ -88,7 +88,7 @@ html {
 }
 
 body {
-  @apply bg-bg text-text-primary font-body leading-relaxed;
+  @apply bg-bg text-text-primary font-body leading-normal;
   letter-spacing: -0.01em;
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
@@ -104,6 +104,7 @@ h5,
 h6 {
   text-wrap: balance;
   font-optical-sizing: auto;
+  line-height: 1.15;
 }
 
 p {
