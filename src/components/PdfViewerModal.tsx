@@ -39,7 +39,7 @@ interface PdfViewerModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-import { CV_DATA } from "../data/cvData";
+import { CV_DATA, type CvDataLanguageSection } from "../data/cvData";
 
 const modalVariants: Variants = {
   hidden: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
@@ -101,6 +101,288 @@ function pdfReducer(state: PdfState, action: PdfAction): PdfState {
       return state;
   }
 }
+
+interface InteractiveCvViewProps {
+  activeCv: CvDataLanguageSection;
+  lang: "en" | "sk";
+  isMobile: boolean;
+  dispatch: React.Dispatch<PdfAction>;
+}
+
+const InteractiveCvView = memo(function InteractiveCvView({
+  activeCv,
+  lang,
+  isMobile,
+  dispatch,
+}: InteractiveCvViewProps) {
+  return (
+    <div className="max-w-4xl mx-auto space-y-10 pb-12">
+      {/* CV Heading Card */}
+      <div className="relative p-6 md:p-8 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-md overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-accent/5 to-transparent z-0" />
+
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs text-accent uppercase font-semibold bg-accent/10 px-2 py-0.5 rounded-xl">
+              {lang === "en" ? "Active Resume" : "Aktívny Životopis"}
+            </span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-display text-text-primary mb-1 text-balance">
+            {activeCv.title}
+          </h1>
+          <p className="text-sm font-normal text-text-primary/95 font-body text-pretty">
+            {activeCv.role}
+          </p>
+
+          {/* Contacts */}
+          <div className="flex flex-wrap gap-x-4 gap-y-2 mt-4 text-xs text-muted tabular-nums">
+            <span className="flex items-center gap-1.5">
+              <MapPin size={12} className="text-accent/65" />
+              {activeCv.location}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Mail size={12} className="text-accent/65" />
+              <a
+                href={`mailto:${activeCv.email}`}
+                className="hover:text-text-primary transition-colors"
+              >
+                {activeCv.email}
+              </a>
+            </span>
+            {activeCv.phone && (
+              <span className="flex items-center gap-1.5">
+                <Phone size={12} className="text-accent/65" />
+                {/^[+\d]/.test(activeCv.phone) ? (
+                  <a
+                    href={`tel:${activeCv.phone.replace(WHITESPACE_REGEX, "")}`}
+                    className="hover:text-text-primary transition-colors"
+                  >
+                    {activeCv.phone}
+                  </a>
+                ) : (
+                  <span>{activeCv.phone}</span>
+                )}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Language Toggler */}
+        <div className="relative z-10 self-start md:self-auto flex items-center gap-1.5">
+          <LiquidGlassButton
+            onClick={() => dispatch({ type: "SET_LANG", lang: "en" })}
+            className={`px-3 py-1.5 text-xs font-semibold flex items-center gap-1 ${
+              lang === "en" ? "text-accent" : "text-muted"
+            }`}
+          >
+            <Languages size={11} />
+            EN
+          </LiquidGlassButton>
+          <LiquidGlassButton
+            onClick={() => dispatch({ type: "SET_LANG", lang: "sk" })}
+            className={`px-3 py-1.5 text-xs font-semibold flex items-center gap-1 ${
+              lang === "sk" ? "text-accent" : "text-muted"
+            }`}
+          >
+            <Languages size={11} />
+            SK
+          </LiquidGlassButton>
+        </div>
+      </div>
+
+      {/* Main Content Grid (Columns) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left: Summary, Experience, Education */}
+        <div className="lg:col-span-2 space-y-10">
+          {/* Profile Section */}
+          <section className="space-y-3">
+            <h2 className="text-lg font-extrabold text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-balance">
+              <Sparkles size={16} className="text-accent" />
+              {activeCv.profile.title}
+            </h2>
+            <p className="text-sm text-muted leading-relaxed font-body text-pretty">
+              {activeCv.profile.text}
+            </p>
+          </section>
+
+          {/* Experience Section */}
+          <section className="space-y-4">
+            <h2 className="text-lg font-extrabold text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-balance">
+              <Briefcase size={16} className="text-accent" />
+              {activeCv.experience.title}
+            </h2>
+            <div className="space-y-6">
+              {activeCv.experience.items.map((job) => (
+                <div
+                  key={`${job.company}-${job.role}`}
+                  className="relative pl-6 before:absolute before:left-1.5 before:top-1.5 before:bottom-0 before:w-px before:bg-stroke/60"
+                >
+                  {/* Timeline Bullet */}
+                  <div className="absolute left-0 top-1 size-3.5 rounded-full border-2 border-accent bg-bg z-10 shadow-sm" />
+
+                  <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
+                    <div>
+                      <h3 className="text-sm font-semibold text-text-primary leading-tight text-balance">
+                        {job.role}
+                      </h3>
+                      <p className="text-xs text-muted text-pretty">
+                        {job.company}
+                      </p>
+                    </div>
+                    <span className="text-[10px] uppercase text-accent bg-accent/5 px-2 py-0.5 rounded-xl border border-accent/15 tabular-nums">
+                      {job.period}
+                    </span>
+                  </div>
+                  <ul className="space-y-2 mt-3 list-none">
+                    {job.bullets.map((bullet) => (
+                      <li
+                        key={bullet}
+                        className="text-xs text-muted/90 flex items-start gap-2 leading-relaxed text-pretty"
+                      >
+                        <span className="size-1.5 rounded-full bg-accent/60 flex-shrink-0 mt-1.5" />
+                        <span>{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Education Section */}
+          <section className="space-y-4">
+            <h2 className="text-lg font-extrabold text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-balance">
+              <GraduationCap size={16} className="text-accent" />
+              {activeCv.education.title}
+            </h2>
+            <div className="space-y-6">
+              {activeCv.education.items.map((edu) => (
+                <div
+                  key={`${edu.school}-${edu.degree}`}
+                  className="relative pl-6 before:absolute before:left-1.5 before:top-1.5 before:bottom-0 before:w-px before:bg-stroke/60 last:before:hidden"
+                >
+                  {/* Timeline Bullet */}
+                  <div className="absolute left-0 top-1 size-3.5 rounded-full border-2 border-accent bg-bg z-10" />
+
+                  <div className="flex flex-wrap justify-between items-start gap-2">
+                    <div>
+                      <h3 className="text-sm font-semibold text-text-primary leading-tight text-balance">
+                        {edu.degree}
+                      </h3>
+                      <p className="text-xs text-muted text-pretty">
+                        {edu.school}
+                      </p>
+                    </div>
+                    <span className="text-[10px] text-muted font-mono bg-white/5 px-2 py-0.5 rounded-xl tabular-nums">
+                      {edu.period}
+                    </span>
+                  </div>
+
+                  {/* Bachelor's Thesis Detail Block */}
+                  {edu.details ? (
+                    <div className="mt-3 p-3.5 rounded-lg border border-white/5 bg-white/5">
+                      <p className="text-xs font-semibold text-text-primary mb-2 flex items-center gap-1.5 text-balance">
+                        <span className="w-1 h-3 rounded bg-accent" />
+                        {edu.details.thesisTitle}
+                      </p>
+                      <ul className="space-y-1.5 list-none">
+                        {edu.details.bullets.map((bullet) => (
+                          <li
+                            key={bullet}
+                            className="text-[11px] text-muted flex items-start gap-1.5 text-pretty"
+                          >
+                            <span className="text-accent flex-shrink-0 mt-0.5">
+                              •
+                            </span>
+                            <span>{bullet}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        {/* Right: Skills & Languages */}
+        <div className="space-y-8">
+          {/* Skills Block */}
+          <div className="p-5 rounded-2xl border border-white/5 bg-white/5 space-y-6">
+            <h2 className="text-sm font-extrabold uppercase text-text-primary/90 flex items-center gap-2 pb-2 border-b border-white/5 text-balance">
+              <Globe size={14} className="text-accent" />
+              {activeCv.skills.title}
+            </h2>
+
+            <div className="space-y-4">
+              {activeCv.skills.categories.map((cat) => (
+                <div key={cat.name} className="space-y-2">
+                  <h3 className="text-[11px] font-semibold uppercase text-accent text-balance">
+                    {cat.name}
+                  </h3>
+                  <div className="flex flex-wrap gap-1.5">
+                    {cat.items.map((skill) => (
+                      <span
+                        key={skill}
+                        className="text-[11px] text-muted/95 bg-white/5 hover:bg-white/[0.08] border border-white/5 rounded-xl px-2 py-1 transition-[background-color,color] select-none hover:text-text-primary"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Languages Block */}
+          <div className="p-5 rounded-2xl border border-white/5 bg-white/5 space-y-4">
+            <h2 className="text-sm font-extrabold uppercase text-text-primary/90 flex items-center gap-2 pb-2 border-b border-white/5 text-balance">
+              <Languages size={14} className="text-accent" />
+              {activeCv.languages.title}
+            </h2>
+
+            <div className="space-y-2.5">
+              {activeCv.languages.items.map((langItem) => (
+                <div
+                  key={langItem.name}
+                  className="flex justify-between items-center text-xs"
+                >
+                  <span className="font-normal text-text-primary">
+                    {langItem.name}
+                  </span>
+                  <span className="text-accent bg-accent/10 px-2 py-0.5 rounded-xl font-mono text-[10px] font-semibold border border-accent/10">
+                    {langItem.level}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Mobile Warning Notice */}
+          {isMobile ? (
+            <div className="p-4 rounded-lg border border-accent/20 bg-accent/5 text-center space-y-2">
+              <p className="text-[11px] text-muted text-pretty">
+                PDF view is optimized for desktop viewports. To read the
+                official document, you can open or download the PDF below.
+              </p>
+              <a
+                href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-accent hover:text-text-primary transition-colors font-semibold"
+              >
+                <ExternalLink size={12} />
+                Open PDF Document
+              </a>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+});
 
 function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
   const isMobile = useIsMobile();
@@ -379,283 +661,14 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                       : "hidden"
                   }
                 >
-                  {activeTab === "interactive" && (
-                    <div className="max-w-4xl mx-auto space-y-10 pb-12">
-                      {/* CV Heading Card */}
-                      <div className="relative p-6 md:p-8 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-md overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                        <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-accent/5 to-transparent z-0" />
-
-                        <div className="relative z-10">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xs text-accent uppercase font-semibold bg-accent/10 px-2 py-0.5 rounded-xl">
-                              {lang === "en"
-                                ? "Active Resume"
-                                : "Aktívny Životopis"}
-                            </span>
-                          </div>
-                          <h1 className="text-3xl md:text-4xl font-display text-text-primary mb-1 text-balance">
-                            {activeCv.title}
-                          </h1>
-                          <p className="text-sm font-normal text-text-primary/95 font-body text-pretty">
-                            {activeCv.role}
-                          </p>
-
-                          {/* Contacts */}
-                          <div className="flex flex-wrap gap-x-4 gap-y-2 mt-4 text-xs text-muted tabular-nums">
-                            <span className="flex items-center gap-1.5">
-                              <MapPin size={12} className="text-accent/65" />
-                              {activeCv.location}
-                            </span>
-                            <span className="flex items-center gap-1.5">
-                              <Mail size={12} className="text-accent/65" />
-                              <a
-                                href={`mailto:${activeCv.email}`}
-                                className="hover:text-text-primary transition-colors"
-                              >
-                                {activeCv.email}
-                              </a>
-                            </span>
-                            {activeCv.phone && (
-                              <span className="flex items-center gap-1.5">
-                                <Phone size={12} className="text-accent/65" />
-                                {/^[+\d]/.test(activeCv.phone) ? (
-                                  <a
-                                    href={`tel:${activeCv.phone.replace(WHITESPACE_REGEX, "")}`}
-                                    className="hover:text-text-primary transition-colors"
-                                  >
-                                    {activeCv.phone}
-                                  </a>
-                                ) : (
-                                  <span>{activeCv.phone}</span>
-                                )}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Language Toggler */}
-                        <div className="relative z-10 self-start md:self-auto flex items-center gap-1.5">
-                          <LiquidGlassButton
-                            onClick={() =>
-                              dispatch({ type: "SET_LANG", lang: "en" })
-                            }
-                            className={`px-3 py-1.5 text-xs font-semibold flex items-center gap-1 ${
-                              lang === "en" ? "text-accent" : "text-muted"
-                            }`}
-                          >
-                            <Languages size={11} />
-                            EN
-                          </LiquidGlassButton>
-                          <LiquidGlassButton
-                            onClick={() =>
-                              dispatch({ type: "SET_LANG", lang: "sk" })
-                            }
-                            className={`px-3 py-1.5 text-xs font-semibold flex items-center gap-1 ${
-                              lang === "sk" ? "text-accent" : "text-muted"
-                            }`}
-                          >
-                            <Languages size={11} />
-                            SK
-                          </LiquidGlassButton>
-                        </div>
-                      </div>
-
-                      {/* Main Content Grid (Columns) */}
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Left: Summary, Experience, Education */}
-                        <div className="lg:col-span-2 space-y-10">
-                          {/* Profile Section */}
-                          <section className="space-y-3">
-                            <h2 className="text-lg font-extrabold text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-balance">
-                              <Sparkles size={16} className="text-accent" />
-                              {activeCv.profile.title}
-                            </h2>
-                            <p className="text-sm text-muted leading-relaxed font-body text-pretty">
-                              {activeCv.profile.text}
-                            </p>
-                          </section>
-
-                          {/* Experience Section */}
-                          <section className="space-y-4">
-                            <h2 className="text-lg font-extrabold text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-balance">
-                              <Briefcase size={16} className="text-accent" />
-                              {activeCv.experience.title}
-                            </h2>
-                            <div className="space-y-6">
-                              {activeCv.experience.items.map((job) => (
-                                <div
-                                  key={`${job.company}-${job.role}`}
-                                  className="relative pl-6 before:absolute before:left-1.5 before:top-1.5 before:bottom-0 before:w-px before:bg-stroke/60"
-                                >
-                                  {/* Timeline Bullet */}
-                                  <div className="absolute left-0 top-1 size-3.5 rounded-full border-2 border-accent bg-bg z-10 shadow-sm" />
-
-                                  <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
-                                    <div>
-                                      <h3 className="text-sm font-semibold text-text-primary leading-tight text-balance">
-                                        {job.role}
-                                      </h3>
-                                      <p className="text-xs text-muted text-pretty">
-                                        {job.company}
-                                      </p>
-                                    </div>
-                                    <span className="text-[10px] uppercase text-accent bg-accent/5 px-2 py-0.5 rounded-xl border border-accent/15 tabular-nums">
-                                      {job.period}
-                                    </span>
-                                  </div>
-                                  <ul className="space-y-2 mt-3 list-none">
-                                    {job.bullets.map((bullet) => (
-                                      <li
-                                        key={bullet}
-                                        className="text-xs text-muted/90 flex items-start gap-2 leading-relaxed text-pretty"
-                                      >
-                                        <span className="size-1.5 rounded-full bg-accent/60 flex-shrink-0 mt-1.5" />
-                                        <span>{bullet}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              ))}
-                            </div>
-                          </section>
-
-                          {/* Education Section */}
-                          <section className="space-y-4">
-                            <h2 className="text-lg font-extrabold text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-balance">
-                              <GraduationCap
-                                size={16}
-                                className="text-accent"
-                              />
-                              {activeCv.education.title}
-                            </h2>
-                            <div className="space-y-6">
-                              {activeCv.education.items.map((edu) => (
-                                <div
-                                  key={`${edu.school}-${edu.degree}`}
-                                  className="relative pl-6 before:absolute before:left-1.5 before:top-1.5 before:bottom-0 before:w-px before:bg-stroke/60 last:before:hidden"
-                                >
-                                  {/* Timeline Bullet */}
-                                  <div className="absolute left-0 top-1 size-3.5 rounded-full border-2 border-accent bg-bg z-10" />
-
-                                  <div className="flex flex-wrap justify-between items-start gap-2">
-                                    <div>
-                                      <h3 className="text-sm font-semibold text-text-primary leading-tight text-balance">
-                                        {edu.degree}
-                                      </h3>
-                                      <p className="text-xs text-muted text-pretty">
-                                        {edu.school}
-                                      </p>
-                                    </div>
-                                    <span className="text-[10px] text-muted font-mono bg-white/5 px-2 py-0.5 rounded-xl tabular-nums">
-                                      {edu.period}
-                                    </span>
-                                  </div>
-
-                                  {/* Bachelor's Thesis Detail Block */}
-                                  {edu.details ? (
-                                    <div className="mt-3 p-3.5 rounded-lg border border-white/5 bg-white/5">
-                                      <p className="text-xs font-semibold text-text-primary mb-2 flex items-center gap-1.5 text-balance">
-                                        <span className="w-1 h-3 rounded bg-accent" />
-                                        {edu.details.thesisTitle}
-                                      </p>
-                                      <ul className="space-y-1.5 list-none">
-                                        {edu.details.bullets.map((bullet) => (
-                                          <li
-                                            key={bullet}
-                                            className="text-[11px] text-muted flex items-start gap-1.5 text-pretty"
-                                          >
-                                            <span className="text-accent flex-shrink-0 mt-0.5">
-                                              •
-                                            </span>
-                                            <span>{bullet}</span>
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  ) : null}
-                                </div>
-                              ))}
-                            </div>
-                          </section>
-                        </div>
-
-                        {/* Right: Skills & Languages */}
-                        <div className="space-y-8">
-                          {/* Skills Block */}
-                          <div className="p-5 rounded-2xl border border-white/5 bg-white/5 space-y-6">
-                            <h2 className="text-sm font-extrabold uppercase text-text-primary/90 flex items-center gap-2 pb-2 border-b border-white/5 text-balance">
-                              <Globe size={14} className="text-accent" />
-                              {activeCv.skills.title}
-                            </h2>
-
-                            <div className="space-y-4">
-                              {activeCv.skills.categories.map((cat) => (
-                                <div key={cat.name} className="space-y-2">
-                                  <h3 className="text-[11px] font-semibold uppercase text-accent text-balance">
-                                    {cat.name}
-                                  </h3>
-                                  <div className="flex flex-wrap gap-1.5">
-                                    {cat.items.map((skill) => (
-                                      <span
-                                        key={skill}
-                                        className="text-[11px] text-muted/95 bg-white/5 hover:bg-white/[0.08] border border-white/5 rounded-xl px-2 py-1 transition-[background-color,color] select-none hover:text-text-primary"
-                                      >
-                                        {skill}
-                                      </span>
-                                    ))}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Languages Block */}
-                          <div className="p-5 rounded-2xl border border-white/5 bg-white/5 space-y-4">
-                            <h2 className="text-sm font-extrabold uppercase text-text-primary/90 flex items-center gap-2 pb-2 border-b border-white/5 text-balance">
-                              <Languages size={14} className="text-accent" />
-                              {activeCv.languages.title}
-                            </h2>
-
-                            <div className="space-y-2.5">
-                              {activeCv.languages.items.map((langItem) => (
-                                <div
-                                  key={langItem.name}
-                                  className="flex justify-between items-center text-xs"
-                                >
-                                  <span className="font-normal text-text-primary">
-                                    {langItem.name}
-                                  </span>
-                                  <span className="text-accent bg-accent/10 px-2 py-0.5 rounded-xl font-mono text-[10px] font-semibold border border-accent/10">
-                                    {langItem.level}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Mobile Warning Notice */}
-                          {isMobile ? (
-                            <div className="p-4 rounded-lg border border-accent/20 bg-accent/5 text-center space-y-2">
-                              <p className="text-[11px] text-muted text-pretty">
-                                PDF view is optimized for desktop viewports. To
-                                read the official document, you can open or
-                                download the PDF below.
-                              </p>
-                              <a
-                                href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 text-xs text-accent hover:text-text-primary transition-colors font-semibold"
-                              >
-                                <ExternalLink size={12} />
-                                Open PDF Document
-                              </a>
-                            </div>
-                          ) : null}
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  {activeTab === "interactive" ? (
+                    <InteractiveCvView
+                      activeCv={activeCv}
+                      lang={lang}
+                      isMobile={isMobile}
+                      dispatch={dispatch}
+                    />
+                  ) : null}
                 </div>
               </div>
             </FocusLock>
