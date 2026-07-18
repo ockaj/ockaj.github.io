@@ -136,10 +136,9 @@ export function useOverlay(
   id = "modal",
 ) {
   const onCloseRef = useRef(onClose);
-
   useEffect(() => {
     onCloseRef.current = onClose;
-  }, [onClose]);
+  });
 
   useEffect(() => {
     if (!isOpen) return;

@@ -28,7 +28,7 @@ export function useResizeObserver(
   const savedCallbackRef = useRef(callback);
   useEffect(() => {
     savedCallbackRef.current = callback;
-  }, [callback]);
+  });
 
   useEffect(() => {
     if (!element) return;

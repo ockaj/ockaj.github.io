@@ -151,8 +151,10 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
 
   const handleNav = useCallback(
     (label: string) => {
-      onNavClick(label);
       dispatch({ type: "SET_IS_OPEN", isOpen: false }); // Close mobile menu dropdown
+      setTimeout(() => {
+        onNavClick(label);
+      }, 100);
     },
     [onNavClick],
   );
@@ -311,9 +313,9 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
 
         {/* Mobile Menu Dropdown Panel (Mobile Only) */}
         {isMobile && (
-          <>
-            <AnimatePresence>
-              {isOpen && (
+          <AnimatePresence>
+            {isOpen && (
+              <>
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -324,59 +326,67 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
                     dispatch({ type: "SET_IS_OPEN", isOpen: false })
                   }
                 />
-              )}
-            </AnimatePresence>
 
-            <div className="md:hidden z-50 w-72 mt-2 pointer-events-none">
-              <Tabs
-                value={active}
-                onChange={handleNav}
-                layoutId="active-mobile-nav-highlight"
-                onMouseEnter={() =>
-                  dispatch({ type: "SET_IS_HOVERED", hovered: true })
-                }
-                onMouseLeave={() =>
-                  dispatch({ type: "SET_IS_HOVERED", hovered: false })
-                }
-                highlightClassName={`border border-white/10 ${isHovered || isTransitioning ? "navbar-highlight-active" : "navbar-highlight-flat"}`}
-                highlightStyle={{
-                  boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.15)",
-                }}
-                className="relative w-full p-3 rounded-3xl border border-white/10 bg-surface/60 backdrop-blur-2xl shadow-2xl flex flex-col gap-1.5 max-h-[calc(100svh-100px)] overflow-y-auto overscroll-contain no-scrollbar"
-                style={{
-                  boxShadow:
-                    "inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(0, 0, 0, 0.7)",
-                  opacity: isOpen ? 1 : 0,
-                  transform: isMotionReduced
-                    ? undefined
-                    : isOpen
-                      ? "translateY(0) scale(1)"
-                      : "translateY(-8px) scale(0.96)",
-                  pointerEvents: isOpen ? "auto" : "none",
-                  transition: isMotionReduced
-                    ? "opacity 0.15s linear"
-                    : "opacity 0.25s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1)",
-                  transformOrigin: "top",
-                }}
-                role="none"
-              >
-                {["Home", ...NAV_LINKS, "Contact"].map((link) => (
-                  <Tab
-                    key={link}
-                    value={link}
-                    className={`relative w-full text-center flex justify-center items-center text-sm font-semibold rounded-full px-4 py-3.5 transition-colors duration-300 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
-                      active === link
-                        ? "text-text-primary"
-                        : "text-muted hover:text-text-primary"
-                    }`}
-                    role="link"
+                <motion.div
+                  initial={
+                    isMotionReduced
+                      ? { opacity: 0 }
+                      : { opacity: 0, y: -8, scale: 0.96 }
+                  }
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={
+                    isMotionReduced
+                      ? { opacity: 0 }
+                      : { opacity: 0, y: -8, scale: 0.96 }
+                  }
+                  transition={
+                    isMotionReduced
+                      ? { duration: 0.15 }
+                      : { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }
+                  }
+                  style={{ transformOrigin: "top" }}
+                  className="md:hidden z-50 w-72 mt-2 pointer-events-auto"
+                >
+                  <Tabs
+                    value={active}
+                    onChange={handleNav}
+                    layoutId="active-mobile-nav-highlight"
+                    onMouseEnter={() =>
+                      dispatch({ type: "SET_IS_HOVERED", hovered: true })
+                    }
+                    onMouseLeave={() =>
+                      dispatch({ type: "SET_IS_HOVERED", hovered: false })
+                    }
+                    highlightClassName={`border border-white/10 ${isHovered || isTransitioning ? "navbar-highlight-active" : "navbar-highlight-flat"}`}
+                    highlightStyle={{
+                      boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.15)",
+                    }}
+                    className="relative w-full p-3 rounded-3xl border border-white/10 bg-surface/60 backdrop-blur-2xl shadow-2xl flex flex-col gap-1.5 max-h-[calc(100svh-100px)] overflow-y-auto overscroll-contain no-scrollbar"
+                    style={{
+                      boxShadow:
+                        "inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(0, 0, 0, 0.7)",
+                    }}
+                    role="none"
                   >
-                    {link}
-                  </Tab>
-                ))}
-              </Tabs>
-            </div>
-          </>
+                    {["Home", ...NAV_LINKS, "Contact"].map((link) => (
+                      <Tab
+                        key={link}
+                        value={link}
+                        className={`relative w-full text-center flex justify-center items-center text-sm font-semibold rounded-full px-4 py-3.5 transition-colors duration-300 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
+                          active === link
+                            ? "text-text-primary"
+                            : "text-muted hover:text-text-primary"
+                        }`}
+                        role="link"
+                      >
+                        {link}
+                      </Tab>
+                    ))}
+                  </Tabs>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
         )}
       </nav>
     </>
