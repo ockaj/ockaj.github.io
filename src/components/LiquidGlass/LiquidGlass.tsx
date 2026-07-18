@@ -117,7 +117,9 @@ function LiquidGlassMobile(props: LiquidGlassPropsWithRef) {
 
   // useResizeObserver prevents layout thrashing during interactions
   useResizeObserver(element, (entry) => {
-    setWidth(entry.contentRect.width);
+    const el = entry.target;
+    if (!(el instanceof HTMLElement)) return;
+    setWidth(el.offsetWidth);
   });
 
   const {
@@ -434,10 +436,12 @@ function LiquidGlassDesktop({
   );
 
   useResizeObserver(interactive && isHovered ? element : null, (entry) => {
+    const el = entry.target;
+    if (!(el instanceof HTMLElement)) return;
     updateRect();
     setDimensions({
-      width: entry.contentRect.width,
-      height: entry.contentRect.height,
+      width: el.offsetWidth,
+      height: el.offsetHeight,
     });
   });
 
