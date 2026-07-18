@@ -221,7 +221,9 @@ function App() {
         </Suspense>
 
         <Suspense fallback={null}>
-          {!isLoading && !isMobile ? <BpmnOverlay /> : null}
+          {!isLoading && !isMobile ? (
+            <BpmnOverlay onNavigate={handleNavClick} />
+          ) : null}
         </Suspense>
       </main>
     </>

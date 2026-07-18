@@ -7,112 +7,110 @@ interface BpmnDiagramProps {
 function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
   return (
     <svg
-      viewBox="0 0 1000 330"
+      viewBox="0 0 1420 500"
       className="min-w-[950px] w-full h-auto text-accent"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
-        {/* Glowing visual filters */}
-        <filter id="bpmn-glow" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="3.5" result="blur" />
-          <feComposite in="SourceGraphic" in2="blur" operator="over" />
-        </filter>
-        {/* Arrow markers */}
+        {/* Arrow markers (Black) */}
         <marker
           id="bpmn-arrow"
           viewBox="0 0 10 10"
           refX="7"
           refY="5"
-          markerWidth="6"
-          markerHeight="6"
+          markerWidth="9"
+          markerHeight="9"
           orient="auto-start-reverse"
         >
-          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="hsl(var(--accent))" />
+          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#000000" />
         </marker>
+        {/* User Task Icon */}
+        <g id="user-task-icon">
+          <g transform="matrix(1,0,0,1,-630,-327.5469)">
+            <g transform="matrix(1,0,0,1,625,322)">
+              <path
+                d="M14.281,14.766C14.281,15.297 14.13,15.75 13.828,16.125C13.526,16.5 13.167,16.688 12.75,16.688L6.547,16.688C6.13,16.688 5.766,16.5 5.453,16.125C5.151,15.75 5,15.297 5,14.766C5,14.286 5.036,13.807 5.109,13.328C5.172,12.839 5.292,12.396 5.469,12C5.646,11.604 5.891,11.281 6.203,11.031C6.505,10.781 6.896,10.656 7.375,10.656C7.667,10.937 8.005,11.161 8.391,11.328C8.776,11.495 9.193,11.578 9.641,11.578C10.089,11.578 10.505,11.495 10.891,11.328C11.276,11.161 11.62,10.937 11.922,10.656C12.391,10.656 12.781,10.781 13.094,11.031C13.396,11.281 13.635,11.604 13.812,12C13.99,12.396 14.109,12.839 14.172,13.328C14.245,13.807 14.281,14.286 14.281,14.766ZM12.422,8.328C12.422,8.713 12.354,9.073 12.219,9.406C12.073,9.75 11.87,10.052 11.609,10.312C11.359,10.562 11.063,10.755 10.719,10.891C10.385,11.036 10.026,11.109 9.641,11.109C9.255,11.109 8.896,11.036 8.562,10.891C8.219,10.755 7.922,10.562 7.672,10.312C7.422,10.052 7.224,9.75 7.078,9.406C6.932,9.073 6.859,8.713 6.859,8.328C6.859,7.943 6.932,7.578 7.078,7.234C7.224,6.901 7.422,6.609 7.672,6.359C7.922,6.109 8.219,5.911 8.562,5.766C8.896,5.62 9.255,5.547 9.641,5.547C10.026,5.547 10.385,5.62 10.719,5.766C11.063,5.911 11.359,6.109 11.609,6.359C11.87,6.609 12.073,6.901 12.219,7.234C12.354,7.578 12.422,7.943 12.422,8.328Z"
+                fill="#0A0E1A"
+                fillRule="nonzero"
+              />
+            </g>
+          </g>
+        </g>
       </defs>
 
-      {/* Pool Frame */}
+      {/* Solid White Canvas Background */}
+      <rect width="1420" height="500" fill="#FFFFFF" rx="8" />
+
+      {/* Pool Frame (Black Stroke, White Fill) */}
       <rect
         x="30"
-        y="50"
-        width="940"
-        height="250"
+        y="20"
+        width="1360"
+        height="460"
         rx="6"
-        stroke="currentColor"
+        stroke="#000000"
         strokeWidth="1.5"
-        strokeOpacity="0.1"
-        fill="#0A0E1A"
-        fillOpacity="0.4"
+        strokeOpacity="1"
+        fill="#FFFFFF"
+        fillOpacity="1"
       />
       <line
         x1="65"
-        y1="50"
+        y1="20"
         x2="65"
-        y2="300"
-        stroke="currentColor"
+        y2="480"
+        stroke="#000000"
         strokeWidth="1.5"
-        strokeOpacity="0.1"
+        strokeOpacity="1"
       />
       <text
-        x="45"
-        y="175"
-        fill="currentColor"
-        fillOpacity="0.4"
-        fontSize="12"
+        x="47.5"
+        y="250"
+        fill="#000000"
+        fillOpacity="1"
+        fontSize="15"
         fontWeight="bold"
-        transform="rotate(-90,45,175)"
-        letterSpacing="0.15em"
+        transform="rotate(-90,47.5,250)"
         textAnchor="middle"
-        className="font-mono"
+        dominantBaseline="middle"
+        className="font-body"
       >
-        PORTFOLIO
-      </text>
-
-      {/* Lane Divider */}
-      <text
-        x="58"
-        y="175"
-        fill="currentColor"
-        fillOpacity="0.3"
-        fontSize="9.5"
-        fontWeight="bold"
-        transform="rotate(-90,58,175)"
-        letterSpacing="0.05em"
-        textAnchor="middle"
-        className="font-mono"
-      >
-        LANE: VISITOR / USER
+        Portfolio
       </text>
 
       {/* ================== VISITOR LANE NODES ================== */}
 
       {/* Start Event */}
       <circle
-        cx="105"
-        cy="150"
-        r="15"
-        stroke="currentColor"
+        cx="110"
+        cy="250"
+        r="27"
+        stroke="#000000"
         strokeWidth="1.5"
-        fill="currentColor"
-        fillOpacity="0.05"
+        fill="#FDD061"
       />
       <text
-        x="105"
-        y="180"
+        x="110"
+        y="295"
         textAnchor="middle"
-        fill="currentColor"
-        fillOpacity="0.5"
-        fontSize="10"
-        className="font-mono"
+        fill="#000000"
+        fillOpacity="1"
+        fontSize="14"
+        className="font-body"
       >
-        Arrives at URL
+        <tspan x="110" dy="0">
+          Session
+        </tspan>
+        <tspan x="110" dy="16">
+          started
+        </tspan>
       </text>
 
       {/* Flow: Start -> Hero */}
       <path
-        d="M 120,150 L 155,150"
-        stroke="currentColor"
+        d="M 137,250 L 164.5,250"
+        stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
@@ -131,81 +129,83 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           }
         }}
       >
+        {/* Task Box Outline */}
         <rect
-          x="155"
-          y="115"
-          width="110"
-          height="70"
+          x="164.5"
+          y="211.75"
+          width="151"
+          height="76.5"
           rx="6"
-          stroke="currentColor"
+          stroke="#1D70B8"
           strokeWidth="1.2"
-          fill="#0A0E17"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-accent group-hover/node:fill-accent/5"
-          style={{ filter: "url(#bpmn-glow)" }}
+          fill="#90D3FF"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF]"
+        />
+        <use
+          href="#user-task-icon"
+          x="168.5"
+          y="217.75"
+          width="11"
+          height="13.2"
+          className="pointer-events-none"
         />
         {/* Task label */}
         <text
-          x="210"
-          y="146"
+          x="240"
+          y="250"
           textAnchor="middle"
-          fill="#fff"
-          fontSize="11"
-          fontWeight="bold"
-          className="group-hover/node:fill-accent font-sans"
+          dominantBaseline="central"
+          fill="#0A0E1A"
+          fontSize="14"
+          className="font-body pointer-events-none"
         >
           View Hero
-        </text>
-        <text
-          x="210"
-          y="160"
-          textAnchor="middle"
-          fill="currentColor"
-          fillOpacity="0.5"
-          fontSize="9"
-          className="font-mono"
-        >
-          Landing Page
         </text>
       </g>
 
       {/* Flow: Hero -> Gateway */}
       <path
-        d="M 265,150 L 320,150"
-        stroke="currentColor"
+        d="M 315.5,250 L 358,250"
+        stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
 
       {/* Split Parallel Gateway */}
-      <polygon
-        points="320,150 335,135 350,150 335,165"
-        stroke="currentColor"
+      <path
+        d="M 385,223 L 412,250 L 385,277 L 358,250 Z"
+        stroke="#000000"
         strokeWidth="1.5"
-        fill="#0A0E17"
+        fill="#FDD061"
       />
       <path
-        d="M 335,141 L 335,159 M 326,150 L 344,150"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
+        d="M 385,235 L 385,265 M 370,250 L 400,250"
+        stroke="#000000"
+        strokeWidth="5"
       />
 
       {/* Parallel Gateway branches */}
       <path
-        d="M 335,135 L 335,90 L 370,90"
-        stroke="currentColor"
+        d="M 412,250 L 457,250 L 457,80 L 502,80"
+        stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
       <path
-        d="M 350,150 L 370,150"
-        stroke="currentColor"
+        d="M 412,250 L 457,250 L 457,193 L 502,193"
+        stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
       <path
-        d="M 335,165 L 335,210 L 370,210"
-        stroke="currentColor"
+        d="M 412,250 L 457,250 L 457,307 L 502,307"
+        stroke="#000000"
+        strokeWidth="1.2"
+        markerEnd="url(#bpmn-arrow)"
+      />
+      <path
+        d="M 412,250 L 457,250 L 457,420 L 502,420"
+        stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
@@ -224,42 +224,40 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           }
         }}
       >
+        {/* Task Box Outline */}
         <rect
-          x="370"
-          y="70"
-          width="135"
-          height="40"
+          x="502"
+          y="41.75"
+          width="151"
+          height="76.5"
           rx="5"
-          stroke="currentColor"
+          stroke="#1D70B8"
           strokeWidth="1.2"
-          fill="#0A0E17"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-accent group-hover/node:fill-accent/5"
+          fill="#90D3FF"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF]"
+        />
+        <use
+          href="#user-task-icon"
+          x="506"
+          y="47.75"
+          width="11"
+          height="13.2"
+          className="pointer-events-none"
         />
         <text
-          x="437.5"
-          y="90"
+          x="577.5"
+          y="80"
           textAnchor="middle"
-          fill="#fff"
-          fontSize="10.5"
-          fontWeight="bold"
-          className="group-hover/node:fill-accent font-sans"
+          dominantBaseline="central"
+          fill="#0A0E1A"
+          fontSize="14"
+          className="font-body pointer-events-none"
         >
           Browse Case Studies
         </text>
-        <text
-          x="437.5"
-          y="100"
-          textAnchor="middle"
-          fill="currentColor"
-          fillOpacity="0.4"
-          fontSize="8.5"
-          className="font-mono"
-        >
-          User Task
-        </text>
       </g>
 
-      {/* Task: Scan Skills */}
+      {/* Task: Scan Competencies */}
       <g
         className="cursor-pointer group/node focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 focus-visible:outline-solid"
         tabIndex={0}
@@ -273,42 +271,40 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           }
         }}
       >
+        {/* Task Box Outline */}
         <rect
-          x="370"
-          y="130"
-          width="135"
-          height="40"
+          x="502"
+          y="154.75"
+          width="151"
+          height="76.5"
           rx="5"
-          stroke="currentColor"
+          stroke="#1D70B8"
           strokeWidth="1.2"
-          fill="#0A0E17"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-accent group-hover/node:fill-accent/5"
+          fill="#90D3FF"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF]"
+        />
+        <use
+          href="#user-task-icon"
+          x="506"
+          y="160.75"
+          width="11"
+          height="13.2"
+          className="pointer-events-none"
         />
         <text
-          x="437.5"
-          y="150"
+          x="577.5"
+          y="193"
           textAnchor="middle"
-          fill="#fff"
-          fontSize="10.5"
-          fontWeight="bold"
-          className="group-hover/node:fill-accent font-sans"
+          dominantBaseline="central"
+          fill="#0A0E1A"
+          fontSize="14"
+          className="font-body pointer-events-none"
         >
           Scan Competencies
         </text>
-        <text
-          x="437.5"
-          y="160"
-          textAnchor="middle"
-          fill="currentColor"
-          fillOpacity="0.4"
-          fontSize="8.5"
-          className="font-mono"
-        >
-          User Task
-        </text>
       </g>
 
-      {/* Task: Review Process Library */}
+      {/* Task: Inspect Process Library */}
       <g
         className="cursor-pointer group/node focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 focus-visible:outline-solid"
         tabIndex={0}
@@ -322,50 +318,40 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           }
         }}
       >
+        {/* Task Box Outline */}
         <rect
-          x="370"
-          y="190"
-          width="135"
-          height="40"
+          x="502"
+          y="268.75"
+          width="151"
+          height="76.5"
           rx="5"
-          stroke="currentColor"
+          stroke="#1D70B8"
           strokeWidth="1.2"
-          fill="#0A0E17"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-accent group-hover/node:fill-accent/5"
+          fill="#90D3FF"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF]"
+        />
+        <use
+          href="#user-task-icon"
+          x="506"
+          y="274.75"
+          width="11"
+          height="13.2"
+          className="pointer-events-none"
         />
         <text
-          x="437.5"
-          y="210"
+          x="577.5"
+          y="307"
           textAnchor="middle"
-          fill="#fff"
-          fontSize="10.5"
-          fontWeight="bold"
-          className="group-hover/node:fill-accent font-sans"
+          dominantBaseline="central"
+          fill="#0A0E1A"
+          fontSize="14"
+          className="font-body pointer-events-none"
         >
           Inspect Process Library
         </text>
-        <text
-          x="437.5"
-          y="220"
-          textAnchor="middle"
-          fill="currentColor"
-          fillOpacity="0.4"
-          fontSize="8.5"
-          className="font-mono"
-        >
-          User Task
-        </text>
       </g>
 
-      {/* Add Journal task path slightly offset */}
-      <path
-        d="M 335,165 L 335,260 L 370,260"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        markerEnd="url(#bpmn-arrow)"
-      />
-
-      {/* Task: Consume Journal */}
+      {/* Task: Read Journal */}
       <g
         className="cursor-pointer group/node focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 focus-visible:outline-solid"
         tabIndex={0}
@@ -379,131 +365,128 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           }
         }}
       >
+        {/* Task Box Outline */}
         <rect
-          x="370"
-          y="240"
-          width="135"
-          height="40"
+          x="502"
+          y="381.75"
+          width="151"
+          height="76.5"
           rx="5"
-          stroke="currentColor"
+          stroke="#1D70B8"
           strokeWidth="1.2"
-          fill="#0A0E17"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-accent group-hover/node:fill-accent/5"
+          fill="#90D3FF"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#1060A0] group-hover/node:fill-[#A3DBFF]"
+        />
+        <use
+          href="#user-task-icon"
+          x="506"
+          y="387.75"
+          width="11"
+          height="13.2"
+          className="pointer-events-none"
         />
         <text
-          x="437.5"
-          y="260"
+          x="577.5"
+          y="420"
           textAnchor="middle"
-          fill="#fff"
-          fontSize="10.5"
-          fontWeight="bold"
-          className="group-hover/node:fill-accent font-sans"
+          dominantBaseline="central"
+          fill="#0A0E1A"
+          fontSize="14"
+          className="font-body pointer-events-none"
         >
-          Read Thought Pieces
-        </text>
-        <text
-          x="437.5"
-          y="270"
-          textAnchor="middle"
-          fill="currentColor"
-          fillOpacity="0.4"
-          fontSize="8.5"
-          className="font-mono"
-        >
-          User Task
+          Read Journal
         </text>
       </g>
 
       {/* Branch merges to Join Parallel Gateway */}
       <path
-        d="M 505,90 L 540,90 L 540,135"
-        stroke="currentColor"
+        d="M 653,80 L 698,80 L 698,250 L 743,250"
+        stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
       <path
-        d="M 505,150 L 525,150"
-        stroke="currentColor"
+        d="M 653,193 L 698,193 L 698,250 L 743,250"
+        stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
       <path
-        d="M 505,210 L 540,210 L 540,165"
-        stroke="currentColor"
+        d="M 653,307 L 698,307 L 698,250 L 743,250"
+        stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
       <path
-        d="M 505,260 L 540,260 L 540,210"
-        stroke="currentColor"
+        d="M 653,420 L 698,420 L 698,250 L 743,250"
+        stroke="#000000"
         strokeWidth="1.2"
       />
 
       {/* Join Parallel Gateway */}
-      <polygon
-        points="525,150 540,135 555,150 540,165"
-        stroke="currentColor"
+      <path
+        d="M 770,223 L 797,250 L 770,277 L 743,250 Z"
+        stroke="#000000"
         strokeWidth="1.5"
-        fill="#0A0E17"
+        fill="#FDD061"
       />
       <path
-        d="M 540,141 L 540,159 M 531,150 L 549,150"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
+        d="M 770,235 L 770,265 M 755,250 L 785,250"
+        stroke="#000000"
+        strokeWidth="5"
       />
 
       <path
-        d="M 555,150 L 605,150"
-        stroke="currentColor"
+        d="M 797,250 L 852,250"
+        stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
 
       {/* Exclusive Gateway: Contact wanted? */}
-      <polygon
-        points="605,150 620,135 635,150 620,165"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        fill="#0A0E17"
-      />
       <path
-        d="M 614,144 L 626,156 M 626,144 L 614,156"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinecap="round"
+        d="M 879,223 L 906,250 L 879,277 L 852,250 Z"
+        stroke="#000000"
+        strokeWidth="1.5"
+        fill="#FDD061"
       />
       <text
-        x="620"
-        y="125"
+        x="879"
+        y="295"
         textAnchor="middle"
-        fill="currentColor"
-        fillOpacity="0.6"
-        fontSize="10"
-        className="font-mono"
+        fill="#000000"
+        fillOpacity="1"
+        fontSize="14"
+        className="font-body"
       >
-        Contact wanted?
+        <tspan x="879" dy="0">
+          Initiate
+        </tspan>
+        <tspan x="879" dy="16">
+          Contact?
+        </tspan>
       </text>
 
       {/* Flow Yes -> Contact Task */}
       <path
-        d="M 635,150 L 675,150"
-        stroke="currentColor"
+        d="M 906,250 L 1026,250"
+        stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
       <text
-        x="647"
-        y="144"
-        fill="currentColor"
-        fillOpacity="0.8"
-        fontSize="10"
-        className="font-mono"
+        x="996"
+        y="272"
+        textAnchor="middle"
+        fill="#000000"
+        fillOpacity="1"
+        fontSize="14"
+        className="font-body"
       >
         Yes
       </text>
 
-      {/* Task: Get in Touch */}
+      {/* Task: Get In Touch */}
       <g
         className="cursor-pointer group/node focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 focus-visible:outline-solid"
         tabIndex={0}
@@ -517,88 +500,90 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           }
         }}
       >
+        {/* Task Box Outline */}
         <rect
-          x="675"
-          y="115"
-          width="115"
-          height="70"
+          x="1026"
+          y="211.75"
+          width="151"
+          height="76.5"
           rx="6"
-          stroke="currentColor"
+          stroke="#1D70B8"
           strokeWidth="1.2"
-          fill="#0A0E17"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-accent group-hover/node:fill-accent/5"
-          style={{ filter: "url(#bpmn-glow)" }}
+          fill="#90D3FF"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF]"
+        />
+        <use
+          href="#user-task-icon"
+          x="1030"
+          y="217.75"
+          width="11"
+          height="13.2"
+          className="pointer-events-none"
         />
         <text
-          x="732.5"
-          y="146"
+          x="1101.5"
+          y="250"
           textAnchor="middle"
-          fill="#fff"
-          fontSize="11"
-          fontWeight="bold"
-          className="group-hover/node:fill-accent font-sans"
+          dominantBaseline="central"
+          fill="#0A0E1A"
+          fontSize="14"
+          className="font-body pointer-events-none"
         >
-          Get in Touch
-        </text>
-        <text
-          x="732.5"
-          y="160"
-          textAnchor="middle"
-          fill="currentColor"
-          fillOpacity="0.5"
-          fontSize="9.5"
-          className="font-mono"
-        >
-          Call to Action
+          Get In Touch
         </text>
       </g>
 
       {/* Flow No -> End Event */}
       <path
-        d="M 620,165 L 620,240 L 810,240 L 810,150 L 865,150"
-        stroke="currentColor"
+        d="M 906,250 L 966,250 L 966,340 L 1237,340 L 1237,250 L 1297,250"
+        stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
       <text
-        x="626"
-        y="180"
-        fill="currentColor"
-        fillOpacity="0.8"
-        fontSize="10"
-        className="font-mono"
+        x="1101.5"
+        y="362"
+        textAnchor="middle"
+        fill="#000000"
+        fillOpacity="1"
+        fontSize="14"
+        className="font-body"
       >
         No
       </text>
 
       {/* Merge Contact flow to End */}
       <path
-        d="M 790,150 L 865,150"
-        stroke="currentColor"
+        d="M 1177,250 L 1297,250"
+        stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
 
       {/* End Event */}
       <circle
-        cx="880"
-        cy="150"
-        r="14"
-        stroke="currentColor"
+        cx="1324"
+        cy="250"
+        r="27"
+        stroke="#000000"
         strokeWidth="3"
-        fill="currentColor"
-        fillOpacity="0.08"
+        fill="#FDD061"
       />
       <text
-        x="880"
-        y="180"
+        x="1324"
+        y="295"
         textAnchor="middle"
-        fill="currentColor"
-        fillOpacity="0.5"
-        fontSize="10"
-        className="font-mono"
+        fill="#000000"
+        fillOpacity="1"
+        fontSize="14"
+        className="font-body"
       >
-        Exploration End
+        <tspan x="1324" dy="0">
+          Session
+        </tspan>
+        <tspan x="1324" dy="16">
+          Ended
+        </tspan>
       </text>
     </svg>
   );

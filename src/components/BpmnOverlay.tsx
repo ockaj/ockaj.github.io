@@ -8,8 +8,13 @@ import BpmnNodeBadge from "./BpmnNodeBadge";
 import BpmnDiagram from "./BpmnDiagram";
 import { useIsMobile } from "../hooks/useMediaQuery";
 import { useOverlay } from "../hooks/useOverlay";
+import { LABEL_MAP } from "../hooks/useNavigation";
 
-export default function BpmnOverlay() {
+interface BpmnOverlayProps {
+  onNavigate: (sectionLabel: string) => void;
+}
+
+export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
@@ -68,11 +73,11 @@ export default function BpmnOverlay() {
 
   const handleTaskClick = (sectionId: string) => {
     setIsOpen(false);
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({
-        behavior: prefersReducedMotion ? "auto" : "smooth",
-      });
+    const label = LABEL_MAP[sectionId];
+    if (label) {
+      setTimeout(() => {
+        onNavigate(label);
+      }, 100);
     }
   };
 
@@ -101,7 +106,6 @@ export default function BpmnOverlay() {
               roundedClass="rounded-xl"
               className="p-3 bg-surface/90"
               innerClassName="flex items-center gap-3 w-full"
-              interactive={false}
               specularGlow
             >
               <BpmnNodeBadge type="script-task" className="flex-shrink-0" />
@@ -141,25 +145,17 @@ export default function BpmnOverlay() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[120] bg-bg/95 backdrop-blur-2xl flex flex-col justify-between p-6 md:p-10 select-none overflow-y-auto"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(rgba(102,103,171,0.06) 1.5px, transparent 1.5px)",
-                  backgroundSize: "24px 24px",
-                }}
+                className="fixed inset-0 z-[120] bg-bg/96 backdrop-blur-2xl flex flex-col overflow-hidden"
               >
-                <FocusLock
-                  returnFocus
-                  className="w-full h-full flex flex-col justify-between"
-                >
-                  {/* Header Area */}
-                  <div className="flex items-start justify-between border-b border-white/5 pb-4 w-full">
+                <FocusLock returnFocus className="w-full h-full flex flex-col">
+                  {/* Part 1: Gridless Header Area */}
+                  <div className="flex items-start justify-between border-b border-white/5 pb-4 w-full p-6 md:p-10 flex-shrink-0">
                     <div>
                       <h1 className="text-xl md:text-3xl font-display text-text-primary">
                         Portfolio System Operation Blueprint
                       </h1>
                       <p className="text-xs text-muted max-w-xl leading-relaxed mt-1 text-pretty">
-                        Click any visitor task box in the upper lane to navigate
+                        Click any user task box in the upper lane to navigate
                         directly to that section. Press{" "}
                         <span className="font-mono bg-white/5 border border-white/10 px-2 py-1 rounded-xl text-accent font-bold">
                           ESC
@@ -176,9 +172,21 @@ export default function BpmnOverlay() {
                     </LiquidGlassButton>
                   </div>
 
-                  {/* BPMN Diagram Core */}
-                  <div className="flex-1 w-full max-w-6xl mx-auto flex items-center justify-center py-6 md:py-10 overflow-x-auto custom-cv-scrollbar">
-                    <BpmnDiagram onTaskClick={handleTaskClick} />
+                  {/* Part 2: BPMN Diagram Core with Blueprint Grid */}
+                  <div
+                    className="flex-1 w-full flex items-center justify-center p-6 md:p-10 overflow-auto custom-cv-scrollbar select-none"
+                    style={{
+                      backgroundImage: `
+                        url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 40 33 L 40 47 M 33 40 L 47 40' stroke='hsla(244, 75%25, 76%25, 0.12)' stroke-width='1'/%3E%3C/svg%3E"),
+                        radial-gradient(circle, hsl(var(--text) / 0.035) 0.75px, transparent 0.75px)
+                      `,
+                      backgroundSize: "80px 80px, 20px 20px",
+                      backgroundPosition: "center, center",
+                    }}
+                  >
+                    <div className="max-w-6xl w-full mx-auto flex items-center justify-center">
+                      <BpmnDiagram onTaskClick={handleTaskClick} />
+                    </div>
                   </div>
                 </FocusLock>
               </motion.div>
