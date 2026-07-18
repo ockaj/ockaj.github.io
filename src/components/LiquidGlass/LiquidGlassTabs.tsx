@@ -434,7 +434,7 @@ const Tab = memo(function Tab({
     >
       {showHighlight ? (
         <motion.span
-          layoutId={layoutId}
+          layoutId={isMobileNav ? undefined : layoutId}
           className={outerHighlightClass}
           style={outerHighlightStyle as CSSProperties}
           transition={layoutTransition}

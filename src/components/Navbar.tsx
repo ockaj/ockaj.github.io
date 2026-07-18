@@ -1,10 +1,11 @@
 import { useEffect, useCallback, useReducer, useRef } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { Menu, X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import { useIsMobile } from "../hooks/useMediaQuery";
 import { useOverlay } from "../hooks/useOverlay";
+import MobileMenu from "./MobileMenu";
 
 const NAV_LINKS = ["Case Studies", "Skills", "Process Library", "Journal"];
 
@@ -149,9 +150,19 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
     return () => observer.disconnect();
   }, []);
 
+  const handleClose = useCallback(
+    () => dispatch({ type: "SET_IS_OPEN", isOpen: false }),
+    [],
+  );
+
+  const handleHoverChange = useCallback(
+    (hovered: boolean) => dispatch({ type: "SET_IS_HOVERED", hovered }),
+    [],
+  );
+
   const handleNav = useCallback(
     (label: string) => {
-      dispatch({ type: "SET_IS_OPEN", isOpen: false }); // Close mobile menu dropdown
+      dispatch({ type: "SET_IS_OPEN", isOpen: false });
       setTimeout(() => {
         onNavClick(label);
       }, 100);
@@ -313,80 +324,17 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
 
         {/* Mobile Menu Dropdown Panel (Mobile Only) */}
         {isMobile && (
-          <AnimatePresence>
-            {isOpen && (
-              <>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  aria-hidden="true"
-                  className="fixed top-0 left-0 right-0 bottom-[-20vh] bg-black/50 backdrop-blur-[4px] md:hidden z-40 pointer-events-auto"
-                  onClick={() =>
-                    dispatch({ type: "SET_IS_OPEN", isOpen: false })
-                  }
-                />
-
-                <motion.div
-                  initial={
-                    isMotionReduced
-                      ? { opacity: 0 }
-                      : { opacity: 0, y: -8, scale: 0.96 }
-                  }
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={
-                    isMotionReduced
-                      ? { opacity: 0 }
-                      : { opacity: 0, y: -8, scale: 0.96 }
-                  }
-                  transition={
-                    isMotionReduced
-                      ? { duration: 0.15 }
-                      : { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }
-                  }
-                  style={{ transformOrigin: "top" }}
-                  className="md:hidden z-50 w-72 mt-2 pointer-events-auto"
-                >
-                  <Tabs
-                    value={active}
-                    onChange={handleNav}
-                    layoutId="active-mobile-nav-highlight"
-                    onMouseEnter={() =>
-                      dispatch({ type: "SET_IS_HOVERED", hovered: true })
-                    }
-                    onMouseLeave={() =>
-                      dispatch({ type: "SET_IS_HOVERED", hovered: false })
-                    }
-                    highlightClassName={`border border-white/10 ${isHovered || isTransitioning ? "navbar-highlight-active" : "navbar-highlight-flat"}`}
-                    highlightStyle={{
-                      boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.15)",
-                    }}
-                    className="relative w-full p-3 rounded-3xl border border-white/10 bg-surface/60 backdrop-blur-2xl shadow-2xl flex flex-col gap-1.5 max-h-[calc(100svh-100px)] overflow-y-auto overscroll-contain no-scrollbar"
-                    style={{
-                      boxShadow:
-                        "inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(0, 0, 0, 0.7)",
-                    }}
-                    role="none"
-                  >
-                    {["Home", ...NAV_LINKS, "Contact"].map((link) => (
-                      <Tab
-                        key={link}
-                        value={link}
-                        className={`relative w-full text-center flex justify-center items-center text-sm font-semibold rounded-full px-4 py-3.5 transition-colors duration-300 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
-                          active === link
-                            ? "text-text-primary"
-                            : "text-muted hover:text-text-primary"
-                        }`}
-                        role="link"
-                      >
-                        {link}
-                      </Tab>
-                    ))}
-                  </Tabs>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
+          <MobileMenu
+            isOpen={isOpen}
+            active={active}
+            isHovered={isHovered}
+            isTransitioning={isTransitioning}
+            isMotionReduced={isMotionReduced}
+            navLinks={NAV_LINKS}
+            onClose={handleClose}
+            onChange={handleNav}
+            onHoverChange={handleHoverChange}
+          />
         )}
       </nav>
     </>
