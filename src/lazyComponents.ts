@@ -2,14 +2,14 @@ import { lazy } from "react";
 import { makePreloadable } from "./utils/preloadable";
 
 export const loadCaseStudies = makePreloadable(
-  () => import("./components/CaseStudies"),
+  () => import("./components/CaseStudies/CaseStudies"),
 );
 export const loadSkills = makePreloadable(() => import("./components/Skills"));
 export const loadProcessLibrary = makePreloadable(
   () => import("./components/ProcessLibrary"),
 );
 export const loadJournal = makePreloadable(
-  () => import("./components/Journal"),
+  () => import("./components/Journal/Journal"),
 );
 export const loadPdfViewerModal = makePreloadable(
   () => import("./components/PdfViewerModal"),

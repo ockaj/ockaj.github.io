@@ -24,7 +24,7 @@ import { PROCESS_ITEMS } from "../data/processItems";
 import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 
-const ProcessLightbox = lazy(() => import("./ProcessLightbox"));
+const ProcessLightbox = lazy(() => import("./ProcessLightbox/ProcessLightbox"));
 
 interface CustomAnimationProps {
   prefersReducedMotion: boolean;
