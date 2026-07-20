@@ -155,11 +155,6 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
     [],
   );
 
-  const handleHoverChange = useCallback(
-    (hovered: boolean) => dispatch({ type: "SET_IS_HOVERED", hovered }),
-    [],
-  );
-
   const handleNav = useCallback(
     (label: string) => {
       dispatch({ type: "SET_IS_OPEN", isOpen: false });
@@ -327,13 +322,9 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
           <MobileMenu
             isOpen={isOpen}
             active={active}
-            isHovered={isHovered}
-            isTransitioning={isTransitioning}
-            isMotionReduced={isMotionReduced}
             navLinks={NAV_LINKS}
             onClose={handleClose}
             onChange={handleNav}
-            onHoverChange={handleHoverChange}
           />
         )}
       </nav>

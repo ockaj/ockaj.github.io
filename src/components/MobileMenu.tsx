@@ -1,5 +1,5 @@
-import { memo, useCallback } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { memo, useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 
 const easeTransition = [0.25, 0.1, 0.25, 1] as const;
@@ -10,34 +10,21 @@ const HIGHLIGHT_STYLE = {
 interface MobileMenuProps {
   isOpen: boolean;
   active: string;
-  isHovered: boolean;
-  isTransitioning: boolean;
-  isMotionReduced: boolean;
   navLinks: string[];
   onClose: () => void;
   onChange: (value: string) => void;
-  onHoverChange: (hovered: boolean) => void;
 }
 
 function MobileMenu({
   isOpen,
   active,
-  isHovered,
-  isTransitioning,
-  isMotionReduced,
   navLinks,
   onClose,
   onChange,
-  onHoverChange,
 }: MobileMenuProps) {
-  const handleMouseEnter = useCallback(
-    () => onHoverChange(true),
-    [onHoverChange],
-  );
-  const handleMouseLeave = useCallback(
-    () => onHoverChange(false),
-    [onHoverChange],
-  );
+  const [isHovered, setIsHovered] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+  const isMotionReduced = !!prefersReducedMotion;
 
   return (
     <AnimatePresence>
@@ -103,10 +90,10 @@ function MobileMenu({
                 value={active}
                 onChange={onChange}
                 layoutId="active-mobile-nav-highlight"
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
                 highlightClassName={`border border-white/10 ${
-                  isHovered || isTransitioning
+                  isHovered
                     ? "navbar-highlight-active"
                     : "navbar-highlight-flat"
                 }`}
