@@ -1,7 +1,7 @@
 import { memo, type ReactNode, type RefObject } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { BoneSuspense } from "boneyard-js/react";
-import { SuspenseTrigger } from "../appReducer";
+import { SuspenseTrigger } from "../store/useAppStore";
 
 interface LazySectionProps {
   id: string;

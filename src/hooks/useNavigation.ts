@@ -16,11 +16,10 @@ export const LABEL_MAP: Record<string, string> = {
   contact: "Contact",
 };
 
-interface UseNavigationOptions {
-  isLoading: boolean;
-}
+import { useAppStore } from "../store/useAppStore";
 
-export function useNavigation({ isLoading }: UseNavigationOptions) {
+export function useNavigation() {
+  const isLoading = useAppStore((state) => state.isLoading);
   const [activeSection, setActiveSection] = useState("Home");
   const ignoreScrollUntilRef = useRef(0);
   const visibleSectionsRef = useRef<Record<string, boolean>>({});

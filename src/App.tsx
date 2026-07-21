@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useReducer, useMemo, memo } from "react";
+import { Suspense, useCallback, useMemo, memo } from "react";
 import { AnimatePresence } from "motion/react";
 
 import LoadingScreen from "./components/LoadingScreen";
@@ -13,7 +13,7 @@ import { useIsMobile } from "./hooks/useMediaQuery";
 import { useLazyMount } from "./hooks/useLazyMount";
 import { usePreloadComponents } from "./hooks/usePreloadComponents";
 import { useNavigation } from "./hooks/useNavigation";
-import { appReducer } from "./appReducer";
+import { useAppStore } from "./store/useAppStore";
 import { getSkeletonHeight } from "./utils/skeletonHeight";
 import {
   CaseStudies,
@@ -30,26 +30,12 @@ import processesBones from "./bones/processes.bones.json";
 import journalBones from "./bones/journal.bones.json";
 
 function App() {
-  const [state, dispatch] = useReducer(appReducer, null, () => ({
-    isLoading: (() => {
-      if (
-        typeof window !== "undefined" &&
-        (window as unknown as { __BONEYARD_BUILD?: boolean }).__BONEYARD_BUILD
-      ) {
-        return false;
-      }
-      try {
-        return !sessionStorage.getItem("portfolio_loaded");
-      } catch {
-        return true;
-      }
-    })(),
-    isCvOpen: false,
-  }));
+  const isLoading = useAppStore((state) => state.isLoading);
+  const isCvOpen = useAppStore((state) => state.isCvOpen);
+  const setCvOpen = useAppStore((state) => state.setCvOpen);
+  const completeLoading = useAppStore((state) => state.completeLoading);
 
-  const { isLoading, isCvOpen } = state;
-
-  const { activeSection, handleNavClick } = useNavigation({ isLoading });
+  const { activeSection, handleNavClick } = useNavigation();
 
   const skeletonHeights = useMemo(
     () => ({
@@ -77,17 +63,12 @@ function App() {
   }, [handleNavClick]);
 
   const handleViewCv = useCallback(() => {
-    dispatch({ type: "SET_CV_OPEN", isOpen: true });
-  }, []);
+    setCvOpen(true);
+  }, [setCvOpen]);
 
   const handleLoadingComplete = useCallback(() => {
-    dispatch({ type: "COMPLETE_LOADING" });
-    try {
-      sessionStorage.setItem("portfolio_loaded", "true");
-    } catch {
-      // Ignore errors (e.g. private browsing restrictions)
-    }
-  }, []);
+    completeLoading();
+  }, [completeLoading]);
 
   return (
     <>
@@ -214,10 +195,7 @@ function App() {
         <ContactSection />
 
         <Suspense fallback={null}>
-          <PdfViewerModal
-            isOpen={isCvOpen}
-            onClose={() => dispatch({ type: "SET_CV_OPEN", isOpen: false })}
-          />
+          <PdfViewerModal isOpen={isCvOpen} onClose={() => setCvOpen(false)} />
         </Suspense>
 
         <Suspense fallback={null}>
