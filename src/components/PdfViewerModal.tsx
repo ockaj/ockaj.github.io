@@ -12,8 +12,7 @@ import {
   useReducedMotion,
   Variants,
 } from "motion/react";
-import { createPortal } from "react-dom";
-import FocusLock from "react-focus-lock";
+import { Dialog } from "@base-ui/react/dialog";
 import {
   X,
   Download,
@@ -423,260 +422,283 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
 
   if (typeof document === "undefined") return null;
 
-  return createPortal(
-    <AnimatePresence>
-      {isOpen ? (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-6 lg:p-8">
-          {/* Backdrop Blur overlay */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-bg/80 backdrop-blur-md pointer-events-auto"
-          />
+  return (
+    <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <Dialog.Portal keepMounted>
+        <AnimatePresence>
+          {isOpen ? (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-6 lg:p-8">
+              {/* Backdrop Blur overlay */}
+              <Dialog.Backdrop
+                render={
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={onClose}
+                    className="fixed inset-0 bg-bg/80 backdrop-blur-md pointer-events-auto"
+                  />
+                }
+              />
 
-          {/* Modal Container */}
-          <motion.div
-            custom={{ prefersReducedMotion, isMobile }}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            variants={modalVariants}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="modal-title"
-            className="relative w-full h-full md:h-[85vh] md:max-w-5xl bg-surface/85 border-0 md:border md:border-white/10 rounded-none md:rounded-3xl backdrop-blur-2xl flex flex-col overflow-hidden z-10 pointer-events-auto"
-            style={{
-              boxShadow:
-                "inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 16px rgba(0, 0, 0, 0.6)",
-            }}
-          >
-            <FocusLock returnFocus className="w-full h-full flex flex-col">
-              {/* Specular sheen header overlay */}
-              <div className="absolute top-0 left-0 right-0 h-1/2 pointer-events-none bg-gradient-to-b from-white/5 to-transparent z-20" />
+              {/* Modal Container */}
+              <Dialog.Popup
+                render={
+                  <motion.div
+                    custom={{ prefersReducedMotion, isMobile }}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    variants={modalVariants}
+                    className="relative w-full h-full md:h-[85vh] md:max-w-5xl bg-surface/85 border-0 md:border md:border-white/10 rounded-none md:rounded-3xl backdrop-blur-2xl flex flex-col overflow-hidden z-10 pointer-events-auto"
+                    style={{
+                      boxShadow:
+                        "inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 16px rgba(0, 0, 0, 0.6)",
+                    }}
+                  />
+                }
+              >
+                <div className="w-full h-full flex flex-col">
+                  {/* Specular sheen header overlay */}
+                  <div className="absolute top-0 left-0 right-0 h-1/2 pointer-events-none bg-gradient-to-b from-white/5 to-transparent z-20" />
 
-              {/* Header */}
-              <div className="relative z-30 px-4 py-3 md:px-6 md:py-4 border-b border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
-                {/* Title, Avatar & Mobile Action Buttons (Visible only on mobile next to title) */}
-                <div className="flex items-center justify-between w-full sm:w-auto gap-4">
-                  {/* Title & Avatar */}
-                  <div className="flex items-center gap-3">
-                    <div className="size-8 rounded-full overflow-hidden border border-white/10 flex-shrink-0 bg-bg">
-                      <img
-                        src="https://avatars.githubusercontent.com/u/36997301?v=4&s=32"
-                        alt="Ondrej Michal Očkaj"
-                        width="32"
-                        height="32"
-                        className="w-full h-full object-cover"
+                  {/* Header */}
+                  <div className="relative z-30 px-4 py-3 md:px-6 md:py-4 border-b border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    {/* Title, Avatar & Mobile Action Buttons (Visible only on mobile next to title) */}
+                    <div className="flex items-center justify-between w-full sm:w-auto gap-4">
+                      {/* Title & Avatar */}
+                      <div className="flex items-center gap-3">
+                        <div className="size-8 rounded-full overflow-hidden border border-white/10 flex-shrink-0 bg-bg">
+                          <img
+                            src="https://avatars.githubusercontent.com/u/36997301?v=4&s=32"
+                            alt="Ondrej Michal Očkaj"
+                            width="32"
+                            height="32"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <Dialog.Title
+                            id="modal-title"
+                            className="text-sm font-semibold text-text-primary leading-tight text-balance"
+                          >
+                            Ondrej Michal Očkaj
+                          </Dialog.Title>
+                          <p className="text-xs text-muted flex items-center gap-1 text-pretty">
+                            <FileText size={10} className="text-accent" />
+                            Curriculum Vitae
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Mobile Action Buttons (Right side on mobile) */}
+                      <div className="flex sm:hidden items-center gap-2">
+                        {/* Download Direct */}
+                        <LiquidGlassButton
+                          href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
+                          download="Ondrej_Michal_Ockaj_CV.pdf"
+                          className="p-3 size-11"
+                          ariaLabel="Download PDF CV"
+                        >
+                          <Download size={14} className="text-text-primary" />
+                        </LiquidGlassButton>
+
+                        {/* Open in New Tab */}
+                        <LiquidGlassButton
+                          href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-3 size-11"
+                          ariaLabel="Open CV PDF in new tab"
+                        >
+                          <ExternalLink
+                            size={14}
+                            className="text-text-primary"
+                          />
+                        </LiquidGlassButton>
+
+                        {/* Close Button */}
+                        <Dialog.Close
+                          render={
+                            <LiquidGlassButton
+                              onClick={onClose}
+                              ariaLabel="Close CV Viewer"
+                              className="size-11 p-0"
+                            >
+                              <X size={16} />
+                            </LiquidGlassButton>
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    {/* Tab Selector — Navbar-style sliding highlight blob (Desktop only) */}
+                    <Tabs
+                      value={activeTab}
+                      onChange={handleTabChange}
+                      layoutId="active-viewer-tab"
+                      onMouseEnter={() =>
+                        dispatch({ type: "SET_IS_HOVERED", hovered: true })
+                      }
+                      onMouseLeave={() =>
+                        dispatch({ type: "SET_IS_HOVERED", hovered: false })
+                      }
+                      highlightClassName={
+                        isHovered || isTransitioning
+                          ? "navbar-highlight-active"
+                          : "navbar-highlight-flat"
+                      }
+                      className="flex items-center gap-0.5 bg-white/[0.03] p-2 rounded-full border border-white/5 overflow-hidden isolate [transform:translateZ(0)]"
+                    >
+                      <Tab
+                        value="pdf"
+                        aria-controls="tabpanel-pdf"
+                        className={`relative text-xs font-semibold rounded-full px-4 py-2 select-none z-10 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
+                          activeTab === "pdf"
+                            ? "text-text-primary"
+                            : "text-muted hover:text-text-primary"
+                        }`}
+                      >
+                        {isMobile ? "PDF" : "PDF Document"}
+                      </Tab>
+                      <Tab
+                        value="interactive"
+                        aria-controls="tabpanel-interactive"
+                        className={`relative text-xs font-semibold rounded-full px-4 py-2 select-none z-10 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
+                          activeTab === "interactive"
+                            ? "text-text-primary"
+                            : "text-muted hover:text-text-primary"
+                        }`}
+                      >
+                        <span className="flex items-center gap-1">
+                          <Sparkles size={11} className="text-accent" />
+                          {isMobile ? "Interactive" : "Interactive CV"}
+                        </span>
+                      </Tab>
+                    </Tabs>
+
+                    {/* Desktop Action Buttons (Hidden on mobile) */}
+                    <div className="hidden sm:flex items-center gap-2">
+                      {/* Download Direct */}
+                      <LiquidGlassButton
+                        href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
+                        download="Ondrej_Michal_Ockaj_CV.pdf"
+                        className="p-3 size-11"
+                        ariaLabel="Download PDF CV"
+                      >
+                        <Download size={14} className="text-text-primary" />
+                      </LiquidGlassButton>
+
+                      {/* Open in New Tab */}
+                      <LiquidGlassButton
+                        href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-3 size-11"
+                        ariaLabel="Open CV PDF in new tab"
+                      >
+                        <ExternalLink size={14} className="text-text-primary" />
+                      </LiquidGlassButton>
+
+                      {/* Close Button */}
+                      <Dialog.Close
+                        render={
+                          <LiquidGlassButton
+                            onClick={onClose}
+                            ariaLabel="Close CV Viewer"
+                            className="size-11 p-0"
+                          >
+                            <X size={16} />
+                          </LiquidGlassButton>
+                        }
                       />
                     </div>
-                    <div>
-                      <h3
-                        id="modal-title"
-                        className="text-sm font-semibold text-text-primary leading-tight text-balance"
-                      >
-                        Ondrej Michal Očkaj
-                      </h3>
-                      <p className="text-xs text-muted flex items-center gap-1 text-pretty">
-                        <FileText size={10} className="text-accent" />
-                        Curriculum Vitae
-                      </p>
+                  </div>
+
+                  {/* Viewer Body Content */}
+                  <div className="flex-1 overflow-hidden relative bg-bg/40">
+                    {/* Tab 1: PDF Document */}
+                    <div
+                      role="tabpanel"
+                      id="tabpanel-pdf"
+                      aria-labelledby="tab-pdf"
+                      className={
+                        activeTab === "pdf"
+                          ? "absolute inset-0 flex flex-col"
+                          : "hidden"
+                      }
+                    >
+                      {activeTab === "pdf" && (
+                        <>
+                          {pdfLoading ? (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-bg/80 z-20">
+                              <Loader2
+                                className="animate-spin text-accent"
+                                size={32}
+                              />
+                              <p className="text-xs text-muted">
+                                Loading PDF Document…
+                              </p>
+                            </div>
+                          ) : null}
+                          <object
+                            data="/cv/Ondrej_Michal_Ockaj_CV.pdf#toolbar=0&navpanes=0&scrollbar=1"
+                            type="application/pdf"
+                            className="w-full h-full border-0 relative z-10"
+                            title="Ondrej Michal Ockaj CV"
+                            onLoad={() =>
+                              dispatch({
+                                type: "SET_PDF_LOADING",
+                                loading: false,
+                              })
+                            }
+                          >
+                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-bg/85 z-20 p-4 text-center">
+                              <p className="text-sm text-muted">
+                                Your browser does not support PDF viewing
+                                in-page.
+                              </p>
+                              <a
+                                href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
+                                download
+                                className="px-4 py-2 rounded-full bg-accent text-bg hover:bg-accent-hover text-xs font-semibold transition-colors duration-200"
+                              >
+                                Download CV PDF
+                              </a>
+                            </div>
+                          </object>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Tab 2: Interactive Resume HTML */}
+                    <div
+                      role="tabpanel"
+                      id="tabpanel-interactive"
+                      aria-labelledby="tab-interactive"
+                      className={
+                        activeTab === "interactive"
+                          ? "absolute inset-0 overflow-y-auto custom-cv-scrollbar p-6 md:p-8 lg:p-12"
+                          : "hidden"
+                      }
+                    >
+                      {activeTab === "interactive" ? (
+                        <InteractiveCvView
+                          activeCv={activeCv}
+                          lang={lang}
+                          isMobile={isMobile}
+                          dispatch={dispatch}
+                        />
+                      ) : null}
                     </div>
                   </div>
-
-                  {/* Mobile Action Buttons (Right side on mobile) */}
-                  <div className="flex sm:hidden items-center gap-2">
-                    {/* Download Direct */}
-                    <LiquidGlassButton
-                      href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
-                      download="Ondrej_Michal_Ockaj_CV.pdf"
-                      className="p-3 size-11"
-                      ariaLabel="Download PDF CV"
-                    >
-                      <Download size={14} className="text-text-primary" />
-                    </LiquidGlassButton>
-
-                    {/* Open in New Tab */}
-                    <LiquidGlassButton
-                      href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-3 size-11"
-                      ariaLabel="Open CV PDF in new tab"
-                    >
-                      <ExternalLink size={14} className="text-text-primary" />
-                    </LiquidGlassButton>
-
-                    {/* Close Button */}
-                    <LiquidGlassButton
-                      onClick={onClose}
-                      ariaLabel="Close CV Viewer"
-                      className="size-11 p-0"
-                    >
-                      <X size={16} />
-                    </LiquidGlassButton>
-                  </div>
                 </div>
-
-                {/* Tab Selector — Navbar-style sliding highlight blob (Desktop only) */}
-                <Tabs
-                  value={activeTab}
-                  onChange={handleTabChange}
-                  layoutId="active-viewer-tab"
-                  onMouseEnter={() =>
-                    dispatch({ type: "SET_IS_HOVERED", hovered: true })
-                  }
-                  onMouseLeave={() =>
-                    dispatch({ type: "SET_IS_HOVERED", hovered: false })
-                  }
-                  highlightClassName={
-                    isHovered || isTransitioning
-                      ? "navbar-highlight-active"
-                      : "navbar-highlight-flat"
-                  }
-                  className="flex items-center gap-0.5 bg-white/[0.03] p-2 rounded-full border border-white/5 overflow-hidden isolate [transform:translateZ(0)]"
-                >
-                  <Tab
-                    value="pdf"
-                    aria-controls="tabpanel-pdf"
-                    className={`relative text-xs font-semibold rounded-full px-4 py-2 select-none z-10 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
-                      activeTab === "pdf"
-                        ? "text-text-primary"
-                        : "text-muted hover:text-text-primary"
-                    }`}
-                  >
-                    {isMobile ? "PDF" : "PDF Document"}
-                  </Tab>
-                  <Tab
-                    value="interactive"
-                    aria-controls="tabpanel-interactive"
-                    className={`relative text-xs font-semibold rounded-full px-4 py-2 select-none z-10 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
-                      activeTab === "interactive"
-                        ? "text-text-primary"
-                        : "text-muted hover:text-text-primary"
-                    }`}
-                  >
-                    <span className="flex items-center gap-1">
-                      <Sparkles size={11} className="text-accent" />
-                      {isMobile ? "Interactive" : "Interactive CV"}
-                    </span>
-                  </Tab>
-                </Tabs>
-
-                {/* Desktop Action Buttons (Hidden on mobile) */}
-                <div className="hidden sm:flex items-center gap-2">
-                  {/* Download Direct */}
-                  <LiquidGlassButton
-                    href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
-                    download="Ondrej_Michal_Ockaj_CV.pdf"
-                    className="p-3 size-11"
-                    ariaLabel="Download PDF CV"
-                  >
-                    <Download size={14} className="text-text-primary" />
-                  </LiquidGlassButton>
-
-                  {/* Open in New Tab */}
-                  <LiquidGlassButton
-                    href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-3 size-11"
-                    ariaLabel="Open CV PDF in new tab"
-                  >
-                    <ExternalLink size={14} className="text-text-primary" />
-                  </LiquidGlassButton>
-
-                  {/* Close Button */}
-                  <LiquidGlassButton
-                    onClick={onClose}
-                    ariaLabel="Close CV Viewer"
-                    className="size-11 p-0"
-                  >
-                    <X size={16} />
-                  </LiquidGlassButton>
-                </div>
-              </div>
-
-              {/* Viewer Body Content */}
-              <div className="flex-1 overflow-hidden relative bg-bg/40">
-                {/* Tab 1: PDF Document */}
-                <div
-                  role="tabpanel"
-                  id="tabpanel-pdf"
-                  aria-labelledby="tab-pdf"
-                  className={
-                    activeTab === "pdf"
-                      ? "absolute inset-0 flex flex-col"
-                      : "hidden"
-                  }
-                >
-                  {activeTab === "pdf" && (
-                    <>
-                      {pdfLoading ? (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-bg/80 z-20">
-                          <Loader2
-                            className="animate-spin text-accent"
-                            size={32}
-                          />
-                          <p className="text-xs text-muted">
-                            Loading PDF Document…
-                          </p>
-                        </div>
-                      ) : null}
-                      <object
-                        data="/cv/Ondrej_Michal_Ockaj_CV.pdf#toolbar=0&navpanes=0&scrollbar=1"
-                        type="application/pdf"
-                        className="w-full h-full border-0 relative z-10"
-                        title="Ondrej Michal Ockaj CV"
-                        onLoad={() =>
-                          dispatch({ type: "SET_PDF_LOADING", loading: false })
-                        }
-                      >
-                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-bg/85 z-20 p-4 text-center">
-                          <p className="text-sm text-muted">
-                            Your browser does not support PDF viewing in-page.
-                          </p>
-                          <a
-                            href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
-                            download
-                            className="px-4 py-2 rounded-full bg-accent text-bg hover:bg-accent-hover text-xs font-semibold transition-colors duration-200"
-                          >
-                            Download CV PDF
-                          </a>
-                        </div>
-                      </object>
-                    </>
-                  )}
-                </div>
-
-                {/* Tab 2: Interactive Resume HTML */}
-                <div
-                  role="tabpanel"
-                  id="tabpanel-interactive"
-                  aria-labelledby="tab-interactive"
-                  className={
-                    activeTab === "interactive"
-                      ? "absolute inset-0 overflow-y-auto custom-cv-scrollbar p-6 md:p-8 lg:p-12"
-                      : "hidden"
-                  }
-                >
-                  {activeTab === "interactive" ? (
-                    <InteractiveCvView
-                      activeCv={activeCv}
-                      lang={lang}
-                      isMobile={isMobile}
-                      dispatch={dispatch}
-                    />
-                  ) : null}
-                </div>
-              </div>
-            </FocusLock>
-          </motion.div>
-        </div>
-      ) : null}
-    </AnimatePresence>,
-    document.body,
+              </Dialog.Popup>
+            </div>
+          ) : null}
+        </AnimatePresence>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
 

@@ -14,19 +14,21 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@base-ui/react": "^1.6.0",
     "@number-flow/react": "^0.6.2",
     "bpmn-font": "^0.12.1",
+    "clsx": "^2.1.1",
     "lucide-react": "^1.25.0",
     "motion": "^12.42.2",
     "ogl": "^1.0.11",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-focus-lock": "^2.13.7",
     "react-markdown": "^10.1.0",
     "react-zoom-pan-pinch": "^4.0.3",
     "remark-gfm": "^4.0.1",
     "simple-icons": "^16.27.0",
     "slot-text": "^0.3.3",
+    "tailwind-merge": "^3.6.0",
     "yaml": "^2.9.0",
     "zustand": "^5.0.14"
   },

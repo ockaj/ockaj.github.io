@@ -2,6 +2,7 @@ import { memo, type ReactNode, type RefObject } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { BoneSuspense } from "boneyard-js/react";
 import { SuspenseTrigger } from "../store/useAppStore";
+import { cn } from "../utils/cn";
 
 interface LazySectionProps {
   id: string;
@@ -43,7 +44,10 @@ function LazySection({
           whileInView={SECTION_ANIMATE}
           viewport={SECTION_VIEWPORT}
           transition={SECTION_TRANSITION}
-          className={headerClassName}
+          className={cn(
+            "relative z-30 px-6 md:px-10 lg:px-16",
+            headerClassName,
+          )}
         >
           {header}
         </motion.div>

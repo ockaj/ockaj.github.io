@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { createPortal } from "react-dom";
-import FocusLock from "react-focus-lock";
+import { Dialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import BpmnNodeBadge from "./BpmnNodeBadge";
@@ -113,7 +112,7 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
                 <p className="font-semibold text-text-primary text-[12px]">
                   Process Analyst Easter Egg
                 </p>
-                <p className="text-muted text-[11px] mt-0.5 leading-tight text-pretty">
+                <p className="text-muted text-[11px] mt-0.5 leading-normal text-pretty">
                   Type{" "}
                   <span className="font-mono text-accent font-bold">
                     B-P-M-N
@@ -137,23 +136,27 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
       </AnimatePresence>
 
       {/* Full Screen Blueprint BPMN Overlay */}
-      {typeof document !== "undefined" &&
-        createPortal(
-          <AnimatePresence>
-            {isOpen ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[120] bg-bg/96 backdrop-blur-2xl flex flex-col overflow-hidden"
+      <AnimatePresence>
+        {isOpen && typeof document !== "undefined" ? (
+          <Dialog.Root open onOpenChange={(open) => !open && setIsOpen(false)}>
+            <Dialog.Portal keepMounted>
+              <Dialog.Popup
+                render={
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[120] bg-bg/96 backdrop-blur-2xl flex flex-col overflow-hidden"
+                  />
+                }
               >
-                <FocusLock returnFocus className="w-full h-full flex flex-col">
+                <div className="w-full h-full flex flex-col">
                   {/* Part 1: Gridless Header Area */}
                   <div className="flex items-start justify-between border-b border-white/5 pb-4 w-full p-6 md:p-10 flex-shrink-0">
                     <div>
-                      <h1 className="text-xl md:text-3xl font-display text-text-primary">
+                      <Dialog.Title className="text-xl md:text-3xl font-display text-text-primary">
                         Portfolio System Operation Blueprint
-                      </h1>
+                      </Dialog.Title>
                       <p className="text-xs text-muted max-w-xl leading-relaxed mt-1 text-pretty">
                         Click any user task box in the upper lane to navigate
                         directly to that section. Press{" "}
@@ -163,13 +166,17 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
                         or click close to dismiss.
                       </p>
                     </div>
-                    <LiquidGlassButton
-                      onClick={() => setIsOpen(false)}
-                      ariaLabel="Close model overlay"
-                      className="size-11 p-0 flex-shrink-0"
-                    >
-                      <X size={18} />
-                    </LiquidGlassButton>
+                    <Dialog.Close
+                      render={
+                        <LiquidGlassButton
+                          onClick={() => setIsOpen(false)}
+                          ariaLabel="Close model overlay"
+                          className="size-11 p-0 flex-shrink-0"
+                        >
+                          <X size={18} />
+                        </LiquidGlassButton>
+                      }
+                    />
                   </div>
 
                   {/* Part 2: BPMN Diagram Core with Blueprint Grid */}
@@ -188,12 +195,12 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
                       <BpmnDiagram onTaskClick={handleTaskClick} />
                     </div>
                   </div>
-                </FocusLock>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>,
-          document.body,
-        )}
+                </div>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        ) : null}
+      </AnimatePresence>
     </>
   );
 }

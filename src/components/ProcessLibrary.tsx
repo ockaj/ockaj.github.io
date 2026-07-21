@@ -1,12 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useCallback,
-  memo,
-  useRef,
-  lazy,
-  Suspense,
-} from "react";
+import { useState, useEffect, useCallback, memo, useRef } from "react";
 import {
   motion,
   AnimatePresence,
@@ -23,8 +15,7 @@ import {
 import { PROCESS_ITEMS } from "../data/processItems";
 import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
-
-const ProcessLightbox = lazy(() => import("./ProcessLightbox/ProcessLightbox"));
+import ProcessLightbox from "./ProcessLightbox/ProcessLightbox";
 
 interface CustomAnimationProps {
   prefersReducedMotion: boolean;
@@ -172,17 +163,14 @@ function ProcessLibrary() {
     }
   }, [handleNext, handlePrev]);
 
-  // Centering active tab in scroll wrapper
+  // Centering active tab on user click
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const activeTabElement = document.getElementById(`tab-${activeItem.id}`);
-    if (activeTabElement) {
-      activeTabElement.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "center",
-      });
-    }
+    if (activeItem.id === PROCESS_ITEMS[0].id) return;
+    document.getElementById(`tab-${activeItem.id}`)?.scrollIntoView({
+      inline: "center",
+      block: "nearest",
+      behavior: "smooth",
+    });
   }, [activeItem.id]);
 
   // Set up intersection observer for top/bottom indicators
@@ -460,17 +448,15 @@ function ProcessLibrary() {
         </div>
       </div>
 
-      <Suspense fallback={null}>
-        <AnimatePresence>
-          {lightboxItem ? (
-            <ProcessLightbox
-              key={lightboxItem.id}
-              item={lightboxItem}
-              onClose={() => setLightboxItem(null)}
-            />
-          ) : null}
-        </AnimatePresence>
-      </Suspense>
+      <AnimatePresence>
+        {lightboxItem ? (
+          <ProcessLightbox
+            key={lightboxItem.id}
+            item={lightboxItem}
+            onClose={() => setLightboxItem(null)}
+          />
+        ) : null}
+      </AnimatePresence>
     </>
   );
 }

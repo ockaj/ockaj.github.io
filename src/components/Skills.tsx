@@ -242,7 +242,7 @@ const SkillCard = memo(function SkillCard({
               className="text-sm text-muted/80 flex items-start gap-1 cursor-default text-pretty skill-item-hover group/item"
             >
               <span className="w-4 h-5 flex items-center justify-start flex-shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent/60 group-hover/item:w-3.5 transition-[width,background-color] duration-200 ease-out group-hover/item:bg-accent" />
+                <span className="w-3.5 h-1.5 rounded-full bg-accent/60 [clip-path:inset(0_57.14%_0_0_round_9999px)] group-hover/item:[clip-path:inset(0_0_0_0_round_9999px)] transition-[clip-path,background-color] duration-200 ease-out group-hover/item:bg-accent" />
               </span>
               <span className="flex-1 skill-item-text">{skill}</span>
             </p>

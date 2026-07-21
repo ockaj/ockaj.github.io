@@ -25,6 +25,7 @@ import {
 } from "motion/react";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
+import { cn } from "../../utils/cn";
 import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
 import LiquidGlassStatic from "./LiquidGlassStatic";
@@ -149,7 +150,11 @@ function LiquidGlassMobile(props: LiquidGlassPropsWithRef) {
       ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
       : "cursor-default";
 
-  const baseClasses = `group relative inline-flex items-center justify-center backdrop-blur-lg text-text-primary select-none overflow-hidden ${cursorAndFocusClasses} ${roundedClass}`;
+  const baseClasses = cn(
+    "group relative inline-flex items-center justify-center backdrop-blur-lg text-text-primary select-none overflow-hidden",
+    cursorAndFocusClasses,
+    roundedClass,
+  );
 
   const innerGlassStyle = useMemo<CSSProperties>(() => {
     if (variant === "sunken") {
@@ -209,11 +214,12 @@ function LiquidGlassMobile(props: LiquidGlassPropsWithRef) {
 
   const ContentTag =
     as === "a" || as === "button" || as === "span" ? "span" : "div";
-  const contentClasses = `relative z-30 w-full h-full ${
-    as === "a" || as === "button" || as === "span"
-      ? "flex items-center justify-center gap-2 font-semibold"
-      : ""
-  } ${innerClassName}`.trim();
+  const contentClasses = cn(
+    "relative z-30 w-full h-full",
+    (as === "a" || as === "button" || as === "span") &&
+      "flex items-center justify-center gap-2 font-semibold",
+    innerClassName,
+  );
 
   const innerElements = (
     <>
@@ -243,7 +249,7 @@ function LiquidGlassMobile(props: LiquidGlassPropsWithRef) {
       : (motion as unknown as Record<string, ElementType>)[as];
 
   const tagProps: Record<string, unknown> = {
-    className: `${baseClasses} ${className}`,
+    className: cn(baseClasses, className),
     style: tagStyle,
     "aria-label": ariaLabel,
     ...sharedAnimationProps,
@@ -458,7 +464,11 @@ function LiquidGlassDesktop({
       ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
       : "cursor-default";
 
-  const baseClasses = `group relative inline-flex items-center justify-center backdrop-blur-lg text-text-primary select-none overflow-hidden ${cursorAndFocusClasses} ${roundedClass}`;
+  const baseClasses = cn(
+    "group relative inline-flex items-center justify-center backdrop-blur-lg text-text-primary select-none overflow-hidden",
+    cursorAndFocusClasses,
+    roundedClass,
+  );
 
   const innerGlassStyle = useMemo<CSSProperties>(() => {
     const isEffectivelyActive = active || isHovered;
@@ -554,11 +564,12 @@ function LiquidGlassDesktop({
 
   const ContentTag =
     as === "a" || as === "button" || as === "span" ? "span" : "div";
-  const contentClasses = `relative z-30 w-full h-full ${
-    as === "a" || as === "button" || as === "span"
-      ? "flex items-center justify-center gap-2 font-semibold"
-      : ""
-  } ${innerClassName}`.trim();
+  const contentClasses = cn(
+    "relative z-30 w-full h-full",
+    (as === "a" || as === "button" || as === "span") &&
+      "flex items-center justify-center gap-2 font-semibold",
+    innerClassName,
+  );
 
   const innerElements = (
     <>
@@ -629,7 +640,7 @@ function LiquidGlassDesktop({
       : (motion as unknown as Record<string, ElementType>)[as];
 
   const tagProps: Record<string, unknown> = {
-    className: `${baseClasses} ${className}`,
+    className: cn(baseClasses, className),
     style: tagStyle,
     "aria-label": ariaLabel,
     ...sharedAnimationProps,
