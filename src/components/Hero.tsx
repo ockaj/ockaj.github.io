@@ -13,13 +13,18 @@ import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import BpmnNodeBadge from "./BpmnNodeBadge";
 import { useIsMobile } from "../hooks/useMediaQuery";
 
+import { prefetchAsset } from "../utils/quicklink";
+
 const ROLES = [
   "Process Analyst",
   "Digital Transformer",
   "Solution Designer",
   "Business Consultant",
 ];
-const preloadPdfModal = () => import("./PdfViewerModal");
+const preloadPdfModal = () => {
+  prefetchAsset("/cv/Ondrej_Michal_Ockaj_CV.pdf");
+  return import("./PdfViewerModal");
+};
 
 interface HeroProps {
   onViewCv: () => void;

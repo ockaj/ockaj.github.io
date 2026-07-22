@@ -16,6 +16,7 @@ import { PROCESS_ITEMS } from "../data/processItems";
 import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import ProcessLightbox from "./ProcessLightbox/ProcessLightbox";
+import { prefetchAsset } from "../utils/quicklink";
 
 interface CustomAnimationProps {
   prefersReducedMotion: boolean;
@@ -91,8 +92,7 @@ function ProcessLibrary() {
     const adjacentIndices = [currentIndex - 1, currentIndex + 1];
     adjacentIndices.forEach((idx) => {
       if (idx >= 0 && idx < PROCESS_ITEMS.length) {
-        const img = new Image();
-        img.src = PROCESS_ITEMS[idx].image;
+        prefetchAsset(PROCESS_ITEMS[idx].image);
       }
     });
   }, [activeItem.id]);
@@ -233,6 +233,8 @@ function ProcessLibrary() {
                     <Tab
                       key={item.id}
                       value={item.id}
+                      onMouseEnter={() => prefetchAsset(item.image)}
+                      onFocus={() => prefetchAsset(item.image)}
                       aria-controls={`tabpanel-${item.id}`}
                       className={`w-auto lg:w-full text-left relative px-5 py-3 lg:px-8 lg:py-4 rounded-2xl flex-shrink-0 transition-colors duration-300 flex items-center gap-3 lg:gap-4 select-none cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
                         activeItem.id === item.id

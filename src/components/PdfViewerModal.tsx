@@ -33,6 +33,7 @@ import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import { SPRING } from "../utils/springConfig";
 import { useIsMobile } from "../hooks/useMediaQuery";
 import { useOverlay } from "../hooks/useOverlay";
+import { prefetchAsset } from "../utils/quicklink";
 
 interface PdfViewerModalProps {
   isOpen: boolean;
@@ -387,6 +388,12 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
   const isMobile = useIsMobile();
 
   useOverlay(isOpen, onClose, "cv");
+
+  useEffect(() => {
+    if (isOpen) {
+      prefetchAsset("/cv/Ondrej_Michal_Ockaj_CV.pdf");
+    }
+  }, [isOpen]);
 
   const [state, dispatch] = useReducer(pdfReducer, {
     activeTab: "interactive",
