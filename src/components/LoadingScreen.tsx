@@ -6,6 +6,7 @@ import {
   useTransform,
 } from "motion/react";
 import { useIsMobile } from "../hooks/useMediaQuery";
+import { cn } from "../utils/cn";
 
 const nodeOpacityAnimate = (active: boolean) => ({ opacity: active ? 1 : 0 });
 const nodeOpacityTransition = { duration: 0.4 };
@@ -668,13 +669,14 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
                 return (
                   <div
                     key={step.label}
-                    className={`flex items-center gap-3 text-[10px] md:text-xs font-sans ${
+                    className={cn(
+                      "flex items-center gap-3 text-[10px] md:text-xs font-sans",
                       isActive
                         ? "text-text-primary font-semibold"
                         : isCompleted
                           ? "text-muted/70"
-                          : "text-muted/45"
-                    }`}
+                          : "text-muted/45",
+                    )}
                   >
                     <span className="size-4 flex-shrink-0 relative">
                       <motion.span
@@ -715,7 +717,10 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
                       </motion.span>
                     </span>
                     <span
-                      className={`text-pretty transition-transform duration-300 inline-block origin-left ${isActive ? "translate-x-1" : ""}`}
+                      className={cn(
+                        "text-pretty transition-transform duration-300 inline-block origin-left",
+                        isActive && "translate-x-1",
+                      )}
                     >
                       {step.label}
                     </span>

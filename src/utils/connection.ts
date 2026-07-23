@@ -1,12 +1,11 @@
+import { isBoneyardBuild } from "./boneyard";
+
 let cachedSlowConnection: boolean | null = null;
 
 export const isSlowConnection = (): boolean => {
   if (cachedSlowConnection !== null) return cachedSlowConnection;
 
-  if (
-    typeof window !== "undefined" &&
-    (window as unknown as { __BONEYARD_BUILD?: boolean }).__BONEYARD_BUILD
-  ) {
+  if (isBoneyardBuild()) {
     cachedSlowConnection = false;
     return false;
   }

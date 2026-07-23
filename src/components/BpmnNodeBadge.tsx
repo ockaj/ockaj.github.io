@@ -1,5 +1,6 @@
 import { memo } from "react";
 import Tooltip from "./Tooltip";
+import { cn } from "../utils/cn";
 
 export type BpmnType =
   | "trash"
@@ -161,7 +162,11 @@ const BpmnNodeBadge = memo(function BpmnNodeBadge({
   return (
     <Tooltip content={getBpmnDescription(type)}>
       <span
-        className={`inline-flex items-center justify-center text-accent text-[20px] leading-none -translate-y-[0.5px] ${iconClass} ${className}`}
+        className={cn(
+          "inline-flex items-center justify-center text-accent text-[20px] leading-none -translate-y-[0.5px]",
+          iconClass,
+          className,
+        )}
         style={{ WebkitTextStroke: "0.2px currentColor" }}
         aria-hidden="true"
       />

@@ -5,8 +5,10 @@ import type { CaseStudyDetail } from "../../data/caseStudies";
 import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import BaseDrawer from "../BaseDrawer";
 import ReactMarkdown from "react-markdown";
+import { COMMON_MARKDOWN_COMPONENTS } from "../../utils/markdownRenderers";
 import { CONTACT_EMAIL } from "../../utils/contact";
 import MetricCountUp from "./MetricCountUp";
+import { SPRING } from "../../utils/springConfig";
 
 interface DrawerProps {
   study: CaseStudyDetail;
@@ -31,7 +33,7 @@ const drawerItemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { type: "spring" as const, damping: 25, stiffness: 220 },
+    transition: SPRING.drawer,
   },
 };
 
@@ -76,20 +78,11 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
           </h3>
           <ReactMarkdown
             components={{
+              ...COMMON_MARKDOWN_COMPONENTS,
               p: ({ children }) => (
                 <p className="text-sm text-text-primary/95 font-normal leading-relaxed text-pretty">
                   {children}
                 </p>
-              ),
-              strong: ({ children }) => (
-                <strong className="font-semibold text-text-primary">
-                  {children}
-                </strong>
-              ),
-              code: ({ children }) => (
-                <code className="px-1.5 py-0.5 rounded-xl bg-white/5 border border-white/10 text-xs font-mono">
-                  {children}
-                </code>
               ),
             }}
           >
@@ -97,20 +90,11 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
           </ReactMarkdown>
           <ReactMarkdown
             components={{
+              ...COMMON_MARKDOWN_COMPONENTS,
               p: ({ children }) => (
                 <p className="text-sm text-muted leading-relaxed text-pretty">
                   {children}
                 </p>
-              ),
-              strong: ({ children }) => (
-                <strong className="font-semibold text-text-primary">
-                  {children}
-                </strong>
-              ),
-              code: ({ children }) => (
-                <code className="px-1.5 py-0.5 rounded-xl bg-white/5 border border-white/10 text-xs font-mono">
-                  {children}
-                </code>
               ),
             }}
           >

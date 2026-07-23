@@ -2,6 +2,7 @@ import { memo, useRef, useCallback, useEffect } from "react";
 import { useControls, useTransformEffect } from "react-zoom-pan-pinch";
 import { Plus, Minus, X } from "lucide-react";
 import { LiquidGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import { cn } from "../../utils/cn";
 
 interface LightboxControlsProps {
   isMobile: boolean;
@@ -66,11 +67,12 @@ const LightboxControls = memo(function LightboxControls({
             roundedClass="rounded-full"
             interactive={isZoomed}
             springScale={isZoomed}
-            className={`h-10 w-16 flex items-center justify-center text-[10px] tracking-wider uppercase select-none font-bold text-text-primary ${
+            className={cn(
+              "h-10 w-16 flex items-center justify-center text-[10px] tracking-wider uppercase select-none font-bold text-text-primary",
               isZoomed
                 ? "pointer-events-auto cursor-pointer"
-                : "pointer-events-none cursor-default"
-            }`}
+                : "pointer-events-none cursor-default",
+            )}
             onClick={isZoomed ? () => resetTransform() : undefined}
             magnetic={isZoomed}
             magneticStrength={0.04}

@@ -5,6 +5,7 @@ import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import BaseDrawer from "../BaseDrawer";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { COMMON_MARKDOWN_COMPONENTS } from "../../utils/markdownRenderers";
 import { CONTACT_EMAIL } from "../../utils/contact";
 
 interface DrawerProps {
@@ -45,6 +46,7 @@ const JournalDrawer = memo(function JournalDrawer({
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
+              ...COMMON_MARKDOWN_COMPONENTS,
               h3: ({ children }) => (
                 <h3 className="text-lg font-body text-text-primary font-bold mt-8 mb-4 text-balance flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
@@ -65,16 +67,6 @@ const JournalDrawer = memo(function JournalDrawer({
                 <li className="text-xs md:text-sm text-pretty leading-relaxed">
                   {children}
                 </li>
-              ),
-              strong: ({ children }) => (
-                <strong className="font-semibold text-text-primary">
-                  {children}
-                </strong>
-              ),
-              code: ({ children }) => (
-                <code className="px-1.5 py-0.5 rounded-xl bg-white/5 border border-white/10 text-xs font-mono">
-                  {children}
-                </code>
               ),
               table: ({ children }) => (
                 <div className="my-6 rounded-xl border border-white/10 bg-white/5 overflow-x-auto scrollbar-thin">

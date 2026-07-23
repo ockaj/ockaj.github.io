@@ -34,23 +34,19 @@ export function useNavigation() {
       ignoreScrollUntilRef.current = Date.now() + 1000;
 
       const scrollBehavior = isMotionReduced ? "auto" : "smooth";
-      if (section === "Home") {
-        window.scrollTo({ top: 0, behavior: scrollBehavior });
-      } else {
-        const sectionId = Object.keys(LABEL_MAP).find(
-          (key) => LABEL_MAP[key] === section,
-        );
-        if (sectionId) {
-          document
-            .getElementById(sectionId)
-            ?.scrollIntoView({ behavior: scrollBehavior });
-        }
-      }
-
-      // Synchronize URL hash
       const sectionId = Object.keys(LABEL_MAP).find(
         (key) => LABEL_MAP[key] === section,
       );
+
+      if (section === "Home") {
+        window.scrollTo({ top: 0, behavior: scrollBehavior });
+      } else if (sectionId) {
+        document
+          .getElementById(sectionId)
+          ?.scrollIntoView({ behavior: scrollBehavior });
+      }
+
+      // Synchronize URL hash
       if (sectionId) {
         const newHash = `#${sectionId}`;
         if (window.location.hash !== newHash) {

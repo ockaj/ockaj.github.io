@@ -21,6 +21,7 @@ import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
+import { cn } from "../../utils/cn";
 import { DEFAULT_STYLE } from "./types";
 import { scaleDeltas, scaleVertical, springs, hoverDelta } from "./config";
 
@@ -147,7 +148,7 @@ function TabsInner<T extends string | number>({
       <div
         role="tablist"
         tabIndex={-1}
-        className={`flex ${className}`}
+        className={cn("flex", className)}
         style={style}
         {...rest}
         onMouseLeave={(e) => {
@@ -399,9 +400,11 @@ const Tab = memo(function Tab({
       onMouseEnter={() => {
         handleMouseEnter();
       }}
-      className={`relative select-none z-10 transition-colors duration-200 focus-visible:outline-none ${className} ${
-        isActive ? activeClassName : ""
-      }`}
+      className={cn(
+        "relative select-none z-10 transition-colors duration-200 focus-visible:outline-none",
+        className,
+        isActive && activeClassName,
+      )}
       {...rest}
       role={tabRole ?? undefined}
       aria-selected={

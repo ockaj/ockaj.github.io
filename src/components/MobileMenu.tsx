@@ -1,6 +1,7 @@
 import { memo, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
+import { cn } from "../utils/cn";
 
 const easeTransition = [0.25, 0.1, 0.25, 1] as const;
 const HIGHLIGHT_STYLE = {
@@ -92,11 +93,12 @@ function MobileMenu({
                 layoutId="active-mobile-nav-highlight"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
-                highlightClassName={`border border-white/10 ${
+                highlightClassName={cn(
+                  "border border-white/10",
                   isHovered
                     ? "navbar-highlight-active"
-                    : "navbar-highlight-flat"
-                }`}
+                    : "navbar-highlight-flat",
+                )}
                 highlightStyle={HIGHLIGHT_STYLE}
                 className="flex flex-col gap-1.5"
                 role="none"
@@ -105,11 +107,12 @@ function MobileMenu({
                   <Tab
                     key={link}
                     value={link}
-                    className={`relative w-full text-center flex justify-center items-center text-sm font-semibold rounded-full px-4 py-3.5 transition-colors duration-300 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
+                    className={cn(
+                      "relative w-full text-center flex justify-center items-center text-sm font-semibold rounded-full px-4 py-3.5 transition-colors duration-300 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
                       active === link
                         ? "text-text-primary"
-                        : "text-muted hover:text-text-primary"
-                    }`}
+                        : "text-muted hover:text-text-primary",
+                    )}
                     role="link"
                   >
                     {link}

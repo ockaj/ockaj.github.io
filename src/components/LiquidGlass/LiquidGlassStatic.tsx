@@ -1,5 +1,6 @@
 import { useMemo, type CSSProperties, type Ref, type ElementType } from "react";
 import { type LiquidGlassPropsWithRef, WHITESPACE_REGEX } from "./types";
+import { cn } from "../../utils/cn";
 
 export default function LiquidGlassStatic({
   children,
@@ -68,12 +69,16 @@ export default function LiquidGlassStatic({
   return (
     <Tag
       ref={ref as Ref<HTMLDivElement>}
-      className={`${baseClasses} ${className}`}
+      className={cn(baseClasses, className)}
       style={tagStyle}
       {...rest}
     >
       <span
-        className={`absolute inset-0 pointer-events-none z-0 border ${borderActiveClasses} ${roundedClass} transition-[border-color,background-color,box-shadow] duration-300 ease-out`}
+        className={cn(
+          "absolute inset-0 pointer-events-none z-0 border transition-[border-color,background-color,box-shadow] duration-300 ease-out",
+          borderActiveClasses,
+          roundedClass,
+        )}
         style={innerGlassStyle}
       />
       <ContentTag className={contentClasses}>{children}</ContentTag>

@@ -5,6 +5,7 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useOverlay } from "../../hooks/useOverlay";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { SPRING } from "../../utils/springConfig";
+import { cn } from "../../utils/cn";
 import ZoomableImage from "./ZoomableImage";
 import ZoomClickArea from "./ZoomClickArea";
 import LightboxControls from "./LightboxControls";
@@ -109,9 +110,10 @@ function ProcessLightbox({ item, onClose }: ProcessLightboxProps) {
           >
             {/* Full Viewport for Diagram (Responsive flex) */}
             <div
-              className={`flex-1 md:h-full w-full bg-surface overflow-hidden flex items-center justify-center relative touch-none ${
-                isZoomed ? "p-0" : "p-4 md:p-6"
-              }`}
+              className={cn(
+                "flex-1 md:h-full w-full bg-surface overflow-hidden flex items-center justify-center relative touch-none",
+                isZoomed ? "p-0" : "p-4 md:p-6",
+              )}
             >
               <TransformWrapper
                 initialScale={1}

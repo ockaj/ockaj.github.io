@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { isBoneyardBuild } from "../utils/boneyard";
 
 export const PENDING_PROMISE = new Promise<void>(() => {});
 
@@ -15,10 +16,7 @@ export interface AppState {
 }
 
 const getInitialLoading = (): boolean => {
-  if (
-    typeof window !== "undefined" &&
-    (window as unknown as { __BONEYARD_BUILD?: boolean }).__BONEYARD_BUILD
-  ) {
+  if (isBoneyardBuild()) {
     return false;
   }
   try {

@@ -4,9 +4,11 @@ import BpmnNodeBadge from "./BpmnNodeBadge";
 import Contact from "./Contact";
 import Footer from "./Footer";
 
-const SECTION_ANIMATE = { opacity: 1, y: 0 };
-const SECTION_VIEWPORT = { once: true, margin: "-100px" } as const;
-const SECTION_TRANSITION = { duration: 1, ease: [0.25, 0.1, 0.25, 1] as const };
+import {
+  SECTION_ANIMATE,
+  SECTION_VIEWPORT,
+  SECTION_TRANSITION,
+} from "../utils/motionVariants";
 
 function ContactSection() {
   const prefersReducedMotion = useReducedMotion();

@@ -26,6 +26,8 @@ import {
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 import { cn } from "../../utils/cn";
+import { SPRING } from "../../utils/springConfig";
+
 import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
 import LiquidGlassStatic from "./LiquidGlassStatic";
@@ -224,7 +226,11 @@ function LiquidGlassMobile(props: LiquidGlassPropsWithRef) {
   const innerElements = (
     <>
       <span
-        className={`absolute inset-0 pointer-events-none z-0 border ${borderActiveClasses} ${roundedClass} transition-[border-color,background-color,box-shadow] duration-300 ease-out`}
+        className={cn(
+          "absolute inset-0 pointer-events-none z-0 border transition-[border-color,background-color,box-shadow] duration-300 ease-out",
+          borderActiveClasses,
+          roundedClass,
+        )}
         style={innerGlassStyle}
       />
       {interactive ? (
@@ -345,20 +351,12 @@ function LiquidGlassDesktop({
   const mouseY = useMotionValue(0);
   const opacity = useMotionValue(0);
 
-  const springX = useSpring(mouseX, {
-    damping: 28,
-    stiffness: 180,
-    mass: 0.6,
-  });
-  const springY = useSpring(mouseY, {
-    damping: 28,
-    stiffness: 180,
-    mass: 0.6,
-  });
-  const springOpacity = useSpring(opacity, { damping: 20, stiffness: 120 });
+  const springX = useSpring(mouseX, SPRING.glassMouse);
+  const springY = useSpring(mouseY, SPRING.glassMouse);
+  const springOpacity = useSpring(opacity, SPRING.glassOpacity);
 
-  const lagX = useSpring(mouseX, { damping: 38, stiffness: 110, mass: 1.0 });
-  const lagY = useSpring(mouseY, { damping: 38, stiffness: 110, mass: 1.0 });
+  const lagX = useSpring(mouseX, SPRING.glassLag);
+  const lagY = useSpring(mouseY, SPRING.glassLag);
 
   const rectRef = useRef<DOMRect | null>(null);
 
@@ -574,13 +572,20 @@ function LiquidGlassDesktop({
   const innerElements = (
     <>
       <span
-        className={`absolute inset-0 pointer-events-none z-0 border ${borderActiveClasses} ${roundedClass} transition-[border-color,background-color,box-shadow] duration-300 ease-out`}
+        className={cn(
+          "absolute inset-0 pointer-events-none z-0 border transition-[border-color,background-color,box-shadow] duration-300 ease-out",
+          borderActiveClasses,
+          roundedClass,
+        )}
         style={innerGlassStyle}
       />
       {interactive && !isMotionReduced ? (
         <>
           <span
-            className={`absolute inset-0 pointer-events-none z-0 overflow-hidden ${roundedClass}`}
+            className={cn(
+              "absolute inset-0 pointer-events-none z-0 overflow-hidden",
+              roundedClass,
+            )}
           >
             <motion.span
               className="absolute size-48 -mt-24 -ml-24 rounded-full bg-gradient-to-r from-[#7A7BBF]/6 to-[#6667AB]/6 blur-2xl pointer-events-none mix-blend-screen"
@@ -614,7 +619,10 @@ function LiquidGlassDesktop({
           ) : null}
 
           <motion.span
-            className={`absolute inset-0 pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${roundedClass}`}
+            className={cn(
+              "absolute inset-0 pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+              roundedClass,
+            )}
             style={{ background: borderGradient, mixBlendMode: "overlay" }}
           />
         </>

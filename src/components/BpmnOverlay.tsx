@@ -19,6 +19,12 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
   const [isOpen, setIsOpen] = useState(false);
   const typedBufferRef = useRef<string[]>([]);
   const [showHotkeyTip, setShowHotkeyTip] = useState(false);
+  const [hasDismissedTip, setHasDismissedTip] = useState(() => {
+    return (
+      typeof window !== "undefined" &&
+      sessionStorage.getItem("bpmn_tip_dismissed") === "true"
+    );
+  });
 
   useOverlay(isOpen, () => setIsOpen(false), "bpmn");
 
@@ -54,12 +60,16 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isMobile]);
 
-  // Show a brief toast notification on how to trigger if user spends time on the site
+  // Show a brief toast notification on how to trigger if user spends time on the site (once per session)
   useEffect(() => {
-    if (isMobile) return;
+    if (isMobile || hasDismissedTip) return;
 
     const timer = setTimeout(() => {
       setShowHotkeyTip(true);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("bpmn_tip_dismissed", "true");
+      }
+      setHasDismissedTip(true);
       // Fade out after 6 seconds
       const fadeTimer = setTimeout(() => {
         setShowHotkeyTip(false);
@@ -68,7 +78,7 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
     }, 12000);
 
     return () => clearTimeout(timer);
-  }, [isMobile]);
+  }, [isMobile, hasDismissedTip]);
 
   const handleTaskClick = (sectionId: string) => {
     setIsOpen(false);

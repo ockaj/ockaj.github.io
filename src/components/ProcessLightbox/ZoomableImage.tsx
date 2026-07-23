@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { cn } from "../../utils/cn";
 
 interface ZoomableImageProps {
   src: string;
@@ -20,11 +21,12 @@ const ZoomableImage = memo(function ZoomableImage({
       style={{
         cursor: isZoomed ? (isPanning ? "grabbing" : "grab") : "zoom-in",
       }}
-      className={`max-w-full max-h-full object-contain select-none pointer-events-auto bg-white shadow-2xl border border-white/5 touch-none ${
+      className={cn(
+        "max-w-full max-h-full object-contain select-none pointer-events-auto bg-white shadow-2xl border border-white/5 touch-none",
         isZoomed
           ? "p-0 rounded-none border-none"
-          : "p-2 md:p-6 rounded-lg md:rounded-xl"
-      }`}
+          : "p-2 md:p-6 rounded-lg md:rounded-xl",
+      )}
       draggable={false}
     />
   );

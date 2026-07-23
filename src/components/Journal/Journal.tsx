@@ -4,30 +4,15 @@ import { ARTICLES, type Article } from "../../data/articles";
 import JournalEntry from "./JournalEntry";
 import JournalDrawer from "./JournalDrawer";
 
-const isBuildMode =
-  typeof window !== "undefined" &&
-  (window as unknown as { __BONEYARD_BUILD?: boolean }).__BONEYARD_BUILD;
+import { isBoneyardBuild } from "../../utils/boneyard";
+import {
+  containerStaggerVariants,
+  cardStaggerVariants,
+} from "../../utils/motionVariants";
 
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.08,
-    },
-  },
-};
-
-const cardVariants = {
-  hidden: (prefersReducedMotion: boolean) => ({
-    opacity: 0,
-    y: prefersReducedMotion ? 0 : 30,
-  }),
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as const },
-  },
-};
+const isBuildMode = isBoneyardBuild();
+const containerVariants = containerStaggerVariants(0.08);
+const cardVariants = cardStaggerVariants;
 
 function Journal() {
   const prefersReducedMotion = useReducedMotion();

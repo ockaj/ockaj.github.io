@@ -1,11 +1,4 @@
-import {
-  useEffect,
-  useCallback,
-  useMemo,
-  memo,
-  useRef,
-  useReducer,
-} from "react";
+import { useEffect, useCallback, useMemo, memo, useReducer } from "react";
 import {
   motion,
   AnimatePresence,
@@ -34,6 +27,7 @@ import { SPRING } from "../utils/springConfig";
 import { useIsMobile } from "../hooks/useMediaQuery";
 import { useOverlay } from "../hooks/useOverlay";
 import { prefetchAsset } from "../utils/quicklink";
+import { cn } from "../utils/cn";
 
 interface PdfViewerModalProps {
   isOpen: boolean;
@@ -171,18 +165,20 @@ const InteractiveCvView = memo(function InteractiveCvView({
         <div className="relative z-10 self-start md:self-auto flex items-center gap-1.5">
           <LiquidGlassButton
             onClick={() => dispatch({ type: "SET_LANG", lang: "en" })}
-            className={`px-3 py-1.5 text-xs font-semibold flex items-center gap-1 ${
-              lang === "en" ? "text-accent" : "text-muted"
-            }`}
+            className={cn(
+              "px-3 py-1.5 text-xs font-semibold flex items-center gap-1",
+              lang === "en" ? "text-accent" : "text-muted",
+            )}
           >
             <Languages size={11} />
             EN
           </LiquidGlassButton>
           <LiquidGlassButton
             onClick={() => dispatch({ type: "SET_LANG", lang: "sk" })}
-            className={`px-3 py-1.5 text-xs font-semibold flex items-center gap-1 ${
-              lang === "sk" ? "text-accent" : "text-muted"
-            }`}
+            className={cn(
+              "px-3 py-1.5 text-xs font-semibold flex items-center gap-1",
+              lang === "sk" ? "text-accent" : "text-muted",
+            )}
           >
             <Languages size={11} />
             SK
@@ -405,9 +401,20 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
 
   const { activeTab, lang, pdfLoading, isHovered, isTransitioning } = state;
 
-  const handleTabChange = useCallback((tab: "pdf" | "interactive") => {
-    dispatch({ type: "CHANGE_TAB", tab });
-  }, []);
+  const handleTabChange = useCallback(
+    (tab: "pdf" | "interactive") => {
+      if (isMobile && tab === "pdf") {
+        window.open(
+          "/cv/Ondrej_Michal_Ockaj_CV.pdf",
+          "_blank",
+          "noopener,noreferrer",
+        );
+        return;
+      }
+      dispatch({ type: "CHANGE_TAB", tab });
+    },
+    [isMobile],
+  );
 
   useEffect(() => {
     if (!isTransitioning) return;
@@ -419,11 +426,6 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
   }, [isTransitioning]);
 
   const prefersReducedMotion = useReducedMotion();
-
-  const onCloseRef = useRef(onClose);
-  useEffect(() => {
-    onCloseRef.current = onClose;
-  }, [onClose]);
 
   const activeCv = useMemo(() => CV_DATA[lang], [lang]);
 
@@ -560,22 +562,24 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                       <Tab
                         value="pdf"
                         aria-controls="tabpanel-pdf"
-                        className={`relative text-xs font-semibold rounded-full px-4 py-2 select-none z-10 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
+                        className={cn(
+                          "relative text-xs font-semibold rounded-full px-4 py-2 select-none z-10 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
                           activeTab === "pdf"
                             ? "text-text-primary"
-                            : "text-muted hover:text-text-primary"
-                        }`}
+                            : "text-muted hover:text-text-primary",
+                        )}
                       >
-                        {isMobile ? "PDF" : "PDF Document"}
+                        {isMobile ? "PDF File ↗" : "PDF Document"}
                       </Tab>
                       <Tab
                         value="interactive"
                         aria-controls="tabpanel-interactive"
-                        className={`relative text-xs font-semibold rounded-full px-4 py-2 select-none z-10 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
+                        className={cn(
+                          "relative text-xs font-semibold rounded-full px-4 py-2 select-none z-10 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
                           activeTab === "interactive"
                             ? "text-text-primary"
-                            : "text-muted hover:text-text-primary"
-                        }`}
+                            : "text-muted hover:text-text-primary",
+                        )}
                       >
                         <span className="flex items-center gap-1">
                           <Sparkles size={11} className="text-accent" />

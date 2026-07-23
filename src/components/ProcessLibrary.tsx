@@ -17,6 +17,7 @@ import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import ProcessLightbox from "./ProcessLightbox/ProcessLightbox";
 import { prefetchAsset } from "../utils/quicklink";
+import { cn } from "../utils/cn";
 
 interface CustomAnimationProps {
   prefersReducedMotion: boolean;
@@ -236,19 +237,21 @@ function ProcessLibrary() {
                       onMouseEnter={() => prefetchAsset(item.image)}
                       onFocus={() => prefetchAsset(item.image)}
                       aria-controls={`tabpanel-${item.id}`}
-                      className={`w-auto lg:w-full text-left relative px-5 py-3 lg:px-8 lg:py-4 rounded-2xl flex-shrink-0 transition-colors duration-300 flex items-center gap-3 lg:gap-4 select-none cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
+                      className={cn(
+                        "w-auto lg:w-full text-left relative px-5 py-3 lg:px-8 lg:py-4 rounded-2xl flex-shrink-0 transition-colors duration-300 flex items-center gap-3 lg:gap-4 select-none cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
                         activeItem.id === item.id
                           ? "text-text-primary"
-                          : "text-muted hover:text-text-primary"
-                      }`}
+                          : "text-muted hover:text-text-primary",
+                      )}
                     >
                       {/* Badge Index */}
                       <span
-                        className={`relative z-10 text-xs font-body tabular-nums min-w-[20px] transition-colors duration-300 ${
+                        className={cn(
+                          "relative z-10 text-xs font-body tabular-nums min-w-[20px] transition-colors duration-300",
                           activeItem.id === item.id
                             ? "font-bold text-accent"
-                            : "font-semibold text-accent/80"
-                        }`}
+                            : "font-semibold text-accent/80",
+                        )}
                       >
                         {String(idx + 1).padStart(2, "0")}
                       </span>
@@ -423,11 +426,12 @@ function ProcessLibrary() {
                       type="button"
                       onClick={() => handleTabChange(item.id)}
                       aria-label={`Go to process ${idx + 1}`}
-                      className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 ${
+                      className={cn(
+                        "h-1.5 rounded-full transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
                         activeItem.id === item.id
                           ? "bg-accent w-4 opacity-100"
-                          : "bg-white/20 w-1.5 opacity-50 hover:bg-white/40"
-                      }`}
+                          : "bg-white/20 w-1.5 opacity-50 hover:bg-white/40",
+                      )}
                     />
                   ))}
                 </div>

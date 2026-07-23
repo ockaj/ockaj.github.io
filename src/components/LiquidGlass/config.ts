@@ -1,7 +1,9 @@
+import { SPRING } from "../../utils/springConfig";
+
 // Spring presets — used by animate() and transition props
 export const springs = {
-  scale: { type: "spring" as const, stiffness: 400, damping: 15, mass: 0.6 },
-  ripple: { type: "spring" as const, stiffness: 85, damping: 14, mass: 0.5 },
+  scale: SPRING.glassScale,
+  ripple: SPRING.glassRipple,
 } as const;
 
 // Tilt

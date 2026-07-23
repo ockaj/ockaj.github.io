@@ -10,10 +10,10 @@ import {
 } from "lucide-react";
 import { LiquidGlass } from "./LiquidGlass/LiquidGlass";
 import BpmnNodeBadge from "./BpmnNodeBadge";
+import { isBoneyardBuild } from "../utils/boneyard";
+import { cn } from "../utils/cn";
 
-const isBuildMode =
-  typeof window !== "undefined" &&
-  (window as unknown as { __BONEYARD_BUILD?: boolean }).__BONEYARD_BUILD;
+const isBuildMode = isBoneyardBuild();
 
 const SKILL_CATEGORIES = [
   {
@@ -141,7 +141,7 @@ function Skills() {
             key={category.title}
             variants={cardVariants}
             custom={prefersReducedMotion}
-            className={`${category.gridSpan} h-full`}
+            className={cn(category.gridSpan, "h-full")}
           >
             <SkillCard category={category} />
           </motion.div>
@@ -211,7 +211,10 @@ const SkillCard = memo(function SkillCard({
       tilt
     >
       <div
-        className={`flex flex-col ${category.isWide ? "md:flex-row md:justify-between md:gap-8" : ""} h-full w-full`}
+        className={cn(
+          "flex flex-col h-full w-full",
+          category.isWide && "md:flex-row md:justify-between md:gap-8",
+        )}
       >
         {/* Left content block */}
         <div
@@ -234,7 +237,11 @@ const SkillCard = memo(function SkillCard({
         </div>
 
         <div
-          className={`space-y-2.5 ${category.isWide ? "md:flex-1 md:grid md:grid-cols-2 md:gap-x-6 md:gap-y-2.5 md:space-y-0 md:self-center" : ""}`}
+          className={cn(
+            "space-y-2.5",
+            category.isWide &&
+              "md:flex-1 md:grid md:grid-cols-2 md:gap-x-6 md:gap-y-2.5 md:space-y-0 md:self-center",
+          )}
         >
           {category.skills.map((skill) => (
             <p

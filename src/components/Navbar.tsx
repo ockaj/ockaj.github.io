@@ -5,6 +5,8 @@ import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import { useIsMobile } from "../hooks/useMediaQuery";
 import { useOverlay } from "../hooks/useOverlay";
+import { cn } from "../utils/cn";
+import { SPRING } from "../utils/springConfig";
 import MobileMenu from "./MobileMenu";
 
 const NAV_LINKS = ["Case Studies", "Skills", "Process Library", "Journal"];
@@ -123,20 +125,6 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
     }
   }, [isTransitioning]);
 
-  // Close mobile menu on Escape key press
-  useEffect(() => {
-    if (!isOpen || !isMobile) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        dispatch({ type: "SET_IS_OPEN", isOpen: false });
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, isMobile]);
-
   // Track scroll depth for the navbar backdrop collapse effect
   useEffect(() => {
     const sentinel = localSentinelRef.current;
@@ -173,9 +161,11 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
       />
       <nav className="fixed top-0 left-0 right-0 z-50 flex flex-col items-center pt-4 md:pt-6 px-4 pointer-events-none">
         <div
-          className={`pointer-events-auto flex items-center justify-between md:justify-start gap-1 md:gap-1.5 rounded-full border border-white/10 bg-surface/40 p-[7px] navbar-capsule overflow-hidden isolate [transform:translateZ(0)] w-full max-w-[85vw] md:w-auto relative z-50 md:max-w-[95vw] ${
-            isScrolling ? "backdrop-blur-[3px]" : "backdrop-blur-md"
-          } ${scrolled ? "border-white/20 bg-surface/60" : ""}`}
+          className={cn(
+            "pointer-events-auto flex items-center justify-between md:justify-start gap-1 md:gap-1.5 rounded-full border border-white/10 bg-surface/40 p-[7px] navbar-capsule overflow-hidden isolate [transform:translateZ(0)] w-full max-w-[85vw] md:w-auto relative z-50 md:max-w-[95vw]",
+            isScrolling ? "backdrop-blur-[3px]" : "backdrop-blur-md",
+            scrolled && "border-white/20 bg-surface/60",
+          )}
         >
           <Tabs
             value={active}
@@ -199,19 +189,28 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
             <Tab
               value="Home"
               highlightClassName="hidden md:block"
-              className={`relative text-xs sm:text-sm rounded-full pl-1.5 md:pl-[9px] pr-3 md:pr-[15px] py-1.5 md:py-[9px] transition-colors duration-200 select-none z-10 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
+              className={cn(
+                "relative text-xs sm:text-sm rounded-full pl-1.5 md:pl-[9px] pr-3 md:pr-[15px] py-1.5 md:py-[9px] transition-colors duration-200 select-none z-10 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
                 active === "Home"
                   ? "text-text-primary"
-                  : "text-muted hover:text-text-primary"
-              }`}
+                  : "text-muted hover:text-text-primary",
+              )}
               aria-label="Home"
               role="link"
             >
               <span className="relative size-6 rounded-full bg-bg flex items-center justify-center z-10 overflow-hidden border border-white/5 flex-shrink-0">
                 {avatarError ? (
-                  <span className="text-[9px] font-bold text-accent font-mono leading-none tracking-normal select-none">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      dispatch({ type: "SET_AVATAR_ERROR", error: false });
+                    }}
+                    title="Click to retry loading avatar"
+                    className="text-[9px] font-bold text-accent font-mono leading-none tracking-normal select-none hover:scale-110 transition-transform cursor-pointer focus-visible:outline-none"
+                  >
                     OMO
-                  </span>
+                  </button>
                 ) : (
                   <img
                     src="https://avatars.githubusercontent.com/u/36997301?v=4&s=24"
@@ -237,11 +236,12 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
                 <Tab
                   key={link}
                   value={link}
-                  className={`relative text-xs md:text-sm rounded-full px-3 md:px-[19px] py-1.5 md:py-[11px] transition-colors duration-200 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
+                  className={cn(
+                    "relative text-xs md:text-sm rounded-full px-3 md:px-[19px] py-1.5 md:py-[11px] transition-colors duration-200 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
                     active === link
                       ? "text-text-primary"
-                      : "text-muted hover:text-text-primary"
-                  }`}
+                      : "text-muted hover:text-text-primary",
+                  )}
                   role="link"
                 >
                   {link}
@@ -251,11 +251,12 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
               {/* Contact link (Desktop Only) */}
               <Tab
                 value="Contact"
-                className={`relative text-xs md:text-sm rounded-full px-3 md:px-[19px] py-1.5 md:py-[11px] transition-colors duration-200 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset ${
+                className={cn(
+                  "relative text-xs md:text-sm rounded-full px-3 md:px-[19px] py-1.5 md:py-[11px] transition-colors duration-200 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
                   active === "Contact"
                     ? "text-text-primary"
-                    : "text-muted hover:text-text-primary"
-                }`}
+                    : "text-muted hover:text-text-primary",
+                )}
                 role="link"
               >
                 Contact
@@ -285,9 +286,7 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
                         : "blur(4px)",
                   }}
                   transition={
-                    isMotionReduced
-                      ? { duration: 0.15 }
-                      : { type: "spring", duration: 0.3, bounce: 0 }
+                    isMotionReduced ? { duration: 0.15 } : SPRING.snappyMenu
                   }
                 >
                   <X size={16} />
@@ -305,9 +304,7 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
                         : "blur(0px)",
                   }}
                   transition={
-                    isMotionReduced
-                      ? { duration: 0.15 }
-                      : { type: "spring", duration: 0.3, bounce: 0 }
+                    isMotionReduced ? { duration: 0.15 } : SPRING.snappyMenu
                   }
                 >
                   <Menu size={16} />

@@ -1,15 +1,9 @@
 import { memo } from "react";
 import { ArrowUp } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
+import { scrollToTop } from "../utils/scroll";
 
 const CURRENT_YEAR = new Date().getFullYear();
-
-const handleScrollToTop = () => {
-  const isMotionReduced = window.matchMedia(
-    "(prefers-reduced-motion: reduce)",
-  ).matches;
-  window.scrollTo({ top: 0, behavior: isMotionReduced ? "auto" : "smooth" });
-};
 
 function Footer() {
   const currentYear = CURRENT_YEAR;
@@ -30,7 +24,7 @@ function Footer() {
 
         {/* Scroll to Top Styled as LiquidGlassButton */}
         <LiquidGlassButton
-          onClick={handleScrollToTop}
+          onClick={scrollToTop}
           className="text-xs px-4 py-3 group/top-btn"
           ariaLabel="Scroll back to top"
           magnetic

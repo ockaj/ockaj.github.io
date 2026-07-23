@@ -14,6 +14,7 @@ import BpmnNodeBadge from "./BpmnNodeBadge";
 import { useIsMobile } from "../hooks/useMediaQuery";
 
 import { prefetchAsset } from "../utils/quicklink";
+import { SPRING } from "../utils/springConfig";
 
 const ROLES = [
   "Process Analyst",
@@ -101,7 +102,7 @@ const circleVariants: Variants = {
   hover: {
     stroke: "hsl(244, 75%, 76%)",
     scale: 1.15,
-    transition: { type: "spring" as const, stiffness: 300, damping: 15 },
+    transition: SPRING.hero,
   },
 };
 
@@ -160,8 +161,8 @@ const arrowVariants: Variants = {
     stroke: "hsl(244, 75%, 76%)",
     y: 1.5,
     transition: {
-      stroke: { type: "spring" as const, stiffness: 300, damping: 15 },
-      y: { type: "spring" as const, stiffness: 300, damping: 15 },
+      stroke: SPRING.hero,
+      y: SPRING.hero,
     },
   },
 };
@@ -288,20 +289,20 @@ function Hero({ onViewCv, onViewWork }: HeroProps) {
       {/* Scroll indicator - Styled as a BPMN Message Flow */}
       <motion.a
         href="#work"
-        aria-label="Scroll to Case Studies"
+        aria-label="Scroll process flow"
         className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2.5 z-20 cursor-pointer select-none group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-xl"
         style={{ opacity: scrollOpacity, y: scrollYOffset }}
         variants={scrollIndicatorVariants}
         initial="initial"
         animate={prefersReducedMotion ? undefined : "animate"}
         whileHover={prefersReducedMotion || isMobile ? undefined : "hover"}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        transition={SPRING.hero}
         onClick={(e) => {
           e.preventDefault();
           onViewWork();
         }}
       >
-        <span className="text-[10px] text-muted group-hover:text-accent uppercase font-semibold tracking-[0.25em] transition-colors duration-300">
+        <span className="text-[10px] text-muted/90 group-hover:text-accent uppercase font-semibold tracking-[0.25em] transition-colors duration-300">
           Flow
         </span>
         <svg
@@ -309,7 +310,7 @@ function Hero({ onViewCv, onViewWork }: HeroProps) {
           height="50"
           viewBox="0 0 24 50"
           fill="none"
-          className="text-muted/50 group-hover:text-accent/50 transition-colors duration-300"
+          className="text-muted/70 group-hover:text-accent/60 transition-colors duration-300"
           aria-hidden="true"
         >
           {/* Top Open Circle (BPMN Message Flow Start) */}
