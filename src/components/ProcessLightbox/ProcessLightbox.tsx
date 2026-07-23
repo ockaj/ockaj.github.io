@@ -2,7 +2,7 @@ import { useState, useRef, memo } from "react";
 import { Dialog } from "@base-ui/react/dialog";
 import { motion, useReducedMotion, Variants } from "motion/react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import { useOverlay } from "../../hooks/useOverlay";
+import { useOverlay } from "../../hooks/useAppNavigation";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { SPRING } from "../../utils/springConfig";
 import { cn } from "../../utils/cn";
@@ -26,13 +26,13 @@ const backdropVariants: Variants = {
     opacity: 0,
     transition: custom.prefersReducedMotion
       ? { duration: 0.15 }
-      : { duration: custom.isMobile ? 0.35 : 0.2, ease: "easeOut" },
+      : { duration: 0.15, ease: "easeOut" },
   }),
   visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     opacity: 1,
     transition: custom.prefersReducedMotion
       ? { duration: 0.15 }
-      : { duration: custom.isMobile ? 0.45 : 0.3, ease: "easeOut" },
+      : { duration: custom.isMobile ? 0.35 : 0.25, ease: "easeOut" },
   }),
 };
 
@@ -40,11 +40,7 @@ const dialogVariants: Variants = {
   hidden: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     scale: custom.prefersReducedMotion ? 1 : custom.isMobile ? 0.92 : 0.96,
     opacity: 0,
-    transition: custom.prefersReducedMotion
-      ? { duration: 0.15 }
-      : custom.isMobile
-        ? SPRING.modalMobile
-        : { duration: 0.18, ease: "easeOut" as const },
+    transition: custom.prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
   }),
   visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     scale: 1,
@@ -61,7 +57,7 @@ function ProcessLightbox({ item, onClose }: ProcessLightboxProps) {
   const prefersReducedMotion = useReducedMotion();
 
   // Close lightbox on back swipe / browser back button
-  useOverlay(true, onClose, "lightbox");
+  useOverlay(true, onClose, `lightbox-${item.id}`);
 
   const isMobile = useIsMobile();
   const [isZoomed, setIsZoomed] = useState(false);
@@ -73,10 +69,20 @@ function ProcessLightbox({ item, onClose }: ProcessLightboxProps) {
   const cursorStyle = isZoomed ? (isPanning ? "grabbing" : "grab") : "zoom-in";
 
   return (
-    <Dialog.Root open modal={false} onOpenChange={(open) => !open && onClose()}>
+    <Dialog.Root
+      open
+      modal
+      disablePointerDismissal
+      onOpenChange={(open) => {
+        if (!open) {
+          onClose();
+        }
+      }}
+    >
       <Dialog.Portal keepMounted>
         {/* Backdrop */}
         <Dialog.Backdrop
+          onClick={onClose}
           render={
             <motion.div
               className="fixed inset-0 z-[90] bg-black/80 backdrop-blur-md pointer-events-auto"
@@ -85,7 +91,6 @@ function ProcessLightbox({ item, onClose }: ProcessLightboxProps) {
               initial="hidden"
               animate="visible"
               exit="hidden"
-              onClick={onClose}
             />
           }
         />
@@ -108,6 +113,8 @@ function ProcessLightbox({ item, onClose }: ProcessLightboxProps) {
             className="relative max-w-7xl w-full h-[100dvh] md:h-auto md:aspect-[16/10] max-h-[100dvh] md:max-h-[85vh] rounded-none md:rounded-3xl overflow-hidden border-0 md:border border-white/10 flex flex-col bg-surface shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Specular sheen header overlay matching CV modal */}
+            <div className="absolute top-0 left-0 right-0 h-28 pointer-events-none bg-gradient-to-b from-white/5 to-transparent z-20" />
             {/* Full Viewport for Diagram (Responsive flex) */}
             <div
               className={cn(

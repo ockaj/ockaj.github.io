@@ -23,6 +23,7 @@ const JournalDrawer = memo(function JournalDrawer({
       icon={<BookOpen size={14} className="text-accent" />}
       onClose={onClose}
       maxWidthClass="max-w-4xl"
+      hashId={`journal-${article.id}`}
     >
       <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 select-text touch-pan-y">
         <div className="space-y-3 pb-4 border-b border-white/5">

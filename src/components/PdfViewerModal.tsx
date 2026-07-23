@@ -25,7 +25,7 @@ import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import { SPRING } from "../utils/springConfig";
 import { useIsMobile } from "../hooks/useMediaQuery";
-import { useOverlay } from "../hooks/useOverlay";
+import { useOverlay } from "../hooks/useAppNavigation";
 import { prefetchAsset } from "../utils/quicklink";
 import { cn } from "../utils/cn";
 
@@ -40,15 +40,7 @@ const modalVariants: Variants = {
     opacity: 0,
     scale: custom.prefersReducedMotion ? 1 : custom.isMobile ? 0.96 : 0.95,
     y: custom.prefersReducedMotion ? 0 : 15,
-    transition: custom.prefersReducedMotion
-      ? { duration: 0.15 }
-      : custom.isMobile
-        ? SPRING.modalMobile
-        : {
-            type: "tween" as const,
-            duration: 0.18,
-            ease: [0.25, 0.1, 0.25, 1] as const,
-          },
+    transition: custom.prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
   }),
   visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     opacity: 1,
@@ -434,8 +426,13 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
   return (
     <Dialog.Root
       open={isOpen}
-      modal={false}
-      onOpenChange={(open) => !open && onClose()}
+      modal
+      disablePointerDismissal
+      onOpenChange={(open) => {
+        if (!open) {
+          onClose();
+        }
+      }}
     >
       <Dialog.Portal keepMounted>
         <AnimatePresence>
@@ -443,12 +440,12 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-6 lg:p-8">
               {/* Backdrop Blur overlay */}
               <Dialog.Backdrop
+                onClick={onClose}
                 render={
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    onClick={onClose}
                     className="fixed inset-0 bg-bg/80 backdrop-blur-md pointer-events-auto"
                   />
                 }

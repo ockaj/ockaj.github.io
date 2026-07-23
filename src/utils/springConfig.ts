@@ -7,12 +7,46 @@ export const SPRING = {
     damping: 24,
     mass: 0.6,
   },
-  /** Drawers sliding in from edge */
-  drawer: { type: "spring" as const, damping: 28, stiffness: 220 },
-  drawerMobile: { type: "spring" as const, damping: 26, stiffness: 240 },
-  /** Modals scaling in */
-  modal: { type: "spring" as const, damping: 25, stiffness: 220 },
-  modalMobile: { type: "spring" as const, damping: 24, stiffness: 240 },
+  /** Drawers sliding in from edge (Fast ~200ms, zero tail) */
+  drawer: {
+    type: "spring" as const,
+    stiffness: 360,
+    damping: 35,
+    mass: 0.8,
+    restDelta: 0.5,
+    restSpeed: 10,
+  },
+  drawerMobile: {
+    type: "spring" as const,
+    stiffness: 380,
+    damping: 36,
+    mass: 0.8,
+    restDelta: 0.5,
+    restSpeed: 10,
+  },
+  /** Modals scaling in (Fast ~200ms, zero tail) */
+  modal: {
+    type: "spring" as const,
+    stiffness: 360,
+    damping: 35,
+    mass: 0.8,
+    restDelta: 0.005,
+    restSpeed: 10,
+  },
+  modalMobile: {
+    type: "spring" as const,
+    stiffness: 380,
+    damping: 36,
+    mass: 0.8,
+    restDelta: 0.005,
+    restSpeed: 10,
+  },
+  /** Fast clean exit transition for modals & drawers (160ms accelerated tween) */
+  exit: {
+    type: "tween" as const,
+    duration: 0.16,
+    ease: [0.32, 0, 0.67, 0] as const,
+  },
   /** Tooltips entrance */
   tooltip: {
     type: "spring" as const,

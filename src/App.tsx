@@ -12,7 +12,7 @@ import ContactSection from "./components/ContactSection";
 import { useIsMobile } from "./hooks/useMediaQuery";
 import { useLazyMount } from "./hooks/useLazyMount";
 import { usePreloadComponents } from "./hooks/usePreloadComponents";
-import { useNavigation } from "./hooks/useNavigation";
+import { useNavigation } from "./hooks/useAppNavigation";
 import { useAppStore } from "./store/useAppStore";
 import { getSkeletonHeight } from "./utils/skeletonHeight";
 import {

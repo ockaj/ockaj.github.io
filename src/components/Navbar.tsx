@@ -4,7 +4,7 @@ import { Menu, X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import { useIsMobile } from "../hooks/useMediaQuery";
-import { useOverlay } from "../hooks/useOverlay";
+import { useOverlay } from "../hooks/useAppNavigation";
 import { cn } from "../utils/cn";
 import { SPRING } from "../utils/springConfig";
 import MobileMenu from "./MobileMenu";
@@ -82,7 +82,7 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
   useOverlay(
     isMobile && isOpen,
     () => dispatch({ type: "SET_IS_OPEN", isOpen: false }),
-    "mobile-nav",
+    "nav",
   );
 
   useEffect(() => {

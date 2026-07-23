@@ -49,6 +49,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
       icon={<Activity size={14} className="text-accent" />}
       onClose={onClose}
       maxWidthClass="max-w-4xl"
+      hashId={`case-study-${study.id}`}
     >
       {/* Scrollable Content Container */}
       <motion.div

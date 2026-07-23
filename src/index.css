@@ -79,6 +79,13 @@ html {
   scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--stroke)) hsl(var(--bg));
+  background-color: hsl(var(--bg));
+  overflow-y: auto;
+}
+
+html[data-base-ui-scroll-locked] {
+  scrollbar-gutter: stable !important;
+  background-color: hsl(var(--bg)) !important;
 }
 
 @media (prefers-reduced-motion: no-preference) {

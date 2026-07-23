@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { SPRING } from "../utils/springConfig";
 import { useIsMobile } from "../hooks/useMediaQuery";
-import { useOverlay } from "../hooks/useOverlay";
+import { useOverlay } from "../hooks/useAppNavigation";
 import { cn } from "../utils/cn";
 
 interface BaseDrawerProps {
@@ -14,17 +14,14 @@ interface BaseDrawerProps {
   onClose: () => void;
   children: ReactNode;
   maxWidthClass?: string;
+  hashId?: string;
 }
 
 const drawerVariants: Variants = {
   hidden: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     x: custom.prefersReducedMotion ? 0 : "100%",
     opacity: custom.prefersReducedMotion ? 0 : 1,
-    transition: custom.prefersReducedMotion
-      ? { duration: 0.15 }
-      : custom.isMobile
-        ? SPRING.drawerMobile
-        : SPRING.drawer,
+    transition: custom.prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
   }),
   visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     x: 0,
@@ -46,20 +43,31 @@ const BaseDrawer = memo(function BaseDrawer({
   onClose,
   children,
   maxWidthClass,
+  hashId = "drawer",
 }: BaseDrawerProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
 
-  useOverlay(true, onClose, "drawer");
+  useOverlay(true, onClose, hashId);
 
   if (typeof document === "undefined") return null;
 
   return (
-    <Dialog.Root open modal={false} onOpenChange={(open) => !open && onClose()}>
+    <Dialog.Root
+      open
+      modal
+      disablePointerDismissal
+      onOpenChange={(open) => {
+        if (!open) {
+          onClose();
+        }
+      }}
+    >
       <Dialog.Portal keepMounted>
         {/* Backdrop */}
         <Dialog.Backdrop
+          onClick={onClose}
           render={
             <motion.div
               ref={overlayRef}
@@ -72,7 +80,6 @@ const BaseDrawer = memo(function BaseDrawer({
                 opacity: 0,
                 transition: { duration: 0.15, ease: "easeOut" },
               }}
-              onClick={onClose}
               className="fixed inset-0 z-[90] bg-black/70 backdrop-blur-none md:backdrop-blur-sm overscroll-contain"
             />
           }
@@ -103,9 +110,12 @@ const BaseDrawer = memo(function BaseDrawer({
             />
           }
         >
-          <div className="w-full h-full flex flex-col">
+          <div className="w-full h-full flex flex-col relative">
+            {/* Specular sheen header overlay matching CV modal */}
+            <div className="absolute top-0 left-0 right-0 h-28 pointer-events-none bg-gradient-to-b from-white/5 to-transparent z-20" />
+
             {/* Top bar */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10 relative z-20">
+            <div className="flex items-center justify-between p-6 border-b border-white/10 relative z-30">
               <Dialog.Title className="flex items-center gap-2 text-xs text-muted uppercase font-semibold">
                 {icon ? icon : null}
                 <span>{title}</span>
