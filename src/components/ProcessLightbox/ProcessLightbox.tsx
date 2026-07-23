@@ -73,7 +73,7 @@ function ProcessLightbox({ item, onClose }: ProcessLightboxProps) {
   const cursorStyle = isZoomed ? (isPanning ? "grabbing" : "grab") : "zoom-in";
 
   return (
-    <Dialog.Root open onOpenChange={(open) => !open && onClose()}>
+    <Dialog.Root open modal={false} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal keepMounted>
         {/* Backdrop */}
         <Dialog.Backdrop

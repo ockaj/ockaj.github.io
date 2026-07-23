@@ -148,7 +148,11 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
       {/* Full Screen Blueprint BPMN Overlay */}
       <AnimatePresence>
         {isOpen && typeof document !== "undefined" ? (
-          <Dialog.Root open onOpenChange={(open) => !open && setIsOpen(false)}>
+          <Dialog.Root
+            open
+            modal={false}
+            onOpenChange={(open) => !open && setIsOpen(false)}
+          >
             <Dialog.Portal keepMounted>
               <Dialog.Popup
                 render={

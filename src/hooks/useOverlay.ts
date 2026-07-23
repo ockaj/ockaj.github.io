@@ -49,7 +49,10 @@ const lockScroll = () => {
     iosScrollLockActive = true;
   } else {
     if (document.body.style.overflow === "hidden") return;
-    originalOverflow = document.body.style.overflow;
+    originalOverflow =
+      document.body.style.overflow === "hidden"
+        ? ""
+        : document.body.style.overflow;
     document.body.style.overflow = "hidden";
   }
 };

@@ -432,7 +432,11 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
   if (typeof document === "undefined") return null;
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog.Root
+      open={isOpen}
+      modal={false}
+      onOpenChange={(open) => !open && onClose()}
+    >
       <Dialog.Portal keepMounted>
         <AnimatePresence>
           {isOpen ? (
