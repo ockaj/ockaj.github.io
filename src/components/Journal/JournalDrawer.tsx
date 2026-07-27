@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { BookOpen, Clock, MessageSquare } from "lucide-react";
 import type { Article } from "../../data/articles";
 import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
@@ -13,10 +14,34 @@ interface DrawerProps {
   onClose: () => void;
 }
 
+const drawerContentVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.04,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+const drawerItemVariants = {
+  hidden: (prefersReducedMotion: boolean) => ({
+    opacity: 0,
+    y: prefersReducedMotion ? 0 : 10,
+  }),
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring" as const, duration: 0.22, bounce: 0 },
+  },
+};
+
 const JournalDrawer = memo(function JournalDrawer({
   article,
   onClose,
 }: DrawerProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <BaseDrawer
       title="Journal"
@@ -25,8 +50,17 @@ const JournalDrawer = memo(function JournalDrawer({
       maxWidthClass="max-w-4xl"
       hashId={`journal-${article.id}`}
     >
-      <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 select-text touch-pan-y">
-        <div className="space-y-3 pb-4 border-b border-white/5">
+      <motion.div
+        variants={drawerContentVariants}
+        initial="hidden"
+        animate="visible"
+        className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 select-text touch-pan-y"
+      >
+        <motion.div
+          variants={drawerItemVariants}
+          custom={prefersReducedMotion}
+          className="space-y-3 pb-4 border-b border-white/5"
+        >
           <span className="inline-block text-[10px] text-accent uppercase font-bold bg-accent/20 border border-accent/30 rounded-xl px-2.5 py-0.5">
             {article.subtitle}
           </span>
@@ -41,9 +75,13 @@ const JournalDrawer = memo(function JournalDrawer({
               {article.readTime}
             </span>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="text-text-primary/90 text-sm md:text-base leading-relaxed max-w-[70ch]">
+        <motion.div
+          variants={drawerItemVariants}
+          custom={prefersReducedMotion}
+          className="text-text-primary/90 text-sm md:text-base leading-relaxed max-w-[70ch]"
+        >
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
@@ -100,9 +138,13 @@ const JournalDrawer = memo(function JournalDrawer({
           >
             {article.body}
           </ReactMarkdown>
-        </div>
+        </motion.div>
 
-        <div className="pt-6 border-t border-white/5 flex justify-between items-center gap-4">
+        <motion.div
+          variants={drawerItemVariants}
+          custom={prefersReducedMotion}
+          className="pt-6 border-t border-white/5 flex justify-between items-center gap-4"
+        >
           <LiquidGlassButton
             href={`mailto:${CONTACT_EMAIL}?subject=Regarding Article: ${encodeURIComponent(article.title)}`}
             className="px-5 py-2.5 text-xs"
@@ -113,8 +155,8 @@ const JournalDrawer = memo(function JournalDrawer({
             Discuss this thought piece
             <MessageSquare size={13} />
           </LiquidGlassButton>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </BaseDrawer>
   );
 });

@@ -1,3 +1,13 @@
+/** Standardized easing curves for consistent motion */
+export const EASE = {
+  /** Responsive ease-out curve for UI entrances (350ms) */
+  out: [0.16, 1, 0.3, 1] as const,
+  /** Immediate accelerated curve for UI exits (160ms) */
+  exit: [0.4, 0, 1, 1] as const,
+  /** Smooth in-out curve for continuous animations */
+  inOut: [0.45, 0, 0.55, 1] as const,
+} as const;
+
 /** Standardized spring configs for consistent motion across all components */
 export const SPRING = {
   /** Highlight pill sliding between nav/tab items */
@@ -7,45 +17,37 @@ export const SPRING = {
     damping: 24,
     mass: 0.6,
   },
-  /** Drawers sliding in from edge (Fast ~200ms, zero tail) */
+  /** Drawers sliding in from edge (Smooth 350ms physical spring) */
   drawer: {
     type: "spring" as const,
-    stiffness: 360,
-    damping: 35,
-    mass: 0.8,
+    duration: 0.35,
+    bounce: 0.08,
     restDelta: 0.5,
-    restSpeed: 10,
   },
   drawerMobile: {
     type: "spring" as const,
-    stiffness: 380,
-    damping: 36,
-    mass: 0.8,
+    duration: 0.35,
+    bounce: 0.08,
     restDelta: 0.5,
-    restSpeed: 10,
   },
-  /** Modals scaling in (Fast ~200ms, zero tail) */
+  /** Modals scaling in (Smooth 350ms physical spring) */
   modal: {
     type: "spring" as const,
-    stiffness: 360,
-    damping: 35,
-    mass: 0.8,
+    duration: 0.35,
+    bounce: 0.08,
     restDelta: 0.005,
-    restSpeed: 10,
   },
   modalMobile: {
     type: "spring" as const,
-    stiffness: 380,
-    damping: 36,
-    mass: 0.8,
+    duration: 0.35,
+    bounce: 0.08,
     restDelta: 0.005,
-    restSpeed: 10,
   },
-  /** Fast clean exit transition for modals & drawers (160ms accelerated tween) */
+  /** Immediate accelerated exit curve for modals, drawers & backdrops (160ms) */
   exit: {
     type: "tween" as const,
     duration: 0.16,
-    ease: [0.32, 0, 0.67, 0] as const,
+    ease: EASE.exit,
   },
   /** Tooltips entrance */
   tooltip: {

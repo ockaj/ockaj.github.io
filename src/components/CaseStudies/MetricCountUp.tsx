@@ -23,7 +23,7 @@ const MetricCountUp = memo(function MetricCountUp({
     if (!numericPart || prefersReducedMotion) return;
     const timer = setTimeout(() => {
       setCurrentValue(target);
-    }, 300);
+    }, 100);
     return () => clearTimeout(timer);
   }, [target, numericPart, prefersReducedMotion]);
 
@@ -45,8 +45,8 @@ const MetricCountUp = memo(function MetricCountUp({
         maximumFractionDigits: 1,
       }}
       transformTiming={{
-        duration: prefersReducedMotion ? 0 : 600,
-        easing: "cubic-bezier(0.25, 0.1, 0.25, 1)",
+        duration: prefersReducedMotion ? 0 : 320,
+        easing: "cubic-bezier(0.16, 1, 0.3, 1)",
       }}
     />
   );

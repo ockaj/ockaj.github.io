@@ -120,7 +120,7 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
     if (isTransitioning) {
       const timer = setTimeout(() => {
         dispatch({ type: "SET_IS_TRANSIENT", transitioning: false });
-      }, 500); // 500ms covers the 400ms CSS transition and animation settling
+      }, 300); // 300ms covers SPRING.highlight settling
       return () => clearTimeout(timer);
     }
   }, [isTransitioning]);
@@ -207,7 +207,7 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
                       dispatch({ type: "SET_AVATAR_ERROR", error: false });
                     }}
                     title="Click to retry loading avatar"
-                    className="text-[9px] font-bold text-accent font-mono leading-none tracking-normal select-none hover:scale-110 transition-transform cursor-pointer focus-visible:outline-none"
+                    className="text-[9px] font-bold text-accent font-mono leading-none tracking-normal select-none hover:scale-105 transition-transform duration-200 ease-out cursor-pointer focus-visible:outline-none"
                   >
                     OMO
                   </button>

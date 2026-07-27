@@ -191,11 +191,11 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
                       initial={{ opacity: 0 }}
                       animate={{
                         opacity: 1,
-                        transition: { duration: 0.2, ease: "easeOut" },
+                        transition: SPRING.modal,
                       }}
                       exit={{
                         opacity: 0,
-                        transition: { duration: 0.15, ease: "easeOut" },
+                        transition: SPRING.exit,
                       }}
                       className="fixed inset-0 bg-black/80 backdrop-blur-md pointer-events-auto"
                     />

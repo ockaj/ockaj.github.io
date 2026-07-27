@@ -1,6 +1,8 @@
+import { EASE } from "./springConfig";
+
 /** Standardized Motion Stagger & Viewport animation variants across section components */
 
-export const containerStaggerVariants = (staggerDelay = 0.1) => ({
+export const containerStaggerVariants = (staggerDelay = 0.08) => ({
   hidden: {},
   visible: {
     transition: {
@@ -12,18 +14,18 @@ export const containerStaggerVariants = (staggerDelay = 0.1) => ({
 export const cardStaggerVariants = {
   hidden: (prefersReducedMotion: boolean | null) => ({
     opacity: 0,
-    y: prefersReducedMotion ? 0 : 30,
+    y: prefersReducedMotion ? 0 : 24,
   }),
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.7, ease: [0.25, 0.1, 0.25, 1] as const },
+    transition: { duration: 0.35, ease: EASE.out },
   },
 };
 
 export const SECTION_ANIMATE = { opacity: 1, y: 0 };
 export const SECTION_VIEWPORT = { once: true, margin: "-100px" };
 export const SECTION_TRANSITION = {
-  duration: 1,
-  ease: [0.25, 0.1, 0.25, 1] as const,
+  duration: 0.45,
+  ease: EASE.out,
 };

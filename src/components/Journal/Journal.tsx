@@ -8,10 +8,11 @@ import { isBoneyardBuild } from "../../utils/boneyard";
 import {
   containerStaggerVariants,
   cardStaggerVariants,
+  SECTION_VIEWPORT,
 } from "../../utils/motionVariants";
 
 const isBuildMode = isBoneyardBuild();
-const containerVariants = containerStaggerVariants(0.08);
+const containerVariants = containerStaggerVariants();
 const cardVariants = cardStaggerVariants;
 
 function Journal() {
@@ -31,7 +32,7 @@ function Journal() {
           variants={containerVariants}
           initial={isBuildMode ? "visible" : "hidden"}
           whileInView={isBuildMode ? undefined : "visible"}
-          viewport={isBuildMode ? undefined : { once: true, margin: "-60px" }}
+          viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
         >
           {ARTICLES.map((article) => (
             <motion.div

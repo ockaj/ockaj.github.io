@@ -12,6 +12,12 @@ import { LiquidGlass } from "./LiquidGlass/LiquidGlass";
 import BpmnNodeBadge from "./BpmnNodeBadge";
 import { isBoneyardBuild } from "../utils/boneyard";
 import { cn } from "../utils/cn";
+import { SPRING } from "../utils/springConfig";
+import {
+  cardStaggerVariants,
+  containerStaggerVariants,
+  SECTION_VIEWPORT,
+} from "../utils/motionVariants";
 
 const isBuildMode = isBoneyardBuild();
 
@@ -101,26 +107,9 @@ const LANGUAGES = [
   { language: "Russian", level: "Intermediate (B1)" },
 ];
 
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.08,
-    },
-  },
-};
+const containerVariants = containerStaggerVariants();
 
-const cardVariants = {
-  hidden: (prefersReducedMotion: boolean) => ({
-    opacity: 0,
-    y: prefersReducedMotion ? 0 : 30,
-  }),
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.8, ease: [0.25, 0.1, 0.25, 1] as const },
-  },
-};
+const cardVariants = cardStaggerVariants;
 
 function Skills() {
   const prefersReducedMotion = useReducedMotion();
@@ -134,7 +123,7 @@ function Skills() {
         variants={containerVariants}
         initial={isBuildMode ? "visible" : "hidden"}
         whileInView={isBuildMode ? undefined : "visible"}
-        viewport={isBuildMode ? undefined : { once: true, margin: "-80px" }}
+        viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
       >
         {SKILL_CATEGORIES.map((category) => (
           <motion.div
@@ -156,7 +145,8 @@ function Skills() {
             : { opacity: 0, y: prefersReducedMotion ? 0 : 30 }
         }
         whileInView={isBuildMode ? undefined : { opacity: 1, y: 0 }}
-        viewport={isBuildMode ? undefined : { once: true, margin: "-80px" }}
+        transition={SPRING.hero}
+        viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
         className="relative z-30 pt-10 md:pt-14"
       >
         <div className="mb-6 flex items-center gap-3">

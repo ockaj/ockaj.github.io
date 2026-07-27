@@ -8,7 +8,6 @@ import ReactMarkdown from "react-markdown";
 import { COMMON_MARKDOWN_COMPONENTS } from "../../utils/markdownRenderers";
 import { CONTACT_EMAIL } from "../../utils/contact";
 import MetricCountUp from "./MetricCountUp";
-import { SPRING } from "../../utils/springConfig";
 
 interface DrawerProps {
   study: CaseStudyDetail;
@@ -19,8 +18,8 @@ const drawerContentVariants = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.15,
+      staggerChildren: 0.04,
+      delayChildren: 0.05,
     },
   },
 };
@@ -28,12 +27,12 @@ const drawerContentVariants = {
 const drawerItemVariants = {
   hidden: (prefersReducedMotion: boolean) => ({
     opacity: 0,
-    y: prefersReducedMotion ? 0 : 15,
+    y: prefersReducedMotion ? 0 : 10,
   }),
   visible: {
     opacity: 1,
     y: 0,
-    transition: SPRING.drawer,
+    transition: { type: "spring" as const, duration: 0.22, bounce: 0 },
   },
 };
 

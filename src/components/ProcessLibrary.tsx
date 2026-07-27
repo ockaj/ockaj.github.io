@@ -18,6 +18,7 @@ import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import ProcessLightbox from "./ProcessLightbox/ProcessLightbox";
 import { prefetchAsset } from "../utils/quicklink";
 import { cn } from "../utils/cn";
+import { SPRING } from "../utils/springConfig";
 
 interface CustomAnimationProps {
   prefersReducedMotion: boolean;
@@ -35,7 +36,7 @@ const tabContentVariants: Variants = {
       x: prefersReducedMotion ? 0 : isMobile ? 30 * direction : 0,
       y: prefersReducedMotion ? 0 : isMobile ? 0 : 15,
       scale: prefersReducedMotion ? 1 : 0.98,
-      transition: { duration: 0.15, ease: [0.25, 0.1, 0.25, 1] as const },
+      transition: SPRING.exit,
     };
   },
   visible: {
@@ -43,7 +44,7 @@ const tabContentVariants: Variants = {
     x: 0,
     y: 0,
     scale: 1,
-    transition: { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] as const },
+    transition: SPRING.modal,
   },
   exit: (custom: unknown) => {
     const props = custom as CustomAnimationProps | undefined;
@@ -55,7 +56,7 @@ const tabContentVariants: Variants = {
       x: prefersReducedMotion ? 0 : isMobile ? -30 * direction : 0,
       y: prefersReducedMotion ? 0 : isMobile ? 0 : 15,
       scale: prefersReducedMotion ? 1 : 0.98,
-      transition: { duration: 0.15, ease: [0.25, 0.1, 0.25, 1] as const },
+      transition: SPRING.exit,
     };
   },
 };
@@ -364,7 +365,7 @@ function ProcessLibrary() {
                       alt={activeItem.title}
                       width={800}
                       height={500}
-                      className="w-full h-full object-contain rounded-lg p-6 transition-transform duration-500 group-hover/canvas:scale-102"
+                      className="w-full h-full object-contain rounded-lg p-6 transition-transform duration-300 ease-out group-hover/canvas:scale-102"
                       loading="lazy"
                     />
 

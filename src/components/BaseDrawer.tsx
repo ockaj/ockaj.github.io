@@ -74,11 +74,11 @@ const BaseDrawer = memo(function BaseDrawer({
               initial={{ opacity: 0 }}
               animate={{
                 opacity: 1,
-                transition: { duration: 0.2, ease: "easeOut" },
+                transition: SPRING.drawer,
               }}
               exit={{
                 opacity: 0,
-                transition: { duration: 0.15, ease: "easeOut" },
+                transition: SPRING.exit,
               }}
               className="fixed inset-0 z-[90] bg-black/70 backdrop-blur-none md:backdrop-blur-sm overscroll-contain"
             />

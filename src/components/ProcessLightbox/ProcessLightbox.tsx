@@ -24,15 +24,11 @@ interface ProcessLightboxProps {
 const backdropVariants: Variants = {
   hidden: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     opacity: 0,
-    transition: custom.prefersReducedMotion
-      ? { duration: 0.15 }
-      : { duration: 0.15, ease: "easeOut" },
+    transition: custom.prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
   }),
   visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     opacity: 1,
-    transition: custom.prefersReducedMotion
-      ? { duration: 0.15 }
-      : { duration: custom.isMobile ? 0.35 : 0.25, ease: "easeOut" },
+    transition: custom.prefersReducedMotion ? { duration: 0.15 } : SPRING.modal,
   }),
 };
 

@@ -445,7 +445,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
+                    exit={{ opacity: 0, transition: SPRING.exit }}
                     className="fixed inset-0 bg-bg/80 backdrop-blur-md pointer-events-auto"
                   />
                 }
