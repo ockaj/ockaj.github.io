@@ -32,8 +32,6 @@ import journalBones from "./bones/journal.bones.json";
 function App() {
   const isLoading = useAppStore((state) => state.isLoading);
   const isCvOpen = useAppStore((state) => state.isCvOpen);
-  const setCvOpen = useAppStore((state) => state.setCvOpen);
-  const completeLoading = useAppStore((state) => state.completeLoading);
 
   const { activeSection, handleNavClick } = useNavigation();
 
@@ -63,12 +61,12 @@ function App() {
   }, [handleNavClick]);
 
   const handleViewCv = useCallback(() => {
-    setCvOpen(true);
-  }, [setCvOpen]);
+    useAppStore.getState().setCvOpen(true);
+  }, []);
 
   const handleLoadingComplete = useCallback(() => {
-    completeLoading();
-  }, [completeLoading]);
+    useAppStore.getState().completeLoading();
+  }, []);
 
   return (
     <>
@@ -195,7 +193,10 @@ function App() {
         <ContactSection />
 
         <Suspense fallback={null}>
-          <PdfViewerModal isOpen={isCvOpen} onClose={() => setCvOpen(false)} />
+          <PdfViewerModal
+            isOpen={isCvOpen}
+            onClose={() => useAppStore.getState().setCvOpen(false)}
+          />
         </Suspense>
 
         <Suspense fallback={null}>

@@ -36,6 +36,22 @@ const drawerItemVariants = {
   },
 };
 
+const CLIENT_MARKDOWN_COMPONENTS = {
+  ...COMMON_MARKDOWN_COMPONENTS,
+  p: ({ children }: { children?: React.ReactNode }) => (
+    <p className="text-sm text-text-primary/95 font-normal leading-relaxed text-pretty">
+      {children}
+    </p>
+  ),
+};
+
+const DESCRIPTION_MARKDOWN_COMPONENTS = {
+  ...COMMON_MARKDOWN_COMPONENTS,
+  p: ({ children }: { children?: React.ReactNode }) => (
+    <p className="text-sm text-muted leading-relaxed text-pretty">{children}</p>
+  ),
+};
+
 const CaseStudyDrawer = memo(function CaseStudyDrawer({
   study,
   onClose,
@@ -76,28 +92,10 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
           <h3 className="text-xs text-muted uppercase border-b border-white/5 pb-1 text-balance">
             Client Profile
           </h3>
-          <ReactMarkdown
-            components={{
-              ...COMMON_MARKDOWN_COMPONENTS,
-              p: ({ children }) => (
-                <p className="text-sm text-text-primary/95 font-normal leading-relaxed text-pretty">
-                  {children}
-                </p>
-              ),
-            }}
-          >
+          <ReactMarkdown components={CLIENT_MARKDOWN_COMPONENTS}>
             {study.client}
           </ReactMarkdown>
-          <ReactMarkdown
-            components={{
-              ...COMMON_MARKDOWN_COMPONENTS,
-              p: ({ children }) => (
-                <p className="text-sm text-muted leading-relaxed text-pretty">
-                  {children}
-                </p>
-              ),
-            }}
-          >
+          <ReactMarkdown components={DESCRIPTION_MARKDOWN_COMPONENTS}>
             {study.longDescription}
           </ReactMarkdown>
         </motion.div>

@@ -37,6 +37,8 @@ const bpmnModalVariants: Variants = {
   }),
 };
 
+const BPMN_KEYS = new Set(["b", "p", "m", "n"]);
+
 export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
@@ -69,7 +71,7 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
       }
 
       const key = e.key.toLowerCase();
-      if (["b", "p", "m", "n"].includes(key)) {
+      if (BPMN_KEYS.has(key)) {
         typedBufferRef.current = [...typedBufferRef.current, key].slice(-4);
         if (typedBufferRef.current.join("") === "bpmn") {
           setIsOpen(true);

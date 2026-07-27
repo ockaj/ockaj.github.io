@@ -14,9 +14,11 @@ import BpmnNodeBadge from "./BpmnNodeBadge";
 import { useIsMobile } from "../hooks/useMediaQuery";
 
 import { prefetchAsset } from "../utils/quicklink";
+import { loadPdfViewerModal } from "../lazyComponents";
 import { SPRING } from "../utils/springConfig";
 
 const ROLES = [
+  "Business Analyst",
   "Process Analyst",
   "Digital Transformer",
   "Solution Designer",
@@ -24,7 +26,7 @@ const ROLES = [
 ];
 const preloadPdfModal = () => {
   prefetchAsset("/cv/Ondrej_Michal_Ockaj_CV.pdf");
-  return import("./PdfViewerModal");
+  return loadPdfViewerModal.load();
 };
 
 interface HeroProps {

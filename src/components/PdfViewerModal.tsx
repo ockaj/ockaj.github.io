@@ -55,6 +55,7 @@ const modalVariants: Variants = {
 };
 
 const WHITESPACE_REGEX = /\s+/g;
+const PHONE_PREFIX_REGEX = /^[+\d]/;
 
 interface PdfState {
   activeTab: "pdf" | "interactive";
@@ -135,10 +136,10 @@ const InteractiveCvView = memo(function InteractiveCvView({
                 {activeCv.email}
               </a>
             </span>
-            {activeCv.phone && (
+            {activeCv.phone ? (
               <span className="flex items-center gap-1.5">
                 <Phone size={12} className="text-accent/65" />
-                {/^[+\d]/.test(activeCv.phone) ? (
+                {PHONE_PREFIX_REGEX.test(activeCv.phone) ? (
                   <a
                     href={`tel:${activeCv.phone.replace(WHITESPACE_REGEX, "")}`}
                     className="hover:text-text-primary transition-colors"
@@ -149,7 +150,7 @@ const InteractiveCvView = memo(function InteractiveCvView({
                   <span>{activeCv.phone}</span>
                 )}
               </span>
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -408,6 +409,16 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
     [isMobile],
   );
 
+  const handleTabsMouseEnter = useCallback(
+    () => dispatch({ type: "SET_IS_HOVERED", hovered: true }),
+    [],
+  );
+
+  const handleTabsMouseLeave = useCallback(
+    () => dispatch({ type: "SET_IS_HOVERED", hovered: false }),
+    [],
+  );
+
   useEffect(() => {
     if (!isTransitioning) return;
     const timer = setTimeout(
@@ -547,12 +558,8 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                       value={activeTab}
                       onChange={handleTabChange}
                       layoutId="active-viewer-tab"
-                      onMouseEnter={() =>
-                        dispatch({ type: "SET_IS_HOVERED", hovered: true })
-                      }
-                      onMouseLeave={() =>
-                        dispatch({ type: "SET_IS_HOVERED", hovered: false })
-                      }
+                      onMouseEnter={handleTabsMouseEnter}
+                      onMouseLeave={handleTabsMouseLeave}
                       highlightClassName={
                         isHovered || isTransitioning
                           ? "navbar-highlight-active"

@@ -1,4 +1,10 @@
-import { useEffect, useCallback, useReducer, useRef } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+  useReducer,
+  useRef,
+} from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Menu, X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
@@ -109,10 +115,10 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
   const active = activeSection;
   const prevActiveRef = useRef(activeSection);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (prevActiveRef.current !== activeSection) {
-      dispatch({ type: "SET_IS_TRANSIENT", transitioning: true });
       prevActiveRef.current = activeSection;
+      dispatch({ type: "SET_IS_TRANSIENT", transitioning: true });
     }
   }, [activeSection]);
 
@@ -153,6 +159,16 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
     [onNavClick],
   );
 
+  const handleMouseEnter = useCallback(
+    () => dispatch({ type: "SET_IS_HOVERED", hovered: true }),
+    [],
+  );
+
+  const handleMouseLeave = useCallback(
+    () => dispatch({ type: "SET_IS_HOVERED", hovered: false }),
+    [],
+  );
+
   return (
     <>
       <div
@@ -171,12 +187,8 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
             value={active}
             onChange={handleNav}
             layoutId="active-nav-highlight"
-            onMouseEnter={() =>
-              dispatch({ type: "SET_IS_HOVERED", hovered: true })
-            }
-            onMouseLeave={() =>
-              dispatch({ type: "SET_IS_HOVERED", hovered: false })
-            }
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
             highlightClassName={
               isHovered || isTransitioning
                 ? "navbar-highlight-active"

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 
 type ResizeCallback = (entry: ResizeObserverEntry) => void;
 
@@ -26,7 +26,7 @@ export function useResizeObserver(
   callback: ResizeCallback,
 ) {
   const savedCallbackRef = useRef(callback);
-  useEffect(() => {
+  useLayoutEffect(() => {
     savedCallbackRef.current = callback;
   });
 

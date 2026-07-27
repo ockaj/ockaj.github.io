@@ -1,6 +1,7 @@
 import {
   useState,
   useEffect,
+  useLayoutEffect,
   useRef,
   useCallback,
   startTransition,
@@ -33,18 +34,28 @@ export function useNavigation() {
 
   const isNavigatingRef = useRef(false);
   const visibleSectionsRef = useRef(new Set<string>());
+  const scrollEndCleanupRef = useRef<(() => void) | null>(null);
 
   const handleNavClick = useCallback((section: string) => {
     setActiveSection(section);
     isNavigatingRef.current = true;
 
-    window.addEventListener(
-      "scrollend",
-      () => {
-        isNavigatingRef.current = false;
-      },
-      { once: true, passive: true },
-    );
+    if (scrollEndCleanupRef.current) {
+      scrollEndCleanupRef.current();
+    }
+
+    const onScrollEnd = () => {
+      isNavigatingRef.current = false;
+      scrollEndCleanupRef.current = null;
+    };
+
+    window.addEventListener("scrollend", onScrollEnd, {
+      once: true,
+      passive: true,
+    });
+    scrollEndCleanupRef.current = () => {
+      window.removeEventListener("scrollend", onScrollEnd);
+    };
 
     const isReduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -138,7 +149,7 @@ export function useOverlay(
   hashId = "modal",
 ) {
   const onCloseRef = useRef(onClose);
-  useEffect(() => {
+  useLayoutEffect(() => {
     onCloseRef.current = onClose;
   });
 

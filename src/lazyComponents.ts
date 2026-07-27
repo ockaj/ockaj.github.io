@@ -2,20 +2,22 @@ import { lazy } from "react";
 import { makePreloadable } from "./utils/preloadable";
 
 export const loadCaseStudies = makePreloadable(
-  () => import("./components/CaseStudies/CaseStudies"),
+  () => import("./components/CaseStudies/CaseStudies.tsx"),
 );
-export const loadSkills = makePreloadable(() => import("./components/Skills"));
+export const loadSkills = makePreloadable(
+  () => import("./components/Skills.tsx"),
+);
 export const loadProcessLibrary = makePreloadable(
-  () => import("./components/ProcessLibrary"),
+  () => import("./components/ProcessLibrary.tsx"),
 );
 export const loadJournal = makePreloadable(
-  () => import("./components/Journal/Journal"),
+  () => import("./components/Journal/Journal.tsx"),
 );
 export const loadPdfViewerModal = makePreloadable(
-  () => import("./components/PdfViewerModal"),
+  () => import("./components/PdfViewerModal.tsx"),
 );
 export const loadBpmnOverlay = makePreloadable(
-  () => import("./components/BpmnOverlay"),
+  () => import("./components/BpmnOverlay.tsx"),
 );
 
 export const CaseStudies = lazy(loadCaseStudies.load);

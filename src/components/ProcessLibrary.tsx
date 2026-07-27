@@ -61,6 +61,10 @@ const tabContentVariants: Variants = {
   },
 };
 
+const PROCESS_INDEX_MAP = new Map(
+  PROCESS_ITEMS.map((item, index) => [item.id, index]),
+);
+
 function ProcessLibrary() {
   const prefersReducedMotion = useReducedMotion();
   const dotsContainerWidth = 16 + (PROCESS_ITEMS.length - 1) * 12;
@@ -84,53 +88,44 @@ function ProcessLibrary() {
   const showScrollUp = !isTopVisible;
   const showScrollDown = !isBottomVisible;
 
-  // sliding-window preloading only pre-fetches the two adjacent diagrams (N-1 and N+1) to conserve bandwidth
+  // Schedule low-priority background preloading for all diagram SVGs via Quicklink on mount
   useEffect(() => {
-    const currentIndex = PROCESS_ITEMS.findIndex(
-      (item) => item.id === activeItem.id,
-    );
-    if (currentIndex === -1) return;
-
-    const adjacentIndices = [currentIndex - 1, currentIndex + 1];
-    adjacentIndices.forEach((idx) => {
-      if (idx >= 0 && idx < PROCESS_ITEMS.length) {
-        prefetchAsset(PROCESS_ITEMS[idx].image);
-      }
+    PROCESS_ITEMS.forEach((item) => {
+      prefetchAsset(item.image);
     });
-  }, [activeItem.id]);
+  }, []);
 
   const handleTabChange = useCallback(
     (id: number) => {
-      const selected = PROCESS_ITEMS.find((item) => item.id === id);
-      if (!selected) return;
-
-      const newIdx = PROCESS_ITEMS.indexOf(selected);
-      const oldIdx = PROCESS_ITEMS.findIndex(
-        (item) => item.id === activeItem.id,
-      );
-      setDirection(newIdx > oldIdx ? 1 : -1);
-      setActiveItem(selected);
+      const newIdx = PROCESS_INDEX_MAP.get(id);
+      const oldIdx = PROCESS_INDEX_MAP.get(activeItem.id);
+      if (newIdx !== undefined && oldIdx !== undefined && newIdx !== oldIdx) {
+        const nextItem = PROCESS_ITEMS[newIdx];
+        prefetchAsset(nextItem.image);
+        setDirection(newIdx > oldIdx ? 1 : -1);
+        setActiveItem(nextItem);
+      }
     },
     [activeItem.id],
   );
 
   const handlePrev = useCallback(() => {
-    const currentIndex = PROCESS_ITEMS.findIndex(
-      (item) => item.id === activeItem.id,
-    );
+    const currentIndex = PROCESS_INDEX_MAP.get(activeItem.id) ?? -1;
     if (currentIndex > 0) {
+      const prevItem = PROCESS_ITEMS[currentIndex - 1];
+      prefetchAsset(prevItem.image);
       setDirection(-1);
-      setActiveItem(PROCESS_ITEMS[currentIndex - 1]);
+      setActiveItem(prevItem);
     }
   }, [activeItem.id]);
 
   const handleNext = useCallback(() => {
-    const currentIndex = PROCESS_ITEMS.findIndex(
-      (item) => item.id === activeItem.id,
-    );
-    if (currentIndex < PROCESS_ITEMS.length - 1) {
+    const currentIndex = PROCESS_INDEX_MAP.get(activeItem.id) ?? -1;
+    if (currentIndex >= 0 && currentIndex < PROCESS_ITEMS.length - 1) {
+      const nextItem = PROCESS_ITEMS[currentIndex + 1];
+      prefetchAsset(nextItem.image);
       setDirection(1);
-      setActiveItem(PROCESS_ITEMS[currentIndex + 1]);
+      setActiveItem(nextItem);
     }
   }, [activeItem.id]);
 

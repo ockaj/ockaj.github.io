@@ -51,6 +51,7 @@ export function usePreloadComponents(isMobile: boolean): void {
 
       for (const item of queue) {
         if (!active) break;
+        if (item.loader.getReady()) continue;
         item.loader.load().catch(() => {});
         await yieldToMain();
       }

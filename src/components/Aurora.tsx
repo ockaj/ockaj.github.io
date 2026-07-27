@@ -227,7 +227,7 @@ export default function Aurora(props: AuroraProps) {
     const mesh = new Mesh(gl, { geometry, program });
     ctn.appendChild(gl.canvas as HTMLCanvasElement);
 
-    let prevStopsString = "";
+    let prevStops: string[] | null = null;
     let animateId = 0;
     // throttle to ~30fps on mobile — halves backdrop-filter re-sampling
     const frameInterval = isMobile ? 33 : 0;
@@ -246,9 +246,8 @@ export default function Aurora(props: AuroraProps) {
       program.uniforms.uAmplitude.value = propsRef.current.amplitude ?? 1.0;
       program.uniforms.uBlend.value = propsRef.current.blend ?? blend;
       const stops = propsRef.current.colorStops ?? colorStops;
-      const stopsString = stops.join(",");
-      if (stopsString !== prevStopsString) {
-        prevStopsString = stopsString;
+      if (stops !== prevStops) {
+        prevStops = stops;
         program.uniforms.uColorStops.value = padColors(stops);
       }
       renderer.render({ scene: mesh });

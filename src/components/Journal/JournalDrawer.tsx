@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { BookOpen, Clock, MessageSquare } from "lucide-react";
+import { BookOpen, MessageSquare } from "lucide-react";
 import type { Article } from "../../data/articles";
 import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import BaseDrawer from "../BaseDrawer";
@@ -36,6 +36,54 @@ const drawerItemVariants = {
   },
 };
 
+const JOURNAL_MARKDOWN_COMPONENTS = {
+  ...COMMON_MARKDOWN_COMPONENTS,
+  h3: ({ children }: { children?: React.ReactNode }) => (
+    <h3 className="text-lg font-body text-text-primary font-bold mt-8 mb-4 text-balance flex items-center gap-2">
+      <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
+      {children}
+    </h3>
+  ),
+  p: ({ children }: { children?: React.ReactNode }) => (
+    <p className="text-text-primary/80 font-normal mb-4 text-pretty leading-relaxed">
+      {children}
+    </p>
+  ),
+  ul: ({ children }: { children?: React.ReactNode }) => (
+    <ul className="space-y-2 my-4 pl-5 list-disc text-muted">{children}</ul>
+  ),
+  li: ({ children }: { children?: React.ReactNode }) => (
+    <li className="text-xs md:text-sm text-pretty leading-relaxed">
+      {children}
+    </li>
+  ),
+  table: ({ children }: { children?: React.ReactNode }) => (
+    <div className="my-6 rounded-xl border border-white/10 bg-white/5 overflow-x-auto scrollbar-thin">
+      <table className="w-full min-w-[720px] md:min-w-0 text-left border-collapse text-[10px] sm:text-[11px] md:text-xs table-auto">
+        {children}
+      </table>
+    </div>
+  ),
+  thead: ({ children }: { children?: React.ReactNode }) => (
+    <thead className="border-b border-white/10 bg-white/5 font-display text-text-primary">
+      {children}
+    </thead>
+  ),
+  th: ({ children }: { children?: React.ReactNode }) => (
+    <th className="px-2 py-2.5 font-semibold uppercase tracking-wider text-[9px] sm:text-[10px] text-accent/90">
+      {children}
+    </th>
+  ),
+  tbody: ({ children }: { children?: React.ReactNode }) => (
+    <tbody className="divide-y divide-white/5 text-text-primary/75">
+      {children}
+    </tbody>
+  ),
+  td: ({ children }: { children?: React.ReactNode }) => (
+    <td className="p-2 leading-relaxed align-top break-words">{children}</td>
+  ),
+};
+
 const JournalDrawer = memo(function JournalDrawer({
   article,
   onClose,
@@ -44,36 +92,37 @@ const JournalDrawer = memo(function JournalDrawer({
 
   return (
     <BaseDrawer
-      title="Journal"
+      title="Journal Entry"
       icon={<BookOpen size={14} className="text-accent" />}
       onClose={onClose}
-      maxWidthClass="max-w-4xl"
-      hashId={`journal-${article.id}`}
+      maxWidthClass="max-w-3xl"
     >
       <motion.div
         variants={drawerContentVariants}
         initial="hidden"
         animate="visible"
-        className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 select-text touch-pan-y"
+        custom={prefersReducedMotion}
+        className="space-y-8 p-6 md:p-8 select-text touch-pan-y"
       >
         <motion.div
           variants={drawerItemVariants}
           custom={prefersReducedMotion}
-          className="space-y-3 pb-4 border-b border-white/5"
+          className="space-y-3"
         >
-          <span className="inline-block text-[10px] text-accent uppercase font-bold bg-accent/20 border border-accent/30 rounded-xl px-2.5 py-0.5">
-            {article.subtitle}
-          </span>
-          <h2 className="text-2xl md:text-3xl font-display text-text-primary leading-tight text-balance">
+          <div className="flex items-center gap-2 text-xs font-mono text-muted">
+            <span>{article.date}</span>
+            <span>•</span>
+            <span className="text-accent">{article.subtitle}</span>
+          </div>
+
+          <h2 className="text-xl md:text-2xl font-bold font-heading text-text-primary text-balance">
             {article.title}
           </h2>
-          <div className="flex gap-4 items-center text-xs text-muted tabular-nums">
-            <span>{article.date}</span>
-            <span>·</span>
-            <span className="flex items-center gap-1">
-              <Clock size={11} />
-              {article.readTime}
-            </span>
+
+          <div className="flex items-center gap-2 pt-1 border-t border-white/5 text-xs text-muted">
+            <span>By Ondrej Michal Očkaj</span>
+            <span>•</span>
+            <span className="font-mono text-accent/80">{article.readTime}</span>
           </div>
         </motion.div>
 
@@ -84,57 +133,7 @@ const JournalDrawer = memo(function JournalDrawer({
         >
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
-            components={{
-              ...COMMON_MARKDOWN_COMPONENTS,
-              h3: ({ children }) => (
-                <h3 className="text-lg font-body text-text-primary font-bold mt-8 mb-4 text-balance flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
-                  {children}
-                </h3>
-              ),
-              p: ({ children }) => (
-                <p className="text-text-primary/80 font-normal mb-4 text-pretty leading-relaxed">
-                  {children}
-                </p>
-              ),
-              ul: ({ children }) => (
-                <ul className="space-y-2 my-4 pl-5 list-disc text-muted">
-                  {children}
-                </ul>
-              ),
-              li: ({ children }) => (
-                <li className="text-xs md:text-sm text-pretty leading-relaxed">
-                  {children}
-                </li>
-              ),
-              table: ({ children }) => (
-                <div className="my-6 rounded-xl border border-white/10 bg-white/5 overflow-x-auto scrollbar-thin">
-                  <table className="w-full min-w-[720px] md:min-w-0 text-left border-collapse text-[10px] sm:text-[11px] md:text-xs table-auto">
-                    {children}
-                  </table>
-                </div>
-              ),
-              thead: ({ children }) => (
-                <thead className="border-b border-white/10 bg-white/5 font-display text-text-primary">
-                  {children}
-                </thead>
-              ),
-              th: ({ children }) => (
-                <th className="px-2 py-2.5 font-semibold uppercase tracking-wider text-[9px] sm:text-[10px] text-accent/90">
-                  {children}
-                </th>
-              ),
-              tbody: ({ children }) => (
-                <tbody className="divide-y divide-white/5 text-text-primary/75">
-                  {children}
-                </tbody>
-              ),
-              td: ({ children }) => (
-                <td className="p-2 leading-relaxed align-top break-words">
-                  {children}
-                </td>
-              ),
-            }}
+            components={JOURNAL_MARKDOWN_COMPONENTS}
           >
             {article.body}
           </ReactMarkdown>
