@@ -1,6 +1,7 @@
-import { useEffect, useRef, memo } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import { useReducedMotion } from "motion/react";
 import { ErrorBoundary } from "./ErrorBoundary";
+import AuroraFallback from "./AuroraFallback";
 import {
   Renderer,
   Program,
@@ -113,15 +114,12 @@ function AuroraCanvas(props: AuroraProps) {
   const propsRef = useRef<AuroraProps>(props);
   const prefersReducedMotionRef = useRef(prefersReducedMotion);
   const triggerRef = useRef<(() => void) | null>(null);
-  const frameCountRef = useRef(0);
-  const snapshotUrlRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    prefersReducedMotionRef.current = prefersReducedMotion;
-  }, [prefersReducedMotion]);
+  const [isContextLost, setIsContextLost] = useState(false);
+  const isContextLostRef = useRef(false);
 
   useEffect(() => {
     propsRef.current = props;
+    prefersReducedMotionRef.current = prefersReducedMotion;
   });
 
   const ctnRef = useRef<HTMLDivElement>(null);
@@ -148,30 +146,25 @@ function AuroraCanvas(props: AuroraProps) {
         premultipliedAlpha: true,
         antialias: true,
         dpr: dpr,
-        preserveDrawingBuffer: true,
       });
       gl = renderer.gl;
     } catch (e) {
       console.warn(
-        "WebGL context initialization failed. Applying backdrop fallback gradient.",
+        "WebGL context initialization failed. Applying SVG fallback.",
         e,
       );
-      if (ctn) {
-        ctn.style.background =
-          "radial-gradient(circle at center, #1E1B4B 0%, #0a0a0a 100%)";
-      }
+      isContextLostRef.current = true;
+      queueMicrotask(() => setIsContextLost(true));
       return;
     }
 
     if (!gl) {
       console.warn(
-        "WebGL context initialization failed. Applying backdrop fallback gradient.",
+        "WebGL context initialization failed. Applying SVG fallback.",
         new Error("WebGL context creation returned null"),
       );
-      if (ctn) {
-        ctn.style.background =
-          "radial-gradient(circle at center, #1E1B4B 0%, #0a0a0a 100%)";
-      }
+      isContextLostRef.current = true;
+      queueMicrotask(() => setIsContextLost(true));
       return;
     }
 
@@ -215,57 +208,49 @@ function AuroraCanvas(props: AuroraProps) {
       },
     });
 
-    let w = 0,
-      h = 0;
-    function resize() {
-      if (!ctn) return;
-      const newW = ctn.offsetWidth,
-        newH = ctn.offsetHeight;
-      if (newW !== w || Math.abs(newH - h) > 120) {
-        renderer.setSize((w = newW), (h = newH));
-        program.uniforms.uResolution.value = [renderer.width, renderer.height];
-      }
-    }
-    window.addEventListener("resize", resize, { passive: true });
-
     const mesh = new Mesh(gl, { geometry, program });
     ctn.appendChild(gl.canvas as HTMLCanvasElement);
 
-    let isContextLost = false;
+    let w = 0,
+      h = 0;
+    function resize(entries?: ResizeObserverEntry[]) {
+      if (!ctn) return;
+      const entry = entries?.[0];
+      const newW = entry ? entry.contentRect.width : ctn.offsetWidth;
+      const newH = entry ? entry.contentRect.height : ctn.offsetHeight;
+      if (newW > 0 && newH > 0 && (newW !== w || newH !== h)) {
+        w = newW;
+        h = newH;
+        renderer.setSize(w, h);
+        program.uniforms.uResolution.value = [renderer.width, renderer.height];
+        // Synchronously render immediately after WebGL buffer resize to prevent 1-frame blank flicker
+        if (!isContextLostRef.current && gl && !gl.isContextLost()) {
+          renderer.render({ scene: mesh });
+        }
+      }
+    }
+
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(ctn);
 
     const handleContextLost = (e: Event) => {
       e.preventDefault();
-      isContextLost = true;
+      isContextLostRef.current = true;
+      setIsContextLost(true);
       if (animateId) {
         cancelAnimationFrame(animateId);
         animateId = 0;
       }
       canvasEl.style.opacity = "0";
-      if (ctn) {
-        if (snapshotUrlRef.current) {
-          ctn.style.backgroundImage = `url(${snapshotUrlRef.current})`;
-          ctn.style.backgroundSize = "cover";
-          ctn.style.backgroundPosition = "center";
-          ctn.style.backgroundRepeat = "no-repeat";
-        } else {
-          ctn.style.background =
-            "radial-gradient(circle at center, #1E1B4B 0%, #0a0a0a 100%)";
-        }
-      }
     };
 
     const handleContextRestored = () => {
       if (import.meta.env.DEV) {
         console.log("[DevTools] WebGL Context Restored event received!");
       }
-      isContextLost = false;
-      snapshotUrlRef.current = null;
-      frameCountRef.current = 0;
+      isContextLostRef.current = false;
+      setIsContextLost(false);
       canvasEl.style.opacity = "1";
-      if (ctn) {
-        ctn.style.backgroundImage = "";
-        ctn.style.background = "";
-      }
       try {
         const newGeometry = new Triangle(gl);
         if (newGeometry.attributes.uv) {
@@ -325,8 +310,15 @@ function AuroraCanvas(props: AuroraProps) {
     // throttle to ~30fps on mobile — halves backdrop-filter re-sampling
     const frameInterval = isMobile ? 33 : 0;
     let lastFrame = 0;
+
+    const areStopsEqual = (a: string[] | null, b: string[] | null) => {
+      if (a === b) return true;
+      if (!a || !b || a.length !== b.length) return false;
+      return a.every((val, i) => val === b[i]);
+    };
+
     const update = (t: number) => {
-      if (isContextLost || gl.isContextLost()) {
+      if (isContextLostRef.current || gl.isContextLost()) {
         animateId = 0;
         return;
       }
@@ -344,27 +336,18 @@ function AuroraCanvas(props: AuroraProps) {
         propsRef.current.amplitude ?? 1.0;
       mesh.program.uniforms.uBlend.value = propsRef.current.blend ?? blend;
       const stops = propsRef.current.colorStops ?? colorStops;
-      if (stops !== prevStops) {
+      if (!areStopsEqual(stops, prevStops)) {
         prevStops = stops;
         mesh.program.uniforms.uColorStops.value = padColors(stops);
       }
       renderer.render({ scene: mesh });
-
-      frameCountRef.current = frameCountRef.current + 1;
-      if (frameCountRef.current === 3 && !snapshotUrlRef.current) {
-        try {
-          snapshotUrlRef.current = gl.canvas.toDataURL("image/png");
-        } catch {
-          // Ignore security restrictions if any
-        }
-      }
     };
 
     // Always trigger once initially
     animateId = requestAnimationFrame(update);
 
     triggerRef.current = () => {
-      if (!animateId && !isContextLost) {
+      if (!animateId && !isContextLostRef.current) {
         animateId = requestAnimationFrame(update);
       }
     };
@@ -376,7 +359,11 @@ function AuroraCanvas(props: AuroraProps) {
           animateId = 0;
         }
       } else {
-        if (!animateId && !prefersReducedMotionRef.current && !isContextLost) {
+        if (
+          !animateId &&
+          !prefersReducedMotionRef.current &&
+          !isContextLostRef.current
+        ) {
           animateId = requestAnimationFrame(update);
         }
       }
@@ -388,7 +375,7 @@ function AuroraCanvas(props: AuroraProps) {
     const activeGl = gl;
     return () => {
       cancelAnimationFrame(animateId);
-      window.removeEventListener("resize", resize);
+      resizeObserver.disconnect();
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       canvasEl.removeEventListener("webglcontextlost", handleContextLost);
       canvasEl.removeEventListener(
@@ -408,18 +395,18 @@ function AuroraCanvas(props: AuroraProps) {
     }
   }, [prefersReducedMotion]);
 
-  return <div ref={ctnRef} className="w-full h-full" />;
+  return (
+    <div ref={ctnRef} className="w-full h-full relative">
+      {isContextLost ? <AuroraFallback /> : null}
+    </div>
+  );
 }
 
 function Aurora(props: AuroraProps) {
   return (
     <div aria-hidden="true" className="fixed inset-0 pointer-events-none z-0">
       <div className="relative w-full h-full">
-        <ErrorBoundary
-          fallback={
-            <div className="absolute inset-0 bg-gradient-to-b from-[#1E1B4B] to-[#0a0a0a]" />
-          }
-        >
+        <ErrorBoundary fallback={<AuroraFallback />}>
           <AuroraCanvas
             colorStops={DEFAULT_COLOR_STOPS}
             speed={1.0}
