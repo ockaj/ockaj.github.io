@@ -16,14 +16,14 @@
 
 @font-face {
   font-family: "Libre Caslon Condensed";
-  src: url("/fonts/LibreCaslonCondensed[wght].woff2") format("woff2");
+  src: url("/fonts/LibreCaslonCondensed.woff2") format("woff2");
   font-weight: 400 700;
   font-display: swap;
 }
 
 @font-face {
   font-family: "Libre Caslon Condensed";
-  src: url("/fonts/LibreCaslonCondensed-Italic[wght].woff2") format("woff2");
+  src: url("/fonts/LibreCaslonCondensed-Italic.woff2") format("woff2");
   font-weight: 400 700;
   font-style: italic;
   font-display: swap;
@@ -39,7 +39,7 @@
 
 @font-face {
   font-family: "Outfit";
-  src: url("/fonts/Outfit-Variable[wght].woff2") format("woff2");
+  src: url("/fonts/Outfit-Variable.woff2") format("woff2");
   font-weight: 300 800;
   font-style: normal;
   font-display: swap;
@@ -51,7 +51,7 @@
 
 @font-face {
   font-family: "Outfit";
-  src: url("/fonts/Outfit-Variable-Ext[wght].woff2") format("woff2");
+  src: url("/fonts/Outfit-Variable-Ext.woff2") format("woff2");
   font-weight: 300 800;
   font-style: normal;
   font-display: swap;
