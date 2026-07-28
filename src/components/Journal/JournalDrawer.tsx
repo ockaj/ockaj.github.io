@@ -102,7 +102,7 @@ const JournalDrawer = memo(function JournalDrawer({
         initial="hidden"
         animate="visible"
         custom={prefersReducedMotion}
-        className="space-y-8 p-6 md:p-8 select-text touch-pan-y"
+        className="flex-1 overflow-y-auto space-y-8 p-6 md:p-8 select-text touch-pan-y"
       >
         <motion.div
           variants={drawerItemVariants}
