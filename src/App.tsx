@@ -6,7 +6,7 @@ import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import BpmnNodeBadge from "./components/BpmnNodeBadge";
 import LazySection from "./components/LazySection";
-import BackgroundAurora from "./components/BackgroundAurora";
+import Aurora from "./components/Aurora";
 import ContactSection from "./components/ContactSection";
 
 import { useIsMobile } from "./hooks/useMediaQuery";
@@ -76,7 +76,7 @@ function App() {
         ) : null}
       </AnimatePresence>
 
-      {!isLoading ? <BackgroundAurora /> : null}
+      {!isLoading ? <Aurora /> : null}
 
       <main
         id="main-content"

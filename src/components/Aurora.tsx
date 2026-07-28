@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, memo } from "react";
 import { useReducedMotion } from "motion/react";
+import { ErrorBoundary } from "./ErrorBoundary";
 import {
   Renderer,
   Program,
@@ -107,11 +108,13 @@ interface AuroraProps {
 
 const DEFAULT_COLOR_STOPS = ["#1E1B4B", "#312E81", "#6667AB", "#A78BFA"];
 
-export default function Aurora(props: AuroraProps) {
+function AuroraCanvas(props: AuroraProps) {
   const prefersReducedMotion = useReducedMotion();
   const propsRef = useRef<AuroraProps>(props);
   const prefersReducedMotionRef = useRef(prefersReducedMotion);
   const triggerRef = useRef<(() => void) | null>(null);
+  const frameCountRef = useRef(0);
+  const snapshotUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     prefersReducedMotionRef.current = prefersReducedMotion;
@@ -145,6 +148,7 @@ export default function Aurora(props: AuroraProps) {
         premultipliedAlpha: true,
         antialias: true,
         dpr: dpr,
+        preserveDrawingBuffer: true,
       });
       gl = renderer.gl;
     } catch (e) {
@@ -227,12 +231,105 @@ export default function Aurora(props: AuroraProps) {
     const mesh = new Mesh(gl, { geometry, program });
     ctn.appendChild(gl.canvas as HTMLCanvasElement);
 
+    let isContextLost = false;
+
+    const handleContextLost = (e: Event) => {
+      e.preventDefault();
+      isContextLost = true;
+      if (animateId) {
+        cancelAnimationFrame(animateId);
+        animateId = 0;
+      }
+      canvasEl.style.opacity = "0";
+      if (ctn) {
+        if (snapshotUrlRef.current) {
+          ctn.style.backgroundImage = `url(${snapshotUrlRef.current})`;
+          ctn.style.backgroundSize = "cover";
+          ctn.style.backgroundPosition = "center";
+          ctn.style.backgroundRepeat = "no-repeat";
+        } else {
+          ctn.style.background =
+            "radial-gradient(circle at center, #1E1B4B 0%, #0a0a0a 100%)";
+        }
+      }
+    };
+
+    const handleContextRestored = () => {
+      if (import.meta.env.DEV) {
+        console.log("[DevTools] WebGL Context Restored event received!");
+      }
+      isContextLost = false;
+      snapshotUrlRef.current = null;
+      frameCountRef.current = 0;
+      canvasEl.style.opacity = "1";
+      if (ctn) {
+        ctn.style.backgroundImage = "";
+        ctn.style.background = "";
+      }
+      try {
+        const newGeometry = new Triangle(gl);
+        if (newGeometry.attributes.uv) {
+          delete newGeometry.attributes.uv;
+        }
+        const newProgram = new Program(gl, {
+          vertex: VERT,
+          fragment: FRAG,
+          uniforms: {
+            uTime: { value: 0 },
+            uAmplitude: { value: amplitude },
+            uColorStops: { value: colorStopsArray },
+            uResolution: { value: [renderer.width, renderer.height] },
+            uBlend: { value: blend },
+          },
+        });
+        mesh.geometry = newGeometry;
+        mesh.program = newProgram;
+      } catch (err) {
+        console.warn("WebGL resource restoration failed:", err);
+      }
+      if (!animateId && !prefersReducedMotionRef.current) {
+        animateId = requestAnimationFrame(update);
+      }
+    };
+
+    const canvasEl = gl.canvas as HTMLCanvasElement;
+    canvasEl.addEventListener("webglcontextlost", handleContextLost, false);
+    canvasEl.addEventListener(
+      "webglcontextrestored",
+      handleContextRestored,
+      false,
+    );
+
+    const loseContextExt = gl.getExtension("WEBGL_lose_context");
+
+    if (import.meta.env.DEV) {
+      (
+        window as unknown as { simulateContextLoss?: () => void }
+      ).simulateContextLoss = () => {
+        if (loseContextExt) {
+          console.warn("[DevTools] Simulating WebGL context loss...");
+          loseContextExt.loseContext();
+        }
+      };
+      (window as unknown as { restoreContext?: () => void }).restoreContext =
+        () => {
+          if (loseContextExt) {
+            console.log("[DevTools] Restoring WebGL context...");
+            loseContextExt.restoreContext();
+          }
+        };
+    }
+
     let prevStops: string[] | null = null;
     let animateId = 0;
     // throttle to ~30fps on mobile — halves backdrop-filter re-sampling
     const frameInterval = isMobile ? 33 : 0;
     let lastFrame = 0;
     const update = (t: number) => {
+      if (isContextLost || gl.isContextLost()) {
+        animateId = 0;
+        return;
+      }
       if (prefersReducedMotionRef.current) {
         animateId = 0;
       } else {
@@ -242,22 +339,32 @@ export default function Aurora(props: AuroraProps) {
       lastFrame = t;
       const time = propsRef.current.time ?? t * 0.01;
       const speed = propsRef.current.speed ?? 1.0;
-      program.uniforms.uTime.value = time * speed * 0.1;
-      program.uniforms.uAmplitude.value = propsRef.current.amplitude ?? 1.0;
-      program.uniforms.uBlend.value = propsRef.current.blend ?? blend;
+      mesh.program.uniforms.uTime.value = time * speed * 0.1;
+      mesh.program.uniforms.uAmplitude.value =
+        propsRef.current.amplitude ?? 1.0;
+      mesh.program.uniforms.uBlend.value = propsRef.current.blend ?? blend;
       const stops = propsRef.current.colorStops ?? colorStops;
       if (stops !== prevStops) {
         prevStops = stops;
-        program.uniforms.uColorStops.value = padColors(stops);
+        mesh.program.uniforms.uColorStops.value = padColors(stops);
       }
       renderer.render({ scene: mesh });
+
+      frameCountRef.current = frameCountRef.current + 1;
+      if (frameCountRef.current === 3 && !snapshotUrlRef.current) {
+        try {
+          snapshotUrlRef.current = gl.canvas.toDataURL("image/png");
+        } catch {
+          // Ignore security restrictions if any
+        }
+      }
     };
 
     // Always trigger once initially
     animateId = requestAnimationFrame(update);
 
     triggerRef.current = () => {
-      if (!animateId) {
+      if (!animateId && !isContextLost) {
         animateId = requestAnimationFrame(update);
       }
     };
@@ -269,7 +376,7 @@ export default function Aurora(props: AuroraProps) {
           animateId = 0;
         }
       } else {
-        if (!animateId && !prefersReducedMotionRef.current) {
+        if (!animateId && !prefersReducedMotionRef.current && !isContextLost) {
           animateId = requestAnimationFrame(update);
         }
       }
@@ -283,12 +390,13 @@ export default function Aurora(props: AuroraProps) {
       cancelAnimationFrame(animateId);
       window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      if (
-        ctn &&
-        activeGl.canvas &&
-        (activeGl.canvas as HTMLCanvasElement).parentNode === ctn
-      ) {
-        ctn.removeChild(activeGl.canvas as HTMLCanvasElement);
+      canvasEl.removeEventListener("webglcontextlost", handleContextLost);
+      canvasEl.removeEventListener(
+        "webglcontextrestored",
+        handleContextRestored,
+      );
+      if (ctn && canvasEl && canvasEl.parentNode === ctn) {
+        ctn.removeChild(canvasEl);
       }
       activeGl.getExtension("WEBGL_lose_context")?.loseContext();
     };
@@ -302,3 +410,27 @@ export default function Aurora(props: AuroraProps) {
 
   return <div ref={ctnRef} className="w-full h-full" />;
 }
+
+function Aurora(props: AuroraProps) {
+  return (
+    <div aria-hidden="true" className="fixed inset-0 pointer-events-none z-0">
+      <div className="relative w-full h-full">
+        <ErrorBoundary
+          fallback={
+            <div className="absolute inset-0 bg-gradient-to-b from-[#1E1B4B] to-[#0a0a0a]" />
+          }
+        >
+          <AuroraCanvas
+            colorStops={DEFAULT_COLOR_STOPS}
+            speed={1.0}
+            amplitude={1.0}
+            blend={0.65}
+            {...props}
+          />
+        </ErrorBoundary>
+      </div>
+    </div>
+  );
+}
+
+export default memo(Aurora);
