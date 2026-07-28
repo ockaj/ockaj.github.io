@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useState, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import { cn } from "../utils/cn";
@@ -27,9 +27,26 @@ function MobileMenu({
   const prefersReducedMotion = useReducedMotion();
   const isMotionReduced = !!prefersReducedMotion;
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const preventScroll = (e: Event) => {
+      if (!(e.target as HTMLElement | null)?.closest(".overflow-y-auto")) {
+        e.preventDefault();
+      }
+    };
+    const types = ["touchmove", "wheel"] as const;
+    types.forEach((type) =>
+      document.addEventListener(type, preventScroll, { passive: false }),
+    );
+    return () =>
+      types.forEach((type) =>
+        document.removeEventListener(type, preventScroll),
+      );
+  }, [isOpen]);
+
   return (
     <AnimatePresence>
-      {isOpen && (
+      {isOpen ? (
         <>
           <motion.div
             initial={{ opacity: 0 }}
@@ -37,7 +54,7 @@ function MobileMenu({
             exit={{ opacity: 0, transition: SPRING.exit }}
             transition={SPRING.drawerMobile}
             aria-hidden="true"
-            className="fixed top-0 left-0 right-0 bottom-[-20vh] md:hidden z-40 pointer-events-auto bg-black/50 backdrop-blur-sm"
+            className="fixed top-0 left-0 right-0 bottom-[-20vh] md:hidden z-40 pointer-events-auto bg-black/50 backdrop-blur-sm touch-none"
             onClick={onClose}
           />
 
@@ -121,7 +138,7 @@ function MobileMenu({
             </div>
           </motion.div>
         </>
-      )}
+      ) : null}
     </AnimatePresence>
   );
 }
