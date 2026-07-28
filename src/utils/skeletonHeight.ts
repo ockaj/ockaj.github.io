@@ -1,14 +1,11 @@
 export const getSkeletonHeight = (bonesData: {
   breakpoints?: Record<string, { height: number }>;
 }): number => {
-  if (typeof window === "undefined" || !bonesData || !bonesData.breakpoints)
-    return 0;
+  if (typeof window === "undefined" || !bonesData?.breakpoints) return 0;
   const width = window.innerWidth;
-  const breakpoints = Object.keys(bonesData.breakpoints)
-    .map(Number)
-    .sort((a, b) => b - a);
-  const matchedBp =
-    breakpoints.find((bp) => width >= bp) ??
-    breakpoints[breakpoints.length - 1];
-  return bonesData.breakpoints[matchedBp]?.height ?? 0;
+  const bp = bonesData.breakpoints;
+  return (
+    (width >= 1024 ? bp["1024"] : width >= 768 ? bp["768"] : bp["375"])
+      ?.height ?? 0
+  );
 };
