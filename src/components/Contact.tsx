@@ -70,13 +70,7 @@ function Contact() {
                 <span>{social.label}</span>
                 <ArrowUpRight
                   aria-hidden="true"
-                  size={13}
-                  className="sm:hidden transition-transform duration-300 group-hover/social-btn:translate-x-0.5 group-hover/social-btn:-translate-y-0.5 shrink-0"
-                />
-                <ArrowUpRight
-                  aria-hidden="true"
-                  size={16}
-                  className="hidden sm:inline transition-transform duration-300 group-hover/social-btn:translate-x-0.5 group-hover/social-btn:-translate-y-0.5 shrink-0"
+                  className="w-[13px] h-[13px] sm:w-4 sm:h-4 transition-transform duration-300 group-hover/social-btn:translate-x-0.5 group-hover/social-btn:-translate-y-0.5 shrink-0"
                 />
               </span>
             </LiquidGlassButton>

@@ -2,9 +2,37 @@ import { useMemo, type CSSProperties, type Ref, type ElementType } from "react";
 import { type LiquidGlassPropsWithRef, WHITESPACE_REGEX } from "./types";
 import { cn } from "../../utils/cn";
 
+const CUSTOM_PROPS = [
+  "interactive",
+  "springScale",
+  "magnetic",
+  "tilt",
+  "magneticStrength",
+  "tiltStrength",
+  "ripple",
+  "specularGlow",
+] as const;
+
+function omit<T extends object, K extends keyof T>(
+  obj: T,
+  keys: readonly K[],
+): Omit<T, K> {
+  const result = { ...obj };
+  keys.forEach((key) => {
+    delete result[key];
+  });
+  return result;
+}
+
 export default function LiquidGlassStatic({
   children,
   as = "div",
+  href,
+  download,
+  target,
+  rel,
+  ariaLabel,
+  onClick,
   className = "",
   innerClassName = "",
   style,
@@ -17,6 +45,8 @@ export default function LiquidGlassStatic({
   const borderActiveClasses = active
     ? "border-white/[0.15] bg-white/[0.04]"
     : "border-white/[0.04] bg-white/[0.015]";
+
+  const domProps = useMemo(() => omit(rest, CUSTOM_PROPS), [rest]);
 
   const baseClasses = `
     relative inline-flex items-center justify-center
@@ -71,7 +101,13 @@ export default function LiquidGlassStatic({
       ref={ref as Ref<HTMLDivElement>}
       className={cn(baseClasses, className)}
       style={tagStyle}
-      {...rest}
+      href={href}
+      download={download}
+      target={target}
+      rel={rel}
+      onClick={onClick}
+      aria-label={ariaLabel}
+      {...domProps}
     >
       <span
         className={cn(
