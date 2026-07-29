@@ -114,7 +114,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
                 <p className="text-lg md:text-xl font-body font-semibold tracking-tight text-accent tabular-nums">
                   <MetricCountUp value={res.metric} />
                 </p>
-                <p className="text-[10px] text-muted uppercase mt-1 text-pretty">
+                <p className="text-xs text-muted uppercase mt-1 text-pretty">
                   {res.description}
                 </p>
               </div>

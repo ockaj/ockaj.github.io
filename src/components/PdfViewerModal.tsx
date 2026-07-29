@@ -218,7 +218,7 @@ const InteractiveCvView = memo(function InteractiveCvView({
                         {job.company}
                       </p>
                     </div>
-                    <span className="text-[10px] uppercase text-accent bg-accent/5 px-2 py-0.5 rounded-xl border border-accent/15 tabular-nums">
+                    <span className="text-xs uppercase text-accent bg-accent/5 px-2 py-0.5 rounded-xl border border-accent/15 tabular-nums">
                       {job.period}
                     </span>
                   </div>
@@ -262,7 +262,7 @@ const InteractiveCvView = memo(function InteractiveCvView({
                         {edu.school}
                       </p>
                     </div>
-                    <span className="text-[10px] text-muted font-mono bg-white/5 px-2 py-0.5 rounded-xl tabular-nums">
+                    <span className="text-xs text-muted font-mono bg-white/5 px-2 py-0.5 rounded-xl tabular-nums">
                       {edu.period}
                     </span>
                   </div>
@@ -278,7 +278,7 @@ const InteractiveCvView = memo(function InteractiveCvView({
                         {edu.details.bullets.map((bullet) => (
                           <li
                             key={bullet}
-                            className="text-[11px] text-muted flex items-start gap-1.5 text-pretty"
+                            className="text-xs text-muted flex items-start gap-1.5 text-pretty"
                           >
                             <span className="text-accent flex-shrink-0 mt-0.5">
                               •
@@ -307,14 +307,14 @@ const InteractiveCvView = memo(function InteractiveCvView({
             <div className="space-y-4">
               {activeCv.skills.categories.map((cat) => (
                 <div key={cat.name} className="space-y-2">
-                  <h3 className="text-[11px] font-semibold uppercase text-accent text-balance">
+                  <h3 className="text-xs font-semibold uppercase text-accent text-balance">
                     {cat.name}
                   </h3>
                   <div className="flex flex-wrap gap-1.5">
                     {cat.items.map((skill) => (
                       <span
                         key={skill}
-                        className="text-[11px] text-muted/95 bg-white/5 hover:bg-white/[0.08] border border-white/5 rounded-xl px-2 py-1 transition-[background-color,color] select-none hover:text-text-primary"
+                        className="text-xs text-muted/95 bg-white/5 hover:bg-white/[0.08] border border-white/5 rounded-xl px-2 py-1 transition-[background-color,color] select-none hover:text-text-primary"
                       >
                         {skill}
                       </span>
@@ -341,7 +341,7 @@ const InteractiveCvView = memo(function InteractiveCvView({
                   <span className="font-normal text-text-primary">
                     {langItem.name}
                   </span>
-                  <span className="text-accent bg-accent/10 px-2 py-0.5 rounded-xl font-mono text-[10px] font-semibold border border-accent/10">
+                  <span className="text-accent bg-accent/10 px-2 py-0.5 rounded-xl font-mono text-xs font-semibold border border-accent/10">
                     {langItem.level}
                   </span>
                 </div>
@@ -352,7 +352,7 @@ const InteractiveCvView = memo(function InteractiveCvView({
           {/* Mobile Warning Notice */}
           {isMobile ? (
             <div className="p-4 rounded-lg border border-accent/20 bg-accent/5 text-center space-y-2">
-              <p className="text-[11px] text-muted text-pretty">
+              <p className="text-xs text-muted text-pretty">
                 PDF view is optimized for desktop viewports. To read the
                 official document, you can open or download the PDF below.
               </p>

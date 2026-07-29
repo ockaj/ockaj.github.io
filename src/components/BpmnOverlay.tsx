@@ -144,10 +144,10 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
             >
               <BpmnNodeBadge type="script-task" className="flex-shrink-0" />
               <div className="flex-1 text-left">
-                <p className="font-semibold text-text-primary text-[12px]">
+                <p className="font-semibold text-text-primary text-xs">
                   Process Analyst Easter Egg
                 </p>
-                <p className="text-muted text-[11px] mt-0.5 leading-normal text-pretty">
+                <p className="text-muted text-xs mt-0.5 leading-normal text-pretty">
                   Type{" "}
                   <span className="font-mono text-accent font-bold">
                     B-P-M-N
@@ -231,7 +231,7 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
                         <Dialog.Title className="text-lg md:text-2xl font-display text-text-primary">
                           Portfolio System Operation Blueprint
                         </Dialog.Title>
-                        <p className="text-[11px] md:text-xs text-muted max-w-xl leading-relaxed mt-1 text-pretty">
+                        <p className="text-xs text-muted max-w-xl leading-relaxed mt-1 text-pretty">
                           Click any user task box in the upper lane to navigate
                           directly to that section. Press{" "}
                           <span className="font-mono bg-white/5 border border-white/10 px-2 py-0.5 rounded-xl text-accent font-bold">

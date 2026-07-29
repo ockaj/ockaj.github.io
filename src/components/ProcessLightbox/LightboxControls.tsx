@@ -68,7 +68,7 @@ const LightboxControls = memo(function LightboxControls({
             interactive={isZoomed}
             springScale={isZoomed}
             className={cn(
-              "h-10 w-16 flex items-center justify-center text-[10px] tracking-wider uppercase select-none font-bold text-text-primary",
+              "h-10 w-16 flex items-center justify-center text-xs tracking-wider uppercase select-none font-bold text-text-primary",
               isZoomed
                 ? "pointer-events-auto cursor-pointer"
                 : "pointer-events-none cursor-default",

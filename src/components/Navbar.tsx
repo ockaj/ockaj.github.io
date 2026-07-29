@@ -219,7 +219,7 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
                       dispatch({ type: "SET_AVATAR_ERROR", error: false });
                     }}
                     title="Click to retry loading avatar"
-                    className="text-[9px] font-bold text-accent font-mono leading-none tracking-normal select-none hover:scale-105 transition-transform duration-200 ease-out cursor-pointer focus-visible:outline-none"
+                    className="text-xs font-bold text-accent font-mono leading-none tracking-normal select-none hover:scale-105 transition-transform duration-200 ease-out cursor-pointer focus-visible:outline-none"
                   >
                     OMO
                   </button>
@@ -237,7 +237,7 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
                 )}
               </span>
 
-              <span className="text-[13px] font-semibold leading-none whitespace-nowrap">
+              <span className="text-xs font-semibold leading-none whitespace-nowrap">
                 Ondrej Michal Očkaj
               </span>
             </Tab>

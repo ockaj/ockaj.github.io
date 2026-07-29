@@ -298,7 +298,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
       {/* Top Header Row */}
       <div className="relative z-10 flex justify-between items-center w-full">
         <motion.div
-          className="text-[10px] md:text-xs text-muted uppercase font-sans font-semibold"
+          className="text-xs text-muted uppercase font-sans font-semibold"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -307,7 +307,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
         </motion.div>
         <motion.button
           onClick={handleSkip}
-          className="px-4 py-2 rounded-full border border-white/10 bg-white/[0.03] hover:bg-white/[0.08] hover:border-white/20 text-[10px] md:text-xs text-muted hover:text-text-primary transition-colors duration-200 cursor-pointer active:scale-95 z-20 pointer-events-auto"
+          className="px-4 py-2 rounded-full border border-white/10 bg-white/[0.03] hover:bg-white/[0.08] hover:border-white/20 text-xs text-muted hover:text-text-primary transition-colors duration-200 cursor-pointer active:scale-95 z-20 pointer-events-auto"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -656,7 +656,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
       <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-8 items-end w-full">
         {/* Left column: Methodology checklist */}
         <div className="md:col-span-6 flex flex-col items-start gap-3">
-          <span className="text-[10px] text-muted/70 uppercase font-sans font-semibold">
+          <span className="text-xs text-muted/70 uppercase font-sans font-semibold">
             Process Modeling Methodology
           </span>
           {/* Methodology checklist — Desktop Only */}
@@ -670,7 +670,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
                   <div
                     key={step.label}
                     className={cn(
-                      "flex items-center gap-3 text-[10px] md:text-xs font-sans",
+                      "flex items-center gap-3 text-xs font-sans",
                       isActive
                         ? "text-text-primary font-semibold"
                         : isCompleted
@@ -686,7 +686,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
                           opacity: isCompleted ? 1 : 0,
                         }}
                         transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.4 }}
-                        className="absolute inset-0 flex items-center justify-center text-[hsl(var(--accent))] font-bold text-[10px] md:text-xs"
+                        className="absolute inset-0 flex items-center justify-center text-[hsl(var(--accent))] font-bold text-xs"
                       >
                         ✓
                       </motion.span>
@@ -711,7 +711,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
                           opacity: !isCompleted && !isActive ? 0.4 : 0,
                         }}
                         transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.4 }}
-                        className="absolute inset-0 flex items-center justify-center text-[9px] font-mono text-muted"
+                        className="absolute inset-0 flex items-center justify-center text-xs font-mono text-muted"
                       >
                         •
                       </motion.span>
@@ -757,7 +757,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
                             key={step.label}
                             className="h-[50px] flex flex-col justify-center pr-2"
                           >
-                            <span className="text-[9px] text-accent/80 font-bold uppercase tracking-wider mb-0.5">
+                            <span className="text-[10px] text-accent/80 font-bold uppercase tracking-wider mb-0.5">
                               Phase {idx + 1} of 7
                             </span>
                             <span className="text-text-primary font-semibold text-xs leading-snug block text-pretty">

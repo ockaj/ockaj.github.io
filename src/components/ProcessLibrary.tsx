@@ -257,7 +257,7 @@ function ProcessLibrary() {
                         <span className="block text-sm font-semibold font-body transition-transform duration-300 group-hover:translate-x-1 whitespace-nowrap lg:whitespace-normal lg:text-balance line-clamp-1 lg:line-clamp-2">
                           {item.title}
                         </span>
-                        <p className="text-[9px] text-muted uppercase mt-0.5 transition-transform duration-300 group-hover:translate-x-1">
+                        <p className="text-xs text-muted uppercase mt-0.5 transition-transform duration-300 group-hover:translate-x-1">
                           {item.type}
                         </p>
                       </div>
@@ -378,7 +378,7 @@ function ProcessLibrary() {
 
                   {/* Canvas Footer Details */}
                   <div className="relative z-10 mt-auto h-auto">
-                    <p className="text-[10px] text-muted uppercase font-semibold mb-2">
+                    <p className="text-xs text-muted uppercase font-semibold mb-2">
                       Operational Insight
                     </p>
                     <p className="text-sm text-text-primary/80 leading-relaxed text-pretty min-h-[6.5em]">
@@ -409,7 +409,7 @@ function ProcessLibrary() {
               </LiquidGlassButton>
 
               <div className="flex items-center gap-3.5 px-2">
-                <span className="text-[9px] tracking-[0.2em] uppercase text-muted/40 font-bold font-body">
+                <span className="text-xs tracking-[0.2em] uppercase text-muted/40 font-bold font-body">
                   Explore
                 </span>
                 <div

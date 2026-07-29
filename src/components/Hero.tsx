@@ -298,7 +298,7 @@ function Hero({ onViewCv, onViewWork }: HeroProps) {
           onViewWork();
         }}
       >
-        <span className="text-[10px] text-muted/90 group-hover:text-accent uppercase font-semibold tracking-[0.25em] transition-colors duration-300">
+        <span className="text-xs text-muted/90 group-hover:text-accent uppercase font-semibold tracking-[0.25em] transition-colors duration-300">
           Flow
         </span>
         <svg
