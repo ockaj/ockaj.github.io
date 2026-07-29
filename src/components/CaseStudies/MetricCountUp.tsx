@@ -1,5 +1,5 @@
-import { memo, useEffect, useState } from "react";
-import { useReducedMotion } from "motion/react";
+import { memo, useEffect, useRef, useState } from "react";
+import { useInView, useReducedMotion } from "motion/react";
 import NumberFlow from "@number-flow/react";
 
 interface MetricCountUpProps {
@@ -11,6 +11,11 @@ const NUMERIC_REGEX = /[-+]?\d*\.?\d+/;
 const MetricCountUp = memo(function MetricCountUp({
   value,
 }: MetricCountUpProps) {
+  const containerRef = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(containerRef, {
+    once: true,
+    margin: "0px 0px -40px 0px",
+  });
   const prefersReducedMotion = useReducedMotion();
   const numericPart = value.match(NUMERIC_REGEX);
   const target = numericPart ? parseFloat(numericPart[0]) : 0;
@@ -21,14 +26,13 @@ const MetricCountUp = memo(function MetricCountUp({
 
   useEffect(() => {
     if (!numericPart || prefersReducedMotion) return;
-    const timer = setTimeout(() => {
+    if (isInView) {
       setCurrentValue(target);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [target, numericPart, prefersReducedMotion]);
+    }
+  }, [isInView, target, numericPart, prefersReducedMotion]);
 
   if (!numericPart) {
-    return <span>{value}</span>;
+    return <span ref={containerRef}>{value}</span>;
   }
 
   const startIndex = value.indexOf(numericPart[0]);
@@ -36,19 +40,21 @@ const MetricCountUp = memo(function MetricCountUp({
   const suffix = value.substring(startIndex + numericPart[0].length);
 
   return (
-    <NumberFlow
-      value={currentValue}
-      prefix={prefix}
-      suffix={suffix}
-      format={{
-        minimumFractionDigits: target % 1 === 0 ? 0 : 1,
-        maximumFractionDigits: 1,
-      }}
-      transformTiming={{
-        duration: prefersReducedMotion ? 0 : 320,
-        easing: "cubic-bezier(0.16, 1, 0.3, 1)",
-      }}
-    />
+    <span ref={containerRef} className="inline-block">
+      <NumberFlow
+        value={currentValue}
+        prefix={prefix}
+        suffix={suffix}
+        format={{
+          minimumFractionDigits: target % 1 === 0 ? 0 : 1,
+          maximumFractionDigits: 1,
+        }}
+        transformTiming={{
+          duration: prefersReducedMotion ? 0 : 800,
+          easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+        }}
+      />
+    </span>
   );
 });
 

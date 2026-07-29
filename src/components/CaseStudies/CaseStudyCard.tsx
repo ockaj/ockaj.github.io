@@ -2,6 +2,7 @@ import { memo } from "react";
 import { AlertCircle, CheckCircle, ArrowUpRight } from "lucide-react";
 import type { CaseStudyDetail } from "../../data/caseStudies";
 import { LiquidGlass } from "../LiquidGlass/LiquidGlass";
+import MetricCountUp from "./MetricCountUp";
 
 interface CardProps {
   study: CaseStudyDetail;
@@ -94,14 +95,14 @@ const CaseStudyCard = memo(function CaseStudyCard({
             <p className="text-xs text-muted uppercase font-semibold mb-3">
               Key Results
             </p>
-            <div className="space-y-2 md:space-y-3">
+            <div className="space-y-3">
               {study.results.map((result) => (
                 <div
                   key={result.metric}
                   className="flex items-baseline gap-3 case-study-metric-hover"
                 >
-                  <span className="text-base md:text-lg font-body font-semibold tracking-tight text-accent tabular-nums case-study-metric-hover-val">
-                    {result.metric}
+                  <span className="text-xl md:text-2xl font-display text-accent tabular-nums tracking-tight case-study-metric-hover-val">
+                    <MetricCountUp value={result.metric} />
                   </span>
                   <span className="text-xs md:text-sm text-muted text-pretty case-study-metric-hover-desc">
                     {result.description}
