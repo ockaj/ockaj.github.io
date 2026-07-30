@@ -100,6 +100,8 @@ function MobileMenu({
               boxShadow:
                 "inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(0, 0, 0, 0.7)",
             }}
+            id="mobile-nav-panel"
+            aria-label="Mobile Navigation"
             className="md:hidden z-50 w-72 mt-2 pointer-events-auto relative rounded-3xl border overflow-hidden"
           >
             <div className="relative z-10 w-full p-3 max-h-[calc(100svh-100px)] overflow-y-auto overscroll-contain no-scrollbar">
@@ -117,19 +119,19 @@ function MobileMenu({
                 )}
                 highlightStyle={HIGHLIGHT_STYLE}
                 className="flex flex-col gap-1.5"
-                role="none"
               >
                 {["Home", ...navLinks, "Contact"].map((link) => (
                   <Tab
                     key={link}
                     value={link}
+                    tabIndex={0}
                     className={cn(
                       "relative w-full text-center flex justify-center items-center text-sm font-semibold rounded-full px-4 py-3.5 transition-colors duration-300 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
                       active === link
                         ? "text-text-primary"
                         : "text-muted hover:text-text-primary",
                     )}
-                    role="link"
+                    aria-current={active === link ? "page" : undefined}
                   >
                     {link}
                   </Tab>

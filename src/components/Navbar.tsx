@@ -175,7 +175,10 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
         ref={localSentinelRef}
         className="absolute top-[100px] left-0 w-px h-px pointer-events-none opacity-0"
       />
-      <nav className="fixed top-0 left-0 right-0 z-50 flex flex-col items-center pt-4 md:pt-6 px-4 pointer-events-none">
+      <nav
+        aria-label="Main Navigation"
+        className="fixed top-0 left-0 right-0 z-50 flex flex-col items-center pt-4 md:pt-6 px-4 pointer-events-none"
+      >
         <div
           className={cn(
             "pointer-events-auto flex items-center justify-between md:justify-start gap-1 md:gap-1.5 rounded-full border border-white/10 bg-surface/40 p-[7px] navbar-capsule overflow-hidden isolate [transform:translateZ(0)] w-full max-w-[85vw] md:w-auto relative z-50 md:max-w-[95vw]",
@@ -195,11 +198,11 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
                 : "navbar-highlight-flat"
             }
             className="flex items-center gap-1 md:gap-1.5"
-            role="none"
           >
             {/* Home Button (Avatar + Name) */}
             <Tab
               value="Home"
+              tabIndex={0}
               highlightClassName="hidden md:block"
               className={cn(
                 "relative text-xs sm:text-sm rounded-full pl-1.5 md:pl-[9px] pr-3 md:pr-[15px] py-1.5 md:py-[9px] transition-colors duration-200 select-none z-10 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
@@ -208,7 +211,7 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
                   : "text-muted hover:text-text-primary",
               )}
               aria-label="Home"
-              role="link"
+              aria-current={active === "Home" ? "page" : undefined}
             >
               <span className="relative size-6 rounded-full bg-bg flex items-center justify-center z-10 overflow-hidden border border-white/5 flex-shrink-0">
                 {avatarError ? (
@@ -248,13 +251,14 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
                 <Tab
                   key={link}
                   value={link}
+                  tabIndex={0}
                   className={cn(
                     "relative text-xs md:text-sm rounded-full px-3 md:px-[19px] py-1.5 md:py-[11px] transition-colors duration-200 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
                     active === link
                       ? "text-text-primary"
                       : "text-muted hover:text-text-primary",
                   )}
-                  role="link"
+                  aria-current={active === link ? "page" : undefined}
                 >
                   {link}
                 </Tab>
@@ -263,13 +267,14 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
               {/* Contact link (Desktop Only) */}
               <Tab
                 value="Contact"
+                tabIndex={0}
                 className={cn(
                   "relative text-xs md:text-sm rounded-full px-3 md:px-[19px] py-1.5 md:py-[11px] transition-colors duration-200 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
                   active === "Contact"
                     ? "text-text-primary"
                     : "text-muted hover:text-text-primary",
                 )}
-                role="link"
+                aria-current={active === "Contact" ? "page" : undefined}
               >
                 Contact
               </Tab>
@@ -282,6 +287,8 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
               type="button"
               onClick={() => dispatch({ type: "SET_IS_OPEN", isOpen: !isOpen })}
               aria-label={isOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isOpen}
+              aria-controls="mobile-nav-panel"
               className="size-11 p-0"
             >
               <span className="relative size-4 flex items-center justify-center pointer-events-none">

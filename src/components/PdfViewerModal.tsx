@@ -513,7 +513,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                       </div>
 
                       {/* Mobile Action Buttons (Right side on mobile) */}
-                      <div className="flex sm:hidden items-center gap-2">
+                      <div className="flex sm:hidden items-center gap-2.5">
                         {/* Download Direct */}
                         <LiquidGlassButton
                           href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
@@ -521,21 +521,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                           className="p-3 size-11"
                           ariaLabel="Download PDF CV"
                         >
-                          <Download size={14} className="text-text-primary" />
-                        </LiquidGlassButton>
-
-                        {/* Open in New Tab */}
-                        <LiquidGlassButton
-                          href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-3 size-11"
-                          ariaLabel="Open CV PDF in new tab"
-                        >
-                          <ExternalLink
-                            size={14}
-                            className="text-text-primary"
-                          />
+                          <Download size={15} className="text-text-primary" />
                         </LiquidGlassButton>
 
                         {/* Close Button */}

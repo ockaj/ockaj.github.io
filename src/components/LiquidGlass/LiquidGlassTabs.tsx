@@ -372,9 +372,9 @@ const Tab = memo(function Tab({
     : dimensions.height / 2;
 
   const outerHighlightStyle = {
+    "--base-radius": `${baseRadius}px`,
     ...contextHighlightStyle,
     ...highlightStyle,
-    "--base-radius": `${baseRadius}px`,
     willChange: willChange ? "transform" : "auto",
   };
 
@@ -413,7 +413,7 @@ const Tab = memo(function Tab({
           : isTabRole
             ? isActive
               ? "true"
-              : undefined
+              : "false"
             : undefined
       }
       aria-controls={
@@ -438,6 +438,7 @@ const Tab = memo(function Tab({
       {showHighlight ? (
         <motion.span
           layoutId={isMobileNav ? undefined : layoutId}
+          initial={false}
           className={outerHighlightClass}
           style={outerHighlightStyle as CSSProperties}
           transition={layoutTransition}
