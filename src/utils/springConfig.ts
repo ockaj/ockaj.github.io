@@ -96,4 +96,11 @@ export const SPRING = {
     stiffness: 110,
     mass: 1.0,
   },
+  /** Mobile swipe initial entrance nudge */
+  nudge: {
+    type: "spring" as const,
+    stiffness: 320,
+    damping: 18,
+    mass: 0.8,
+  },
 } as const;

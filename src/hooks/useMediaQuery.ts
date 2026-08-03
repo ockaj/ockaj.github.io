@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 
-function useMediaQuery(query: string): boolean {
+export function useMediaQuery(query: string): boolean {
   return useSyncExternalStore(
     (callback) => {
       if (typeof window === "undefined") return () => {};

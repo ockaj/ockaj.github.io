@@ -33,7 +33,10 @@ export function useNavigation() {
   });
 
   const isNavigatingRef = useRef(false);
-  const visibleSectionsRef = useRef(new Set<string>());
+  const visibleSectionsRef = useRef<Set<string> | null>(null);
+  if (visibleSectionsRef.current === null) {
+    visibleSectionsRef.current = new Set<string>();
+  }
   const scrollEndCleanupRef = useRef<(() => void) | null>(null);
 
   const handleNavClick = useCallback((section: string) => {
@@ -79,21 +82,22 @@ export function useNavigation() {
   useEffect(() => {
     if (isLoading) return;
 
+    const visibleSections = visibleSectionsRef.current;
+    if (!visibleSections) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            visibleSectionsRef.current.add(entry.target.id);
+            visibleSections.add(entry.target.id);
           } else {
-            visibleSectionsRef.current.delete(entry.target.id);
+            visibleSections.delete(entry.target.id);
           }
         });
 
         if (isNavigatingRef.current) return;
 
-        const targetId = SECTIONS.findLast((id) =>
-          visibleSectionsRef.current.has(id),
-        );
+        const targetId = SECTIONS.findLast((id) => visibleSections.has(id));
         if (targetId) {
           const sectionLabel = LABEL_MAP[targetId] ?? "Home";
           startTransition(() => {
