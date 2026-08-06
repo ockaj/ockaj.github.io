@@ -43,11 +43,12 @@ export const SPRING = {
     bounce: 0.08,
     restDelta: 0.005,
   },
-  /** Immediate accelerated exit curve for modals, drawers & backdrops (160ms) */
+  /** Responsive interruptible exit spring for modals, drawers & backdrops */
   exit: {
-    type: "tween" as const,
-    duration: 0.16,
-    ease: EASE.exit,
+    type: "spring" as const,
+    duration: 0.22,
+    bounce: 0,
+    restDelta: 0.005,
   },
   /** Tooltips entrance */
   tooltip: {

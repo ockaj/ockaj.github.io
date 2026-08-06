@@ -15,6 +15,16 @@ import { prefetchAsset } from "../utils/quicklink";
 import { cn } from "../utils/cn";
 import { SPRING } from "../utils/springConfig";
 import { useMediaQuery } from "../hooks/useMediaQuery";
+import { isBoneyardBuild } from "../utils/boneyard";
+import {
+  containerStaggerVariants,
+  cardStaggerVariants,
+  SECTION_VIEWPORT,
+} from "../utils/motionVariants";
+
+const isBuildMode = isBoneyardBuild();
+const containerVariants = containerStaggerVariants();
+const cardVariants = cardStaggerVariants;
 
 interface CustomAnimationProps {
   prefersReducedMotion?: boolean;
@@ -65,7 +75,7 @@ const tabContentVariants: Variants = {
 const innerContentVariants: Variants = {
   hidden: (props: CustomAnimationProps = {}) => ({
     opacity: 0,
-    scale: props.prefersReducedMotion ? 1 : 0.985,
+    scale: props.prefersReducedMotion ? 1 : 0.995,
     transition: SPRING.exit,
   }),
   visible: {
@@ -211,9 +221,20 @@ function ProcessLibrary() {
     <>
       {/* Interactive Split Dashboard */}
       <div className="px-6 md:px-10 lg:px-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-stretch relative z-20">
+        <motion.div
+          custom={prefersReducedMotion}
+          variants={containerVariants}
+          initial={isBuildMode ? "visible" : "hidden"}
+          whileInView={isBuildMode ? undefined : "visible"}
+          viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
+          className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-stretch relative z-20"
+        >
           {/* Left Column: Index Menu Selector (3 Core Process Topics) */}
-          <div className="hidden lg:flex lg:col-span-5 flex-col justify-center w-full">
+          <motion.div
+            variants={cardVariants}
+            custom={prefersReducedMotion}
+            className="hidden lg:flex lg:col-span-5 flex-col justify-center w-full"
+          >
             <div className="relative w-full">
               <div className="-mx-6 px-6 md:-mx-10 md:px-10 lg:-mx-4 lg:px-4 py-2 lg:py-6 overflow-x-auto lg:overflow-y-auto lg:overflow-x-hidden lg:max-h-[360px] no-scrollbar process-tabs-mask overscroll-contain">
                 <Tabs
@@ -265,7 +286,7 @@ function ProcessLibrary() {
                 </Tabs>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Mobile Column: Embla Carousel with 84% Card Width & Full-Bleed Edge Peek */}
           <div className="lg:hidden col-span-1 flex flex-col justify-center w-full min-w-0">
@@ -302,7 +323,60 @@ function ProcessLibrary() {
                           as="div"
                           roundedClass="rounded-2xl"
                           className="w-full h-full p-6 sm:p-8 md:p-9 flex-col text-left justify-start items-stretch"
+                          innerClassName="flex flex-col flex-1 min-h-0"
                         >
+                          {/* Card Header (100% Stationary Title & Segmented Control) */}
+                          <div className="mb-4 sm:mb-5 relative z-10 w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <h3 className="text-2xl sm:text-3xl font-display text-text-primary text-balance tracking-tight leading-tight">
+                              {topic.asis.title}
+                            </h3>
+
+                            {/* Responsive HIG Compliant Segmented Control */}
+                            <div className="w-full sm:w-auto shrink-0">
+                              <Tabs
+                                value={cardViewMode}
+                                onChange={(val) =>
+                                  handleTopicViewModeChange(
+                                    topic.id,
+                                    val as "tobe" | "asis",
+                                  )
+                                }
+                                layoutId={`process-view-mode-pill-mobile-${topic.id}`}
+                                roundedClass="rounded-xl"
+                                highlightStyle={
+                                  {
+                                    "--base-radius": "10px",
+                                  } as React.CSSProperties
+                                }
+                                className="w-full sm:w-auto h-11 inline-flex items-center bg-surface/80 backdrop-blur-md border border-white/10 p-1 rounded-xl shadow-md select-none isolate [transform:translateZ(0)]"
+                                highlightClassName="bg-white/15 border border-white/20 shadow-sm"
+                              >
+                                <Tab
+                                  value="asis"
+                                  className={cn(
+                                    "flex-1 sm:flex-initial h-9 px-4 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer select-none flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+                                    cardViewMode === "asis"
+                                      ? "text-white font-bold"
+                                      : "text-white/70 hover:text-white",
+                                  )}
+                                >
+                                  SOURCE
+                                </Tab>
+                                <Tab
+                                  value="tobe"
+                                  className={cn(
+                                    "flex-1 sm:flex-initial h-9 px-4 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer select-none flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+                                    cardViewMode === "tobe"
+                                      ? "text-white font-bold"
+                                      : "text-white/70 hover:text-white",
+                                  )}
+                                >
+                                  OPTIMIZED
+                                </Tab>
+                              </Tabs>
+                            </div>
+                          </div>
+
                           <AnimatePresence mode="wait" initial={false}>
                             <motion.div
                               key={cardViewMode}
@@ -311,17 +385,10 @@ function ProcessLibrary() {
                               animate="visible"
                               exit="exit"
                               variants={innerContentVariants}
-                              className="w-full flex-1 flex flex-col justify-between"
+                              className="w-full flex-1 flex flex-col justify-start"
                             >
-                              {/* Card Header */}
-                              <div className="mb-4 sm:mb-6 relative z-10 w-full">
-                                <h3 className="text-2xl sm:text-3xl font-display text-text-primary text-balance tracking-tight leading-tight">
-                                  {cardVariant.title}
-                                </h3>
-                              </div>
-
                               {/* Blueprint Stage */}
-                              <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden border border-white/10 bg-white flex items-center justify-center mb-5 select-none group/canvas">
+                              <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden border border-white/10 bg-white flex items-center justify-center mb-4 sm:mb-5 select-none group/canvas">
                                 <button
                                   type="button"
                                   className="w-full h-full p-3 sm:p-4 flex items-center justify-center cursor-zoom-in focus-visible:outline-none"
@@ -337,62 +404,17 @@ function ProcessLibrary() {
                                     loading="lazy"
                                   />
                                 </button>
-
-                                {/* View Mode Toggle Pill inside each card */}
-                                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-auto">
-                                  <Tabs
-                                    value={cardViewMode}
-                                    onChange={(val) =>
-                                      handleTopicViewModeChange(
-                                        topic.id,
-                                        val as "tobe" | "asis",
-                                      )
-                                    }
-                                    layoutId={`process-view-mode-pill-mobile-${topic.id}`}
-                                    roundedClass="rounded-xl"
-                                    highlightStyle={
-                                      {
-                                        "--base-radius": "8px",
-                                      } as React.CSSProperties
-                                    }
-                                    className="inline-flex items-center bg-surface/80 backdrop-blur-md border border-white/10 p-[5px] rounded-xl shadow-2xl select-none isolate [transform:translateZ(0)]"
-                                    highlightClassName="bg-white/15 border border-white/20 shadow-md"
-                                  >
-                                    <Tab
-                                      value="asis"
-                                      className={cn(
-                                        "relative h-8 px-3.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer select-none flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
-                                        cardViewMode === "asis"
-                                          ? "text-white font-bold"
-                                          : "text-white/70 hover:text-white",
-                                      )}
-                                    >
-                                      SOURCE
-                                    </Tab>
-                                    <Tab
-                                      value="tobe"
-                                      className={cn(
-                                        "relative h-8 px-3.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer select-none flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
-                                        cardViewMode === "tobe"
-                                          ? "text-white font-bold"
-                                          : "text-white/70 hover:text-white",
-                                      )}
-                                    >
-                                      OPTIMIZED
-                                    </Tab>
-                                  </Tabs>
-                                </div>
                               </div>
 
                               {/* Card Footer Details */}
-                              <div className="relative z-10 mt-auto flex flex-col gap-2.5">
+                              <div className="relative z-10 flex flex-col gap-2.5">
                                 <div className="flex items-center gap-2">
                                   <Sparkles size={14} className="text-accent" />
                                   <span className="text-xs font-bold uppercase tracking-wider text-accent font-body">
                                     Operational Insight
                                   </span>
                                 </div>
-                                <p className="text-sm text-text-primary/90 leading-relaxed text-pretty">
+                                <p className="text-sm text-text-primary/90 leading-relaxed text-pretty line-clamp-3">
                                   {cardVariant.description}
                                 </p>
                                 {cardVariant.specTags &&
@@ -421,7 +443,11 @@ function ProcessLibrary() {
           </div>
 
           {/* Desktop Right Column: Display Stage & Blueprint Canvas */}
-          <div className="hidden lg:flex lg:col-span-7 flex-col justify-center w-full min-w-0">
+          <motion.div
+            variants={cardVariants}
+            custom={prefersReducedMotion}
+            className="hidden lg:flex lg:col-span-7 flex-col justify-center w-full min-w-0"
+          >
             {/* Outer AnimatePresence: Original full card animation when switching TOPICS */}
             <AnimatePresence
               mode="wait"
@@ -446,21 +472,54 @@ function ProcessLibrary() {
                   className="w-full h-full p-5 sm:p-7 md:p-8 flex-col text-left justify-start items-stretch touch-pan-y"
                   tilt
                 >
-                  {/* Canvas Header (100% Full-Width Title with Optical Lens Refocus) */}
-                  <div className="mb-5 sm:mb-6 relative z-10 w-full">
-                    <AnimatePresence mode="wait" initial={false}>
-                      <motion.h3
-                        key={activeViewMode}
-                        custom={{ prefersReducedMotion }}
-                        initial="hidden"
-                        animate="visible"
-                        exit="exit"
-                        variants={innerContentVariants}
-                        className="text-2xl sm:text-3xl font-display text-text-primary text-balance tracking-tight leading-tight"
+                  {/* Canvas Header */}
+                  <div className="mb-5 sm:mb-6 relative z-10 w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <h3 className="text-2xl sm:text-3xl font-display text-text-primary text-balance tracking-tight leading-tight">
+                      {activeTopic.asis.title}
+                    </h3>
+
+                    {/* View Mode Segmented Control */}
+                    <div className="self-start sm:self-auto shrink-0">
+                      <Tabs
+                        value={activeViewMode}
+                        onChange={(val) =>
+                          handleTopicViewModeChange(
+                            activeTopic.id,
+                            val as "tobe" | "asis",
+                          )
+                        }
+                        layoutId={`process-view-mode-pill-${activeTopic.id}`}
+                        roundedClass="rounded-xl"
+                        highlightStyle={
+                          { "--base-radius": "8px" } as React.CSSProperties
+                        }
+                        className="inline-flex items-center bg-surface/90 backdrop-blur-md border border-white/10 p-[4px] rounded-xl shadow-lg select-none isolate [transform:translateZ(0)]"
+                        highlightClassName="bg-white/15 border border-white/20 shadow-md"
                       >
-                        {activeVariant.title}
-                      </motion.h3>
-                    </AnimatePresence>
+                        <Tab
+                          value="asis"
+                          className={cn(
+                            "relative h-7 sm:h-8.5 px-3 sm:px-4 rounded-lg text-[11px] sm:text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer select-none flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-black before:absolute before:-inset-y-1.5 before:inset-x-0",
+                            activeViewMode === "asis"
+                              ? "text-white font-bold"
+                              : "text-white/70 hover:text-white",
+                          )}
+                        >
+                          SOURCE
+                        </Tab>
+                        <Tab
+                          value="tobe"
+                          className={cn(
+                            "relative h-7 sm:h-8.5 px-3 sm:px-4 rounded-lg text-[11px] sm:text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer select-none flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-black before:absolute before:-inset-y-1.5 before:inset-x-0",
+                            activeViewMode === "tobe"
+                              ? "text-white font-bold"
+                              : "text-white/70 hover:text-white",
+                          )}
+                        >
+                          OPTIMIZED
+                        </Tab>
+                      </Tabs>
+                    </div>
                   </div>
 
                   {/* Inner AnimatePresence: Subtle 200ms diagram micro-crossfade when switching MODE (TO-BE vs AS-IS) */}
@@ -478,7 +537,7 @@ function ProcessLibrary() {
                       variants={innerContentVariants}
                       className="w-full flex-1 flex flex-col justify-between"
                     >
-                      {/* Seamless Blueprint Stage (Pure Canvas Sheet with Optical Spacing & Floating Dock) */}
+                      {/* Seamless Blueprint Stage (Pure Canvas Sheet with Optical Spacing) */}
                       <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden border border-white/10 bg-white flex items-center justify-center mb-6 sm:mb-7 select-none group/canvas transition-all duration-300 hover:border-white/25">
                         {/* Image Zoom Trigger Button */}
                         <button
@@ -504,49 +563,6 @@ function ProcessLibrary() {
                             loading="lazy"
                           />
                         </button>
-
-                        {/* Floating Apple Bottom-Center Glass Control Dock */}
-                        <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-20 pointer-events-auto">
-                          <Tabs
-                            value={activeViewMode}
-                            onChange={(val) =>
-                              handleTopicViewModeChange(
-                                activeTopic.id,
-                                val as "tobe" | "asis",
-                              )
-                            }
-                            layoutId={`process-view-mode-pill-${activeTopic.id}`}
-                            roundedClass="rounded-xl"
-                            highlightStyle={
-                              { "--base-radius": "8px" } as React.CSSProperties
-                            }
-                            className="inline-flex items-center bg-surface/90 backdrop-blur-md border border-white/10 p-[5px] rounded-xl shadow-2xl select-none isolate [transform:translateZ(0)]"
-                            highlightClassName="bg-white/15 border border-white/20 shadow-md"
-                          >
-                            <Tab
-                              value="asis"
-                              className={cn(
-                                "relative h-8 sm:h-8.5 px-3.5 sm:px-4 rounded-lg text-[11px] sm:text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer select-none flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-black before:absolute before:-inset-y-1.5 before:inset-x-0",
-                                activeViewMode === "asis"
-                                  ? "text-white font-bold"
-                                  : "text-white/70 hover:text-white",
-                              )}
-                            >
-                              SOURCE
-                            </Tab>
-                            <Tab
-                              value="tobe"
-                              className={cn(
-                                "relative h-8 sm:h-8.5 px-3.5 sm:px-4 rounded-lg text-[11px] sm:text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer select-none flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-black before:absolute before:-inset-y-1.5 before:inset-x-0",
-                                activeViewMode === "tobe"
-                                  ? "text-white font-bold"
-                                  : "text-white/70 hover:text-white",
-                              )}
-                            >
-                              OPTIMIZED
-                            </Tab>
-                          </Tabs>
-                        </div>
                       </div>
 
                       {/* Canvas Footer Details: Seamless Operational Insight */}
@@ -589,7 +605,7 @@ function ProcessLibrary() {
                 </LiquidGlass>
               </motion.div>
             </AnimatePresence>
-          </div>
+          </motion.div>
 
           {/* Mobile Topic Selector (Sleek Glass Dock with Left/Right Buttons) */}
           <div className="lg:hidden flex justify-center w-full">
@@ -635,7 +651,7 @@ function ProcessLibrary() {
               </LiquidGlassButton>
             </LiquidGlass>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       <AnimatePresence>

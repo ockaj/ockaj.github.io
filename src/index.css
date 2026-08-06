@@ -96,7 +96,7 @@ html[data-base-ui-scroll-locked] {
 
 body {
   @apply bg-bg text-text-primary font-body leading-normal;
-  letter-spacing: -0.01em;
+  letter-spacing: 0em;
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -112,6 +112,11 @@ h6 {
   text-wrap: balance;
   font-optical-sizing: auto;
   line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+.uppercase {
+  letter-spacing: 0.05em;
 }
 
 p {
@@ -442,5 +447,16 @@ p {
     background-color: hsl(var(--surface)) !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .navbar-capsule,
+  .highlight-pill,
+  .backdrop-blur-lg,
+  .backdrop-blur-md,
+  .backdrop-blur-2xl {
+    border-color: hsl(var(--text)) !important;
+    background-color: hsl(var(--bg)) !important;
   }
 }

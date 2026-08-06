@@ -24,7 +24,7 @@ export const cardStaggerVariants = {
 };
 
 export const SECTION_ANIMATE = { opacity: 1, y: 0 };
-export const SECTION_VIEWPORT = { once: true, margin: "-100px" };
+export const SECTION_VIEWPORT = { once: true, margin: "0px 0px -40px 0px" };
 export const SECTION_TRANSITION = {
   duration: 0.45,
   ease: EASE.out,

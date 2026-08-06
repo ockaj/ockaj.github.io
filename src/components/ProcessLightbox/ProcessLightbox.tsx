@@ -101,6 +101,7 @@ function ProcessLightbox({ item, onClose }: ProcessLightboxProps) {
               initial="hidden"
               animate="visible"
               exit="hidden"
+              style={{ transformOrigin: "center center" }}
               onClick={onClose}
             />
           }

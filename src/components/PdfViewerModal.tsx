@@ -39,7 +39,7 @@ const modalVariants: Variants = {
   hidden: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     opacity: 0,
     scale: custom.prefersReducedMotion ? 1 : custom.isMobile ? 0.96 : 0.95,
-    y: custom.prefersReducedMotion ? 0 : 15,
+    y: custom.prefersReducedMotion ? 0 : -10,
     transition: custom.prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
   }),
   visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
@@ -473,6 +473,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                     variants={modalVariants}
                     className="relative w-full h-full md:h-[85vh] md:max-w-5xl bg-surface/85 border-0 md:border md:border-white/10 rounded-none md:rounded-3xl backdrop-blur-2xl flex flex-col overflow-hidden z-10 pointer-events-auto"
                     style={{
+                      transformOrigin: "center top",
                       boxShadow:
                         "inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 16px rgba(0, 0, 0, 0.6)",
                     }}
