@@ -5,7 +5,7 @@ import {
   Variants,
   useReducedMotion,
 } from "motion/react";
-import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Sparkles, Maximize2 } from "lucide-react";
 import { PROCESS_TOPICS, PROCESS_ITEMS } from "../data/processItems";
 import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
@@ -132,7 +132,7 @@ function ProcessLibrary() {
     image: string;
     type: string;
   } | null>(null);
-  const isMobile = useMediaQuery("(max-width: 1023px)");
+  const isMobile = !useMediaQuery("(min-width: 1024px)");
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: false,
@@ -404,6 +404,16 @@ function ProcessLibrary() {
                                     loading="lazy"
                                   />
                                 </button>
+                                {/* Tactile Glass Expand Affordance Badge */}
+                                <div className="absolute bottom-2.5 right-2.5 z-10 pointer-events-none">
+                                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface/80 backdrop-blur-md border border-white/15 text-xs font-semibold text-text-primary shadow-xl transition-all duration-200 group-hover/canvas:border-accent/60 group-hover/canvas:text-accent">
+                                    <Maximize2
+                                      size={12}
+                                      className="text-accent"
+                                    />
+                                    <span>Expand</span>
+                                  </span>
+                                </div>
                               </div>
 
                               {/* Card Footer Details */}
@@ -423,7 +433,7 @@ function ProcessLibrary() {
                                       {cardVariant.specTags.map((tag) => (
                                         <span
                                           key={tag}
-                                          className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/[0.04] border border-white/10 text-text-primary/90 transition-colors select-none"
+                                          className="text-xs bg-white/5 text-muted rounded-full px-3 py-1 border border-white/10 transition-colors select-none"
                                         >
                                           {tag}
                                         </span>
@@ -563,6 +573,13 @@ function ProcessLibrary() {
                             loading="lazy"
                           />
                         </button>
+                        {/* Tactile Glass Expand Affordance Badge */}
+                        <div className="absolute bottom-3 right-3 z-10 pointer-events-none">
+                          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-surface/80 backdrop-blur-md border border-white/15 text-xs font-semibold text-text-primary shadow-xl transition-all duration-200 group-hover/canvas:border-accent/60 group-hover/canvas:text-accent group-hover/canvas:scale-105">
+                            <Maximize2 size={13} className="text-accent" />
+                            <span>Expand Diagram</span>
+                          </span>
+                        </div>
                       </div>
 
                       {/* Canvas Footer Details: Seamless Operational Insight */}
@@ -592,7 +609,7 @@ function ProcessLibrary() {
                                   key={tag}
                                   variants={tagItemVariants}
                                   custom={{ prefersReducedMotion }}
-                                  className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/[0.03] border border-white/[0.08] text-text-primary/80 transition-colors hover:border-accent/40 hover:text-accent select-none"
+                                  className="text-xs bg-white/5 text-muted rounded-full px-3 py-1 border border-white/10 transition-colors hover:border-white/20 hover:text-text-primary select-none"
                                 >
                                   {tag}
                                 </motion.span>

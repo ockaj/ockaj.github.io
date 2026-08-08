@@ -17,12 +17,11 @@ import { prefetchAsset } from "../utils/quicklink";
 import { loadPdfViewerModal } from "../lazyComponents";
 import { SPRING } from "../utils/springConfig";
 
-const ROLES = [
-  "Business Analyst",
+const SPECIALIZATIONS = [
   "Process Analyst",
   "Digital Transformer",
   "Solution Designer",
-  "Business Consultant",
+  "Enterprise Consultant",
 ];
 const preloadPdfModal = () => {
   prefetchAsset("/cv/Ondrej_Michal_Ockaj_CV.pdf");
@@ -174,7 +173,7 @@ function Hero({ onViewCv, onViewWork }: HeroProps) {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setRoleIndex((i) => (i + 1) % ROLES.length);
+      setRoleIndex((i) => (i + 1) % SPECIALIZATIONS.length);
     }, 2500);
     return () => clearInterval(interval);
   }, []);
@@ -208,24 +207,27 @@ function Hero({ onViewCv, onViewWork }: HeroProps) {
         {/* Role line */}
         <motion.p
           variants={itemVariants}
-          className="text-sm md:text-base text-muted mb-4 text-pretty"
+          className="text-sm md:text-base text-muted mb-4 text-pretty max-w-xl"
         >
-          <span className="block md:inline">Based in Slovakia, </span>
-          <span className="inline-block">
-            working as a{" "}
-            <span className="inline-block text-text-primary font-semibold">
-              <SlotText
-                text={ROLES[roleIndex] + "."}
-                options={{
-                  direction: "down",
-                  skipUnchanged: false,
-                  duration: prefersReducedMotion ? 0 : 350,
-                  stagger: 50,
-                  bounce: 0.2,
-                  easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-                }}
-              />
-            </span>
+          <span className="block sm:inline">
+            Based in Slovakia, working as a{" "}
+          </span>
+          <span className="inline-block text-text-primary font-semibold whitespace-nowrap">
+            Business Analyst
+          </span>
+          <span className="inline-block text-text-primary font-semibold whitespace-nowrap ml-1">
+            &amp;{" "}
+            <SlotText
+              text={SPECIALIZATIONS[roleIndex] + "."}
+              options={{
+                direction: "down",
+                skipUnchanged: false,
+                duration: prefersReducedMotion ? 0 : 350,
+                stagger: 50,
+                bounce: 0.2,
+                easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+              }}
+            />
           </span>
         </motion.p>
 

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, memo } from "react";
 import { useReducedMotion } from "motion/react";
 import { ErrorBoundary } from "./ErrorBoundary";
 import AuroraFallback from "./AuroraFallback";
+import { useIsMobile } from "../hooks/useMediaQuery";
 import {
   Renderer,
   Program,
@@ -110,9 +111,11 @@ interface AuroraProps {
 const DEFAULT_COLOR_STOPS = ["#1E1B4B", "#312E81", "#6667AB", "#A78BFA"];
 
 function AuroraCanvas(props: AuroraProps) {
+  const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
   const propsRef = useRef<AuroraProps>(props);
   const prefersReducedMotionRef = useRef(prefersReducedMotion);
+  const isMobileRef = useRef(isMobile);
   const triggerRef = useRef<(() => void) | null>(null);
   const [isContextLost, setIsContextLost] = useState(false);
   const isContextLostRef = useRef(false);
@@ -120,6 +123,7 @@ function AuroraCanvas(props: AuroraProps) {
   useEffect(() => {
     propsRef.current = props;
     prefersReducedMotionRef.current = prefersReducedMotion;
+    isMobileRef.current = isMobile;
   });
 
   const ctnRef = useRef<HTMLDivElement>(null);
@@ -134,8 +138,7 @@ function AuroraCanvas(props: AuroraProps) {
       blend = 0.5,
     } = propsRef.current;
 
-    const isMobile = window.innerWidth <= 767;
-    const dpr = isMobile ? 1.0 : window.devicePixelRatio || 1.0;
+    const dpr = isMobileRef.current ? 1.0 : window.devicePixelRatio || 1.0;
 
     let renderer: Renderer;
     let gl: OGLRenderingContext;
@@ -307,8 +310,6 @@ function AuroraCanvas(props: AuroraProps) {
 
     let prevStops: string[] | null = null;
     let animateId = 0;
-    // throttle to ~30fps on mobile — halves backdrop-filter re-sampling
-    const frameInterval = isMobile ? 33 : 0;
     let lastFrame = 0;
 
     const areStopsEqual = (a: string[] | null, b: string[] | null) => {
@@ -327,6 +328,7 @@ function AuroraCanvas(props: AuroraProps) {
       } else {
         animateId = requestAnimationFrame(update);
       }
+      const frameInterval = isMobileRef.current ? 33 : 0;
       if (frameInterval && t - lastFrame < frameInterval) return;
       lastFrame = t;
       const time = propsRef.current.time ?? t * 0.01;

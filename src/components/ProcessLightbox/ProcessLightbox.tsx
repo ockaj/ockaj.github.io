@@ -122,7 +122,7 @@ function ProcessLightbox({ item, onClose }: ProcessLightboxProps) {
               <TransformWrapper
                 initialScale={1}
                 minScale={1}
-                maxScale={6}
+                maxScale={8}
                 centerOnInit
                 centerZoomedOut
                 smooth

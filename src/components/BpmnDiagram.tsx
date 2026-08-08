@@ -11,6 +11,8 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
       className="min-w-[950px] w-full h-auto text-accent"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="BPMN 2.0 Interactive Portfolio Navigation Diagram"
     >
       <defs>
         {/* Arrow markers (Black) */}
@@ -139,7 +141,8 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           stroke="#1D70B8"
           strokeWidth="1.2"
           fill="#90D3FF"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF]"
+          aria-hidden="true"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
         />
         <use
           href="#user-task-icon"
@@ -147,6 +150,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           y="217.75"
           width="11"
           height="13.2"
+          aria-hidden="true"
           className="pointer-events-none"
         />
         {/* Task label */}
@@ -157,6 +161,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           dominantBaseline="central"
           fill="#0A0E1A"
           fontSize="14"
+          aria-hidden="true"
           className="font-body pointer-events-none"
         >
           View Hero
@@ -234,7 +239,8 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           stroke="#1D70B8"
           strokeWidth="1.2"
           fill="#90D3FF"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF]"
+          aria-hidden="true"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
         />
         <use
           href="#user-task-icon"
@@ -242,6 +248,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           y="47.75"
           width="11"
           height="13.2"
+          aria-hidden="true"
           className="pointer-events-none"
         />
         <text
@@ -251,6 +258,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           dominantBaseline="central"
           fill="#0A0E1A"
           fontSize="14"
+          aria-hidden="true"
           className="font-body pointer-events-none"
         >
           Browse Case Studies
@@ -281,7 +289,8 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           stroke="#1D70B8"
           strokeWidth="1.2"
           fill="#90D3FF"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF]"
+          aria-hidden="true"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
         />
         <use
           href="#user-task-icon"
@@ -289,6 +298,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           y="160.75"
           width="11"
           height="13.2"
+          aria-hidden="true"
           className="pointer-events-none"
         />
         <text
@@ -298,6 +308,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           dominantBaseline="central"
           fill="#0A0E1A"
           fontSize="14"
+          aria-hidden="true"
           className="font-body pointer-events-none"
         >
           Scan Competencies
@@ -328,7 +339,8 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           stroke="#1D70B8"
           strokeWidth="1.2"
           fill="#90D3FF"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF]"
+          aria-hidden="true"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
         />
         <use
           href="#user-task-icon"
@@ -336,6 +348,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           y="274.75"
           width="11"
           height="13.2"
+          aria-hidden="true"
           className="pointer-events-none"
         />
         <text
@@ -345,6 +358,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           dominantBaseline="central"
           fill="#0A0E1A"
           fontSize="14"
+          aria-hidden="true"
           className="font-body pointer-events-none"
         >
           Inspect Process Library
@@ -375,7 +389,8 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           stroke="#1D70B8"
           strokeWidth="1.2"
           fill="#90D3FF"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#1060A0] group-hover/node:fill-[#A3DBFF]"
+          aria-hidden="true"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#1060A0] group-hover/node:fill-[#A3DBFF] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
         />
         <use
           href="#user-task-icon"
@@ -383,6 +398,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           y="387.75"
           width="11"
           height="13.2"
+          aria-hidden="true"
           className="pointer-events-none"
         />
         <text
@@ -392,6 +408,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           dominantBaseline="central"
           fill="#0A0E1A"
           fontSize="14"
+          aria-hidden="true"
           className="font-body pointer-events-none"
         >
           Read Journal
@@ -510,7 +527,8 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           stroke="#1D70B8"
           strokeWidth="1.2"
           fill="#90D3FF"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF]"
+          aria-hidden="true"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
         />
         <use
           href="#user-task-icon"
@@ -518,6 +536,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           y="217.75"
           width="11"
           height="13.2"
+          aria-hidden="true"
           className="pointer-events-none"
         />
         <text
@@ -527,6 +546,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           dominantBaseline="central"
           fill="#0A0E1A"
           fontSize="14"
+          aria-hidden="true"
           className="font-body pointer-events-none"
         >
           Get In Touch
