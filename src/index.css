@@ -284,12 +284,6 @@ p {
   }
 }
 
-@media (max-width: 767px) {
-  .backdrop-blur-lg {
-    --tw-backdrop-blur: blur(8px);
-  }
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;

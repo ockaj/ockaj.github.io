@@ -153,7 +153,7 @@ function LiquidGlassMobile(props: LiquidGlassPropsWithRef) {
       : "cursor-default";
 
   const baseClasses = cn(
-    "group relative inline-flex items-center justify-center backdrop-blur-lg text-text-primary select-none overflow-hidden",
+    "group relative inline-flex items-center justify-center backdrop-blur-sm md:backdrop-blur-lg text-text-primary select-none overflow-hidden",
     cursorAndFocusClasses,
     roundedClass,
   );
@@ -463,7 +463,7 @@ function LiquidGlassDesktop({
       : "cursor-default";
 
   const baseClasses = cn(
-    "group relative inline-flex items-center justify-center backdrop-blur-lg text-text-primary select-none overflow-hidden",
+    "group relative inline-flex items-center justify-center backdrop-blur-sm md:backdrop-blur-lg text-text-primary select-none overflow-hidden",
     cursorAndFocusClasses,
     roundedClass,
   );
