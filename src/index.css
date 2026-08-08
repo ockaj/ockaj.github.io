@@ -321,35 +321,33 @@ p {
   initial-value: 1;
 }
 
-/* Smoothly eased horizontal scroll fade masks for mobile/tablet and vertical masks for desktop */
-@media (max-width: 767px) {
-  .process-tabs-mask {
-    mask-image: linear-gradient(
-      to right,
-      transparent 0px,
-      rgba(0, 0, 0, 0.15) 8px,
-      rgba(0, 0, 0, 0.6) 18px,
-      black 32px,
-      black calc(100% - 36px),
-      rgba(0, 0, 0, 0.6) calc(100% - 20px),
-      rgba(0, 0, 0, 0.15) calc(100% - 10px),
-      transparent 100%
-    );
-    -webkit-mask-image: linear-gradient(
-      to right,
-      transparent 0px,
-      rgba(0, 0, 0, 0.15) 8px,
-      rgba(0, 0, 0, 0.6) 18px,
-      black 32px,
-      black calc(100% - 36px),
-      rgba(0, 0, 0, 0.6) calc(100% - 20px),
-      rgba(0, 0, 0, 0.15) calc(100% - 10px),
-      transparent 100%
-    );
-  }
+/* Smoothly eased horizontal scroll fade masks for mobile/tablet and vertical masks for desktop (Mobile-First) */
+.process-tabs-mask {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0px,
+    rgba(0, 0, 0, 0.15) 8px,
+    rgba(0, 0, 0, 0.6) 18px,
+    black 32px,
+    black calc(100% - 36px),
+    rgba(0, 0, 0, 0.6) calc(100% - 20px),
+    rgba(0, 0, 0, 0.15) calc(100% - 10px),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0px,
+    rgba(0, 0, 0, 0.15) 8px,
+    rgba(0, 0, 0, 0.6) 18px,
+    black 32px,
+    black calc(100% - 36px),
+    rgba(0, 0, 0, 0.6) calc(100% - 20px),
+    rgba(0, 0, 0, 0.15) calc(100% - 10px),
+    transparent 100%
+  );
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 768px) {
   .process-tabs-mask {
     mask-image: linear-gradient(
       to right,
