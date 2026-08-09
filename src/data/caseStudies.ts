@@ -5,6 +5,23 @@ const caseStudyModules = import.meta.glob("./caseStudies/*.md", {
   eager: true,
 }) as Record<string, { default: string }>;
 
+export interface CaseStudyFrontmatter {
+  id?: string | number;
+  title?: string;
+  subtitle?: string;
+  category?: string;
+  challenge?: string;
+  solution?: string;
+  results?: string;
+  tools?: string;
+  timeline?: string;
+  client?: string;
+  asIsFlow?: string[];
+  toBeFlow?: string[];
+  methodology?: string[];
+  deliverables?: string[];
+}
+
 export interface CaseStudyDetail {
   id: string | number;
   title: string;
@@ -47,7 +64,7 @@ export const CASE_STUDIES: CaseStudyDetail[] = Object.entries(
   const filename = path.split("/").pop() || "";
   const raw = module.default;
   const parts = raw.split("---");
-  const fm = parse(parts[1]) as Record<string, unknown>;
+  const fm = (parse(parts[1]) || {}) as CaseStudyFrontmatter;
   const body = parts.slice(2).join("---").trim();
 
   let id: number | string = (fm.id as string) || filename.replace(/\.md$/, "");

@@ -5,6 +5,7 @@ import {
   type Ref,
   type AllHTMLAttributes,
 } from "react";
+import { type MotionStyle } from "motion/react";
 
 export const DEFAULT_STYLE: CSSProperties = {};
 export const WHITESPACE_REGEX = /\s+/g;
@@ -41,4 +42,21 @@ export type LiquidGlassButtonProps = Omit<
 
 export interface LiquidGlassPropsWithRef extends LiquidGlassProps {
   ref?: Ref<HTMLElement | null>;
+}
+
+export interface LiquidGlassTagProps extends Omit<
+  AllHTMLAttributes<HTMLElement>,
+  "style"
+> {
+  href?: string;
+  download?: string;
+  target?: string;
+  rel?: string;
+  type?: string;
+  tabIndex?: number;
+  role?: string;
+  style?: MotionStyle | CSSProperties;
+  whileHover?: unknown;
+  whileTap?: unknown;
+  transition?: unknown;
 }

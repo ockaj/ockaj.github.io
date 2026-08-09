@@ -35,6 +35,7 @@ import {
   type LiquidGlassProps,
   type LiquidGlassButtonProps,
   type LiquidGlassPropsWithRef,
+  type LiquidGlassTagProps,
   DEFAULT_STYLE,
 } from "./types";
 import {
@@ -254,7 +255,7 @@ function LiquidGlassMobile(props: LiquidGlassPropsWithRef) {
       ? motion.button
       : (motion as unknown as Record<string, ElementType>)[as];
 
-  const tagProps: Record<string, unknown> = {
+  const tagProps: LiquidGlassTagProps = {
     className: cn(baseClasses, className),
     style: tagStyle,
     "aria-label": ariaLabel,
@@ -647,7 +648,7 @@ function LiquidGlassDesktop({
       ? motion.button
       : (motion as unknown as Record<string, ElementType>)[as];
 
-  const tagProps: Record<string, unknown> = {
+  const tagProps: LiquidGlassTagProps = {
     className: cn(baseClasses, className),
     style: tagStyle,
     "aria-label": ariaLabel,
