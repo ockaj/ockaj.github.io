@@ -121,7 +121,7 @@ function TabsInner<T extends TabValue>({
   const contextValue = useMemo<TabsContextValue>(
     () => ({
       value,
-      onChange: onChange as unknown as (value: string | number) => void,
+      onChange: onChange as (value: string | number) => void,
       layoutId,
       hoverStore,
       hoverSlide,
@@ -171,7 +171,7 @@ interface TabsComponent {
   displayName?: string;
 }
 
-const Tabs = memo(TabsInner) as unknown as TabsComponent;
+const Tabs: TabsComponent = memo(TabsInner) as TabsComponent;
 Tabs.displayName = "Tabs";
 
 const handleTabKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {

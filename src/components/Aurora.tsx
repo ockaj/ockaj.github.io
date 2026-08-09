@@ -12,6 +12,13 @@ import {
   OGLRenderingContext,
 } from "ogl";
 
+declare global {
+  interface Window {
+    simulateContextLoss?: () => void;
+    restoreContext?: () => void;
+  }
+}
+
 const VERT = `#version 300 es
 in vec2 position;
 void main() {
@@ -284,21 +291,18 @@ function AuroraCanvas(props: Readonly<AuroraProps>) {
     const loseContextExt = gl.getExtension("WEBGL_lose_context");
 
     if (import.meta.env.DEV) {
-      (
-        window as unknown as { simulateContextLoss?: () => void }
-      ).simulateContextLoss = () => {
+      window.simulateContextLoss = () => {
         if (loseContextExt) {
           console.warn("[DevTools] Simulating WebGL context loss...");
           loseContextExt.loseContext();
         }
       };
-      (window as unknown as { restoreContext?: () => void }).restoreContext =
-        () => {
-          if (loseContextExt) {
-            console.log("[DevTools] Restoring WebGL context...");
-            loseContextExt.restoreContext();
-          }
-        };
+      window.restoreContext = () => {
+        if (loseContextExt) {
+          console.log("[DevTools] Restoring WebGL context...");
+          loseContextExt.restoreContext();
+        }
+      };
     }
 
     let prevStops: string[] | null = null;

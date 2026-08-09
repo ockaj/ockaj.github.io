@@ -343,7 +343,7 @@ function ProcessLibrary() {
                             <div className="w-full shrink-0 sm:w-auto">
                               <Tabs
                                 value={cardViewMode}
-                                onChange={(val) =>
+                                onChange={(val: string | number) =>
                                   handleTopicViewModeChange(
                                     topic.id,
                                     val as "tobe" | "asis",
@@ -500,7 +500,7 @@ function ProcessLibrary() {
                     <div className="shrink-0 self-start sm:self-auto">
                       <Tabs
                         value={activeViewMode}
-                        onChange={(val) =>
+                        onChange={(val: string | number) =>
                           handleTopicViewModeChange(
                             activeTopic.id,
                             val as "tobe" | "asis",

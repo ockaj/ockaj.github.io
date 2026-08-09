@@ -122,8 +122,10 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
           }
         >
           <div
+            role="presentation"
             className="bg-surface relative flex h-[100dvh] max-h-[100dvh] w-full max-w-7xl flex-col overflow-hidden rounded-none border-0 border-white/10 shadow-2xl md:aspect-[16/10] md:h-auto md:max-h-[85vh] md:rounded-3xl md:border"
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
           >
             {/* Specular sheen header overlay matching CV modal */}
             <div className="pointer-events-none absolute top-0 right-0 left-0 z-20 h-28 bg-gradient-to-b from-white/5 to-transparent" />

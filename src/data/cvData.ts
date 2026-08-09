@@ -1,5 +1,10 @@
 import { CONTACT_EMAIL } from "../utils/contact";
 
+const UNIZA_FRI_SK =
+  "Žilinská univerzita v Žiline, Fakulta riadenia a informatiky, Žilina";
+const UNIZA_FRI_EN =
+  "University of Žilina, Faculty of Management Science and Informatics, Žilina";
+
 interface CvExperienceItem {
   role: string;
   company: string;
@@ -95,14 +100,12 @@ export const CV_DATA: CvData = {
       items: [
         {
           degree: "Informačný manažment, inžinierske štúdium",
-          school:
-            "Žilinská univerzita v Žiline, Fakulta riadenia a informatiky, Žilina",
+          school: UNIZA_FRI_SK,
           period: "2025 – súčasnosť",
         },
         {
           degree: "Manažment, bakalárske štúdium, Bc.",
-          school:
-            "Žilinská univerzita v Žiline, Fakulta riadenia a informatiky, Žilina",
+          school: UNIZA_FRI_SK,
           period: "Ukončené: 2025",
           details: {
             thesisTitle:
@@ -226,14 +229,12 @@ export const CV_DATA: CvData = {
       items: [
         {
           degree: "Information Management, Master's degree (Ing.)",
-          school:
-            "University of Žilina, Faculty of Management Science and Informatics, Žilina",
+          school: UNIZA_FRI_EN,
           period: "2025 – Present",
         },
         {
           degree: "Management, Bachelor's degree (Bc.)",
-          school:
-            "University of Žilina, Faculty of Management Science and Informatics, Žilina",
+          school: UNIZA_FRI_EN,
           period: "Graduated: 2025",
           details: {
             thesisTitle:

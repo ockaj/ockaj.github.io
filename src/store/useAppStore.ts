@@ -3,9 +3,8 @@ import { isBoneyardBuild } from "../utils/boneyard";
 
 const PENDING_PROMISE = new Promise<void>(() => {});
 
-export function SuspenseTrigger(): null {
+export function SuspenseTrigger(): never {
   throw PENDING_PROMISE;
-  return null;
 }
 
 export interface AppState {

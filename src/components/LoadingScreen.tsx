@@ -326,8 +326,7 @@ export default function LoadingScreen({
   const progressScale = useTransform(count, [0, 100], [0, 1]);
 
   return (
-    <motion.div
-      role="status"
+    <motion.output
       aria-live="polite"
       aria-busy="true"
       aria-label="Loading portfolio system models"
@@ -835,6 +834,6 @@ export default function LoadingScreen({
           </div>
         </div>
       </div>
-    </motion.div>
+    </motion.output>
   );
 }

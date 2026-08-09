@@ -27,7 +27,6 @@ export function getInnerGlassStyle(
   };
 }
 
-// Spring presets — used by animate() and transition props
 export const springs = {
   scale: SPRING.glassScale,
   ripple: SPRING.glassRipple,

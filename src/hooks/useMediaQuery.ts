@@ -3,7 +3,10 @@ import { useSyncExternalStore } from "react";
 export function useMediaQuery(query: string): boolean {
   return useSyncExternalStore(
     (callback) => {
-      if (typeof window === "undefined") return () => {};
+      if (typeof window === "undefined")
+        return () => {
+          /* no-op SSR cleanup */
+        };
       const mql = window.matchMedia(query);
       mql.addEventListener("change", callback);
       return () => mql.removeEventListener("change", callback);

@@ -1,5 +1,11 @@
 import { isBoneyardBuild } from "./boneyard";
 
+declare global {
+  interface Navigator {
+    connection?: { saveData?: boolean; effectiveType?: string };
+  }
+}
+
 let cachedSlowConnection: boolean | null = null;
 
 export const isSlowConnection = (): boolean => {
@@ -14,11 +20,7 @@ export const isSlowConnection = (): boolean => {
     cachedSlowConnection = true;
     return true;
   }
-  const conn = (
-    navigator as unknown as {
-      connection?: { saveData?: boolean; effectiveType?: string };
-    }
-  ).connection;
+  const conn = navigator.connection;
   if (conn) {
     const isSlow =
       !!conn.saveData ||

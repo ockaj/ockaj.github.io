@@ -11,7 +11,6 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
       className="text-accent h-auto w-full min-w-[950px]"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      role="img"
       aria-label="BPMN 2.0 Interactive Portfolio Navigation Diagram"
     >
       <defs>
@@ -121,7 +120,6 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
       <g
         className="group/node focus-visible:outline-accent cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid"
         tabIndex={0}
-        role="button"
         aria-label="Navigate to Home section"
         onClick={() => onTaskClick("home")}
         onKeyDown={(e) => {
@@ -219,7 +217,6 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
       <g
         className="group/node focus-visible:outline-accent cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid"
         tabIndex={0}
-        role="button"
         aria-label="Navigate to Case Studies section"
         onClick={() => onTaskClick("work")}
         onKeyDown={(e) => {
@@ -269,7 +266,6 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
       <g
         className="group/node focus-visible:outline-accent cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid"
         tabIndex={0}
-        role="button"
         aria-label="Navigate to Skills section"
         onClick={() => onTaskClick("skills")}
         onKeyDown={(e) => {
@@ -319,7 +315,6 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
       <g
         className="group/node focus-visible:outline-accent cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid"
         tabIndex={0}
-        role="button"
         aria-label="Navigate to Process Models section"
         onClick={() => onTaskClick("processes")}
         onKeyDown={(e) => {
@@ -369,7 +364,6 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
       <g
         className="group/node focus-visible:outline-accent cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid"
         tabIndex={0}
-        role="button"
         aria-label="Navigate to Journal section"
         onClick={() => onTaskClick("journal")}
         onKeyDown={(e) => {
@@ -507,7 +501,6 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
       <g
         className="group/node focus-visible:outline-accent cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid"
         tabIndex={0}
-        role="button"
         aria-label="Navigate to Contact section"
         onClick={() => onTaskClick("contact")}
         onKeyDown={(e) => {

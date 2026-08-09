@@ -41,7 +41,6 @@ export function useLazyMount(options: UseLazyMountOptions = {}) {
       }
     };
 
-    // Set up IntersectionObserver
     observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -57,7 +56,6 @@ export function useLazyMount(options: UseLazyMountOptions = {}) {
     // trigger an immediate mount so focus is not lost.
     element.addEventListener("focusin", triggerMount);
 
-    // Cleanup: disconnect and remove listeners
     return () => {
       if (observer) {
         observer.disconnect();

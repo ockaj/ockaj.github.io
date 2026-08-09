@@ -68,7 +68,11 @@ function useKeyboardClick(onClick?: (e: MouseEvent<HTMLElement>) => void) {
     (e: KeyboardEvent<HTMLElement>) => {
       if ((e.key === "Enter" || e.key === " ") && onClick) {
         e.preventDefault();
-        onClick(e as unknown as MouseEvent<HTMLElement>);
+        const syntheticMouseEvent = Object.create(e);
+        syntheticMouseEvent.type = "click";
+        syntheticMouseEvent.button = 0;
+        syntheticMouseEvent.buttons = 1;
+        onClick(syntheticMouseEvent as MouseEvent<HTMLElement>);
       }
     },
     [onClick],
