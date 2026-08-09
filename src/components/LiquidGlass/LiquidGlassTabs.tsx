@@ -25,7 +25,7 @@ import { cn } from "../../utils/cn";
 import { DEFAULT_STYLE } from "./types";
 import { scaleDeltas, scaleVertical, springs, hoverDelta } from "./config";
 
-export interface LiquidGlassTabsProps<
+interface LiquidGlassTabsProps<
   T extends string | number = string | number,
 > extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
   children: ReactNode;
@@ -40,7 +40,7 @@ export interface LiquidGlassTabsProps<
   highlightStyle?: CSSProperties;
 }
 
-export interface LiquidGlassTabProps extends Omit<
+interface LiquidGlassTabProps extends Omit<
   ComponentPropsWithoutRef<typeof motion.button>,
   "value" | "children"
 > {
@@ -51,7 +51,7 @@ export interface LiquidGlassTabProps extends Omit<
   highlightStyle?: CSSProperties;
 }
 
-export interface LiquidGlassTabPanelProps extends HTMLAttributes<HTMLDivElement> {
+interface LiquidGlassTabPanelProps extends HTMLAttributes<HTMLDivElement> {
   value: string | number;
   children?: ReactNode;
 }
@@ -401,7 +401,7 @@ const Tab = memo(function Tab({
         handleMouseEnter();
       }}
       className={cn(
-        "relative select-none z-10 transition-colors duration-200 focus-visible:outline-none",
+        "relative z-10 transition-colors duration-200 select-none focus-visible:outline-none",
         className,
         isActive && activeClassName,
       )}

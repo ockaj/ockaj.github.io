@@ -5,7 +5,7 @@ const caseStudyModules = import.meta.glob("./caseStudies/*.md", {
   eager: true,
 }) as Record<string, { default: string }>;
 
-export interface CaseStudyFrontmatter {
+interface CaseStudyFrontmatter {
   id?: string | number;
   title?: string;
   subtitle?: string;

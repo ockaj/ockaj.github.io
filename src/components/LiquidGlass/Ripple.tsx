@@ -17,7 +17,7 @@ function Ripple({
 }: RippleProps) {
   return (
     <motion.span
-      className="absolute pointer-events-none z-10 rounded-full bg-white blur-[6px] mix-blend-screen"
+      className="pointer-events-none absolute z-10 rounded-full bg-white mix-blend-screen blur-[6px]"
       style={{
         left: rippleX,
         top: rippleY,
@@ -34,4 +34,3 @@ function Ripple({
 Ripple.displayName = "Ripple";
 
 export default memo(Ripple);
-export type { RippleProps };

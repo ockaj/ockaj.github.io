@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { isBoneyardBuild } from "../utils/boneyard";
 
-export const PENDING_PROMISE = new Promise<void>(() => {});
+const PENDING_PROMISE = new Promise<void>(() => {});
 
 export function SuspenseTrigger(): null {
   throw PENDING_PROMISE;

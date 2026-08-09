@@ -2,7 +2,7 @@ import { memo } from "react";
 import Tooltip from "./Tooltip";
 import { cn } from "../utils/cn";
 
-export type BpmnType =
+type BpmnType =
   | "trash"
   | "gateway-parallel"
   | "intermediate-event-catch-cancel"
@@ -163,7 +163,7 @@ const BpmnNodeBadge = memo(function BpmnNodeBadge({
     <Tooltip content={getBpmnDescription(type)}>
       <span
         className={cn(
-          "inline-flex items-center justify-center text-accent text-[20px] leading-none -translate-y-[0.5px]",
+          "text-accent inline-flex -translate-y-[0.5px] items-center justify-center text-[20px] leading-none",
           iconClass,
           className,
         )}

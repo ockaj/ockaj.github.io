@@ -1,4 +1,4 @@
-export interface ProcessModelVariant {
+interface ProcessModelVariant {
   title: string;
   type: string;
   description: string;

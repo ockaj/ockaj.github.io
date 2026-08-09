@@ -1,13 +1,13 @@
 import { CONTACT_EMAIL } from "../utils/contact";
 
-export interface CvExperienceItem {
+interface CvExperienceItem {
   role: string;
   company: string;
   period: string;
   bullets: string[];
 }
 
-export interface CvEducationItem {
+interface CvEducationItem {
   degree: string;
   school: string;
   period: string;
@@ -17,17 +17,17 @@ export interface CvEducationItem {
   };
 }
 
-export interface CvSkillCategory {
+interface CvSkillCategory {
   name: string;
   items: string[];
 }
 
-export interface CvLanguage {
+interface CvLanguage {
   name: string;
   level: string;
 }
 
-export interface CvProfile {
+interface CvProfile {
   title: string;
   text: string;
 }
