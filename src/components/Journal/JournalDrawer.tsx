@@ -7,6 +7,10 @@ import BaseDrawer from "../BaseDrawer";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { COMMON_MARKDOWN_COMPONENTS } from "../../utils/markdownRenderers";
+import {
+  drawerContentVariants,
+  drawerItemVariants,
+} from "../../utils/motionVariants";
 import { CONTACT_EMAIL } from "../../utils/contact";
 
 interface DrawerProps {
@@ -14,73 +18,51 @@ interface DrawerProps {
   onClose: () => void;
 }
 
-const drawerContentVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.04,
-      delayChildren: 0.05,
-    },
-  },
-};
-
-const drawerItemVariants = {
-  hidden: (prefersReducedMotion: boolean) => ({
-    opacity: 0,
-    y: prefersReducedMotion ? 0 : 10,
-  }),
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { type: "spring" as const, duration: 0.22, bounce: 0 },
-  },
-};
-
 const JOURNAL_MARKDOWN_COMPONENTS = {
   ...COMMON_MARKDOWN_COMPONENTS,
   h3: ({ children }: { children?: React.ReactNode }) => (
-    <h3 className="text-lg font-body text-text-primary font-bold mt-8 mb-4 text-balance flex items-center gap-2">
-      <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
+    <h3 className="font-body text-text-primary mt-8 mb-4 flex items-center gap-2 text-lg font-bold text-balance">
+      <span className="bg-accent h-1.5 w-1.5 flex-shrink-0 rounded-full" />
       {children}
     </h3>
   ),
   p: ({ children }: { children?: React.ReactNode }) => (
-    <p className="text-text-primary/80 font-normal mb-4 text-pretty leading-relaxed">
+    <p className="text-text-primary/80 mb-4 leading-relaxed font-normal text-pretty">
       {children}
     </p>
   ),
   ul: ({ children }: { children?: React.ReactNode }) => (
-    <ul className="space-y-2 my-4 pl-5 list-disc text-muted">{children}</ul>
+    <ul className="text-muted my-4 list-disc space-y-2 pl-5">{children}</ul>
   ),
   li: ({ children }: { children?: React.ReactNode }) => (
-    <li className="text-xs md:text-sm text-pretty leading-relaxed">
+    <li className="text-xs leading-relaxed text-pretty md:text-sm">
       {children}
     </li>
   ),
   table: ({ children }: { children?: React.ReactNode }) => (
-    <div className="my-6 rounded-xl border border-white/10 bg-white/5 overflow-x-auto scrollbar-thin">
-      <table className="w-full min-w-[720px] md:min-w-0 text-left border-collapse text-xs table-auto">
+    <div className="my-6 scrollbar-thin overflow-x-auto rounded-xl border border-white/10 bg-white/5">
+      <table className="w-full min-w-[720px] table-auto border-collapse text-left text-xs md:min-w-0">
         {children}
       </table>
     </div>
   ),
   thead: ({ children }: { children?: React.ReactNode }) => (
-    <thead className="border-b border-white/10 bg-white/5 font-display text-text-primary">
+    <thead className="font-display text-text-primary border-b border-white/10 bg-white/5">
       {children}
     </thead>
   ),
   th: ({ children }: { children?: React.ReactNode }) => (
-    <th className="px-2 py-2.5 font-semibold uppercase tracking-wider text-xs text-accent/90">
+    <th className="text-accent/90 px-2 py-2.5 text-xs font-semibold tracking-wider uppercase">
       {children}
     </th>
   ),
   tbody: ({ children }: { children?: React.ReactNode }) => (
-    <tbody className="divide-y divide-white/5 text-text-primary/75">
+    <tbody className="text-text-primary/75 divide-y divide-white/5">
       {children}
     </tbody>
   ),
   td: ({ children }: { children?: React.ReactNode }) => (
-    <td className="p-2 leading-relaxed align-top break-words">{children}</td>
+    <td className="p-2 align-top leading-relaxed break-words">{children}</td>
   ),
 };
 
@@ -102,34 +84,34 @@ const JournalDrawer = memo(function JournalDrawer({
         initial="hidden"
         animate="visible"
         custom={prefersReducedMotion}
-        className="flex-1 overflow-y-auto space-y-8 p-6 md:p-8 select-text touch-pan-y"
+        className="flex-1 touch-pan-y space-y-8 overflow-y-auto p-6 select-text md:p-8"
       >
         <motion.div
           variants={drawerItemVariants}
           custom={prefersReducedMotion}
           className="space-y-3"
         >
-          <div className="flex items-center gap-2 text-xs font-mono text-muted">
+          <div className="text-muted flex items-center gap-2 font-mono text-xs">
             <span>{article.date}</span>
             <span>•</span>
             <span className="text-accent">{article.subtitle}</span>
           </div>
 
-          <h2 className="text-xl md:text-2xl font-bold font-heading text-text-primary text-balance">
+          <h2 className="font-heading text-text-primary text-xl font-bold text-balance md:text-2xl">
             {article.title}
           </h2>
 
-          <div className="flex items-center gap-2 pt-1 border-t border-white/5 text-xs text-muted">
+          <div className="text-muted flex items-center gap-2 border-t border-white/5 pt-1 text-xs">
             <span>By Ondrej Michal Očkaj</span>
             <span>•</span>
-            <span className="font-mono text-accent/80">{article.readTime}</span>
+            <span className="text-accent/80 font-mono">{article.readTime}</span>
           </div>
         </motion.div>
 
         <motion.div
           variants={drawerItemVariants}
           custom={prefersReducedMotion}
-          className="text-text-primary/90 text-sm md:text-base leading-relaxed max-w-[70ch]"
+          className="text-text-primary/90 max-w-[70ch] text-sm leading-relaxed md:text-base"
         >
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
@@ -142,7 +124,7 @@ const JournalDrawer = memo(function JournalDrawer({
         <motion.div
           variants={drawerItemVariants}
           custom={prefersReducedMotion}
-          className="pt-6 border-t border-white/5 flex justify-between items-center gap-4"
+          className="flex items-center justify-between gap-4 border-t border-white/5 pt-6"
         >
           <LiquidGlassButton
             href={`mailto:${CONTACT_EMAIL}?subject=Regarding Article: ${encodeURIComponent(article.title)}`}

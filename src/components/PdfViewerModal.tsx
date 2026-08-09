@@ -1,10 +1,5 @@
 import { useEffect, useCallback, useMemo, memo, useReducer } from "react";
-import {
-  motion,
-  AnimatePresence,
-  useReducedMotion,
-  Variants,
-} from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Dialog } from "@base-ui/react/dialog";
 import {
   X,
@@ -28,6 +23,7 @@ import { useIsMobile } from "../hooks/useMediaQuery";
 import { useOverlay } from "../hooks/useAppNavigation";
 import { prefetchAsset } from "../utils/quicklink";
 import { cn } from "../utils/cn";
+import { createModalVariants } from "../utils/motionVariants";
 
 interface PdfViewerModalProps {
   isOpen: boolean;
@@ -35,24 +31,7 @@ interface PdfViewerModalProps {
 }
 import { CV_DATA, type CvDataLanguageSection } from "../data/cvData";
 
-const modalVariants: Variants = {
-  hidden: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
-    opacity: 0,
-    scale: custom.prefersReducedMotion ? 1 : custom.isMobile ? 0.96 : 0.95,
-    y: custom.prefersReducedMotion ? 0 : -10,
-    transition: custom.prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
-  }),
-  visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: custom.prefersReducedMotion
-      ? { duration: 0.15 }
-      : custom.isMobile
-        ? SPRING.modalMobile
-        : SPRING.modal,
-  }),
-};
+const modalVariants = createModalVariants(-10);
 
 const WHITESPACE_REGEX = /\s+/g;
 const PHONE_PREFIX_REGEX = /^[+\d]/;
@@ -103,26 +82,26 @@ const InteractiveCvView = memo(function InteractiveCvView({
   dispatch,
 }: InteractiveCvViewProps) {
   return (
-    <div className="max-w-4xl mx-auto space-y-10 pb-12">
+    <div className="mx-auto max-w-4xl space-y-10 pb-12">
       {/* CV Heading Card */}
-      <div className="relative p-6 md:p-8 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-md overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-accent/5 to-transparent z-0" />
+      <div className="relative flex flex-col items-start justify-between gap-6 overflow-hidden rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur-md md:flex-row md:items-center md:p-8">
+        <div className="from-accent/5 pointer-events-none absolute inset-0 z-0 bg-gradient-to-tr to-transparent" />
 
         <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs text-accent uppercase font-semibold bg-accent/10 px-2 py-0.5 rounded-xl">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="text-accent bg-accent/10 rounded-xl px-2 py-0.5 text-xs font-semibold uppercase">
               {lang === "en" ? "Active Resume" : "Aktívny Životopis"}
             </span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-display text-text-primary mb-1 text-balance">
+          <h1 className="font-display text-text-primary mb-1 text-3xl text-balance md:text-4xl">
             {activeCv.title}
           </h1>
-          <p className="text-sm font-normal text-text-primary/95 font-body text-pretty">
+          <p className="text-text-primary/95 font-body text-sm font-normal text-pretty">
             {activeCv.role}
           </p>
 
           {/* Contacts */}
-          <div className="flex flex-wrap gap-x-4 gap-y-2 mt-4 text-xs text-muted tabular-nums">
+          <div className="text-muted mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs tabular-nums">
             <span className="flex items-center gap-1.5">
               <MapPin size={12} className="text-accent/65" />
               {activeCv.location}
@@ -155,11 +134,11 @@ const InteractiveCvView = memo(function InteractiveCvView({
         </div>
 
         {/* Language Toggler */}
-        <div className="relative z-10 self-start md:self-auto flex items-center gap-1.5">
+        <div className="relative z-10 flex items-center gap-1.5 self-start md:self-auto">
           <LiquidGlassButton
             onClick={() => dispatch({ type: "SET_LANG", lang: "en" })}
             className={cn(
-              "px-3 py-1.5 text-xs font-semibold flex items-center gap-1",
+              "flex items-center gap-1 px-3 py-1.5 text-xs font-semibold",
               lang === "en" ? "text-accent" : "text-muted",
             )}
           >
@@ -169,7 +148,7 @@ const InteractiveCvView = memo(function InteractiveCvView({
           <LiquidGlassButton
             onClick={() => dispatch({ type: "SET_LANG", lang: "sk" })}
             className={cn(
-              "px-3 py-1.5 text-xs font-semibold flex items-center gap-1",
+              "flex items-center gap-1 px-3 py-1.5 text-xs font-semibold",
               lang === "sk" ? "text-accent" : "text-muted",
             )}
           >
@@ -180,23 +159,23 @@ const InteractiveCvView = memo(function InteractiveCvView({
       </div>
 
       {/* Main Content Grid (Columns) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Left: Summary, Experience, Education */}
-        <div className="lg:col-span-2 space-y-10">
+        <div className="space-y-10 lg:col-span-2">
           {/* Profile Section */}
           <section className="space-y-3">
-            <h2 className="text-lg font-extrabold text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-balance">
+            <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-extrabold text-balance">
               <Sparkles size={16} className="text-accent" />
               {activeCv.profile.title}
             </h2>
-            <p className="text-sm text-muted leading-relaxed font-body text-pretty">
+            <p className="text-muted font-body text-sm leading-relaxed text-pretty">
               {activeCv.profile.text}
             </p>
           </section>
 
           {/* Experience Section */}
           <section className="space-y-4">
-            <h2 className="text-lg font-extrabold text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-balance">
+            <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-extrabold text-balance">
               <Briefcase size={16} className="text-accent" />
               {activeCv.experience.title}
             </h2>
@@ -204,31 +183,31 @@ const InteractiveCvView = memo(function InteractiveCvView({
               {activeCv.experience.items.map((job) => (
                 <div
                   key={`${job.company}-${job.role}`}
-                  className="relative pl-6 before:absolute before:left-1.5 before:top-1.5 before:bottom-0 before:w-px before:bg-stroke/60"
+                  className="before:bg-stroke/60 relative pl-6 before:absolute before:top-1.5 before:bottom-0 before:left-1.5 before:w-px"
                 >
                   {/* Timeline Bullet */}
-                  <div className="absolute left-0 top-1 size-3.5 rounded-full border-2 border-accent bg-bg z-10 shadow-sm" />
+                  <div className="border-accent bg-bg absolute top-1 left-0 z-10 size-3.5 rounded-full border-2 shadow-sm" />
 
-                  <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
+                  <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
                     <div>
-                      <h3 className="text-sm font-semibold text-text-primary leading-tight text-balance">
+                      <h3 className="text-text-primary text-sm leading-tight font-semibold text-balance">
                         {job.role}
                       </h3>
-                      <p className="text-xs text-muted text-pretty">
+                      <p className="text-muted text-xs text-pretty">
                         {job.company}
                       </p>
                     </div>
-                    <span className="text-xs uppercase text-accent bg-accent/5 px-2 py-0.5 rounded-xl border border-accent/15 tabular-nums">
+                    <span className="text-accent bg-accent/5 border-accent/15 rounded-xl border px-2 py-0.5 text-xs uppercase tabular-nums">
                       {job.period}
                     </span>
                   </div>
-                  <ul className="space-y-2 mt-3 list-none">
+                  <ul className="mt-3 list-none space-y-2">
                     {job.bullets.map((bullet) => (
                       <li
                         key={bullet}
-                        className="text-xs text-muted/90 flex items-start gap-2 leading-relaxed text-pretty"
+                        className="text-muted/90 flex items-start gap-2 text-xs leading-relaxed text-pretty"
                       >
-                        <span className="size-1.5 rounded-full bg-accent/60 flex-shrink-0 mt-1.5" />
+                        <span className="bg-accent/60 mt-1.5 size-1.5 flex-shrink-0 rounded-full" />
                         <span>{bullet}</span>
                       </li>
                     ))}
@@ -240,7 +219,7 @@ const InteractiveCvView = memo(function InteractiveCvView({
 
           {/* Education Section */}
           <section className="space-y-4">
-            <h2 className="text-lg font-extrabold text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-balance">
+            <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-extrabold text-balance">
               <GraduationCap size={16} className="text-accent" />
               {activeCv.education.title}
             </h2>
@@ -248,39 +227,39 @@ const InteractiveCvView = memo(function InteractiveCvView({
               {activeCv.education.items.map((edu) => (
                 <div
                   key={`${edu.school}-${edu.degree}`}
-                  className="relative pl-6 before:absolute before:left-1.5 before:top-1.5 before:bottom-0 before:w-px before:bg-stroke/60 last:before:hidden"
+                  className="before:bg-stroke/60 relative pl-6 before:absolute before:top-1.5 before:bottom-0 before:left-1.5 before:w-px last:before:hidden"
                 >
                   {/* Timeline Bullet */}
-                  <div className="absolute left-0 top-1 size-3.5 rounded-full border-2 border-accent bg-bg z-10" />
+                  <div className="border-accent bg-bg absolute top-1 left-0 z-10 size-3.5 rounded-full border-2" />
 
-                  <div className="flex flex-wrap justify-between items-start gap-2">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
-                      <h3 className="text-sm font-semibold text-text-primary leading-tight text-balance">
+                      <h3 className="text-text-primary text-sm leading-tight font-semibold text-balance">
                         {edu.degree}
                       </h3>
-                      <p className="text-xs text-muted text-pretty">
+                      <p className="text-muted text-xs text-pretty">
                         {edu.school}
                       </p>
                     </div>
-                    <span className="text-xs text-muted font-mono bg-white/5 px-2 py-0.5 rounded-xl tabular-nums">
+                    <span className="text-muted rounded-xl bg-white/5 px-2 py-0.5 font-mono text-xs tabular-nums">
                       {edu.period}
                     </span>
                   </div>
 
                   {/* Bachelor's Thesis Detail Block */}
                   {edu.details ? (
-                    <div className="mt-3 p-3.5 rounded-lg border border-white/5 bg-white/5">
-                      <p className="text-xs font-semibold text-text-primary mb-2 flex items-center gap-1.5 text-balance">
-                        <span className="w-1 h-3 rounded bg-accent" />
+                    <div className="mt-3 rounded-lg border border-white/5 bg-white/5 p-3.5">
+                      <p className="text-text-primary mb-2 flex items-center gap-1.5 text-xs font-semibold text-balance">
+                        <span className="bg-accent h-3 w-1 rounded" />
                         {edu.details.thesisTitle}
                       </p>
-                      <ul className="space-y-1.5 list-none">
+                      <ul className="list-none space-y-1.5">
                         {edu.details.bullets.map((bullet) => (
                           <li
                             key={bullet}
-                            className="text-xs text-muted flex items-start gap-1.5 text-pretty"
+                            className="text-muted flex items-start gap-1.5 text-xs text-pretty"
                           >
-                            <span className="text-accent flex-shrink-0 mt-0.5">
+                            <span className="text-accent mt-0.5 flex-shrink-0">
                               •
                             </span>
                             <span>{bullet}</span>
@@ -298,8 +277,8 @@ const InteractiveCvView = memo(function InteractiveCvView({
         {/* Right: Skills & Languages */}
         <div className="space-y-8">
           {/* Skills Block */}
-          <div className="p-5 rounded-2xl border border-white/5 bg-white/5 space-y-6">
-            <h2 className="text-sm font-extrabold uppercase text-text-primary/90 flex items-center gap-2 pb-2 border-b border-white/5 text-balance">
+          <div className="space-y-6 rounded-2xl border border-white/5 bg-white/5 p-5">
+            <h2 className="text-text-primary/90 flex items-center gap-2 border-b border-white/5 pb-2 text-sm font-extrabold text-balance uppercase">
               <Globe size={14} className="text-accent" />
               {activeCv.skills.title}
             </h2>
@@ -307,14 +286,14 @@ const InteractiveCvView = memo(function InteractiveCvView({
             <div className="space-y-4">
               {activeCv.skills.categories.map((cat) => (
                 <div key={cat.name} className="space-y-2">
-                  <h3 className="text-xs font-semibold uppercase text-accent text-balance">
+                  <h3 className="text-accent text-xs font-semibold text-balance uppercase">
                     {cat.name}
                   </h3>
                   <div className="flex flex-wrap gap-1.5">
                     {cat.items.map((skill) => (
                       <span
                         key={skill}
-                        className="text-xs text-muted/95 bg-white/5 hover:bg-white/[0.08] border border-white/5 rounded-xl px-2 py-1 transition-[background-color,color] select-none hover:text-text-primary"
+                        className="text-muted/95 hover:text-text-primary rounded-xl border border-white/5 bg-white/5 px-2 py-1 text-xs transition-[background-color,color] select-none hover:bg-white/[0.08]"
                       >
                         {skill}
                       </span>
@@ -326,8 +305,8 @@ const InteractiveCvView = memo(function InteractiveCvView({
           </div>
 
           {/* Languages Block */}
-          <div className="p-5 rounded-2xl border border-white/5 bg-white/5 space-y-4">
-            <h2 className="text-sm font-extrabold uppercase text-text-primary/90 flex items-center gap-2 pb-2 border-b border-white/5 text-balance">
+          <div className="space-y-4 rounded-2xl border border-white/5 bg-white/5 p-5">
+            <h2 className="text-text-primary/90 flex items-center gap-2 border-b border-white/5 pb-2 text-sm font-extrabold text-balance uppercase">
               <Languages size={14} className="text-accent" />
               {activeCv.languages.title}
             </h2>
@@ -336,12 +315,12 @@ const InteractiveCvView = memo(function InteractiveCvView({
               {activeCv.languages.items.map((langItem) => (
                 <div
                   key={langItem.name}
-                  className="flex justify-between items-center text-xs"
+                  className="flex items-center justify-between text-xs"
                 >
-                  <span className="font-normal text-text-primary">
+                  <span className="text-text-primary font-normal">
                     {langItem.name}
                   </span>
-                  <span className="text-accent bg-accent/10 px-2 py-0.5 rounded-xl font-mono text-xs font-semibold border border-accent/10">
+                  <span className="text-accent bg-accent/10 border-accent/10 rounded-xl border px-2 py-0.5 font-mono text-xs font-semibold">
                     {langItem.level}
                   </span>
                 </div>
@@ -351,8 +330,8 @@ const InteractiveCvView = memo(function InteractiveCvView({
 
           {/* Mobile Warning Notice */}
           {isMobile ? (
-            <div className="p-4 rounded-lg border border-accent/20 bg-accent/5 text-center space-y-2">
-              <p className="text-xs text-muted text-pretty">
+            <div className="border-accent/20 bg-accent/5 space-y-2 rounded-lg border p-4 text-center">
+              <p className="text-muted text-xs text-pretty">
                 PDF view is optimized for desktop viewports. To read the
                 official document, you can open or download the PDF below.
               </p>
@@ -360,7 +339,7 @@ const InteractiveCvView = memo(function InteractiveCvView({
                 href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs text-accent hover:text-text-primary transition-colors font-semibold"
+                className="text-accent hover:text-text-primary inline-flex items-center gap-1.5 text-xs font-semibold transition-colors"
               >
                 <ExternalLink size={12} />
                 Open PDF Document
@@ -457,7 +436,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0, transition: SPRING.exit }}
-                    className="fixed inset-0 bg-bg/80 backdrop-blur-md pointer-events-auto"
+                    className="bg-bg/80 pointer-events-auto fixed inset-0 backdrop-blur-md"
                   />
                 }
               />
@@ -471,7 +450,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                     animate="visible"
                     exit="hidden"
                     variants={modalVariants}
-                    className="relative w-full h-full md:h-[85vh] md:max-w-5xl bg-surface/85 border-0 md:border md:border-white/10 rounded-none md:rounded-3xl backdrop-blur-2xl flex flex-col overflow-hidden z-10 pointer-events-auto"
+                    className="bg-surface/85 pointer-events-auto relative z-10 flex h-full w-full flex-col overflow-hidden rounded-none border-0 backdrop-blur-2xl md:h-[85vh] md:max-w-5xl md:rounded-3xl md:border md:border-white/10"
                     style={{
                       transformOrigin: "center top",
                       boxShadow:
@@ -480,33 +459,33 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                   />
                 }
               >
-                <div className="w-full h-full flex flex-col">
+                <div className="flex h-full w-full flex-col">
                   {/* Specular sheen header overlay */}
-                  <div className="absolute top-0 left-0 right-0 h-1/2 pointer-events-none bg-gradient-to-b from-white/5 to-transparent z-20" />
+                  <div className="pointer-events-none absolute top-0 right-0 left-0 z-20 h-1/2 bg-gradient-to-b from-white/5 to-transparent" />
 
                   {/* Header */}
-                  <div className="relative z-30 px-4 py-3 md:px-6 md:py-4 border-b border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className="relative z-30 flex flex-col items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:flex-row md:px-6 md:py-4">
                     {/* Title, Avatar & Mobile Action Buttons (Visible only on mobile next to title) */}
-                    <div className="flex items-center justify-between w-full sm:w-auto gap-4">
+                    <div className="flex w-full items-center justify-between gap-4 sm:w-auto">
                       {/* Title & Avatar */}
                       <div className="flex items-center gap-3">
-                        <div className="size-8 rounded-full overflow-hidden border border-white/10 flex-shrink-0 bg-bg">
+                        <div className="bg-bg size-8 flex-shrink-0 overflow-hidden rounded-full border border-white/10">
                           <img
                             src="https://avatars.githubusercontent.com/u/36997301?v=4&s=32"
                             alt="Ondrej Michal Očkaj"
                             width="32"
                             height="32"
-                            className="w-full h-full object-cover"
+                            className="h-full w-full object-cover"
                           />
                         </div>
                         <div>
                           <Dialog.Title
                             id="modal-title"
-                            className="text-sm font-semibold text-text-primary leading-tight text-balance"
+                            className="text-text-primary text-sm leading-tight font-semibold text-balance"
                           >
                             Ondrej Michal Očkaj
                           </Dialog.Title>
-                          <p className="text-xs text-muted flex items-center gap-1 text-pretty">
+                          <p className="text-muted flex items-center gap-1 text-xs text-pretty">
                             <FileText size={10} className="text-accent" />
                             Curriculum Vitae
                           </p>
@@ -514,12 +493,12 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                       </div>
 
                       {/* Mobile Action Buttons (Right side on mobile) */}
-                      <div className="flex sm:hidden items-center gap-2.5">
+                      <div className="flex items-center gap-2.5 sm:hidden">
                         {/* Download Direct */}
                         <LiquidGlassButton
                           href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
                           download="Ondrej_Michal_Ockaj_CV.pdf"
-                          className="p-3 size-11"
+                          className="size-11 p-3"
                           ariaLabel="Download PDF CV"
                         >
                           <Download size={15} className="text-text-primary" />
@@ -552,13 +531,13 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                           ? "navbar-highlight-active"
                           : "navbar-highlight-flat"
                       }
-                      className="flex items-center gap-0.5 bg-white/[0.03] p-2 rounded-full border border-white/5 overflow-hidden isolate [transform:translateZ(0)]"
+                      className="isolate flex [transform:translateZ(0)] items-center gap-0.5 overflow-hidden rounded-full border border-white/5 bg-white/[0.03] p-2"
                     >
                       <Tab
                         value="pdf"
                         aria-controls="tabpanel-pdf"
                         className={cn(
-                          "relative text-xs font-semibold rounded-full px-4 py-2 select-none z-10 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
+                          "focus-visible:ring-accent/60 relative z-10 rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
                           activeTab === "pdf"
                             ? "text-text-primary"
                             : "text-muted hover:text-text-primary",
@@ -570,7 +549,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                         value="interactive"
                         aria-controls="tabpanel-interactive"
                         className={cn(
-                          "relative text-xs font-semibold rounded-full px-4 py-2 select-none z-10 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
+                          "focus-visible:ring-accent/60 relative z-10 rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
                           activeTab === "interactive"
                             ? "text-text-primary"
                             : "text-muted hover:text-text-primary",
@@ -584,12 +563,12 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                     </Tabs>
 
                     {/* Desktop Action Buttons (Hidden on mobile) */}
-                    <div className="hidden sm:flex items-center gap-2">
+                    <div className="hidden items-center gap-2 sm:flex">
                       {/* Download Direct */}
                       <LiquidGlassButton
                         href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
                         download="Ondrej_Michal_Ockaj_CV.pdf"
-                        className="p-3 size-11"
+                        className="size-11 p-3"
                         ariaLabel="Download PDF CV"
                       >
                         <Download size={14} className="text-text-primary" />
@@ -600,7 +579,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                         href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-3 size-11"
+                        className="size-11 p-3"
                         ariaLabel="Open CV PDF in new tab"
                       >
                         <ExternalLink size={14} className="text-text-primary" />
@@ -622,7 +601,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                   </div>
 
                   {/* Viewer Body Content */}
-                  <div className="flex-1 overflow-hidden relative bg-bg/40">
+                  <div className="bg-bg/40 relative flex-1 overflow-hidden">
                     {/* Tab 1: PDF Document */}
                     <div
                       role="tabpanel"
@@ -637,12 +616,12 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                       {activeTab === "pdf" && (
                         <>
                           {pdfLoading ? (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-bg/80 z-20">
+                            <div className="bg-bg/80 absolute inset-0 z-20 flex flex-col items-center justify-center gap-3">
                               <Loader2
-                                className="animate-spin text-accent"
+                                className="text-accent animate-spin"
                                 size={32}
                               />
-                              <p className="text-xs text-muted">
+                              <p className="text-muted text-xs">
                                 Loading PDF Document…
                               </p>
                             </div>
@@ -650,7 +629,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                           <object
                             data="/cv/Ondrej_Michal_Ockaj_CV.pdf#toolbar=0&navpanes=0&scrollbar=1"
                             type="application/pdf"
-                            className="w-full h-full border-0 relative z-10"
+                            className="relative z-10 h-full w-full border-0"
                             title="Ondrej Michal Ockaj CV"
                             onLoad={() =>
                               dispatch({
@@ -659,15 +638,15 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                               })
                             }
                           >
-                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-bg/85 z-20 p-4 text-center">
-                              <p className="text-sm text-muted">
+                            <div className="bg-bg/85 absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 p-4 text-center">
+                              <p className="text-muted text-sm">
                                 Your browser does not support PDF viewing
                                 in-page.
                               </p>
                               <a
                                 href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
                                 download
-                                className="px-4 py-2 rounded-full bg-accent text-bg hover:bg-accent-hover text-xs font-semibold transition-colors duration-200"
+                                className="bg-accent text-bg hover:bg-accent-hover rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-200"
                               >
                                 Download CV PDF
                               </a>
@@ -684,7 +663,7 @@ function PdfViewerModal({ isOpen, onClose }: PdfViewerModalProps) {
                       aria-labelledby="tab-interactive"
                       className={
                         activeTab === "interactive"
-                          ? "absolute inset-0 overflow-y-auto custom-cv-scrollbar p-6 md:p-8 lg:p-12"
+                          ? "custom-cv-scrollbar absolute inset-0 overflow-y-auto p-6 md:p-8 lg:p-12"
                           : "hidden"
                       }
                     >

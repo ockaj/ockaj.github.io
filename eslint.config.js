@@ -6,6 +6,7 @@ import reactCompiler from "eslint-plugin-react-compiler";
 import eslintReact from "@eslint-react/eslint-plugin";
 import tseslint from "typescript-eslint";
 import eslintConfigPrettier from "eslint-config-prettier";
+import sonarjs from "eslint-plugin-sonarjs";
 
 export default tseslint.config(
   { ignores: ["dist", ".agents"] },
@@ -14,6 +15,7 @@ export default tseslint.config(
       js.configs.recommended,
       ...tseslint.configs.recommended,
       eslintReact.configs["recommended-typescript"],
+      sonarjs.configs.recommended,
     ],
     files: ["**/*.{ts,tsx}"],
     languageOptions: {

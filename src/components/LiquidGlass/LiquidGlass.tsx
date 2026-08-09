@@ -22,6 +22,7 @@ import {
   useTransform,
   useReducedMotion,
   type MotionStyle,
+  type MotionValue,
 } from "motion/react";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
@@ -44,6 +45,7 @@ import {
   scaleVertical,
   springs,
   tilt as tiltConfig,
+  getInnerGlassStyle,
 } from "./config";
 
 const SCALE_TRANSITION = {
@@ -61,6 +63,119 @@ const omit = <T extends object, K extends keyof T>(
   });
   return result;
 };
+
+function useKeyboardClick(onClick?: (e: MouseEvent<HTMLElement>) => void) {
+  return useCallback(
+    (e: KeyboardEvent<HTMLElement>) => {
+      if ((e.key === "Enter" || e.key === " ") && onClick) {
+        e.preventDefault();
+        onClick(e as unknown as MouseEvent<HTMLElement>);
+      }
+    },
+    [onClick],
+  );
+}
+
+function getGlassClasses({
+  active = false,
+  as = "div",
+  href,
+  onClick,
+  roundedClass = "rounded-full",
+  className = "",
+}: {
+  active?: boolean;
+  as?: string;
+  href?: string;
+  onClick?: unknown;
+  roundedClass?: string;
+  className?: string;
+}) {
+  const borderActiveClasses = active
+    ? "border-white/[0.15] bg-white/[0.04]"
+    : "border-white/[0.04] group-hover:border-white/[0.08] bg-white/[0.015] group-hover:bg-white/[0.03]";
+
+  const cursorAndFocusClasses =
+    as === "button" || href || onClick
+      ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+      : "cursor-default";
+
+  const baseClasses = cn(
+    "group relative inline-flex items-center justify-center backdrop-blur-sm md:backdrop-blur-lg text-text-primary select-none overflow-hidden",
+    cursorAndFocusClasses,
+    roundedClass,
+    className,
+  );
+
+  return { borderActiveClasses, baseClasses };
+}
+
+function InnerBorderOverlay({
+  borderActiveClasses,
+  roundedClass,
+  style,
+}: {
+  borderActiveClasses: string;
+  roundedClass: string;
+  style: CSSProperties;
+}) {
+  return (
+    <span
+      className={cn(
+        "pointer-events-none absolute inset-0 z-0 border transition-[border-color,background-color,box-shadow] duration-300 ease-out",
+        borderActiveClasses,
+        roundedClass,
+      )}
+      style={style}
+    />
+  );
+}
+
+function SpecularGlowOverlay({
+  roundedClass,
+  springX,
+  springY,
+  lagX,
+  lagY,
+  springOpacity,
+}: {
+  roundedClass: string;
+  springX: MotionValue<number>;
+  springY: MotionValue<number>;
+  lagX: MotionValue<number>;
+  lagY: MotionValue<number>;
+  springOpacity: MotionValue<number>;
+}) {
+  return (
+    <span
+      className={cn(
+        "pointer-events-none absolute inset-0 z-0 overflow-hidden",
+        roundedClass,
+      )}
+    >
+      <motion.span
+        className="pointer-events-none absolute -mt-24 -ml-24 size-48 rounded-full bg-gradient-to-r from-[#7A7BBF]/6 to-[#6667AB]/6 mix-blend-screen blur-2xl"
+        style={{
+          x: springX,
+          y: springY,
+          opacity: springOpacity,
+          left: "50%",
+          top: "50%",
+        }}
+      />
+      <motion.span
+        className="pointer-events-none absolute -mt-16 -ml-16 size-32 rounded-full bg-gradient-to-r from-[#F26B5B]/3 to-[#926AA6]/3 mix-blend-screen blur-xl"
+        style={{
+          x: lagX,
+          y: lagY,
+          opacity: springOpacity,
+          left: "50%",
+          top: "50%",
+        }}
+      />
+    </span>
+  );
+}
 
 function LiquidGlassMobile(props: LiquidGlassPropsWithRef) {
   const {
@@ -134,54 +249,27 @@ function LiquidGlassMobile(props: LiquidGlassPropsWithRef) {
     onPointerDown: handlePointerDown,
   } = useRipple(interactive && effectiveSpringScale && effectiveRipple);
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLElement>) => {
-      if ((e.key === "Enter" || e.key === " ") && onClick) {
-        e.preventDefault();
-        onClick(e as unknown as MouseEvent<HTMLElement>);
-      }
-    },
-    [onClick],
-  );
+  const handleKeyDown = useKeyboardClick(onClick);
 
-  const borderActiveClasses = active
-    ? "border-white/[0.15] bg-white/[0.04]"
-    : "border-white/[0.04] group-hover:border-white/[0.08] bg-white/[0.015] group-hover:bg-white/[0.03]";
-
-  const cursorAndFocusClasses =
-    as === "button" || href || onClick
-      ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-      : "cursor-default";
-
-  const baseClasses = cn(
-    "group relative inline-flex items-center justify-center backdrop-blur-sm md:backdrop-blur-lg text-text-primary select-none overflow-hidden",
-    cursorAndFocusClasses,
+  const { borderActiveClasses, baseClasses } = getGlassClasses({
+    active,
+    as,
+    href,
+    onClick,
     roundedClass,
-  );
+    className,
+  });
 
   const innerGlassStyle = useMemo<CSSProperties>(() => {
-    if (variant === "sunken") {
+    const baseStyle = getInnerGlassStyle(variant, active);
+    if (specularGlow && active && variant === "flat") {
+      const defaultShadow =
+        "inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 4px 8px rgba(255, 255, 255, 0.03), 0 4px 10px rgba(0, 0, 0, 0.08)";
       return {
-        boxShadow: active
-          ? "inset 0 3px 8px rgba(0, 0, 0, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.2)"
-          : "inset 0 2px 5px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 1px 2px rgba(255, 255, 255, 0.02)",
+        boxShadow: `inset 0 1px 2px rgba(255, 255, 255, 0.24), inset 0 8px 16px rgba(255, 255, 255, 0.06), ${defaultShadow}`,
       };
     }
-    if (variant === "beveled") {
-      return {
-        boxShadow: active
-          ? "inset 0 1px 2px rgba(255, 255, 255, 0.4), inset 0 6px 12px rgba(255, 255, 255, 0.06), 0 8px 16px rgba(0, 0, 0, 0.15)"
-          : "inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 4px 8px rgba(255, 255, 255, 0.03), 0 4px 10px rgba(0, 0, 0, 0.08)",
-      };
-    }
-    const defaultShadow =
-      "inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 4px 8px rgba(255, 255, 255, 0.03), 0 4px 10px rgba(0, 0, 0, 0.08)";
-    return {
-      boxShadow:
-        specularGlow && active
-          ? `inset 0 1px 2px rgba(255, 255, 255, 0.24), inset 0 8px 16px rgba(255, 255, 255, 0.06), ${defaultShadow}`
-          : defaultShadow,
-    };
+    return baseStyle;
   }, [variant, active, specularGlow]);
 
   const tagStyle = useMemo<CSSProperties>(() => {
@@ -226,12 +314,9 @@ function LiquidGlassMobile(props: LiquidGlassPropsWithRef) {
 
   const innerElements = (
     <>
-      <span
-        className={cn(
-          "absolute inset-0 pointer-events-none z-0 border transition-[border-color,background-color,box-shadow] duration-300 ease-out",
-          borderActiveClasses,
-          roundedClass,
-        )}
+      <InnerBorderOverlay
+        borderActiveClasses={borderActiveClasses}
+        roundedClass={roundedClass}
         style={innerGlassStyle}
       />
       {interactive ? (
@@ -256,7 +341,7 @@ function LiquidGlassMobile(props: LiquidGlassPropsWithRef) {
       : (motion as unknown as Record<string, ElementType>)[as];
 
   const tagProps: LiquidGlassTagProps = {
-    className: cn(baseClasses, className),
+    className: baseClasses,
     style: tagStyle,
     "aria-label": ariaLabel,
     ...sharedAnimationProps,
@@ -430,15 +515,7 @@ function LiquidGlassDesktop({
     setIsHovered(false);
   }, [interactive, opacity, mouseX, mouseY]);
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLElement>) => {
-      if ((e.key === "Enter" || e.key === " ") && onClick) {
-        e.preventDefault();
-        onClick(e as unknown as MouseEvent<HTMLElement>);
-      }
-    },
-    [onClick],
-  );
+  const handleKeyDown = useKeyboardClick(onClick);
 
   useResizeObserver(interactive && isHovered ? element : null, (entry) => {
     const el = entry.target;
@@ -454,45 +531,26 @@ function LiquidGlassDesktop({
     return `radial-gradient(180px circle at calc(50% + ${x}px) calc(50% + ${y}px), rgba(255, 255, 255, 0.06) 0%, transparent 80%)`;
   });
 
-  const borderActiveClasses = active
-    ? "border-white/[0.15] bg-white/[0.04]"
-    : "border-white/[0.04] group-hover:border-white/[0.08] bg-white/[0.015] group-hover:bg-white/[0.03]";
-
-  const cursorAndFocusClasses =
-    as === "button" || href || onClick
-      ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-      : "cursor-default";
-
-  const baseClasses = cn(
-    "group relative inline-flex items-center justify-center backdrop-blur-sm md:backdrop-blur-lg text-text-primary select-none overflow-hidden",
-    cursorAndFocusClasses,
+  const { borderActiveClasses, baseClasses } = getGlassClasses({
+    active,
+    as,
+    href,
+    onClick,
     roundedClass,
-  );
+    className,
+  });
 
   const innerGlassStyle = useMemo<CSSProperties>(() => {
     const isEffectivelyActive = active || isHovered;
-    if (variant === "sunken") {
+    const baseStyle = getInnerGlassStyle(variant, isEffectivelyActive);
+    if (specularGlow && isEffectivelyActive && variant === "flat") {
+      const defaultShadow =
+        "inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 4px 8px rgba(255, 255, 255, 0.03), 0 4px 10px rgba(0, 0, 0, 0.08)";
       return {
-        boxShadow: isEffectivelyActive
-          ? "inset 0 3px 8px rgba(0, 0, 0, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.2)"
-          : "inset 0 2px 5px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 1px 2px rgba(255, 255, 255, 0.02)",
+        boxShadow: `inset 0 1px 2px rgba(255, 255, 255, 0.24), inset 0 8px 16px rgba(255, 255, 255, 0.06), ${defaultShadow}`,
       };
     }
-    if (variant === "beveled") {
-      return {
-        boxShadow: isEffectivelyActive
-          ? "inset 0 1px 2px rgba(255, 255, 255, 0.4), inset 0 6px 12px rgba(255, 255, 255, 0.06), 0 8px 16px rgba(0, 0, 0, 0.15)"
-          : "inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 4px 8px rgba(255, 255, 255, 0.03), 0 4px 10px rgba(0, 0, 0, 0.08)",
-      };
-    }
-    const defaultShadow =
-      "inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 4px 8px rgba(255, 255, 255, 0.03), 0 4px 10px rgba(0, 0, 0, 0.08)";
-    return {
-      boxShadow:
-        specularGlow && isEffectivelyActive
-          ? `inset 0 1px 2px rgba(255, 255, 255, 0.24), inset 0 8px 16px rgba(255, 255, 255, 0.06), ${defaultShadow}`
-          : defaultShadow,
-    };
+    return baseStyle;
   }, [variant, active, isHovered, specularGlow]);
 
   const tagStyle = useMemo<MotionStyle>(() => {
@@ -572,43 +630,21 @@ function LiquidGlassDesktop({
 
   const innerElements = (
     <>
-      <span
-        className={cn(
-          "absolute inset-0 pointer-events-none z-0 border transition-[border-color,background-color,box-shadow] duration-300 ease-out",
-          borderActiveClasses,
-          roundedClass,
-        )}
+      <InnerBorderOverlay
+        borderActiveClasses={borderActiveClasses}
+        roundedClass={roundedClass}
         style={innerGlassStyle}
       />
       {interactive && !isMotionReduced ? (
         <>
-          <span
-            className={cn(
-              "absolute inset-0 pointer-events-none z-0 overflow-hidden",
-              roundedClass,
-            )}
-          >
-            <motion.span
-              className="absolute size-48 -mt-24 -ml-24 rounded-full bg-gradient-to-r from-[#7A7BBF]/6 to-[#6667AB]/6 blur-2xl pointer-events-none mix-blend-screen"
-              style={{
-                x: springX,
-                y: springY,
-                opacity: springOpacity,
-                left: "50%",
-                top: "50%",
-              }}
-            />
-            <motion.span
-              className="absolute size-32 -mt-16 -ml-16 rounded-full bg-gradient-to-r from-[#F26B5B]/3 to-[#926AA6]/3 blur-xl pointer-events-none mix-blend-screen"
-              style={{
-                x: lagX,
-                y: lagY,
-                opacity: springOpacity,
-                left: "50%",
-                top: "50%",
-              }}
-            />
-          </span>
+          <SpecularGlowOverlay
+            roundedClass={roundedClass}
+            springX={springX}
+            springY={springY}
+            lagX={lagX}
+            lagY={lagY}
+            springOpacity={springOpacity}
+          />
 
           {effectiveSpringScale && effectiveRipple ? (
             <Ripple
@@ -621,7 +657,7 @@ function LiquidGlassDesktop({
 
           <motion.span
             className={cn(
-              "absolute inset-0 pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+              "pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100",
               roundedClass,
             )}
             style={{ background: borderGradient, mixBlendMode: "overlay" }}
@@ -649,7 +685,7 @@ function LiquidGlassDesktop({
       : (motion as unknown as Record<string, ElementType>)[as];
 
   const tagProps: LiquidGlassTagProps = {
-    className: cn(baseClasses, className),
+    className: baseClasses,
     style: tagStyle,
     "aria-label": ariaLabel,
     ...sharedAnimationProps,

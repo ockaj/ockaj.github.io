@@ -1,10 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import {
-  motion,
-  AnimatePresence,
-  useReducedMotion,
-  Variants,
-} from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Dialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
@@ -13,29 +8,13 @@ import BpmnDiagram from "./BpmnDiagram";
 import { useIsMobile } from "../hooks/useMediaQuery";
 import { useOverlay, LABEL_MAP } from "../hooks/useAppNavigation";
 import { SPRING } from "../utils/springConfig";
+import { createModalVariants } from "../utils/motionVariants";
 
 interface BpmnOverlayProps {
   onNavigate: (sectionLabel: string) => void;
 }
 
-const bpmnModalVariants: Variants = {
-  hidden: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
-    opacity: 0,
-    scale: custom.prefersReducedMotion ? 1 : custom.isMobile ? 0.96 : 0.95,
-    y: custom.prefersReducedMotion ? 0 : 15,
-    transition: custom.prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
-  }),
-  visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: custom.prefersReducedMotion
-      ? { duration: 0.15 }
-      : custom.isMobile
-        ? SPRING.modalMobile
-        : SPRING.modal,
-  }),
-};
+const bpmnModalVariants = createModalVariants(15);
 
 const BPMN_KEYS = new Set(["b", "p", "m", "n"]);
 
@@ -133,23 +112,23 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
               y: prefersReducedMotion ? 0 : 20,
               scale: prefersReducedMotion ? 1 : 0.95,
             }}
-            className="hidden md:block fixed bottom-6 right-6 z-40 max-w-sm text-xs pointer-events-auto"
+            className="pointer-events-auto fixed right-6 bottom-6 z-40 hidden max-w-sm text-xs md:block"
           >
             <LiquidGlass
               as="div"
               roundedClass="rounded-xl"
-              className="p-3 bg-surface/90"
+              className="bg-surface/90 p-3"
               innerClassName="flex items-center gap-3 w-full"
               specularGlow
             >
               <BpmnNodeBadge type="script-task" className="flex-shrink-0" />
               <div className="flex-1 text-left">
-                <p className="font-semibold text-text-primary text-xs">
+                <p className="text-text-primary text-xs font-semibold">
                   Process Analyst Easter Egg
                 </p>
-                <p className="text-muted text-xs mt-0.5 leading-normal text-pretty">
+                <p className="text-muted mt-0.5 text-xs leading-normal text-pretty">
                   Type{" "}
-                  <span className="font-mono text-accent font-bold">
+                  <span className="text-accent font-mono font-bold">
                     B-P-M-N
                   </span>{" "}
                   on your keyboard to reveal the portfolio's meta-diagram.
@@ -157,7 +136,7 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
               </div>
               <LiquidGlassButton
                 onClick={() => setShowHotkeyTip(false)}
-                className="size-10 flex items-center justify-center text-muted hover:text-text-primary"
+                className="text-muted hover:text-text-primary flex size-10 items-center justify-center"
                 roundedClass="rounded-full"
                 ariaLabel="Dismiss tip"
                 magnetic
@@ -199,7 +178,7 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
                         opacity: 0,
                         transition: SPRING.exit,
                       }}
-                      className="fixed inset-0 bg-black/80 backdrop-blur-md pointer-events-auto"
+                      className="pointer-events-auto fixed inset-0 bg-black/80 backdrop-blur-md"
                     />
                   }
                 />
@@ -213,7 +192,7 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
                       animate="visible"
                       exit="hidden"
                       variants={bpmnModalVariants}
-                      className="relative w-full h-full md:max-w-[85vw] 2xl:max-w-[1360px] md:h-[90vh] bg-surface/95 border-0 md:border md:border-white/10 rounded-none md:rounded-3xl backdrop-blur-2xl flex flex-col overflow-hidden z-10 pointer-events-auto shadow-2xl"
+                      className="bg-surface/95 pointer-events-auto relative z-10 flex h-full w-full flex-col overflow-hidden rounded-none border-0 shadow-2xl backdrop-blur-2xl md:h-[90vh] md:max-w-[85vw] md:rounded-3xl md:border md:border-white/10 2xl:max-w-[1360px]"
                       style={{
                         boxShadow:
                           "inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 20px rgba(0, 0, 0, 0.6)",
@@ -221,20 +200,20 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
                     />
                   }
                 >
-                  <div className="w-full h-full flex flex-col relative">
+                  <div className="relative flex h-full w-full flex-col">
                     {/* Specular sheen header overlay matching CV modal */}
-                    <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none bg-gradient-to-b from-white/5 to-transparent z-20" />
+                    <div className="pointer-events-none absolute top-0 right-0 left-0 z-20 h-32 bg-gradient-to-b from-white/5 to-transparent" />
 
                     {/* Part 1: Gridless Header Area */}
-                    <div className="relative z-30 flex items-center justify-between border-b border-white/10 w-full p-5 md:px-8 md:py-5 flex-shrink-0">
+                    <div className="relative z-30 flex w-full flex-shrink-0 items-center justify-between border-b border-white/10 p-5 md:px-8 md:py-5">
                       <div>
-                        <Dialog.Title className="text-lg md:text-2xl font-display text-text-primary">
+                        <Dialog.Title className="font-display text-text-primary text-lg md:text-2xl">
                           Portfolio System Operation Blueprint
                         </Dialog.Title>
-                        <p className="text-xs text-muted max-w-xl leading-relaxed mt-1 text-pretty">
+                        <p className="text-muted mt-1 max-w-xl text-xs leading-relaxed text-pretty">
                           Click any user task box in the upper lane to navigate
                           directly to that section. Press{" "}
-                          <span className="font-mono bg-white/5 border border-white/10 px-2 py-0.5 rounded-xl text-accent font-bold">
+                          <span className="text-accent rounded-xl border border-white/10 bg-white/5 px-2 py-0.5 font-mono font-bold">
                             ESC
                           </span>{" "}
                           or click close to dismiss.
@@ -245,7 +224,7 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
                           <LiquidGlassButton
                             onClick={() => setIsOpen(false)}
                             ariaLabel="Close model overlay"
-                            className="size-10 md:size-11 p-0 flex-shrink-0"
+                            className="size-10 flex-shrink-0 p-0 md:size-11"
                           >
                             <X size={18} />
                           </LiquidGlassButton>
@@ -255,7 +234,7 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
 
                     {/* Part 2: BPMN Diagram Core with Blueprint Grid */}
                     <div
-                      className="flex-1 w-full flex items-center justify-center p-4 md:p-8 overflow-auto custom-cv-scrollbar select-none"
+                      className="custom-cv-scrollbar flex w-full flex-1 items-center justify-center overflow-auto p-4 select-none md:p-8"
                       style={{
                         backgroundImage: `
                           url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 40 33 L 40 47 M 33 40 L 47 40' stroke='hsla(244, 75%25, 76%25, 0.12)' stroke-width='1'/%3E%3C/svg%3E"),
@@ -265,7 +244,7 @@ export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
                         backgroundPosition: "center, center",
                       }}
                     >
-                      <div className="max-w-[1280px] w-full mx-auto flex items-center justify-center">
+                      <div className="mx-auto flex w-full max-w-[1280px] items-center justify-center">
                         <BpmnDiagram onTaskClick={handleTaskClick} />
                       </div>
                     </div>

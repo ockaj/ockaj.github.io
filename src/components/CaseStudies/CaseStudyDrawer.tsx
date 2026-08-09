@@ -6,6 +6,10 @@ import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import BaseDrawer from "../BaseDrawer";
 import ReactMarkdown from "react-markdown";
 import { COMMON_MARKDOWN_COMPONENTS } from "../../utils/markdownRenderers";
+import {
+  drawerContentVariants,
+  drawerItemVariants,
+} from "../../utils/motionVariants";
 import { CONTACT_EMAIL } from "../../utils/contact";
 import MetricCountUp from "./MetricCountUp";
 
@@ -14,32 +18,10 @@ interface DrawerProps {
   onClose: () => void;
 }
 
-const drawerContentVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.04,
-      delayChildren: 0.05,
-    },
-  },
-};
-
-const drawerItemVariants = {
-  hidden: (prefersReducedMotion: boolean) => ({
-    opacity: 0,
-    y: prefersReducedMotion ? 0 : 10,
-  }),
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { type: "spring" as const, duration: 0.22, bounce: 0 },
-  },
-};
-
 const CLIENT_MARKDOWN_COMPONENTS = {
   ...COMMON_MARKDOWN_COMPONENTS,
   p: ({ children }: { children?: React.ReactNode }) => (
-    <p className="text-sm text-text-primary/95 font-normal leading-relaxed text-pretty">
+    <p className="text-text-primary/95 text-sm leading-relaxed font-normal text-pretty">
       {children}
     </p>
   ),
@@ -48,7 +30,7 @@ const CLIENT_MARKDOWN_COMPONENTS = {
 const DESCRIPTION_MARKDOWN_COMPONENTS = {
   ...COMMON_MARKDOWN_COMPONENTS,
   p: ({ children }: { children?: React.ReactNode }) => (
-    <p className="text-sm text-muted leading-relaxed text-pretty">{children}</p>
+    <p className="text-muted text-sm leading-relaxed text-pretty">{children}</p>
   ),
 };
 
@@ -72,24 +54,24 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
         variants={drawerContentVariants}
         initial="hidden"
         animate="visible"
-        className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 select-text touch-pan-y"
+        className="flex-1 touch-pan-y space-y-8 overflow-y-auto p-6 select-text md:p-8"
       >
         {/* Header */}
         <motion.div variants={drawerItemVariants}>
-          <span className="text-[10px] text-accent uppercase font-bold bg-accent/20 border border-accent/30 rounded-xl px-2.5 py-0.5">
+          <span className="text-accent bg-accent/20 border-accent/30 rounded-xl border px-2.5 py-0.5 text-[10px] font-bold uppercase">
             {study.category}
           </span>
-          <h3 className="text-2xl md:text-3xl font-display text-text-primary mt-2 text-balance">
+          <h3 className="font-display text-text-primary mt-2 text-2xl text-balance md:text-3xl">
             {study.title}
           </h3>
-          <p className="text-xs text-muted mt-0.5 text-pretty">
+          <p className="text-muted mt-0.5 text-xs text-pretty">
             {study.subtitle}
           </p>
         </motion.div>
 
         {/* Core Info */}
         <motion.div variants={drawerItemVariants} className="space-y-4">
-          <h3 className="text-xs text-muted uppercase border-b border-white/5 pb-1 text-balance">
+          <h3 className="text-muted border-b border-white/5 pb-1 text-xs text-balance uppercase">
             Client Profile
           </h3>
           <ReactMarkdown components={CLIENT_MARKDOWN_COMPONENTS}>
@@ -102,19 +84,19 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
 
         {/* Results Grid */}
         <motion.div variants={drawerItemVariants} className="space-y-4">
-          <h3 className="text-xs text-muted uppercase border-b border-white/5 pb-1 text-balance">
+          <h3 className="text-muted border-b border-white/5 pb-1 text-xs text-balance uppercase">
             Proven Operations Impact
           </h3>
           <div className="grid grid-cols-3 gap-3">
             {study.results.map((res) => (
               <div
                 key={res.metric}
-                className="bg-white/[0.02] border border-white/5 rounded-xl p-3 text-center"
+                className="rounded-xl border border-white/5 bg-white/[0.02] p-3 text-center"
               >
-                <p className="text-lg md:text-xl font-body font-semibold tracking-tight text-accent tabular-nums">
+                <p className="font-body text-accent text-lg font-semibold tracking-tight tabular-nums md:text-xl">
                   <MetricCountUp value={res.metric} />
                 </p>
-                <p className="text-xs text-muted uppercase mt-1 text-pretty">
+                <p className="text-muted mt-1 text-xs text-pretty uppercase">
                   {res.description}
                 </p>
               </div>
@@ -124,20 +106,20 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
 
         {/* AS-IS vs TO-BE comparison */}
         <motion.div variants={drawerItemVariants} className="space-y-4">
-          <h3 className="text-xs text-muted uppercase border-b border-white/5 pb-1 text-balance">
+          <h3 className="text-muted border-b border-white/5 pb-1 text-xs text-balance uppercase">
             Process Modeling & Auditing
           </h3>
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid gap-6 md:grid-cols-2">
             {/* AS-IS */}
-            <div className="bg-red-500/[0.02] border border-red-500/10 rounded-2xl p-4">
-              <div className="flex items-center gap-2 text-xs font-bold text-red-400 uppercase mb-3">
+            <div className="rounded-2xl border border-red-500/10 bg-red-500/[0.02] p-4">
+              <div className="mb-3 flex items-center gap-2 text-xs font-bold text-red-400 uppercase">
                 <div className="size-1.5 rounded-full bg-red-400" />
                 <span>Legacy Source Materials</span>
               </div>
               <ul className="space-y-3">
                 {study.asIsFlow.map((step) => (
-                  <li key={step} className="text-xs text-muted flex gap-2">
-                    <span className="text-red-400/80 flex-shrink-0">✕</span>
+                  <li key={step} className="text-muted flex gap-2 text-xs">
+                    <span className="flex-shrink-0 text-red-400/80">✕</span>
                     <span className="leading-relaxed text-pretty">{step}</span>
                   </li>
                 ))}
@@ -145,8 +127,8 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
             </div>
 
             {/* TO-BE */}
-            <div className="bg-emerald-500/[0.02] border border-emerald-500/10 rounded-2xl p-4">
-              <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase mb-3">
+            <div className="rounded-2xl border border-emerald-500/10 bg-emerald-500/[0.02] p-4">
+              <div className="mb-3 flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase">
                 <div className="size-1.5 rounded-full bg-emerald-400" />
                 <span>BPMN Process Modeling</span>
               </div>
@@ -154,9 +136,9 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
                 {study.toBeFlow.map((step) => (
                   <li
                     key={step}
-                    className="text-xs text-text-primary/95 flex gap-2"
+                    className="text-text-primary/95 flex gap-2 text-xs"
                   >
-                    <span className="text-emerald-400 flex-shrink-0">✓</span>
+                    <span className="flex-shrink-0 text-emerald-400">✓</span>
                     <span className="leading-relaxed text-pretty">{step}</span>
                   </li>
                 ))}
@@ -168,19 +150,19 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
         {/* Methodology & Timeline */}
         <motion.div
           variants={drawerItemVariants}
-          className="grid md:grid-cols-2 gap-6"
+          className="grid gap-6 md:grid-cols-2"
         >
           <div className="space-y-3">
-            <h4 className="text-xs text-muted uppercase border-b border-white/5 pb-1 text-balance">
+            <h4 className="text-muted border-b border-white/5 pb-1 text-xs text-balance uppercase">
               Methodology
             </h4>
             <ul className="space-y-2">
               {study.methodology.map((meth) => (
                 <li
                   key={meth}
-                  className="text-xs text-muted flex items-center gap-2"
+                  className="text-muted flex items-center gap-2 text-xs"
                 >
-                  <span className="size-1 rounded-full bg-accent/60" />
+                  <span className="bg-accent/60 size-1 rounded-full" />
                   <span className="text-pretty">{meth}</span>
                 </li>
               ))}
@@ -188,14 +170,14 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
           </div>
 
           <div className="space-y-3">
-            <h4 className="text-xs text-muted uppercase border-b border-white/5 pb-1 text-balance">
+            <h4 className="text-muted border-b border-white/5 pb-1 text-xs text-balance uppercase">
               Key Deliverables
             </h4>
             <ul className="space-y-2">
               {study.deliverables.map((del) => (
                 <li
                   key={del}
-                  className="text-xs text-text-primary/80 flex items-center gap-2"
+                  className="text-text-primary/80 flex items-center gap-2 text-xs"
                 >
                   <FileText size={11} className="text-accent flex-shrink-0" />
                   <span className="text-pretty">{del}</span>
@@ -208,7 +190,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
         {/* CTA / Close */}
         <motion.div
           variants={drawerItemVariants}
-          className="pt-6 border-t border-white/5 flex justify-between items-center gap-4"
+          className="flex items-center justify-between gap-4 border-t border-white/5 pt-6"
         >
           <LiquidGlassButton
             href={`mailto:${CONTACT_EMAIL}`}

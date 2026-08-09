@@ -199,17 +199,20 @@ function AuroraCanvas(props: AuroraProps) {
 
     const colorStopsArray = padColors(colorStops);
 
-    const program = new Program(gl, {
-      vertex: VERT,
-      fragment: FRAG,
-      uniforms: {
-        uTime: { value: 0 },
-        uAmplitude: { value: amplitude },
-        uColorStops: { value: colorStopsArray },
-        uResolution: { value: [renderer.width, renderer.height] },
-        uBlend: { value: blend },
-      },
-    });
+    const createAuroraProgram = () =>
+      new Program(gl, {
+        vertex: VERT,
+        fragment: FRAG,
+        uniforms: {
+          uTime: { value: 0 },
+          uAmplitude: { value: amplitude },
+          uColorStops: { value: colorStopsArray },
+          uResolution: { value: [renderer.width, renderer.height] },
+          uBlend: { value: blend },
+        },
+      });
+
+    const program = createAuroraProgram();
 
     const mesh = new Mesh(gl, { geometry, program });
     ctn.appendChild(gl.canvas as HTMLCanvasElement);
@@ -259,17 +262,7 @@ function AuroraCanvas(props: AuroraProps) {
         if (newGeometry.attributes.uv) {
           delete newGeometry.attributes.uv;
         }
-        const newProgram = new Program(gl, {
-          vertex: VERT,
-          fragment: FRAG,
-          uniforms: {
-            uTime: { value: 0 },
-            uAmplitude: { value: amplitude },
-            uColorStops: { value: colorStopsArray },
-            uResolution: { value: [renderer.width, renderer.height] },
-            uBlend: { value: blend },
-          },
-        });
+        const newProgram = createAuroraProgram();
         mesh.geometry = newGeometry;
         mesh.program = newProgram;
       } catch (err) {
@@ -398,7 +391,7 @@ function AuroraCanvas(props: AuroraProps) {
   }, [prefersReducedMotion]);
 
   return (
-    <div ref={ctnRef} className="w-full h-full relative">
+    <div ref={ctnRef} className="relative h-full w-full">
       {isContextLost ? <AuroraFallback /> : null}
     </div>
   );
@@ -406,8 +399,8 @@ function AuroraCanvas(props: AuroraProps) {
 
 function Aurora(props: AuroraProps) {
   return (
-    <div aria-hidden="true" className="fixed inset-0 pointer-events-none z-0">
-      <div className="relative w-full h-full">
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0">
+      <div className="relative h-full w-full">
         <ErrorBoundary fallback={<AuroraFallback />}>
           <AuroraCanvas
             colorStops={DEFAULT_COLOR_STOPS}
