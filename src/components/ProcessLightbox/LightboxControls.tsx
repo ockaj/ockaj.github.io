@@ -48,8 +48,8 @@ const LightboxControls = memo(function LightboxControls({
   }, [isMobile, updateText]);
 
   return (
-    <div className="absolute top-4 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-4 z-[60]">
-      <div className="inline-flex items-center gap-1.5 bg-surface/80 backdrop-blur-md border border-white/10 p-[6px] rounded-full shadow-2xl select-none">
+    <div className="absolute top-4 left-1/2 z-[60] -translate-x-1/2 md:right-4 md:left-auto md:translate-x-0">
+      <div className="bg-surface/80 inline-flex items-center gap-1.5 rounded-full border border-white/10 p-[6px] shadow-2xl backdrop-blur-md select-none">
         {/* Scale / Reset */}
         <span
           className="inline-flex"
@@ -68,7 +68,7 @@ const LightboxControls = memo(function LightboxControls({
             interactive={isZoomed}
             springScale={isZoomed}
             className={cn(
-              "h-10 w-16 flex items-center justify-center text-xs tracking-wider uppercase select-none font-bold text-text-primary",
+              "text-text-primary flex h-10 w-16 items-center justify-center text-xs font-bold tracking-wider uppercase select-none",
               isZoomed
                 ? "pointer-events-auto cursor-pointer"
                 : "pointer-events-none cursor-default",
@@ -88,7 +88,7 @@ const LightboxControls = memo(function LightboxControls({
           magnetic
           magneticStrength={0.04}
           roundedClass="rounded-full"
-          className="size-11 p-0 flex items-center justify-center text-text-primary"
+          className="text-text-primary flex size-11 items-center justify-center p-0"
           ariaLabel="Zoom In"
         >
           <Plus size={14} />
@@ -101,14 +101,14 @@ const LightboxControls = memo(function LightboxControls({
           magnetic={isZoomed}
           magneticStrength={0.04}
           roundedClass="rounded-full"
-          className="size-11 p-0 flex items-center justify-center text-text-primary disabled:opacity-40 disabled:pointer-events-none"
+          className="text-text-primary flex size-11 items-center justify-center p-0 disabled:pointer-events-none disabled:opacity-40"
           ariaLabel="Zoom Out"
         >
           <Minus size={14} />
         </LiquidGlassButton>
 
         {/* Separator */}
-        <div className="w-px h-4 bg-white/10 mx-0.5" />
+        <div className="mx-0.5 h-4 w-px bg-white/10" />
 
         {/* Close */}
         <LiquidGlassButton
@@ -117,7 +117,7 @@ const LightboxControls = memo(function LightboxControls({
           magnetic
           magneticStrength={0.04}
           roundedClass="rounded-full"
-          className="size-11 p-0 flex items-center justify-center text-text-primary"
+          className="text-text-primary flex size-11 items-center justify-center p-0"
         >
           <X size={14} />
         </LiquidGlassButton>

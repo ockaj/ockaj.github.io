@@ -25,39 +25,39 @@ const JournalEntry = memo(function JournalEntry({
       className="w-full"
       tilt
     >
-      <div className="p-5 md:p-6 space-y-4">
+      <div className="space-y-4 p-5 md:p-6">
         {/* Thumbnail + title */}
         <div className="flex items-center gap-4">
-          <div className="flex-shrink-0 size-11 rounded-full overflow-hidden border border-white/10 group-hover:border-accent/30 transition-colors duration-300">
+          <div className="group-hover:border-accent/30 size-11 flex-shrink-0 overflow-hidden rounded-full border border-white/10 transition-colors duration-300">
             <img
               src={article.image}
               alt=""
               width={44}
               height={44}
-              className="w-full h-full object-cover"
+              className="h-full w-full object-cover"
               loading="lazy"
             />
           </div>
-          <div className="flex-1 min-w-0">
-            <span className="block text-xl md:text-2xl font-display text-text-primary leading-tight text-balance">
+          <div className="min-w-0 flex-1">
+            <span className="font-display text-text-primary block text-xl leading-tight text-balance md:text-2xl">
               {article.title}
             </span>
           </div>
         </div>
 
-        <p className="text-sm md:text-base text-text-primary/80 group-hover:text-text-primary leading-relaxed text-pretty line-clamp-3 transition-colors duration-200">
+        <p className="text-text-primary/80 group-hover:text-text-primary line-clamp-3 text-sm leading-relaxed text-pretty transition-colors duration-200 md:text-base">
           {excerpt}
         </p>
 
         <div className="flex items-center justify-between pt-2">
-          <div className="flex items-center gap-4 text-xs text-muted group-hover:text-text-primary/70 tabular-nums transition-colors duration-200">
+          <div className="text-muted group-hover:text-text-primary/70 flex items-center gap-4 text-xs tabular-nums transition-colors duration-200">
             <span className="flex items-center gap-1.5">
               <Clock size={11} />
               {article.readTime}
             </span>
             <span>{article.date}</span>
           </div>
-          <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent group-hover:text-accent/80 transition-colors duration-200">
+          <span className="text-accent group-hover:text-accent/80 inline-flex items-center gap-1.5 text-sm font-semibold transition-colors duration-200">
             <span>Read</span>
             <ArrowUpRight
               size={16}

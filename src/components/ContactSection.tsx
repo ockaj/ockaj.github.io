@@ -17,7 +17,7 @@ function ContactSection() {
   return (
     <section
       id="contact"
-      className="relative w-full min-h-[100lvh] flex items-center justify-center"
+      className="relative flex min-h-[100lvh] w-full items-center justify-center"
     >
       <div className="relative z-10">
         <motion.div
@@ -25,16 +25,16 @@ function ContactSection() {
           whileInView={SECTION_ANIMATE}
           viewport={SECTION_VIEWPORT}
           transition={SECTION_TRANSITION}
-          className="max-w-[1200px] mx-auto px-6 md:px-10 lg:px-16 text-center pb-2"
+          className="mx-auto max-w-[1200px] px-6 pb-2 text-center md:px-10 lg:px-16"
         >
-          <p className="text-xs text-muted uppercase font-semibold mb-5 text-pretty flex items-center justify-center gap-1.5">
+          <p className="text-muted mb-5 flex items-center justify-center gap-1.5 text-xs font-semibold text-pretty uppercase">
             <BpmnNodeBadge type="end-event-none" />
             Get in touch
           </p>
-          <h2 className="text-[clamp(3.5rem,8vw,6rem)] font-display text-text-primary mb-6 leading-[1.1] pb-2 text-balance">
+          <h2 className="font-display text-text-primary mb-6 pb-2 text-[clamp(3.5rem,8vw,6rem)] leading-[1.1] text-balance">
             Let's work together
           </h2>
-          <p className="text-sm md:text-base text-muted max-w-md mx-auto mb-10 text-pretty">
+          <p className="text-muted mx-auto mb-10 max-w-md text-sm text-pretty md:text-base">
             Looking to analyze, map, and optimize your business processes,
             design digital transformation solutions, or fill an analyst role?
             Let's connect.

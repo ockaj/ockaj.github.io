@@ -18,20 +18,20 @@ const SOCIALS = [
 
 function Contact() {
   return (
-    <div className="max-w-[1200px] mx-auto px-6 md:px-10 lg:px-16 text-center mb-16 md:mb-20">
-      <div className="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-4 sm:gap-6 mx-auto">
+    <div className="mx-auto mb-16 max-w-[1200px] px-6 text-center md:mb-20 md:px-10 lg:px-16">
+      <div className="mx-auto flex flex-col items-center justify-center gap-4 sm:flex-row sm:flex-wrap sm:gap-6">
         {/* Email button wrapper */}
-        <div className="w-full sm:w-auto flex justify-center">
+        <div className="flex w-full justify-center sm:w-auto">
           <LiquidGlassButton
             href={`mailto:${CONTACT_EMAIL}`}
-            className="px-6 py-3.5 sm:px-8 sm:py-4 whitespace-nowrap group/email-btn w-fit"
+            className="group/email-btn w-fit px-6 py-3.5 whitespace-nowrap sm:px-8 sm:py-4"
             ariaLabel="Send email"
             magnetic
             tilt
             magneticStrength={0.02}
             specularGlow
           >
-            <span className="flex items-center justify-center gap-2 w-full">
+            <span className="flex w-full items-center justify-center gap-2">
               <span>{CONTACT_EMAIL}</span>
               <ArrowUpRight
                 aria-hidden="true"
@@ -43,26 +43,26 @@ function Contact() {
         </div>
 
         {/* Social buttons wrapper */}
-        <div className="flex flex-row justify-center gap-3 w-full sm:w-auto sm:gap-6">
+        <div className="flex w-full flex-row justify-center gap-3 sm:w-auto sm:gap-6">
           {SOCIALS.map((social) => (
             <LiquidGlassButton
               key={social.label}
               href={social.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-4 py-3.5 sm:px-8 sm:py-4 text-xs sm:text-sm whitespace-nowrap group/social-btn flex-1 sm:flex-initial max-w-[145px] sm:max-w-none"
+              className="group/social-btn max-w-[145px] flex-1 px-4 py-3.5 text-xs whitespace-nowrap sm:max-w-none sm:flex-initial sm:px-8 sm:py-4 sm:text-sm"
               ariaLabel={`Visit ${social.label}`}
               magnetic
               tilt
               magneticStrength={0.02}
               specularGlow
             >
-              <span className="flex items-center justify-center gap-1.5 sm:gap-2 w-full">
+              <span className="flex w-full items-center justify-center gap-1.5 sm:gap-2">
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 24 24"
                   fill="currentColor"
-                  className="w-[13px] h-[13px] sm:w-4 sm:h-4 shrink-0"
+                  className="h-[13px] w-[13px] shrink-0 sm:h-4 sm:w-4"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path d={social.path} />
@@ -70,7 +70,7 @@ function Contact() {
                 <span>{social.label}</span>
                 <ArrowUpRight
                   aria-hidden="true"
-                  className="w-[13px] h-[13px] sm:w-4 sm:h-4 transition-transform duration-300 group-hover/social-btn:translate-x-0.5 group-hover/social-btn:-translate-y-0.5 shrink-0"
+                  className="h-[13px] w-[13px] shrink-0 transition-transform duration-300 group-hover/social-btn:translate-x-0.5 group-hover/social-btn:-translate-y-0.5 sm:h-4 sm:w-4"
                 />
               </span>
             </LiquidGlassButton>

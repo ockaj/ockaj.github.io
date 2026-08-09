@@ -119,7 +119,7 @@ function Skills() {
       {/* Skills Bento Grid */}
       <motion.div
         custom={prefersReducedMotion}
-        className="grid grid-cols-1 md:grid-cols-3 gap-5"
+        className="grid grid-cols-1 gap-5 md:grid-cols-3"
         variants={containerVariants}
         initial={isBuildMode ? "visible" : "hidden"}
         whileInView={isBuildMode ? undefined : "visible"}
@@ -154,7 +154,7 @@ function Skills() {
             type="gateway-parallel"
             className="translate-y-[1px]"
           />
-          <h3 className="text-lg font-semibold text-text-primary">Languages</h3>
+          <h3 className="text-text-primary text-lg font-semibold">Languages</h3>
         </div>
         <div className="flex flex-wrap gap-4">
           {LANGUAGES.map((lang) => (
@@ -166,10 +166,10 @@ function Skills() {
               magnetic={false}
               tilt
             >
-              <span className="text-sm font-semibold text-text-primary">
+              <span className="text-text-primary text-sm font-semibold">
                 {lang.language}
               </span>
-              <span className="text-xs text-muted">{lang.level}</span>
+              <span className="text-muted text-xs">{lang.level}</span>
             </LiquidGlass>
           ))}
         </div>
@@ -197,12 +197,12 @@ const SkillCard = memo(function SkillCard({
     <LiquidGlass
       as="div"
       roundedClass="rounded-2xl"
-      className="w-full h-full p-6 md:p-8 flex-col text-left justify-start items-stretch"
+      className="h-full w-full flex-col items-stretch justify-start p-6 text-left md:p-8"
       tilt
     >
       <div
         className={cn(
-          "flex flex-col h-full w-full",
+          "flex h-full w-full flex-col",
           category.isWide && "md:flex-row md:justify-between md:gap-8",
         )}
       >
@@ -210,7 +210,7 @@ const SkillCard = memo(function SkillCard({
         <div
           className={
             category.isWide
-              ? "md:max-w-[40%] flex-shrink-0 mb-5 md:mb-0"
+              ? "mb-5 flex-shrink-0 md:mb-0 md:max-w-[40%]"
               : "mb-5"
           }
         >
@@ -218,9 +218,9 @@ const SkillCard = memo(function SkillCard({
           <div className="flex items-center gap-3">
             <Icon
               size={20}
-              className="text-muted group-hover:text-accent transition-colors duration-300 flex-shrink-0"
+              className="text-muted group-hover:text-accent flex-shrink-0 transition-colors duration-300"
             />
-            <h3 className="text-base font-semibold text-text-primary text-balance">
+            <h3 className="text-text-primary text-base font-semibold text-balance">
               {category.title}
             </h3>
           </div>
@@ -230,18 +230,18 @@ const SkillCard = memo(function SkillCard({
           className={cn(
             "space-y-2.5",
             category.isWide &&
-              "md:flex-1 md:grid md:grid-cols-2 md:gap-x-6 md:gap-y-2.5 md:space-y-0 md:self-center",
+              "md:grid md:flex-1 md:grid-cols-2 md:space-y-0 md:gap-x-6 md:gap-y-2.5 md:self-center",
           )}
         >
           {category.skills.map((skill) => (
             <p
               key={skill}
-              className="text-sm text-muted/80 flex items-start gap-1 cursor-default text-pretty skill-item-hover group/item"
+              className="text-muted/80 skill-item-hover group/item flex cursor-default items-start gap-1 text-sm text-pretty"
             >
-              <span className="w-4 h-5 flex items-center justify-start flex-shrink-0">
-                <span className="w-3.5 h-1.5 rounded-full bg-accent/60 [clip-path:inset(0_57.14%_0_0_round_9999px)] group-hover/item:[clip-path:inset(0_0_0_0_round_9999px)] transition-[clip-path,background-color] duration-200 ease-out group-hover/item:bg-accent" />
+              <span className="flex h-5 w-4 flex-shrink-0 items-center justify-start">
+                <span className="bg-accent/60 group-hover/item:bg-accent h-1.5 w-3.5 rounded-full transition-[clip-path,background-color] duration-200 ease-out [clip-path:inset(0_57.14%_0_0_round_9999px)] group-hover/item:[clip-path:inset(0_0_0_0_round_9999px)]" />
               </span>
-              <span className="flex-1 skill-item-text">{skill}</span>
+              <span className="skill-item-text flex-1">{skill}</span>
             </p>
           ))}
         </div>

@@ -81,7 +81,7 @@ function App() {
       <main
         id="main-content"
         inert={isLoading}
-        className="relative z-10 text-text-primary font-body"
+        className="text-text-primary font-body relative z-10"
       >
         <Navbar activeSection={activeSection} onNavClick={handleNavClick} />
 
@@ -98,11 +98,11 @@ function App() {
           headerClassName="mb-12 md:mb-16 relative z-30 px-6 md:px-10 lg:px-16"
           header={
             <>
-              <h2 className="text-3xl md:text-5xl font-display text-text-primary mb-3 text-balance flex items-center gap-3">
+              <h2 className="font-display text-text-primary mb-3 flex items-center gap-3 text-3xl text-balance md:text-5xl">
                 <BpmnNodeBadge type="task" className="translate-y-[2px]" />
                 Process transformation projects
               </h2>
-              <p className="text-sm text-muted max-w-sm text-pretty">
+              <p className="text-muted max-w-sm text-sm text-pretty">
                 Real-world analysis and digital solutions across supply chain,
                 logistics, and HR domains.
               </p>
@@ -121,14 +121,14 @@ function App() {
           headerClassName="mb-8 md:mb-10 relative z-30 px-6 md:px-10 lg:px-16"
           header={
             <>
-              <h2 className="text-3xl md:text-5xl font-display text-text-primary mb-3 text-balance flex items-center gap-3">
+              <h2 className="font-display text-text-primary mb-3 flex items-center gap-3 text-3xl text-balance md:text-5xl">
                 <BpmnNodeBadge
                   type="gateway-or"
                   className="translate-y-[2px]"
                 />
                 Skills & competencies
               </h2>
-              <p className="text-sm text-muted max-w-sm text-pretty">
+              <p className="text-muted max-w-sm text-sm text-pretty">
                 Comprehensive toolkit for process analysis, business
                 transformation, and digital solutions.
               </p>
@@ -147,14 +147,14 @@ function App() {
           headerClassName="mb-10 md:mb-14 relative z-30 px-6 md:px-10 lg:px-16"
           header={
             <>
-              <h2 className="text-3xl md:text-5xl font-display text-text-primary mb-3 text-balance flex items-center gap-3">
+              <h2 className="font-display text-text-primary mb-3 flex items-center gap-3 text-3xl text-balance md:text-5xl">
                 <BpmnNodeBadge
                   type="subprocess-collapsed"
                   className="translate-y-[2px]"
                 />
                 BPMN & Process models
               </h2>
-              <p className="text-sm text-muted max-w-sm text-pretty">
+              <p className="text-muted max-w-sm text-sm text-pretty">
                 Real-world enterprise process diagrams, workflows, and
                 transformation models.
               </p>
@@ -173,14 +173,14 @@ function App() {
           headerClassName="flex items-end justify-between mb-10 md:mb-14 px-6 md:px-10 lg:px-16"
           header={
             <div>
-              <h2 className="text-3xl md:text-5xl font-display text-text-primary mb-3 text-balance flex items-center gap-3">
+              <h2 className="font-display text-text-primary mb-3 flex items-center gap-3 text-3xl text-balance md:text-5xl">
                 <BpmnNodeBadge
                   type="intermediate-event-catch-message"
                   className="translate-y-[2px]"
                 />
                 Recent thought pieces
               </h2>
-              <p className="text-sm text-muted max-w-sm text-pretty">
+              <p className="text-muted max-w-sm text-sm text-pretty">
                 Analyzing process optimization, systems integrations, and
                 enterprise digital transformation frameworks.
               </p>

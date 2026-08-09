@@ -9,13 +9,13 @@ function Footer() {
   const currentYear = CURRENT_YEAR;
 
   return (
-    <footer className="max-w-[1200px] mx-auto px-6 md:px-10 lg:px-16 pb-8 md:pb-12 relative z-10 w-full">
-      <div className="w-full h-px bg-white/5 mb-6" />
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+    <footer className="relative z-10 mx-auto w-full max-w-[1200px] px-6 pb-8 md:px-10 md:pb-12 lg:px-16">
+      <div className="mb-6 h-px w-full bg-white/5" />
+      <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
         {/* Copyright */}
         <div className="flex items-center gap-4 select-none">
           <p
-            className="text-xs text-muted text-pretty"
+            className="text-muted text-xs text-pretty"
             suppressHydrationWarning
           >
             © {currentYear} Ondrej Michal Očkaj
@@ -25,7 +25,7 @@ function Footer() {
         {/* Scroll to Top Styled as LiquidGlassButton */}
         <LiquidGlassButton
           onClick={scrollToTop}
-          className="text-xs px-4 py-3 group/top-btn"
+          className="group/top-btn px-4 py-3 text-xs"
           ariaLabel="Scroll back to top"
           magnetic
           tilt

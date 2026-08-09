@@ -17,41 +17,41 @@ const CaseStudyCard = memo(function CaseStudyCard({
     <LiquidGlass
       as="article"
       roundedClass="rounded-2xl"
-      className="w-full text-left justify-start items-stretch cursor-pointer"
+      className="w-full cursor-pointer items-stretch justify-start text-left"
       onClick={() => onOpen(study)}
       tilt
     >
       {/* Content grid */}
-      <div className="relative z-10 grid md:grid-cols-12 gap-4 md:gap-8 p-6 md:p-8 w-full h-full">
+      <div className="relative z-10 grid h-full w-full gap-4 p-6 md:grid-cols-12 md:gap-8 md:p-8">
         {/* Left column: Title, challenge, solution */}
-        <div className="md:col-span-7 flex flex-col gap-4 md:gap-6">
+        <div className="flex flex-col gap-4 md:col-span-7 md:gap-6">
           {/* Category badge */}
           <div>
-            <span className="inline-block text-[10px] text-accent uppercase font-bold bg-accent/20 border border-accent/30 rounded-xl px-2.5 py-0.5">
+            <span className="text-accent bg-accent/20 border-accent/30 inline-block rounded-xl border px-2.5 py-0.5 text-[10px] font-bold uppercase">
               {study.category}
             </span>
           </div>
 
           {/* Title */}
           <div>
-            <span className="block text-2xl md:text-3xl font-display text-text-primary mb-1 text-balance line-clamp-2">
+            <span className="font-display text-text-primary mb-1 line-clamp-2 block text-2xl text-balance md:text-3xl">
               {study.title}
             </span>
-            <p className="text-sm text-muted text-pretty">{study.subtitle}</p>
+            <p className="text-muted text-sm text-pretty">{study.subtitle}</p>
           </div>
 
           {/* Challenge */}
           <div className="hidden md:block">
-            <div className="flex items-start gap-3 mb-2">
+            <div className="mb-2 flex items-start gap-3">
               <AlertCircle
                 size={16}
-                className="text-muted flex-shrink-0 mt-0.5"
+                className="text-muted mt-0.5 flex-shrink-0"
               />
               <div>
-                <p className="text-xs text-muted uppercase font-semibold mb-1">
+                <p className="text-muted mb-1 text-xs font-semibold uppercase">
                   Challenge
                 </p>
-                <p className="text-sm text-text-primary/80 text-pretty">
+                <p className="text-text-primary/80 text-sm text-pretty">
                   {study.challenge}
                 </p>
               </div>
@@ -63,13 +63,13 @@ const CaseStudyCard = memo(function CaseStudyCard({
             <div className="flex items-start gap-3">
               <CheckCircle
                 size={16}
-                className="text-accent flex-shrink-0 mt-0.5"
+                className="text-accent mt-0.5 flex-shrink-0"
               />
               <div>
-                <p className="text-xs text-muted uppercase font-semibold mb-1">
+                <p className="text-muted mb-1 text-xs font-semibold uppercase">
                   Solution
                 </p>
-                <p className="text-sm text-text-primary/80 text-pretty">
+                <p className="text-text-primary/80 text-sm text-pretty">
                   {study.solution}
                 </p>
               </div>
@@ -81,7 +81,7 @@ const CaseStudyCard = memo(function CaseStudyCard({
             {study.tools.map((tool) => (
               <span
                 key={tool}
-                className="text-xs bg-white/5 text-muted rounded-full px-3 py-1 border border-white/10"
+                className="text-muted rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs"
               >
                 {tool}
               </span>
@@ -90,21 +90,21 @@ const CaseStudyCard = memo(function CaseStudyCard({
         </div>
 
         {/* Right column: Results, timeline, CTA */}
-        <div className="md:col-span-5 flex flex-col justify-between gap-4 md:gap-6">
+        <div className="flex flex-col justify-between gap-4 md:col-span-5 md:gap-6">
           <div>
-            <p className="text-xs text-muted uppercase font-semibold mb-3">
+            <p className="text-muted mb-3 text-xs font-semibold uppercase">
               Key Results
             </p>
             <div className="space-y-3">
               {study.results.map((result) => (
                 <div
                   key={result.metric}
-                  className="flex items-baseline gap-3 case-study-metric-hover"
+                  className="case-study-metric-hover flex items-baseline gap-3"
                 >
-                  <span className="text-xl md:text-2xl font-display text-accent tabular-nums tracking-tight case-study-metric-hover-val">
+                  <span className="font-display text-accent case-study-metric-hover-val text-xl tracking-tight tabular-nums md:text-2xl">
                     <MetricCountUp value={result.metric} />
                   </span>
-                  <span className="text-xs md:text-sm text-muted text-pretty case-study-metric-hover-desc">
+                  <span className="text-muted case-study-metric-hover-desc text-xs text-pretty md:text-sm">
                     {result.description}
                   </span>
                 </div>
@@ -113,17 +113,17 @@ const CaseStudyCard = memo(function CaseStudyCard({
           </div>
 
           <div>
-            <p className="text-xs text-muted uppercase font-semibold mb-2">
+            <p className="text-muted mb-2 text-xs font-semibold uppercase">
               Timeline
             </p>
-            <p className="text-sm text-text-primary/80 tabular-nums text-pretty">
+            <p className="text-text-primary/80 text-sm text-pretty tabular-nums">
               {study.timeline}
             </p>
           </div>
 
           {/* CTA */}
           <div className="flex justify-end">
-            <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent group-hover:text-accent/80 transition-colors duration-200">
+            <span className="text-accent group-hover:text-accent/80 inline-flex items-center gap-1.5 text-sm font-semibold transition-colors duration-200">
               <span>View project</span>
               <ArrowUpRight
                 size={16}
