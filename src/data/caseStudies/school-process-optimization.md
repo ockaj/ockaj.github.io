@@ -6,7 +6,7 @@ category: Education & Public Sector
 challenge: Legacy school procedures exist only as flat Excel spreadsheets, text descriptions, and informal verbal knowledge, often containing logical errors, deadlocks, and unclear responsibilities.
 solution: Mapping and modeling 42 management processes in ADONIS using BPMN 2.0, identifying and correcting process logic errors, gateway mismatches, and role ambiguities.
 results: "42 | management processes mapped; Phase 1 | complete (Ongoing); 100% | logic errors audited"
-tools: "BPMN 2.0, ADONIS, Process Mapping, RACI, Logic Verification"
+tools: "BPMN 2.0, ADONIS, Process Mapping, Logic Verification"
 timeline: Ongoing (Phase 2 starting Sept)
 client: "School Institution: a public educational institution establishing structural transparency."
 asIsFlow:
