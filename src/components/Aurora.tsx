@@ -110,7 +110,7 @@ interface AuroraProps {
 
 const DEFAULT_COLOR_STOPS = ["#1E1B4B", "#312E81", "#6667AB", "#A78BFA"];
 
-function AuroraCanvas(props: AuroraProps) {
+function AuroraCanvas(props: Readonly<AuroraProps>) {
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
   const propsRef = useRef<AuroraProps>(props);
@@ -397,7 +397,7 @@ function AuroraCanvas(props: AuroraProps) {
   );
 }
 
-function Aurora(props: AuroraProps) {
+function Aurora(props: Readonly<AuroraProps>) {
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0">
       <div className="relative h-full w-full">

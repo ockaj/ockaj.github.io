@@ -17,7 +17,7 @@ const MetricCountUp = memo(function MetricCountUp({
     margin: "0px 0px -40px 0px",
   });
   const prefersReducedMotion = useReducedMotion();
-  const numericPart = value.match(NUMERIC_REGEX);
+  const numericPart = NUMERIC_REGEX.exec(value);
   const target = numericPart ? parseFloat(numericPart[0]) : 0;
 
   const [currentValue, setCurrentValue] = useState(

@@ -58,7 +58,32 @@ function navbarReducer(state: NavbarState, action: NavbarAction): NavbarState {
   }
 }
 
-export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
+function getCloseIconAnim(isOpen: boolean, isMotionReduced: boolean) {
+  if (isMotionReduced) {
+    return { opacity: isOpen ? 1 : 0, scale: 1, filter: "none" };
+  }
+  return {
+    opacity: isOpen ? 1 : 0,
+    scale: isOpen ? 1 : 0.25,
+    filter: isOpen ? "blur(0px)" : "blur(4px)",
+  };
+}
+
+function getMenuIconAnim(isOpen: boolean, isMotionReduced: boolean) {
+  if (isMotionReduced) {
+    return { opacity: isOpen ? 0 : 1, scale: 1, filter: "none" };
+  }
+  return {
+    opacity: isOpen ? 0 : 1,
+    scale: isOpen ? 0.25 : 1,
+    filter: isOpen ? "blur(4px)" : "blur(0px)",
+  };
+}
+
+export default function Navbar({
+  activeSection,
+  onNavClick,
+}: Readonly<NavbarProps>) {
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
   const isMotionReduced = !!prefersReducedMotion;
@@ -173,17 +198,17 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
     <>
       <div
         ref={localSentinelRef}
-        className="absolute top-[100px] left-0 w-px h-px pointer-events-none opacity-0"
+        className="pointer-events-none absolute top-[100px] left-0 h-px w-px opacity-0"
       />
       <nav
         aria-label="Main Navigation"
-        className="fixed top-0 left-0 right-0 z-50 flex flex-col items-center pt-4 md:pt-6 px-4 pointer-events-none"
+        className="pointer-events-none fixed top-0 right-0 left-0 z-50 flex flex-col items-center px-4 pt-4 md:pt-6"
       >
         <div
           className={cn(
-            "pointer-events-auto flex items-center justify-between md:justify-start gap-1 md:gap-1.5 rounded-full border border-white/10 bg-surface/40 p-[7px] navbar-capsule overflow-hidden isolate [transform:translateZ(0)] w-full max-w-[85vw] md:w-auto relative z-50 md:max-w-[95vw]",
+            "bg-surface/40 navbar-capsule pointer-events-auto relative isolate z-50 flex w-full max-w-[85vw] [transform:translateZ(0)] items-center justify-between gap-1 overflow-hidden rounded-full border border-white/10 p-[7px] md:w-auto md:max-w-[95vw] md:justify-start md:gap-1.5",
             isScrolling ? "backdrop-blur-[3px]" : "backdrop-blur-md",
-            scrolled && "border-white/20 bg-surface/60",
+            scrolled && "bg-surface/60 border-white/20",
           )}
         >
           <Tabs
@@ -205,7 +230,7 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
               tabIndex={0}
               highlightClassName="hidden md:block"
               className={cn(
-                "relative text-xs sm:text-sm rounded-full pl-1.5 md:pl-[9px] pr-3 md:pr-[15px] py-1.5 md:py-[9px] transition-colors duration-200 select-none z-10 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
+                "focus-visible:ring-accent/60 relative z-10 flex items-center gap-2 rounded-full py-1.5 pr-3 pl-1.5 text-xs transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset sm:text-sm md:py-[9px] md:pr-[15px] md:pl-[9px]",
                 active === "Home"
                   ? "text-text-primary"
                   : "text-muted hover:text-text-primary",
@@ -213,7 +238,7 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
               aria-label="Home"
               aria-current={active === "Home" ? "page" : undefined}
             >
-              <span className="relative size-6 rounded-full bg-bg flex items-center justify-center z-10 overflow-hidden border border-white/5 flex-shrink-0">
+              <span className="bg-bg relative z-10 flex size-6 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/5">
                 {avatarError ? (
                   <button
                     type="button"
@@ -222,7 +247,7 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
                       dispatch({ type: "SET_AVATAR_ERROR", error: false });
                     }}
                     title="Click to retry loading avatar"
-                    className="text-xs font-bold text-accent font-mono leading-none tracking-normal select-none hover:scale-105 transition-transform duration-200 ease-out cursor-pointer focus-visible:outline-none"
+                    className="text-accent cursor-pointer font-mono text-xs leading-none font-bold tracking-normal transition-transform duration-200 ease-out select-none hover:scale-105 focus-visible:outline-none"
                   >
                     OMO
                   </button>
@@ -235,25 +260,25 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
                     alt="Ondrej Michal Ockaj"
                     width="24"
                     height="24"
-                    className="w-full h-full object-cover"
+                    className="h-full w-full object-cover"
                   />
                 )}
               </span>
 
-              <span className="text-xs font-semibold leading-none whitespace-nowrap">
+              <span className="text-xs leading-none font-semibold whitespace-nowrap">
                 Ondrej Michal Očkaj
               </span>
             </Tab>
 
             {/* Nav links (Desktop Only) */}
-            <div className="hidden md:flex items-center gap-0.5">
+            <div className="hidden items-center gap-0.5 md:flex">
               {NAV_LINKS.map((link) => (
                 <Tab
                   key={link}
                   value={link}
                   tabIndex={0}
                   className={cn(
-                    "relative text-xs md:text-sm rounded-full px-3 md:px-[19px] py-1.5 md:py-[11px] transition-colors duration-200 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
+                    "focus-visible:ring-accent/60 relative z-10 rounded-full px-3 py-1.5 text-xs transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px] md:text-sm",
                     active === link
                       ? "text-text-primary"
                       : "text-muted hover:text-text-primary",
@@ -269,7 +294,7 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
                 value="Contact"
                 tabIndex={0}
                 className={cn(
-                  "relative text-xs md:text-sm rounded-full px-3 md:px-[19px] py-1.5 md:py-[11px] transition-colors duration-200 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
+                  "focus-visible:ring-accent/60 relative z-10 rounded-full px-3 py-1.5 text-xs transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px] md:text-sm",
                   active === "Contact"
                     ? "text-text-primary"
                     : "text-muted hover:text-text-primary",
@@ -291,19 +316,11 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
               aria-controls="mobile-nav-panel"
               className="size-11 p-0"
             >
-              <span className="relative size-4 flex items-center justify-center pointer-events-none">
+              <span className="pointer-events-none relative flex size-4 items-center justify-center">
                 <motion.span
                   className="absolute inset-0 flex items-center justify-center"
                   initial={false}
-                  animate={{
-                    opacity: isOpen ? 1 : 0,
-                    scale: isMotionReduced ? 1 : isOpen ? 1 : 0.25,
-                    filter: isMotionReduced
-                      ? "none"
-                      : isOpen
-                        ? "blur(0px)"
-                        : "blur(4px)",
-                  }}
+                  animate={getCloseIconAnim(isOpen, isMotionReduced)}
                   transition={
                     isMotionReduced ? { duration: 0.15 } : SPRING.snappyMenu
                   }
@@ -313,15 +330,7 @@ export default function Navbar({ activeSection, onNavClick }: NavbarProps) {
                 <motion.span
                   className="absolute inset-0 flex items-center justify-center"
                   initial={false}
-                  animate={{
-                    opacity: isOpen ? 0 : 1,
-                    scale: isMotionReduced ? 1 : isOpen ? 0.25 : 1,
-                    filter: isMotionReduced
-                      ? "none"
-                      : isOpen
-                        ? "blur(4px)"
-                        : "blur(0px)",
-                  }}
+                  animate={getMenuIconAnim(isOpen, isMotionReduced)}
                   transition={
                     isMotionReduced ? { duration: 0.15 } : SPRING.snappyMenu
                   }

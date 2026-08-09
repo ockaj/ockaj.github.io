@@ -14,18 +14,23 @@ const ZoomableImage = memo(function ZoomableImage({
   isZoomed,
   isPanning,
 }: ZoomableImageProps) {
+  let cursorStyle = "zoom-in";
+  if (isZoomed) {
+    cursorStyle = isPanning ? "grabbing" : "grab";
+  }
+
   return (
     <img
       src={src}
       alt={alt}
       style={{
-        cursor: isZoomed ? (isPanning ? "grabbing" : "grab") : "zoom-in",
+        cursor: cursorStyle,
       }}
       className={cn(
-        "max-w-full max-h-full object-contain select-none pointer-events-auto bg-white shadow-2xl border border-white/5 touch-none",
+        "pointer-events-auto max-h-full max-w-full touch-none border border-white/5 bg-white object-contain shadow-2xl select-none",
         isZoomed
-          ? "p-0 rounded-none border-none"
-          : "p-2 md:p-6 rounded-lg md:rounded-xl",
+          ? "rounded-none border-none p-0"
+          : "rounded-lg p-2 md:rounded-xl md:p-6",
       )}
       draggable={false}
     />

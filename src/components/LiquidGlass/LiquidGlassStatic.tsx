@@ -42,7 +42,7 @@ export default function LiquidGlassStatic({
   active = false,
   ref,
   ...rest
-}: LiquidGlassPropsWithRef) {
+}: Readonly<LiquidGlassPropsWithRef>) {
   const borderActiveClasses = active
     ? "border-white/[0.15] bg-white/[0.04]"
     : "border-white/[0.04] bg-white/[0.015]";

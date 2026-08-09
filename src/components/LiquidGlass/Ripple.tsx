@@ -14,7 +14,7 @@ function Ripple({
   rippleY,
   rippleRadius,
   rippleOpacity,
-}: RippleProps) {
+}: Readonly<RippleProps>) {
   return (
     <motion.span
       className="pointer-events-none absolute z-10 rounded-full bg-white mix-blend-screen blur-[6px]"

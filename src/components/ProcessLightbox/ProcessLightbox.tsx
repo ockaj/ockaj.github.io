@@ -32,24 +32,36 @@ const backdropVariants: Variants = {
   }),
 };
 
+function getDialogHiddenScale(custom: {
+  prefersReducedMotion: boolean;
+  isMobile: boolean;
+}) {
+  if (custom.prefersReducedMotion) return 1;
+  return custom.isMobile ? 0.92 : 0.96;
+}
+
+function getDialogVisibleTransition(custom: {
+  prefersReducedMotion: boolean;
+  isMobile: boolean;
+}) {
+  if (custom.prefersReducedMotion) return { duration: 0.15 };
+  return custom.isMobile ? SPRING.modalMobile : SPRING.modal;
+}
+
 const dialogVariants: Variants = {
   hidden: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
-    scale: custom.prefersReducedMotion ? 1 : custom.isMobile ? 0.92 : 0.96,
+    scale: getDialogHiddenScale(custom),
     opacity: 0,
     transition: custom.prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
   }),
   visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     scale: 1,
     opacity: 1,
-    transition: custom.prefersReducedMotion
-      ? { duration: 0.15 }
-      : custom.isMobile
-        ? SPRING.modalMobile
-        : SPRING.modal,
+    transition: getDialogVisibleTransition(custom),
   }),
 };
 
-function ProcessLightbox({ item, onClose }: ProcessLightboxProps) {
+function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
   const prefersReducedMotion = useReducedMotion();
 
   // Close lightbox on back swipe / browser back button
@@ -62,7 +74,10 @@ function ProcessLightbox({ item, onClose }: ProcessLightboxProps) {
 
   if (typeof document === "undefined") return null;
 
-  const cursorStyle = isZoomed ? (isPanning ? "grabbing" : "grab") : "zoom-in";
+  let cursorStyle = "zoom-in";
+  if (isZoomed) {
+    cursorStyle = isPanning ? "grabbing" : "grab";
+  }
 
   return (
     <Dialog.Root
@@ -81,7 +96,7 @@ function ProcessLightbox({ item, onClose }: ProcessLightboxProps) {
           onClick={onClose}
           render={
             <motion.div
-              className="fixed inset-0 z-[90] bg-black/80 backdrop-blur-md pointer-events-auto"
+              className="pointer-events-auto fixed inset-0 z-[90] bg-black/80 backdrop-blur-md"
               custom={{ prefersReducedMotion, isMobile }}
               variants={backdropVariants}
               initial="hidden"
@@ -95,7 +110,7 @@ function ProcessLightbox({ item, onClose }: ProcessLightboxProps) {
         <Dialog.Popup
           render={
             <motion.div
-              className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-6 touch-none pointer-events-auto"
+              className="pointer-events-auto fixed inset-0 z-[100] flex touch-none items-center justify-center p-0 md:p-6"
               custom={{ prefersReducedMotion, isMobile }}
               variants={dialogVariants}
               initial="hidden"
@@ -107,15 +122,15 @@ function ProcessLightbox({ item, onClose }: ProcessLightboxProps) {
           }
         >
           <div
-            className="relative max-w-7xl w-full h-[100dvh] md:h-auto md:aspect-[16/10] max-h-[100dvh] md:max-h-[85vh] rounded-none md:rounded-3xl overflow-hidden border-0 md:border border-white/10 flex flex-col bg-surface shadow-2xl"
+            className="bg-surface relative flex h-[100dvh] max-h-[100dvh] w-full max-w-7xl flex-col overflow-hidden rounded-none border-0 border-white/10 shadow-2xl md:aspect-[16/10] md:h-auto md:max-h-[85vh] md:rounded-3xl md:border"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Specular sheen header overlay matching CV modal */}
-            <div className="absolute top-0 left-0 right-0 h-28 pointer-events-none bg-gradient-to-b from-white/5 to-transparent z-20" />
+            <div className="pointer-events-none absolute top-0 right-0 left-0 z-20 h-28 bg-gradient-to-b from-white/5 to-transparent" />
             {/* Full Viewport for Diagram (Responsive flex) */}
             <div
               className={cn(
-                "flex-1 md:h-full w-full bg-surface overflow-hidden flex items-center justify-center relative touch-none",
+                "bg-surface relative flex w-full flex-1 touch-none items-center justify-center overflow-hidden md:h-full",
                 isZoomed ? "p-0" : "p-4 md:p-6",
               )}
             >
@@ -187,14 +202,14 @@ function ProcessLightbox({ item, onClose }: ProcessLightboxProps) {
             </div>
 
             {/* Bottom text info overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-20 pointer-events-none">
+            <div className="pointer-events-none absolute right-0 bottom-0 left-0 z-20 bg-gradient-to-t from-black/95 via-black/40 to-transparent p-5">
               <Dialog.Title
                 id="lightbox-title"
-                className="text-sm font-semibold text-white mb-1 text-balance"
+                className="mb-1 text-sm font-semibold text-balance text-white"
               >
                 {item.title}
               </Dialog.Title>
-              <p className="text-xs text-white/80 text-pretty">
+              <p className="text-xs text-pretty text-white/80">
                 {item.description}
               </p>
             </div>

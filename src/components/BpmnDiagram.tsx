@@ -4,11 +4,11 @@ interface BpmnDiagramProps {
   onTaskClick: (sectionId: string) => void;
 }
 
-function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
+function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
   return (
     <svg
       viewBox="0 0 1420 500"
-      className="min-w-[950px] w-full h-auto text-accent"
+      className="text-accent h-auto w-full min-w-[950px]"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
@@ -119,7 +119,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
 
       {/* Task: View Hero */}
       <g
-        className="cursor-pointer group/node focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 focus-visible:outline-solid"
+        className="group/node focus-visible:outline-accent cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid"
         tabIndex={0}
         role="button"
         aria-label="Navigate to Home section"
@@ -142,7 +142,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           strokeWidth="1.2"
           fill="#90D3FF"
           aria-hidden="true"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:fill-[#C0E6FF] group-hover/node:stroke-[#0D4A7A] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
         />
         <use
           href="#user-task-icon"
@@ -217,7 +217,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
 
       {/* Task: Browse Case Studies */}
       <g
-        className="cursor-pointer group/node focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 focus-visible:outline-solid"
+        className="group/node focus-visible:outline-accent cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid"
         tabIndex={0}
         role="button"
         aria-label="Navigate to Case Studies section"
@@ -240,7 +240,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           strokeWidth="1.2"
           fill="#90D3FF"
           aria-hidden="true"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:fill-[#C0E6FF] group-hover/node:stroke-[#0D4A7A] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
         />
         <use
           href="#user-task-icon"
@@ -267,7 +267,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
 
       {/* Task: Scan Competencies */}
       <g
-        className="cursor-pointer group/node focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 focus-visible:outline-solid"
+        className="group/node focus-visible:outline-accent cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid"
         tabIndex={0}
         role="button"
         aria-label="Navigate to Skills section"
@@ -290,7 +290,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           strokeWidth="1.2"
           fill="#90D3FF"
           aria-hidden="true"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:fill-[#C0E6FF] group-hover/node:stroke-[#0D4A7A] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
         />
         <use
           href="#user-task-icon"
@@ -317,7 +317,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
 
       {/* Task: Inspect Process Library */}
       <g
-        className="cursor-pointer group/node focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 focus-visible:outline-solid"
+        className="group/node focus-visible:outline-accent cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid"
         tabIndex={0}
         role="button"
         aria-label="Navigate to Process Models section"
@@ -340,7 +340,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           strokeWidth="1.2"
           fill="#90D3FF"
           aria-hidden="true"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:fill-[#C0E6FF] group-hover/node:stroke-[#0D4A7A] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
         />
         <use
           href="#user-task-icon"
@@ -367,7 +367,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
 
       {/* Task: Read Journal */}
       <g
-        className="cursor-pointer group/node focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 focus-visible:outline-solid"
+        className="group/node focus-visible:outline-accent cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid"
         tabIndex={0}
         role="button"
         aria-label="Navigate to Journal section"
@@ -390,7 +390,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           strokeWidth="1.2"
           fill="#90D3FF"
           aria-hidden="true"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#1060A0] group-hover/node:fill-[#A3DBFF] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:fill-[#A3DBFF] group-hover/node:stroke-[#1060A0] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
         />
         <use
           href="#user-task-icon"
@@ -505,7 +505,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
 
       {/* Task: Get In Touch */}
       <g
-        className="cursor-pointer group/node focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 focus-visible:outline-solid"
+        className="group/node focus-visible:outline-accent cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid"
         tabIndex={0}
         role="button"
         aria-label="Navigate to Contact section"
@@ -528,7 +528,7 @@ function BpmnDiagram({ onTaskClick }: BpmnDiagramProps) {
           strokeWidth="1.2"
           fill="#90D3FF"
           aria-hidden="true"
-          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:stroke-[#0D4A7A] group-hover/node:fill-[#C0E6FF] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
+          className="transition-[stroke,fill] duration-200 ease-out group-hover/node:fill-[#C0E6FF] group-hover/node:stroke-[#0D4A7A] group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2"
         />
         <use
           href="#user-task-icon"

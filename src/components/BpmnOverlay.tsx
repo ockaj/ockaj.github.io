@@ -18,7 +18,9 @@ const bpmnModalVariants = createModalVariants(15);
 
 const BPMN_KEYS = new Set(["b", "p", "m", "n"]);
 
-export default function BpmnOverlay({ onNavigate }: BpmnOverlayProps) {
+export default function BpmnOverlay({
+  onNavigate,
+}: Readonly<BpmnOverlayProps>) {
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);

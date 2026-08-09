@@ -15,7 +15,10 @@ const ZoomClickArea = memo(function ZoomClickArea({
   wasPanningRef,
 }: ZoomClickAreaProps) {
   const { resetTransform, centerView } = useControls();
-  const cursorStyle = isZoomed ? (isPanning ? "grabbing" : "grab") : "zoom-in";
+  let cursorStyle = "zoom-in";
+  if (isZoomed) {
+    cursorStyle = isPanning ? "grabbing" : "grab";
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === "Enter" || e.key === " ") {
@@ -34,7 +37,7 @@ const ZoomClickArea = memo(function ZoomClickArea({
       type="button"
       aria-label="Toggle Zoom"
       style={{ cursor: cursorStyle }}
-      className="w-full h-full flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent bg-transparent border-0 p-0 m-0"
+      className="focus-visible:ring-accent m-0 flex h-full w-full items-center justify-center border-0 bg-transparent p-0 focus-visible:ring-2 focus-visible:outline-none"
       onClick={(e) => {
         e.stopPropagation();
         if (wasPanningRef.current) return;

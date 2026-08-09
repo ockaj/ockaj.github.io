@@ -32,19 +32,35 @@ interface CustomAnimationProps {
   isMobile?: boolean;
 }
 
+function getTabHiddenX(props: CustomAnimationProps = {}) {
+  if (props.prefersReducedMotion) return 0;
+  if (props.isMobile) return 30 * (props.direction ?? 1);
+  return 0;
+}
+
+function getTabHiddenY(props: CustomAnimationProps = {}) {
+  if (props.prefersReducedMotion) return 0;
+  if (props.isMobile) return 0;
+  return 10 * (props.direction ?? 1);
+}
+
+function getTabExitX(props: CustomAnimationProps = {}) {
+  if (props.prefersReducedMotion) return 0;
+  if (props.isMobile) return -30 * (props.direction ?? 1);
+  return 0;
+}
+
+function getTabExitY(props: CustomAnimationProps = {}) {
+  if (props.prefersReducedMotion) return 0;
+  if (props.isMobile) return 0;
+  return -10 * (props.direction ?? 1);
+}
+
 const tabContentVariants: Variants = {
   hidden: (props: CustomAnimationProps = {}) => ({
     opacity: 0,
-    x: props.prefersReducedMotion
-      ? 0
-      : props.isMobile
-        ? 30 * (props.direction ?? 1)
-        : 0,
-    y: props.prefersReducedMotion
-      ? 0
-      : props.isMobile
-        ? 0
-        : 10 * (props.direction ?? 1),
+    x: getTabHiddenX(props),
+    y: getTabHiddenY(props),
     scale: props.prefersReducedMotion ? 1 : 0.99,
     transition: SPRING.exit,
   }),
@@ -57,16 +73,8 @@ const tabContentVariants: Variants = {
   },
   exit: (props: CustomAnimationProps = {}) => ({
     opacity: 0,
-    x: props.prefersReducedMotion
-      ? 0
-      : props.isMobile
-        ? -30 * (props.direction ?? 1)
-        : 0,
-    y: props.prefersReducedMotion
-      ? 0
-      : props.isMobile
-        ? 0
-        : -10 * (props.direction ?? 1),
+    x: getTabExitX(props),
+    y: getTabExitY(props),
     scale: props.prefersReducedMotion ? 1 : 0.99,
     transition: SPRING.exit,
   }),
@@ -227,23 +235,23 @@ function ProcessLibrary() {
           initial={isBuildMode ? "visible" : "hidden"}
           whileInView={isBuildMode ? undefined : "visible"}
           viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
-          className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-stretch relative z-20"
+          className="relative z-20 grid grid-cols-1 items-stretch gap-8 md:gap-12 lg:grid-cols-12"
         >
           {/* Left Column: Index Menu Selector (3 Core Process Topics) */}
           <motion.div
             variants={cardVariants}
             custom={prefersReducedMotion}
-            className="hidden lg:flex lg:col-span-5 flex-col justify-center w-full"
+            className="hidden w-full flex-col justify-center lg:col-span-5 lg:flex"
           >
             <div className="relative w-full">
-              <div className="-mx-6 px-6 md:-mx-10 md:px-10 lg:-mx-4 lg:px-4 py-2 lg:py-6 overflow-x-auto lg:overflow-y-auto lg:overflow-x-hidden lg:max-h-[360px] no-scrollbar process-tabs-mask overscroll-contain">
+              <div className="no-scrollbar process-tabs-mask -mx-6 overflow-x-auto overscroll-contain px-6 py-2 md:-mx-10 md:px-10 lg:-mx-4 lg:max-h-[360px] lg:overflow-x-hidden lg:overflow-y-auto lg:px-4 lg:py-6">
                 <Tabs
                   value={activeTopicId}
                   onChange={handleTopicChange}
                   layoutId="active-process-highlight"
                   squircle
                   roundedClass="rounded-2xl"
-                  className="flex flex-row lg:flex-col gap-2.5 justify-start lg:justify-center w-max lg:w-full"
+                  className="flex w-max flex-row justify-start gap-2.5 lg:w-full lg:flex-col lg:justify-center"
                 >
                   {PROCESS_TOPICS.map((topic, idx) => {
                     const isActive = activeTopicId === topic.id;
@@ -253,7 +261,7 @@ function ProcessLibrary() {
                         value={topic.id}
                         aria-controls={`tabpanel-${topic.id}`}
                         className={cn(
-                          "w-auto lg:w-full text-left relative px-5 py-3.5 lg:px-7 lg:py-4.5 rounded-2xl flex-shrink-0 transition-colors duration-300 flex items-center gap-3.5 select-none cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
+                          "group focus-visible:ring-accent/60 relative flex w-auto flex-shrink-0 cursor-pointer items-center gap-3.5 rounded-2xl px-5 py-3.5 text-left transition-colors duration-300 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset lg:w-full lg:px-7 lg:py-4.5",
                           isActive
                             ? "text-text-primary font-medium"
                             : "text-muted hover:text-text-primary",
@@ -262,10 +270,10 @@ function ProcessLibrary() {
                         {/* Badge Index */}
                         <span
                           className={cn(
-                            "relative z-10 text-xs font-body tabular-nums transition-colors duration-300 min-w-[20px]",
+                            "font-body relative z-10 min-w-[20px] text-xs tabular-nums transition-colors duration-300",
                             isActive
-                              ? "font-bold text-accent"
-                              : "font-medium text-muted/60 group-hover:text-muted",
+                              ? "text-accent font-bold"
+                              : "text-muted/60 group-hover:text-muted font-medium",
                           )}
                         >
                           {String(idx + 1).padStart(2, "0")}
@@ -273,10 +281,10 @@ function ProcessLibrary() {
 
                         {/* Metadata */}
                         <div className="relative z-10">
-                          <span className="block text-base font-semibold font-body transition-transform duration-300 group-hover:translate-x-0.5 whitespace-nowrap lg:whitespace-normal lg:text-balance line-clamp-1">
+                          <span className="font-body line-clamp-1 block text-base font-semibold whitespace-nowrap transition-transform duration-300 group-hover:translate-x-0.5 lg:text-balance lg:whitespace-normal">
                             {topic.title}
                           </span>
-                          <p className="text-xs text-muted/70 uppercase tracking-wider mt-0.5 transition-transform duration-300 group-hover:translate-x-0.5">
+                          <p className="text-muted/70 mt-0.5 text-xs tracking-wider uppercase transition-transform duration-300 group-hover:translate-x-0.5">
                             {topic.metrics ?? topic.category}
                           </p>
                         </div>
@@ -289,20 +297,20 @@ function ProcessLibrary() {
           </motion.div>
 
           {/* Mobile Column: Embla Carousel with 84% Card Width & Full-Bleed Edge Peek */}
-          <div className="lg:hidden col-span-1 flex flex-col justify-center w-full min-w-0">
+          <div className="col-span-1 flex w-full min-w-0 flex-col justify-center lg:hidden">
             <motion.div
               whileInView={
                 prefersReducedMotion ? undefined : { x: [0, -24, 0] }
               }
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
-              className="w-full flex flex-col"
+              className="flex w-full flex-col"
             >
               <div
-                className="-mx-6 px-6 sm:-mx-10 sm:px-10 overflow-hidden py-2"
+                className="-mx-6 overflow-hidden px-6 py-2 sm:-mx-10 sm:px-10"
                 ref={emblaRef}
               >
-                <div className="flex gap-4 sm:gap-6 touch-pan-y">
+                <div className="flex touch-pan-y gap-4 sm:gap-6">
                   {PROCESS_TOPICS.map((topic) => {
                     const cardViewMode = viewModes[topic.id] || "asis";
                     const cardVariant = topic[cardViewMode];
@@ -317,22 +325,22 @@ function ProcessLibrary() {
                     return (
                       <div
                         key={topic.id}
-                        className="flex-[0_0_96%] sm:flex-[0_0_92%] min-w-0"
+                        className="min-w-0 flex-[0_0_96%] sm:flex-[0_0_92%]"
                       >
                         <LiquidGlass
                           as="div"
                           roundedClass="rounded-2xl"
-                          className="w-full h-full p-6 sm:p-8 md:p-9 flex-col text-left justify-start items-stretch"
+                          className="h-full w-full flex-col items-stretch justify-start p-6 text-left sm:p-8 md:p-9"
                           innerClassName="flex flex-col flex-1 min-h-0"
                         >
                           {/* Card Header (100% Stationary Title & Segmented Control) */}
-                          <div className="mb-4 sm:mb-5 relative z-10 w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                            <h3 className="text-2xl sm:text-3xl font-display text-text-primary text-balance tracking-tight leading-tight">
+                          <div className="relative z-10 mb-4 flex w-full flex-col gap-3 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
+                            <h3 className="font-display text-text-primary text-2xl leading-tight tracking-tight text-balance sm:text-3xl">
                               {topic.asis.title}
                             </h3>
 
                             {/* Responsive HIG Compliant Segmented Control */}
-                            <div className="w-full sm:w-auto shrink-0">
+                            <div className="w-full shrink-0 sm:w-auto">
                               <Tabs
                                 value={cardViewMode}
                                 onChange={(val) =>
@@ -348,15 +356,15 @@ function ProcessLibrary() {
                                     "--base-radius": "10px",
                                   } as React.CSSProperties
                                 }
-                                className="w-full sm:w-auto h-11 inline-flex items-center bg-surface/80 backdrop-blur-md border border-white/10 p-1 rounded-xl shadow-md select-none isolate [transform:translateZ(0)]"
+                                className="bg-surface/80 isolate inline-flex h-11 w-full [transform:translateZ(0)] items-center rounded-xl border border-white/10 p-1 shadow-md backdrop-blur-md select-none sm:w-auto"
                                 highlightClassName="bg-white/15 border border-white/20 shadow-sm"
                               >
                                 <Tab
                                   value="asis"
                                   className={cn(
-                                    "flex-1 sm:flex-initial h-9 px-4 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer select-none flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+                                    "focus-visible:ring-accent flex h-9 flex-1 cursor-pointer items-center justify-center rounded-lg px-4 text-xs font-semibold tracking-wider uppercase transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none sm:flex-initial",
                                     cardViewMode === "asis"
-                                      ? "text-white font-bold"
+                                      ? "font-bold text-white"
                                       : "text-white/70 hover:text-white",
                                   )}
                                 >
@@ -365,9 +373,9 @@ function ProcessLibrary() {
                                 <Tab
                                   value="tobe"
                                   className={cn(
-                                    "flex-1 sm:flex-initial h-9 px-4 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer select-none flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+                                    "focus-visible:ring-accent flex h-9 flex-1 cursor-pointer items-center justify-center rounded-lg px-4 text-xs font-semibold tracking-wider uppercase transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none sm:flex-initial",
                                     cardViewMode === "tobe"
-                                      ? "text-white font-bold"
+                                      ? "font-bold text-white"
                                       : "text-white/70 hover:text-white",
                                   )}
                                 >
@@ -385,13 +393,13 @@ function ProcessLibrary() {
                               animate="visible"
                               exit="exit"
                               variants={innerContentVariants}
-                              className="w-full flex-1 flex flex-col justify-start"
+                              className="flex w-full flex-1 flex-col justify-start"
                             >
                               {/* Blueprint Stage */}
-                              <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden border border-white/10 bg-white flex items-center justify-center mb-4 sm:mb-5 select-none group/canvas">
+                              <div className="group/canvas relative mb-4 flex aspect-[16/10] w-full items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white select-none sm:mb-5">
                                 <button
                                   type="button"
-                                  className="w-full h-full p-3 sm:p-4 flex items-center justify-center cursor-zoom-in focus-visible:outline-none"
+                                  className="flex h-full w-full cursor-zoom-in items-center justify-center p-3 focus-visible:outline-none sm:p-4"
                                   onClick={() => setLightboxItem(cardItem)}
                                   aria-label={`Zoom diagram: ${cardVariant.title}`}
                                 >
@@ -400,13 +408,13 @@ function ProcessLibrary() {
                                     alt={cardVariant.title}
                                     width={800}
                                     height={500}
-                                    className="w-full h-full object-contain rounded-lg"
+                                    className="h-full w-full rounded-lg object-contain"
                                     loading="lazy"
                                   />
                                 </button>
                                 {/* Tactile Glass Expand Affordance Badge */}
-                                <div className="absolute bottom-2.5 right-2.5 z-10 pointer-events-none">
-                                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface/80 backdrop-blur-md border border-white/15 text-xs font-semibold text-text-primary shadow-xl transition-all duration-200 group-hover/canvas:border-accent/60 group-hover/canvas:text-accent">
+                                <div className="pointer-events-none absolute right-2.5 bottom-2.5 z-10">
+                                  <span className="bg-surface/80 text-text-primary group-hover/canvas:border-accent/60 group-hover/canvas:text-accent inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-3 py-1.5 text-xs font-semibold shadow-xl backdrop-blur-md transition-all duration-200">
                                     <Maximize2
                                       size={12}
                                       className="text-accent"
@@ -420,11 +428,11 @@ function ProcessLibrary() {
                               <div className="relative z-10 flex flex-col gap-2.5">
                                 <div className="flex items-center gap-2">
                                   <Sparkles size={14} className="text-accent" />
-                                  <span className="text-xs font-bold uppercase tracking-wider text-accent font-body">
+                                  <span className="text-accent font-body text-xs font-bold tracking-wider uppercase">
                                     Operational Insight
                                   </span>
                                 </div>
-                                <p className="text-sm text-text-primary/90 leading-relaxed text-pretty line-clamp-3">
+                                <p className="text-text-primary/90 line-clamp-3 text-sm leading-relaxed text-pretty">
                                   {cardVariant.description}
                                 </p>
                                 {cardVariant.specTags &&
@@ -433,7 +441,7 @@ function ProcessLibrary() {
                                       {cardVariant.specTags.map((tag) => (
                                         <span
                                           key={tag}
-                                          className="text-xs bg-white/5 text-muted rounded-full px-3 py-1 border border-white/10 transition-colors select-none"
+                                          className="text-muted rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs transition-colors select-none"
                                         >
                                           {tag}
                                         </span>
@@ -456,7 +464,7 @@ function ProcessLibrary() {
           <motion.div
             variants={cardVariants}
             custom={prefersReducedMotion}
-            className="hidden lg:flex lg:col-span-7 flex-col justify-center w-full min-w-0"
+            className="hidden w-full min-w-0 flex-col justify-center lg:col-span-7 lg:flex"
           >
             {/* Outer AnimatePresence: Original full card animation when switching TOPICS */}
             <AnimatePresence
@@ -474,22 +482,22 @@ function ProcessLibrary() {
                 animate="visible"
                 exit="exit"
                 variants={tabContentVariants}
-                className="w-full h-full flex flex-col"
+                className="flex h-full w-full flex-col"
               >
                 <LiquidGlass
                   as="div"
                   roundedClass="rounded-2xl"
-                  className="w-full h-full p-5 sm:p-7 md:p-8 flex-col text-left justify-start items-stretch touch-pan-y"
+                  className="h-full w-full touch-pan-y flex-col items-stretch justify-start p-5 text-left sm:p-7 md:p-8"
                   tilt
                 >
                   {/* Canvas Header */}
-                  <div className="mb-5 sm:mb-6 relative z-10 w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <h3 className="text-2xl sm:text-3xl font-display text-text-primary text-balance tracking-tight leading-tight">
+                  <div className="relative z-10 mb-5 flex w-full flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
+                    <h3 className="font-display text-text-primary text-2xl leading-tight tracking-tight text-balance sm:text-3xl">
                       {activeTopic.asis.title}
                     </h3>
 
                     {/* View Mode Segmented Control */}
-                    <div className="self-start sm:self-auto shrink-0">
+                    <div className="shrink-0 self-start sm:self-auto">
                       <Tabs
                         value={activeViewMode}
                         onChange={(val) =>
@@ -503,15 +511,15 @@ function ProcessLibrary() {
                         highlightStyle={
                           { "--base-radius": "8px" } as React.CSSProperties
                         }
-                        className="inline-flex items-center bg-surface/90 backdrop-blur-md border border-white/10 p-[4px] rounded-xl shadow-lg select-none isolate [transform:translateZ(0)]"
+                        className="bg-surface/90 isolate inline-flex [transform:translateZ(0)] items-center rounded-xl border border-white/10 p-[4px] shadow-lg backdrop-blur-md select-none"
                         highlightClassName="bg-white/15 border border-white/20 shadow-md"
                       >
                         <Tab
                           value="asis"
                           className={cn(
-                            "relative h-7 sm:h-8.5 px-3 sm:px-4 rounded-lg text-[11px] sm:text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer select-none flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-black before:absolute before:-inset-y-1.5 before:inset-x-0",
+                            "focus-visible:ring-accent relative flex h-7 cursor-pointer items-center justify-center rounded-lg px-3 text-[11px] font-semibold tracking-wider uppercase transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none sm:h-8.5 sm:px-4 sm:text-xs",
                             activeViewMode === "asis"
-                              ? "text-white font-bold"
+                              ? "font-bold text-white"
                               : "text-white/70 hover:text-white",
                           )}
                         >
@@ -520,9 +528,9 @@ function ProcessLibrary() {
                         <Tab
                           value="tobe"
                           className={cn(
-                            "relative h-7 sm:h-8.5 px-3 sm:px-4 rounded-lg text-[11px] sm:text-xs font-semibold uppercase tracking-wider transition-colors duration-200 cursor-pointer select-none flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-black before:absolute before:-inset-y-1.5 before:inset-x-0",
+                            "focus-visible:ring-accent relative flex h-7 cursor-pointer items-center justify-center rounded-lg px-3 text-[11px] font-semibold tracking-wider uppercase transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none sm:h-8.5 sm:px-4 sm:text-xs",
                             activeViewMode === "tobe"
-                              ? "text-white font-bold"
+                              ? "font-bold text-white"
                               : "text-white/70 hover:text-white",
                           )}
                         >
@@ -545,14 +553,14 @@ function ProcessLibrary() {
                       animate="visible"
                       exit="exit"
                       variants={innerContentVariants}
-                      className="w-full flex-1 flex flex-col justify-between"
+                      className="flex w-full flex-1 flex-col justify-between"
                     >
                       {/* Seamless Blueprint Stage (Pure Canvas Sheet with Optical Spacing) */}
-                      <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden border border-white/10 bg-white flex items-center justify-center mb-6 sm:mb-7 select-none group/canvas transition-all duration-300 hover:border-white/25">
+                      <div className="group/canvas relative mb-6 flex aspect-[16/10] w-full items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white transition-all duration-300 select-none hover:border-white/25 sm:mb-7">
                         {/* Image Zoom Trigger Button */}
                         <button
                           type="button"
-                          className="w-full h-full min-h-[44px] p-4 sm:p-6 md:p-7 flex items-center justify-center cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                          className="focus-visible:ring-accent flex h-full min-h-[44px] w-full cursor-zoom-in items-center justify-center p-4 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none sm:p-6 md:p-7"
                           onClick={() =>
                             setLightboxItem({
                               id: activeTopic.id,
@@ -569,13 +577,13 @@ function ProcessLibrary() {
                             alt={activeVariant.title}
                             width={800}
                             height={500}
-                            className="w-full h-full object-contain rounded-lg transition-transform duration-300 ease-out group-hover/canvas:scale-[1.015]"
+                            className="h-full w-full rounded-lg object-contain transition-transform duration-300 ease-out group-hover/canvas:scale-[1.015]"
                             loading="lazy"
                           />
                         </button>
                         {/* Tactile Glass Expand Affordance Badge */}
-                        <div className="absolute bottom-3 right-3 z-10 pointer-events-none">
-                          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-surface/80 backdrop-blur-md border border-white/15 text-xs font-semibold text-text-primary shadow-xl transition-all duration-200 group-hover/canvas:border-accent/60 group-hover/canvas:text-accent group-hover/canvas:scale-105">
+                        <div className="pointer-events-none absolute right-3 bottom-3 z-10">
+                          <span className="bg-surface/80 text-text-primary group-hover/canvas:border-accent/60 group-hover/canvas:text-accent inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-3.5 py-1.5 text-xs font-semibold shadow-xl backdrop-blur-md transition-all duration-200 group-hover/canvas:scale-105">
                             <Maximize2 size={13} className="text-accent" />
                             <span>Expand Diagram</span>
                           </span>
@@ -587,12 +595,12 @@ function ProcessLibrary() {
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex items-center gap-2">
                             <Sparkles size={14} className="text-accent" />
-                            <span className="text-xs font-bold uppercase tracking-wider text-accent font-body">
+                            <span className="text-accent font-body text-xs font-bold tracking-wider uppercase">
                               Operational Insight
                             </span>
                           </div>
                         </div>
-                        <p className="text-sm text-text-primary/90 leading-relaxed text-pretty">
+                        <p className="text-text-primary/90 text-sm leading-relaxed text-pretty">
                           {activeVariant.description}
                         </p>
                         {activeVariant.specTags &&
@@ -609,7 +617,7 @@ function ProcessLibrary() {
                                   key={tag}
                                   variants={tagItemVariants}
                                   custom={{ prefersReducedMotion }}
-                                  className="text-xs bg-white/5 text-muted rounded-full px-3 py-1 border border-white/10 transition-colors hover:border-white/20 hover:text-text-primary select-none"
+                                  className="text-muted hover:text-text-primary rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs transition-colors select-none hover:border-white/20"
                                 >
                                   {tag}
                                 </motion.span>
@@ -625,7 +633,7 @@ function ProcessLibrary() {
           </motion.div>
 
           {/* Mobile Topic Selector (Sleek Glass Dock with Left/Right Buttons) */}
-          <div className="lg:hidden flex justify-center w-full">
+          <div className="flex w-full justify-center lg:hidden">
             <LiquidGlass
               as="div"
               roundedClass="rounded-full"
@@ -637,14 +645,14 @@ function ProcessLibrary() {
                 onClick={handlePrevTopic}
                 disabled={activeTopicId === PROCESS_TOPICS[0].id}
                 roundedClass="rounded-full"
-                className="size-[44px] min-h-[44px] min-w-[44px] flex items-center justify-center text-text-primary disabled:opacity-30 disabled:pointer-events-none transition-opacity flex-shrink-0 cursor-pointer"
+                className="text-text-primary flex size-[44px] min-h-[44px] min-w-[44px] flex-shrink-0 cursor-pointer items-center justify-center transition-opacity disabled:pointer-events-none disabled:opacity-30"
                 aria-label="Previous process topic"
               >
                 <ChevronLeft size={18} />
               </LiquidGlassButton>
 
               {/* Center Counter */}
-              <span className="text-xs font-body tabular-nums flex items-center gap-1 leading-none select-none px-1.5">
+              <span className="font-body flex items-center gap-1 px-1.5 text-xs leading-none tabular-nums select-none">
                 <span className="text-accent font-bold">
                   {String(activeTopic.id).padStart(2, "0")}
                 </span>
@@ -661,7 +669,7 @@ function ProcessLibrary() {
                   activeTopicId === PROCESS_TOPICS[PROCESS_TOPICS.length - 1].id
                 }
                 roundedClass="rounded-full"
-                className="size-[44px] min-h-[44px] min-w-[44px] flex items-center justify-center text-text-primary disabled:opacity-30 disabled:pointer-events-none transition-opacity flex-shrink-0 cursor-pointer"
+                className="text-text-primary flex size-[44px] min-h-[44px] min-w-[44px] flex-shrink-0 cursor-pointer items-center justify-center transition-opacity disabled:pointer-events-none disabled:opacity-30"
                 aria-label="Next process topic"
               >
                 <ChevronRight size={18} />

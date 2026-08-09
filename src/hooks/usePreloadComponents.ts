@@ -9,6 +9,24 @@ import {
   loadBpmnOverlay,
 } from "../lazyComponents";
 
+function yieldToMain(
+  activeTimeouts: Set<ReturnType<typeof setTimeout>>,
+): Promise<void> {
+  const scheduler = (
+    window as Window & { scheduler?: { yield: () => Promise<void> } }
+  ).scheduler;
+  if (typeof scheduler?.yield === "function") {
+    return scheduler.yield();
+  }
+  return new Promise<void>((resolve) => {
+    const id = setTimeout(() => {
+      activeTimeouts.delete(id);
+      resolve();
+    }, 0);
+    activeTimeouts.add(id);
+  });
+}
+
 export function usePreloadComponents(isMobile: boolean): void {
   useEffect(() => {
     if (isSlowConnection()) return;
@@ -17,23 +35,6 @@ export function usePreloadComponents(isMobile: boolean): void {
     let idleId: number | null = null;
     let timeoutId: number | null = null;
     const activeTimeouts = new Set<ReturnType<typeof setTimeout>>();
-
-    const yieldToMain = async () => {
-      const scheduler = (
-        window as Window & { scheduler?: { yield: () => Promise<void> } }
-      ).scheduler;
-      if (typeof scheduler?.yield === "function") {
-        await scheduler.yield();
-      } else {
-        await new Promise<void>((resolve) => {
-          const id = setTimeout(() => {
-            activeTimeouts.delete(id);
-            resolve();
-          }, 0);
-          activeTimeouts.add(id);
-        });
-      }
-    };
 
     const preloadAll = async () => {
       const queue = [
@@ -53,7 +54,7 @@ export function usePreloadComponents(isMobile: boolean): void {
         if (!active) break;
         if (item.loader.getReady()) continue;
         item.loader.load().catch(() => {});
-        await yieldToMain();
+        await yieldToMain(activeTimeouts);
       }
 
       if (import.meta.env.DEV) {

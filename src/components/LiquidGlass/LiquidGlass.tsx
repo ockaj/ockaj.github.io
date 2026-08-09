@@ -10,7 +10,6 @@ import {
   type PointerEvent,
   type MouseEvent,
   type KeyboardEvent,
-  type MutableRefObject,
   type MouseEventHandler,
   type Ref,
   type ElementType,
@@ -114,11 +113,11 @@ function InnerBorderOverlay({
   borderActiveClasses,
   roundedClass,
   style,
-}: {
+}: Readonly<{
   borderActiveClasses: string;
   roundedClass: string;
   style: CSSProperties;
-}) {
+}>) {
   return (
     <span
       className={cn(
@@ -138,14 +137,14 @@ function SpecularGlowOverlay({
   lagX,
   lagY,
   springOpacity,
-}: {
+}: Readonly<{
   roundedClass: string;
   springX: MotionValue<number>;
   springY: MotionValue<number>;
   lagX: MotionValue<number>;
   lagY: MotionValue<number>;
   springOpacity: MotionValue<number>;
-}) {
+}>) {
   return (
     <span
       className={cn(
@@ -177,7 +176,59 @@ function SpecularGlowOverlay({
   );
 }
 
-function LiquidGlassMobile(props: LiquidGlassPropsWithRef) {
+const TAG_MAP: Record<string, ElementType> = {
+  a: motion.a,
+  button: motion.button,
+  div: motion.div,
+  span: motion.span,
+  article: motion.article,
+  section: motion.section,
+};
+
+function setupTagProps(
+  href: string | undefined,
+  as: string,
+  download: string | undefined,
+  target: string | undefined,
+  rel: string | undefined,
+  onClick: unknown,
+  handleKeyDown: (e: KeyboardEvent<HTMLElement>) => void,
+  baseClasses: string,
+  tagStyle: CSSProperties | MotionStyle,
+  ariaLabel?: string,
+  sharedAnimationProps?: Record<string, unknown>,
+  domProps?: Record<string, unknown>,
+): LiquidGlassTagProps {
+  const tagProps: LiquidGlassTagProps = {
+    className: baseClasses,
+    style: tagStyle,
+    "aria-label": ariaLabel,
+    ...sharedAnimationProps,
+    ...domProps,
+  };
+
+  if (href) {
+    tagProps.href = href;
+    tagProps.download = download;
+    tagProps.target = target;
+    tagProps.rel = rel;
+    tagProps.onClick = onClick as MouseEventHandler<HTMLAnchorElement>;
+  } else if (as === "button") {
+    tagProps.type = "button";
+    tagProps.onClick = onClick as MouseEventHandler<HTMLButtonElement>;
+  } else if (onClick) {
+    tagProps.onClick = onClick as MouseEventHandler<HTMLElement>;
+    if (as !== "a" && (as as string) !== "button") {
+      tagProps.tabIndex = 0;
+      tagProps.onKeyDown = handleKeyDown;
+      tagProps.role = "button";
+    }
+  }
+
+  return tagProps;
+}
+
+function LiquidGlassMobile(props: Readonly<LiquidGlassPropsWithRef>) {
   const {
     children,
     as = "div",
@@ -227,8 +278,8 @@ function LiquidGlassMobile(props: LiquidGlassPropsWithRef) {
       if (!ref) return;
       if (typeof ref === "function") {
         ref(node);
-      } else {
-        (ref as MutableRefObject<HTMLElement | null>).current = node;
+      } else if (ref && "current" in ref) {
+        (ref as { current: HTMLElement | null }).current = node;
       }
     },
     [ref],
@@ -312,6 +363,8 @@ function LiquidGlassMobile(props: LiquidGlassPropsWithRef) {
     innerClassName,
   );
 
+  const rendersRipple = interactive && effectiveSpringScale && effectiveRipple;
+
   const innerElements = (
     <>
       <InnerBorderOverlay
@@ -319,52 +372,34 @@ function LiquidGlassMobile(props: LiquidGlassPropsWithRef) {
         roundedClass={roundedClass}
         style={innerGlassStyle}
       />
-      {interactive ? (
-        effectiveSpringScale && effectiveRipple ? (
-          <Ripple
-            rippleX={rippleX}
-            rippleY={rippleY}
-            rippleRadius={rippleRadius}
-            rippleOpacity={rippleOpacity}
-          />
-        ) : null
+      {rendersRipple ? (
+        <Ripple
+          rippleX={rippleX}
+          rippleY={rippleY}
+          rippleRadius={rippleRadius}
+          rippleOpacity={rippleOpacity}
+        />
       ) : null}
 
       <ContentTag className={contentClasses}>{children}</ContentTag>
     </>
   );
 
-  const Tag = href
-    ? motion.a
-    : as === "button"
-      ? motion.button
-      : (motion as unknown as Record<string, ElementType>)[as];
-
-  const tagProps: LiquidGlassTagProps = {
-    className: baseClasses,
-    style: tagStyle,
-    "aria-label": ariaLabel,
-    ...sharedAnimationProps,
-    ...domProps,
-  };
-
-  if (href) {
-    tagProps.href = href;
-    tagProps.download = download;
-    tagProps.target = target;
-    tagProps.rel = rel;
-    tagProps.onClick = onClick as MouseEventHandler<HTMLAnchorElement>;
-  } else if (as === "button") {
-    tagProps.type = "button";
-    tagProps.onClick = onClick as MouseEventHandler<HTMLButtonElement>;
-  } else if (onClick) {
-    tagProps.onClick = onClick;
-    if (as !== "a" && (as as string) !== "button") {
-      tagProps.tabIndex = 0;
-      tagProps.onKeyDown = handleKeyDown;
-      tagProps.role = "button";
-    }
-  }
+  const Tag = href ? motion.a : (TAG_MAP[as] ?? motion.div);
+  const tagProps = setupTagProps(
+    href,
+    as,
+    download,
+    target,
+    rel,
+    onClick,
+    handleKeyDown,
+    baseClasses,
+    tagStyle,
+    ariaLabel,
+    sharedAnimationProps,
+    domProps,
+  );
 
   return (
     <Tag ref={handleRef} {...tagProps}>
@@ -400,7 +435,7 @@ function LiquidGlassDesktop({
   specularGlow = false,
   ref,
   ...rest
-}: LiquidGlassPropsWithRef) {
+}: Readonly<LiquidGlassPropsWithRef>) {
   const prefersReducedMotion = useReducedMotion();
   const isMotionReduced = !!prefersReducedMotion;
   const effectiveMagnetic = magnetic && !isMotionReduced;
@@ -426,8 +461,8 @@ function LiquidGlassDesktop({
       if (!ref) return;
       if (typeof ref === "function") {
         ref(node);
-      } else {
-        (ref as MutableRefObject<HTMLElement | null>).current = node;
+      } else if (ref && "current" in ref) {
+        (ref as { current: HTMLElement | null }).current = node;
       }
     },
     [ref],
@@ -628,6 +663,10 @@ function LiquidGlassDesktop({
     innerClassName,
   );
 
+  const rendersFullEffects = interactive && !isMotionReduced;
+  const rendersReducedRipple =
+    interactive && isMotionReduced && effectiveSpringScale && effectiveRipple;
+
   const innerElements = (
     <>
       <InnerBorderOverlay
@@ -635,7 +674,7 @@ function LiquidGlassDesktop({
         roundedClass={roundedClass}
         style={innerGlassStyle}
       />
-      {interactive && !isMotionReduced ? (
+      {rendersFullEffects && (
         <>
           <SpecularGlowOverlay
             roundedClass={roundedClass}
@@ -646,14 +685,14 @@ function LiquidGlassDesktop({
             springOpacity={springOpacity}
           />
 
-          {effectiveSpringScale && effectiveRipple ? (
+          {effectiveSpringScale && effectiveRipple && (
             <Ripple
               rippleX={rippleX}
               rippleY={rippleY}
               rippleRadius={rippleRadius}
               rippleOpacity={rippleOpacity}
             />
-          ) : null}
+          )}
 
           <motion.span
             className={cn(
@@ -663,52 +702,35 @@ function LiquidGlassDesktop({
             style={{ background: borderGradient, mixBlendMode: "overlay" }}
           />
         </>
-      ) : interactive && isMotionReduced ? (
-        effectiveSpringScale && effectiveRipple ? (
-          <Ripple
-            rippleX={rippleX}
-            rippleY={rippleY}
-            rippleRadius={rippleRadius}
-            rippleOpacity={rippleOpacity}
-          />
-        ) : null
-      ) : null}
+      )}
+      {rendersReducedRipple && (
+        <Ripple
+          rippleX={rippleX}
+          rippleY={rippleY}
+          rippleRadius={rippleRadius}
+          rippleOpacity={rippleOpacity}
+        />
+      )}
 
       <ContentTag className={contentClasses}>{children}</ContentTag>
     </>
   );
 
-  const Tag = href
-    ? motion.a
-    : as === "button"
-      ? motion.button
-      : (motion as unknown as Record<string, ElementType>)[as];
-
-  const tagProps: LiquidGlassTagProps = {
-    className: baseClasses,
-    style: tagStyle,
-    "aria-label": ariaLabel,
-    ...sharedAnimationProps,
-    ...rest,
-  };
-
-  if (href) {
-    tagProps.href = href;
-    tagProps.download = download;
-    tagProps.target = target;
-    tagProps.rel = rel;
-    tagProps.onClick = onClick as MouseEventHandler<HTMLAnchorElement>;
-  } else if (as === "button") {
-    tagProps.type = "button";
-    tagProps.onClick = onClick as MouseEventHandler<HTMLButtonElement>;
-  } else if (onClick) {
-    tagProps.onClick = onClick;
-    if (as !== "a" && (as as string) !== "button") {
-      tagProps.tabIndex = 0;
-      tagProps.onKeyDown = handleKeyDown;
-      tagProps.role = "button";
-    }
-  }
+  const Tag = href ? motion.a : (TAG_MAP[as] ?? motion.div);
+  const tagProps = setupTagProps(
+    href,
+    as,
+    download,
+    target,
+    rel,
+    onClick,
+    handleKeyDown,
+    baseClasses,
+    tagStyle,
+    ariaLabel,
+    sharedAnimationProps,
+    rest,
+  );
 
   return (
     <Tag ref={handleRef} {...tagProps}>
@@ -757,7 +779,7 @@ function LiquidGlassButtonComponent({
   tiltStrength,
   ref,
   ...rest
-}: LiquidGlassButtonPropsWithRef) {
+}: Readonly<LiquidGlassButtonPropsWithRef>) {
   return (
     <LiquidGlass
       ref={ref}

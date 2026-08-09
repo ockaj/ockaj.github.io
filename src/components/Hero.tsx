@@ -162,7 +162,7 @@ const arrowVariants: Variants = {
   },
 };
 
-function Hero({ onViewCv, onViewWork }: HeroProps) {
+function Hero({ onViewCv, onViewWork }: Readonly<HeroProps>) {
   const [roleIndex, setRoleIndex] = useState(0);
   const { scrollY } = useScroll();
   const prefersReducedMotion = useReducedMotion();
@@ -179,18 +179,18 @@ function Hero({ onViewCv, onViewWork }: HeroProps) {
   }, []);
 
   return (
-    <section className="relative w-full min-h-[100svh] overflow-hidden flex items-center justify-center pt-24 pb-28 md:py-0">
+    <section className="relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden pt-24 pb-28 md:py-0">
       <motion.div
         custom={prefersReducedMotion}
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 flex flex-col items-center text-center md:items-start md:text-left px-6 md:px-16 lg:px-24 max-w-[1400px] mx-auto w-full"
+        className="relative z-10 mx-auto flex w-full max-w-[1400px] flex-col items-center px-6 text-center md:items-start md:px-16 md:text-left lg:px-24"
       >
         {/* Eyebrow */}
         <motion.p
           variants={itemVariants}
-          className="text-xs text-muted uppercase font-semibold mb-8 text-pretty flex items-center gap-1.5"
+          className="text-muted mb-8 flex items-center gap-1.5 text-xs font-semibold text-pretty uppercase"
         >
           <BpmnNodeBadge type="start-event-none" />
           Business Analyst Portfolio
@@ -199,7 +199,7 @@ function Hero({ onViewCv, onViewWork }: HeroProps) {
         {/* Name */}
         <motion.h1
           variants={nameVariants}
-          className="text-[clamp(3.5rem,8vw,6.0rem)] font-display italic leading-[1.1] pb-2 text-text-primary mb-6 text-balance"
+          className="font-display text-text-primary mb-6 pb-2 text-[clamp(3.5rem,8vw,6.0rem)] leading-[1.1] text-balance italic"
         >
           Ondrej Michal Očkaj
         </motion.h1>
@@ -207,15 +207,15 @@ function Hero({ onViewCv, onViewWork }: HeroProps) {
         {/* Role line */}
         <motion.p
           variants={itemVariants}
-          className="text-sm md:text-base text-muted mb-4 text-pretty max-w-xl"
+          className="text-muted mb-4 max-w-xl text-sm text-pretty md:text-base"
         >
           <span className="block sm:inline">
             Based in Slovakia, working as a{" "}
           </span>
-          <span className="inline-block text-text-primary font-semibold whitespace-nowrap">
+          <span className="text-text-primary inline-block font-semibold whitespace-nowrap">
             Business Analyst
           </span>
-          <span className="inline-block text-text-primary font-semibold whitespace-nowrap ml-1">
+          <span className="text-text-primary ml-1 inline-block font-semibold whitespace-nowrap">
             &amp;{" "}
             <SlotText
               text={SPECIALIZATIONS[roleIndex] + "."}
@@ -234,7 +234,7 @@ function Hero({ onViewCv, onViewWork }: HeroProps) {
         {/* Description */}
         <motion.p
           variants={itemVariants}
-          className="text-sm md:text-base text-muted max-w-md mb-12 text-pretty"
+          className="text-muted mb-12 max-w-md text-sm text-pretty md:text-base"
         >
           Specializing in process analysis, BPMN modeling, and digital
           transformation solutions for enterprises.
@@ -243,7 +243,7 @@ function Hero({ onViewCv, onViewWork }: HeroProps) {
         {/* CTA Buttons */}
         <motion.div
           variants={itemVariants}
-          className="inline-flex gap-4 flex-wrap justify-center md:justify-start"
+          className="inline-flex flex-wrap justify-center gap-4 md:justify-start"
         >
           <span
             onMouseEnter={preloadPdfModal}
@@ -288,7 +288,7 @@ function Hero({ onViewCv, onViewWork }: HeroProps) {
       <motion.a
         href="#work"
         aria-label="Scroll process flow"
-        className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2.5 z-20 cursor-pointer select-none group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-xl"
+        className="group focus-visible:ring-accent/60 absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 cursor-pointer flex-col items-center gap-2.5 rounded-xl select-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none md:bottom-8"
         style={{ opacity: scrollOpacity, y: scrollYOffset }}
         variants={scrollIndicatorVariants}
         initial="initial"
@@ -300,7 +300,7 @@ function Hero({ onViewCv, onViewWork }: HeroProps) {
           onViewWork();
         }}
       >
-        <span className="text-xs text-muted/90 group-hover:text-accent uppercase font-semibold tracking-[0.25em] transition-colors duration-300">
+        <span className="text-muted/90 group-hover:text-accent text-xs font-semibold tracking-[0.25em] uppercase transition-colors duration-300">
           Flow
         </span>
         <svg

@@ -56,13 +56,15 @@ interface LiquidGlassTabPanelProps extends HTMLAttributes<HTMLDivElement> {
   children?: ReactNode;
 }
 
+type TabValue = string | number;
+
 interface TabsContextValue {
-  value: string | number;
-  onChange?: (value: string | number) => void;
+  value: TabValue;
+  onChange?: (value: TabValue) => void;
   layoutId: string;
   hoverStore: {
-    get: () => string | number | null;
-    set: (val: string | number | null) => void;
+    get: () => TabValue | null;
+    set: (val: TabValue | null) => void;
     subscribe: (listener: () => void) => () => void;
   };
   hoverSlide: boolean;
@@ -83,7 +85,7 @@ function useTabsContext() {
   return context;
 }
 
-function TabsInner<T extends string | number>({
+function TabsInner<T extends TabValue>({
   value,
   onChange,
   layoutId,
@@ -97,7 +99,7 @@ function TabsInner<T extends string | number>({
   highlightStyle = DEFAULT_STYLE,
   style,
   ...rest
-}: LiquidGlassTabsProps<T>) {
+}: Readonly<LiquidGlassTabsProps<T>>) {
   const hoverStore = useMemo(() => {
     const ref = { current: null as string | number | null };
     const listeners = new Set<() => void>();
@@ -199,7 +201,64 @@ const handleTabKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
   nextTab.click();
 };
 
-// hoist static layout transition to prevent new object recreation on each render of Tab
+function computeTargetScales(
+  isPressed: boolean,
+  isNavbarActive: boolean,
+  isMobileNav: boolean,
+  dimensions: { width: number; height: number },
+) {
+  const tapDeltaX = isMobileNav
+    ? scaleDeltas.tap.mobile
+    : scaleDeltas.tap.desktop;
+
+  const delta = isMobileNav ? hoverDelta.mobile : hoverDelta.desktop;
+  const pillWidth = dimensions.width;
+  const pillHeight = dimensions.height;
+
+  const hoverScaleX = 1 + (2 * delta) / pillWidth;
+  const hoverScaleY = 1 + (2 * delta) / pillHeight;
+
+  const tapScaleX = 1 + tapDeltaX / dimensions.width;
+  const tapScaleY = isMobileNav
+    ? scaleVertical.tap.mobile
+    : scaleVertical.tap.desktop;
+
+  if (isPressed) {
+    return { targetScaleX: tapScaleX, targetScaleY: tapScaleY };
+  }
+  if (isNavbarActive) {
+    return { targetScaleX: hoverScaleX, targetScaleY: hoverScaleY };
+  }
+  return { targetScaleX: 1, targetScaleY: 1 };
+}
+
+function computeTabAriaProps(
+  restAriaSelected: unknown,
+  restAriaControls: unknown,
+  restTabIndex: unknown,
+  isTabRole: boolean,
+  isActive: boolean,
+  value: TabValue,
+) {
+  let computedAriaSelected = restAriaSelected as
+    boolean | "true" | "false" | undefined;
+  if (computedAriaSelected === undefined && isTabRole) {
+    computedAriaSelected = isActive ? "true" : "false";
+  }
+
+  let computedAriaControls = restAriaControls as string | undefined;
+  if (computedAriaControls === undefined && isTabRole) {
+    computedAriaControls = `tabpanel-${value}`;
+  }
+
+  let computedTabIndex = restTabIndex as number | undefined;
+  if (computedTabIndex === undefined && isTabRole) {
+    computedTabIndex = isActive ? 0 : -1;
+  }
+
+  return { computedAriaSelected, computedAriaControls, computedTabIndex };
+}
+
 const HIGHLIGHT_TRANSITION = { layout: SPRING.highlight } as const;
 
 const Tab = memo(function Tab({
@@ -282,40 +341,18 @@ const Tab = memo(function Tab({
     });
   });
 
-  const tapDeltaX = isMobileNav
-    ? scaleDeltas.tap.mobile
-    : scaleDeltas.tap.desktop;
-
-  const delta = isMobileNav ? hoverDelta.mobile : hoverDelta.desktop;
-
-  const pillWidth = dimensions.width;
-  const pillHeight = dimensions.height;
-
-  const HOVER_SCALE_X = 1 + (2 * delta) / pillWidth;
-  const HOVER_SCALE_Y = 1 + (2 * delta) / pillHeight;
-
-  const TAP_SCALE_X = 1 + tapDeltaX / dimensions.width;
-  const TAP_SCALE_Y = isMobileNav
-    ? scaleVertical.tap.mobile
-    : scaleVertical.tap.desktop;
-
   const [isPressed, setIsPressed] = useState(false);
 
-  const isNavbarActive = contextHighlightClass?.includes(
+  const isNavbarActive = !!contextHighlightClass?.includes(
     "navbar-highlight-active",
   );
 
-  const targetScaleX = isPressed
-    ? TAP_SCALE_X
-    : isNavbarActive
-      ? HOVER_SCALE_X
-      : 1;
-
-  const targetScaleY = isPressed
-    ? TAP_SCALE_Y
-    : isNavbarActive
-      ? HOVER_SCALE_Y
-      : 1;
+  const { targetScaleX, targetScaleY } = computeTargetScales(
+    isPressed,
+    isNavbarActive,
+    !!isMobileNav,
+    dimensions,
+  );
 
   const showHighlight = hoverSlide
     ? isHovered || (isActive && !isAnyHovered)
@@ -381,6 +418,16 @@ const Tab = memo(function Tab({
   const innerHighlightClass =
     `absolute inset-0 highlight-pill overflow-hidden ${roundedClass} ${contextHighlightClass} ${highlightClassName}`.trim();
 
+  const { computedAriaSelected, computedAriaControls, computedTabIndex } =
+    computeTabAriaProps(
+      rest["aria-selected"],
+      rest["aria-controls"],
+      rest.tabIndex,
+      isTabRole,
+      isActive,
+      value,
+    );
+
   return (
     <motion.button
       ref={setButtonRef}
@@ -407,32 +454,10 @@ const Tab = memo(function Tab({
       )}
       {...rest}
       role={tabRole ?? undefined}
-      aria-selected={
-        rest["aria-selected"] !== undefined
-          ? rest["aria-selected"]
-          : isTabRole
-            ? isActive
-              ? "true"
-              : "false"
-            : undefined
-      }
-      aria-controls={
-        rest["aria-controls"] !== undefined
-          ? rest["aria-controls"]
-          : isTabRole
-            ? `tabpanel-${value}`
-            : undefined
-      }
+      aria-selected={computedAriaSelected}
+      aria-controls={computedAriaControls}
       id={`tab-${value}`}
-      tabIndex={
-        rest.tabIndex !== undefined
-          ? rest.tabIndex
-          : isTabRole
-            ? isActive
-              ? 0
-              : -1
-            : undefined
-      }
+      tabIndex={computedTabIndex}
       onKeyDown={isTabRole ? handleTabKeyDown : rest.onKeyDown}
     >
       {showHighlight ? (

@@ -30,7 +30,7 @@ function LazySection({
   skeletonHeight,
   isInView,
   children,
-}: LazySectionProps) {
+}: Readonly<LazySectionProps>) {
   const prefersReducedMotion = useReducedMotion();
   const initialStyle = { opacity: 0, y: prefersReducedMotion ? 0 : 30 };
 
@@ -38,9 +38,9 @@ function LazySection({
     <section
       ref={sectionRef}
       id={id}
-      className="bg-transparent pt-16 md:pt-24 overflow-x-clip"
+      className="overflow-x-clip bg-transparent pt-16 md:pt-24"
     >
-      <div className="max-w-[1200px] mx-auto">
+      <div className="mx-auto max-w-[1200px]">
         <motion.div
           initial={initialStyle}
           whileInView={SECTION_ANIMATE}

@@ -22,7 +22,7 @@ function MobileMenu({
   navLinks,
   onClose,
   onChange,
-}: MobileMenuProps) {
+}: Readonly<MobileMenuProps>) {
   const [isHovered, setIsHovered] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const isMotionReduced = !!prefersReducedMotion;
@@ -54,7 +54,7 @@ function MobileMenu({
             exit={{ opacity: 0, transition: SPRING.exit }}
             transition={SPRING.drawerMobile}
             aria-hidden="true"
-            className="fixed top-0 left-0 right-0 bottom-[-20vh] md:hidden z-40 pointer-events-auto bg-black/50 backdrop-blur-sm touch-none"
+            className="pointer-events-auto fixed top-0 right-0 bottom-[-20vh] left-0 z-40 touch-none bg-black/50 backdrop-blur-sm md:hidden"
             onClick={onClose}
           />
 
@@ -102,9 +102,9 @@ function MobileMenu({
             }}
             id="mobile-nav-panel"
             aria-label="Mobile Navigation"
-            className="md:hidden z-50 w-72 mt-2 pointer-events-auto relative rounded-3xl border overflow-hidden"
+            className="pointer-events-auto relative z-50 mt-2 w-72 overflow-hidden rounded-3xl border md:hidden"
           >
-            <div className="relative z-10 w-full p-3 max-h-[calc(100svh-100px)] overflow-y-auto overscroll-contain no-scrollbar">
+            <div className="no-scrollbar relative z-10 max-h-[calc(100svh-100px)] w-full overflow-y-auto overscroll-contain p-3">
               <Tabs
                 value={active}
                 onChange={onChange}
@@ -126,7 +126,7 @@ function MobileMenu({
                     value={link}
                     tabIndex={0}
                     className={cn(
-                      "relative w-full text-center flex justify-center items-center text-sm font-semibold rounded-full px-4 py-3.5 transition-colors duration-300 select-none z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-inset",
+                      "focus-visible:ring-accent/60 relative z-10 flex w-full items-center justify-center rounded-full px-4 py-3.5 text-center text-sm font-semibold transition-colors duration-300 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
                       active === link
                         ? "text-text-primary"
                         : "text-muted hover:text-text-primary",

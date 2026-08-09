@@ -9,7 +9,7 @@ interface TooltipProps {
   children: ReactNode;
 }
 
-export default function Tooltip({ content, children }: TooltipProps) {
+export default function Tooltip({ content, children }: Readonly<TooltipProps>) {
   const prefersReducedMotion = useReducedMotion();
 
   return (
@@ -19,7 +19,7 @@ export default function Tooltip({ content, children }: TooltipProps) {
           render={
             <button
               type="button"
-              className="inline-flex cursor-help focus-visible:outline-none text-left bg-transparent border-0 p-0 m-0"
+              className="m-0 inline-flex cursor-help border-0 bg-transparent p-0 text-left focus-visible:outline-none"
               aria-label={content}
             />
           }
@@ -54,7 +54,7 @@ export default function Tooltip({ content, children }: TooltipProps) {
                     prefersReducedMotion ? { duration: 0.1 } : SPRING.tooltip
                   }
                   className={cn(
-                    "pointer-events-none px-3.5 py-2 rounded-xl border border-white/15 bg-surface/95 shadow-2xl text-xs font-normal text-text-primary tracking-normal max-w-xs leading-relaxed text-center z-[9999]",
+                    "bg-surface/95 text-text-primary pointer-events-none z-[9999] max-w-xs rounded-xl border border-white/15 px-3.5 py-2 text-center text-xs leading-relaxed font-normal tracking-normal shadow-2xl",
                   )}
                 />
               }

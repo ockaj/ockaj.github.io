@@ -67,7 +67,72 @@ const BPMN_STEPS = [
   },
 ];
 
-export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
+function getStepColorClass(isActive: boolean, isCompleted: boolean) {
+  if (isActive) return "text-text-primary font-semibold";
+  if (isCompleted) return "text-muted/70";
+  return "text-muted/45";
+}
+
+function getMobileDisplayIdx(activeStepIdx: number, isLastCompleted: boolean) {
+  if (activeStepIdx >= 0) return activeStepIdx;
+  if (isLastCompleted) return BPMN_STEPS.length - 1;
+  return 0;
+}
+
+function checkNodeThresholds(
+  current: number,
+  refs: {
+    start: { current: boolean };
+    task1: { current: boolean };
+    gateway: { current: boolean };
+    task2: { current: boolean };
+    task3: { current: boolean };
+    mergeGateway: { current: boolean };
+    end: { current: boolean };
+  },
+) {
+  const updatedNodes: Record<string, boolean> = {};
+  let nodesUpdated = false;
+
+  if (current >= 5 && !refs.start.current) {
+    refs.start.current = true;
+    updatedNodes.start = true;
+    nodesUpdated = true;
+  }
+  if (current >= 25 && !refs.task1.current) {
+    refs.task1.current = true;
+    updatedNodes.task1 = true;
+    nodesUpdated = true;
+  }
+  if (current >= 50 && !refs.gateway.current) {
+    refs.gateway.current = true;
+    updatedNodes.gateway = true;
+    nodesUpdated = true;
+  }
+  if (current >= 75 && !refs.task2.current) {
+    refs.task2.current = true;
+    refs.task3.current = true;
+    updatedNodes.task2 = true;
+    updatedNodes.task3 = true;
+    nodesUpdated = true;
+  }
+  if (current >= 90 && !refs.mergeGateway.current) {
+    refs.mergeGateway.current = true;
+    updatedNodes.mergeGateway = true;
+    nodesUpdated = true;
+  }
+  if (current >= 95 && !refs.end.current) {
+    refs.end.current = true;
+    updatedNodes.end = true;
+    nodesUpdated = true;
+  }
+
+  return { nodesUpdated, updatedNodes };
+}
+
+export default function LoadingScreen({
+  onComplete,
+}: Readonly<LoadingScreenProps>) {
   const prefersReducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
   const initialVal = prefersReducedMotion ? 100 : 0;
@@ -166,40 +231,19 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
       count.set(eased * 100);
 
       // Check thresholds — update React state only when crossed
-      let nodesUpdated = false;
-      const updatedNodes: Partial<typeof nodes> = {};
-      if (current >= 5 && !nodeStartRef.current) {
-        nodeStartRef.current = true;
-        updatedNodes.start = true;
-        nodesUpdated = true;
-      }
-      if (current >= 25 && !nodeTask1Ref.current) {
-        nodeTask1Ref.current = true;
-        updatedNodes.task1 = true;
-        nodesUpdated = true;
-      }
-      if (current >= 50 && !nodeGatewayRef.current) {
-        nodeGatewayRef.current = true;
-        updatedNodes.gateway = true;
-        nodesUpdated = true;
-      }
-      if (current >= 75 && !nodeTask2Ref.current) {
-        nodeTask2Ref.current = true;
-        nodeTask3Ref.current = true;
-        updatedNodes.task2 = true;
-        updatedNodes.task3 = true;
-        nodesUpdated = true;
-      }
-      if (current >= 90 && !nodeMergeGatewayRef.current) {
-        nodeMergeGatewayRef.current = true;
-        updatedNodes.mergeGateway = true;
-        nodesUpdated = true;
-      }
-      if (current >= 95 && !nodeEndRef.current) {
-        nodeEndRef.current = true;
-        updatedNodes.end = true;
-        nodesUpdated = true;
-      }
+      const nodeRefs = {
+        start: nodeStartRef,
+        task1: nodeTask1Ref,
+        gateway: nodeGatewayRef,
+        task2: nodeTask2Ref,
+        task3: nodeTask3Ref,
+        mergeGateway: nodeMergeGatewayRef,
+        end: nodeEndRef,
+      };
+      const { nodesUpdated, updatedNodes } = checkNodeThresholds(
+        current,
+        nodeRefs,
+      );
 
       // Step checklist — only setState when a threshold actually crosses
       const stepIdx = BPMN_STEPS.findIndex(
@@ -287,18 +331,18 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
       aria-live="polite"
       aria-busy="true"
       aria-label="Loading portfolio system models"
-      className="fixed inset-0 z-[9999] bg-bg flex flex-col justify-between p-6 md:p-12 overflow-hidden select-none"
+      className="bg-bg fixed inset-0 z-[9999] flex flex-col justify-between overflow-hidden p-6 select-none md:p-12"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.25, ease: "easeOut" } }}
     >
       {/* Background aesthetics */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:32px_32px] opacity-60 pointer-events-none" />
-      <div className="hidden md:block absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,hsl(var(--bg))_85%)] pointer-events-none" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:32px_32px] opacity-60" />
+      <div className="pointer-events-none absolute inset-0 hidden bg-[radial-gradient(circle_at_center,transparent_20%,hsl(var(--bg))_85%)] md:block" />
 
       {/* Top Header Row */}
-      <div className="relative z-10 flex justify-between items-center w-full">
+      <div className="relative z-10 flex w-full items-center justify-between">
         <motion.div
-          className="text-xs text-muted uppercase font-sans font-semibold"
+          className="text-muted font-sans text-xs font-semibold uppercase"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -307,7 +351,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
         </motion.div>
         <motion.button
           onClick={handleSkip}
-          className="px-4 py-2 rounded-full border border-white/10 bg-white/[0.03] hover:bg-white/[0.08] hover:border-white/20 text-xs text-muted hover:text-text-primary transition-colors duration-200 cursor-pointer active:scale-95 z-20 pointer-events-auto"
+          className="text-muted hover:text-text-primary pointer-events-auto z-20 cursor-pointer rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs transition-colors duration-200 hover:border-white/20 hover:bg-white/[0.08] active:scale-95"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -317,13 +361,13 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
       </div>
 
       {/* Center: BPMN Diagram Area */}
-      <div className="relative z-10 flex-1 flex items-center justify-center py-6 w-full">
+      <div className="relative z-10 flex w-full flex-1 items-center justify-center py-6">
         {/* Desktop Diagram */}
         {!isMobile && (
           <div className="w-full max-w-4xl px-4">
             <svg
               viewBox="0 0 800 240"
-              className="w-full h-auto text-[hsl(var(--accent))]"
+              className="h-auto w-full text-[hsl(var(--accent))]"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -653,15 +697,15 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
       </div>
 
       {/* Bottom Layout Row */}
-      <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-8 items-end w-full">
+      <div className="relative z-10 grid w-full grid-cols-1 items-end gap-8 md:grid-cols-12">
         {/* Left column: Methodology checklist */}
-        <div className="md:col-span-6 flex flex-col items-start gap-3">
-          <span className="text-xs text-muted/70 uppercase font-sans font-semibold">
+        <div className="flex flex-col items-start gap-3 md:col-span-6">
+          <span className="text-muted/70 font-sans text-xs font-semibold uppercase">
             Process Modeling Methodology
           </span>
           {/* Methodology checklist — Desktop Only */}
           {!isMobile && (
-            <div className="flex flex-col gap-1.5 md:gap-2 text-left w-full max-w-md select-none">
+            <div className="flex w-full max-w-md flex-col gap-1.5 text-left select-none md:gap-2">
               {BPMN_STEPS.map((step, idx) => {
                 const isActive = activeStepIdx === idx;
                 const isCompleted = completedSteps[idx];
@@ -670,15 +714,11 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
                   <div
                     key={step.label}
                     className={cn(
-                      "flex items-center gap-3 text-xs font-sans",
-                      isActive
-                        ? "text-text-primary font-semibold"
-                        : isCompleted
-                          ? "text-muted/70"
-                          : "text-muted/45",
+                      "flex items-center gap-3 font-sans text-xs",
+                      getStepColorClass(isActive, isCompleted),
                     )}
                   >
-                    <span className="size-4 flex-shrink-0 relative">
+                    <span className="relative size-4 flex-shrink-0">
                       <motion.span
                         initial={false}
                         animate={{
@@ -686,7 +726,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
                           opacity: isCompleted ? 1 : 0,
                         }}
                         transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.4 }}
-                        className="absolute inset-0 flex items-center justify-center text-[hsl(var(--accent))] font-bold text-xs"
+                        className="absolute inset-0 flex items-center justify-center text-xs font-bold text-[hsl(var(--accent))]"
                       >
                         ✓
                       </motion.span>
@@ -700,8 +740,8 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
                         className="absolute inset-0 flex items-center justify-center"
                       >
                         <span className="relative flex size-1.5">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[hsl(var(--accent))] opacity-75" />
-                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[hsl(var(--accent))]" />
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[hsl(var(--accent))] opacity-75" />
+                          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent))]" />
                         </span>
                       </motion.span>
                       <motion.span
@@ -711,14 +751,14 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
                           opacity: !isCompleted && !isActive ? 0.4 : 0,
                         }}
                         transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.4 }}
-                        className="absolute inset-0 flex items-center justify-center text-xs font-mono text-muted"
+                        className="text-muted absolute inset-0 flex items-center justify-center font-mono text-xs"
                       >
                         •
                       </motion.span>
                     </span>
                     <span
                       className={cn(
-                        "text-pretty transition-transform duration-300 inline-block origin-left",
+                        "inline-block origin-left text-pretty transition-transform duration-300",
                         isActive && "translate-x-1",
                       )}
                     >
@@ -732,35 +772,33 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
 
           {/* Compact Active Phase Badge — Mobile Only */}
           {isMobile && (
-            <div className="flex flex-col gap-1 text-left w-full select-none h-[64px] justify-center">
+            <div className="flex h-[64px] w-full flex-col justify-center gap-1 text-left select-none">
               {(() => {
-                const displayIdx =
-                  activeStepIdx >= 0
-                    ? activeStepIdx
-                    : completedSteps[BPMN_STEPS.length - 1]
-                      ? BPMN_STEPS.length - 1
-                      : 0;
+                const displayIdx = getMobileDisplayIdx(
+                  activeStepIdx,
+                  completedSteps[BPMN_STEPS.length - 1],
+                );
 
                 return (
-                  <div className="flex items-center gap-3 text-xs text-text-primary font-sans h-full">
-                    <span className="size-6 rounded-full bg-[hsl(var(--accent))]/10 border border-[hsl(var(--accent))]/20 flex items-center justify-center flex-shrink-0">
-                      <span className="size-2 rounded-full bg-[hsl(var(--accent))] shadow-[0_0_10px_hsla(var(--accent),0.8)] animate-pulse" />
+                  <div className="text-text-primary flex h-full items-center gap-3 font-sans text-xs">
+                    <span className="flex size-6 flex-shrink-0 items-center justify-center rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/10">
+                      <span className="size-2 animate-pulse rounded-full bg-[hsl(var(--accent))] shadow-[0_0_10px_hsla(var(--accent),0.8)]" />
                     </span>
-                    <div className="flex-1 min-w-0 relative overflow-hidden h-[50px]">
+                    <div className="relative h-[50px] min-w-0 flex-1 overflow-hidden">
                       <motion.div
                         animate={{ y: -displayIdx * 50 }}
                         transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.6 }}
-                        className="flex flex-col w-full"
+                        className="flex w-full flex-col"
                       >
                         {BPMN_STEPS.map((step, idx) => (
                           <div
                             key={step.label}
-                            className="h-[50px] flex flex-col justify-center pr-2"
+                            className="flex h-[50px] flex-col justify-center pr-2"
                           >
-                            <span className="text-[10px] text-accent/80 font-bold uppercase tracking-wider mb-0.5">
+                            <span className="text-accent/80 mb-0.5 text-[10px] font-bold tracking-wider uppercase">
                               Phase {idx + 1} of 7
                             </span>
-                            <span className="text-text-primary font-semibold text-xs leading-snug block text-pretty">
+                            <span className="text-text-primary block text-xs leading-snug font-semibold text-pretty">
                               {step.label}
                             </span>
                           </div>
@@ -775,20 +813,20 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
         </div>
 
         {/* Right column: Large tabular counter & progress indicator */}
-        <div className="md:col-span-6 flex flex-col items-start md:items-end gap-3 justify-end">
+        <div className="flex flex-col items-start justify-end gap-3 md:col-span-6 md:items-end">
           <div className="flex items-baseline gap-1 select-none">
-            <motion.span className="text-5xl md:text-7xl font-display text-text-primary tabular-nums leading-none min-w-[3ch] inline-block text-right">
+            <motion.span className="font-display text-text-primary inline-block min-w-[3ch] text-right text-5xl leading-none tabular-nums md:text-7xl">
               {displayText}
             </motion.span>
-            <span className="text-lg md:text-2xl font-display text-muted/80">
+            <span className="font-display text-muted/80 text-lg md:text-2xl">
               %
             </span>
           </div>
 
           {/* Micro progress line */}
-          <div className="w-full max-w-xs h-[2px] bg-stroke/60 relative overflow-hidden rounded-full">
+          <div className="bg-stroke/60 relative h-[2px] w-full max-w-xs overflow-hidden rounded-full">
             <motion.div
-              className="absolute left-0 top-0 h-full bg-gradient-to-r from-[hsl(var(--accent))]/70 to-[hsl(var(--accent))] origin-left"
+              className="absolute top-0 left-0 h-full origin-left bg-gradient-to-r from-[hsl(var(--accent))]/70 to-[hsl(var(--accent))]"
               style={{
                 scaleX: progressScale,
                 width: "100%",

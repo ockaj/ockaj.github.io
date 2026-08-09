@@ -17,6 +17,14 @@ interface BaseDrawerProps {
   hashId?: string;
 }
 
+function getVisibleTransition(custom: {
+  prefersReducedMotion: boolean;
+  isMobile: boolean;
+}) {
+  if (custom.prefersReducedMotion) return { duration: 0.15 };
+  return custom.isMobile ? SPRING.drawerMobile : SPRING.drawer;
+}
+
 const drawerVariants: Variants = {
   hidden: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     x: custom.prefersReducedMotion ? 0 : "100%",
@@ -26,11 +34,7 @@ const drawerVariants: Variants = {
   visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
     x: 0,
     opacity: 1,
-    transition: custom.prefersReducedMotion
-      ? { duration: 0.15 }
-      : custom.isMobile
-        ? SPRING.drawerMobile
-        : SPRING.drawer,
+    transition: getVisibleTransition(custom),
   }),
 };
 
@@ -80,7 +84,7 @@ const BaseDrawer = memo(function BaseDrawer({
                 opacity: 0,
                 transition: SPRING.exit,
               }}
-              className="fixed inset-0 z-[90] bg-black/70 backdrop-blur-none md:backdrop-blur-sm overscroll-contain"
+              className="fixed inset-0 z-[90] overscroll-contain bg-black/70 backdrop-blur-none md:backdrop-blur-sm"
             />
           }
         />
@@ -103,20 +107,20 @@ const BaseDrawer = memo(function BaseDrawer({
                 }
               }}
               className={cn(
-                "fixed top-0 right-0 h-full w-full z-[100] bg-surface md:bg-surface/90 md:backdrop-blur-2xl border-l border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden overscroll-contain",
+                "bg-surface md:bg-surface/90 fixed top-0 right-0 z-[100] flex h-full w-full flex-col overflow-hidden overscroll-contain border-l border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:backdrop-blur-2xl",
                 maxWidthClass || "max-w-2xl",
-                isMobile && "will-change-transform select-none touch-pan-y",
+                isMobile && "touch-pan-y will-change-transform select-none",
               )}
             />
           }
         >
-          <div className="w-full h-full flex flex-col relative">
+          <div className="relative flex h-full w-full flex-col">
             {/* Specular sheen header overlay matching CV modal */}
-            <div className="absolute top-0 left-0 right-0 h-28 pointer-events-none bg-gradient-to-b from-white/5 to-transparent z-20" />
+            <div className="pointer-events-none absolute top-0 right-0 left-0 z-20 h-28 bg-gradient-to-b from-white/5 to-transparent" />
 
             {/* Top bar */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10 relative z-30">
-              <Dialog.Title className="flex items-center gap-2 text-xs text-muted uppercase font-semibold">
+            <div className="relative z-30 flex items-center justify-between border-b border-white/10 p-6">
+              <Dialog.Title className="text-muted flex items-center gap-2 text-xs font-semibold uppercase">
                 {icon ? icon : null}
                 <span>{title}</span>
               </Dialog.Title>

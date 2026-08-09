@@ -4,8 +4,11 @@ export const getSkeletonHeight = (bonesData: {
   if (typeof window === "undefined" || !bonesData?.breakpoints) return 0;
   const width = window.innerWidth;
   const bp = bonesData.breakpoints;
-  return (
-    (width >= 1024 ? bp["1024"] : width >= 768 ? bp["768"] : bp["375"])
-      ?.height ?? 0
-  );
+  let targetBp = bp["375"];
+  if (width >= 1024) {
+    targetBp = bp["1024"];
+  } else if (width >= 768) {
+    targetBp = bp["768"];
+  }
+  return targetBp?.height ?? 0;
 };
