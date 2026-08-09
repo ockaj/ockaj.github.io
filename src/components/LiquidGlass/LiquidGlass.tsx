@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  useRef,
   useState,
   useCallback,
   useMemo,
@@ -268,13 +267,11 @@ function LiquidGlassMobile(props: Readonly<LiquidGlassPropsWithRef>) {
   const effectiveSpringScale = springScale && !isMotionReduced;
   const effectiveRipple = ripple && !isMotionReduced;
 
-  const localRef = useRef<HTMLElement | null>(null);
   const [element, setElement] = useState<HTMLElement | null>(null);
   const [width, setWidth] = useState(120);
 
   const handleRef = useCallback(
     (node: HTMLElement | null) => {
-      localRef.current = node;
       setElement(() => node);
       if (node) {
         setWidth(node.offsetWidth);
@@ -447,7 +444,6 @@ function LiquidGlassDesktop({
   const effectiveSpringScale = springScale && !isMotionReduced;
   const effectiveRipple = ripple && !isMotionReduced;
 
-  const localRef = useRef<HTMLElement | null>(null);
   const [element, setElement] = useState<HTMLElement | null>(null);
   const [dimensions, setDimensions] = useState({ width: 120, height: 36 });
 
@@ -457,7 +453,6 @@ function LiquidGlassDesktop({
 
   const handleRef = useCallback(
     (node: HTMLElement | null) => {
-      localRef.current = node;
       setElement(() => node);
       if (node) {
         setDimensions({ width: node.offsetWidth, height: node.offsetHeight });
@@ -483,8 +478,6 @@ function LiquidGlassDesktop({
   const lagX = useSpring(mouseX, SPRING.glassLag);
   const lagY = useSpring(mouseY, SPRING.glassLag);
 
-  const rectRef = useRef<DOMRect | null>(null);
-
   const springPullX = useTransform(springX, (x) =>
     effectiveMagnetic ? x * magneticStrength : 0,
   );
@@ -493,15 +486,15 @@ function LiquidGlassDesktop({
   );
 
   const springTiltX = useTransform(springY, (y) => {
-    if (!effectiveTilt || !rectRef.current) return 0;
-    const halfHeight = rectRef.current.height / 2;
+    if (!effectiveTilt || !dimensions.height) return 0;
+    const halfHeight = dimensions.height / 2;
     const pctY = y / halfHeight;
     return -pctY * effectiveTiltStrength;
   });
 
   const springTiltY = useTransform(springX, (x) => {
-    if (!effectiveTilt || !rectRef.current) return 0;
-    const halfWidth = rectRef.current.width / 2;
+    if (!effectiveTilt || !dimensions.width) return 0;
+    const halfWidth = dimensions.width / 2;
     const pctX = x / halfWidth;
     return pctX * effectiveTiltStrength;
   });
@@ -516,34 +509,22 @@ function LiquidGlassDesktop({
     onPointerDown: handlePointerDown,
   } = useRipple(interactive && effectiveSpringScale && effectiveRipple);
 
-  const updateRect = useCallback(() => {
-    if (localRef.current) {
-      rectRef.current = localRef.current.getBoundingClientRect();
-    }
-  }, []);
-
   const handleMouseEnter = useCallback(() => {
     if (!interactive) return;
-    updateRect();
     opacity.set(1);
     setIsHovered(true);
-  }, [interactive, updateRect, opacity]);
+  }, [interactive, opacity]);
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
       if (!interactive) return;
-      if (!rectRef.current) {
-        updateRect();
-      }
-      const currentRect = rectRef.current;
-      if (!currentRect) return;
-
-      const x = e.clientX - currentRect.left - currentRect.width / 2;
-      const y = e.clientY - currentRect.top - currentRect.height / 2;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
       mouseX.set(x);
       mouseY.set(y);
     },
-    [interactive, updateRect, mouseX, mouseY],
+    [interactive, mouseX, mouseY],
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -559,7 +540,6 @@ function LiquidGlassDesktop({
   useResizeObserver(interactive && isHovered ? element : null, (entry) => {
     const el = entry.target;
     if (!(el instanceof HTMLElement)) return;
-    updateRect();
     setDimensions({
       width: el.offsetWidth,
       height: el.offsetHeight,
