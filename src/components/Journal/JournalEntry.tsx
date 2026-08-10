@@ -8,12 +8,14 @@ interface EntryProps {
   onOpen: (article: Article) => void;
 }
 
+const WORDS_REGEX = /\s+/;
+
 const JournalEntry = memo(function JournalEntry({
   article,
   onOpen,
 }: EntryProps) {
   const excerpt = useMemo(() => {
-    const words = article.body.split(/\s+/);
+    const words = article.body.split(WORDS_REGEX);
     return words.slice(0, 40).join(" ") + "...";
   }, [article.body]);
 

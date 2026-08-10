@@ -135,7 +135,7 @@ export default function LoadingScreen({
 }: Readonly<LoadingScreenProps>) {
   const prefersReducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
-  const initialVal = prefersReducedMotion ? 100 : 0;
+  const initialVal = prefersReducedMotion === true ? 100 : 0;
   const count = useMotionValue(initialVal);
   const startTimeRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -414,6 +414,7 @@ export default function LoadingScreen({
 
               {/* Active Drawing Connections — style with MotionValues = zero React re-renders */}
               <motion.path
+                initial={{ opacity: 0 }}
                 d="M 98 120 L 170 120"
                 stroke="hsl(var(--accent))"
                 strokeWidth="2"
@@ -424,6 +425,7 @@ export default function LoadingScreen({
                 }}
               />
               <motion.path
+                initial={{ opacity: 0 }}
                 d="M 290 120 L 367 120"
                 stroke="hsl(var(--accent))"
                 strokeWidth="2"
@@ -434,6 +436,7 @@ export default function LoadingScreen({
                 }}
               />
               <motion.path
+                initial={{ opacity: 0 }}
                 d="M 423 120 L 440 120 L 440 65 L 480 65"
                 stroke="hsl(var(--accent))"
                 strokeWidth="2"
@@ -445,6 +448,7 @@ export default function LoadingScreen({
                 }}
               />
               <motion.path
+                initial={{ opacity: 0 }}
                 d="M 423 120 L 440 120 L 440 175 L 480 175"
                 stroke="hsl(var(--accent))"
                 strokeWidth="2"
@@ -456,6 +460,7 @@ export default function LoadingScreen({
                 }}
               />
               <motion.path
+                initial={{ opacity: 0 }}
                 d="M 600 65 L 650 65 L 650 92"
                 stroke="hsl(var(--accent))"
                 strokeWidth="2"
@@ -467,6 +472,7 @@ export default function LoadingScreen({
                 }}
               />
               <motion.path
+                initial={{ opacity: 0 }}
                 d="M 600 175 L 650 175 L 650 148"
                 stroke="hsl(var(--accent))"
                 strokeWidth="2"
@@ -478,6 +484,7 @@ export default function LoadingScreen({
                 }}
               />
               <motion.path
+                initial={{ opacity: 0 }}
                 d="M 678 120 L 692 120"
                 stroke="hsl(var(--accent))"
                 strokeWidth="2"
@@ -499,6 +506,7 @@ export default function LoadingScreen({
                 fill="hsl(var(--bg))"
               />
               <motion.circle
+                initial={{ opacity: 0 }}
                 cx="80"
                 cy="120"
                 r="18"
@@ -526,6 +534,7 @@ export default function LoadingScreen({
                 fill="hsl(var(--bg))"
               />
               <motion.rect
+                initial={{ opacity: 0 }}
                 x="170"
                 y="90"
                 width="120"
@@ -551,6 +560,7 @@ export default function LoadingScreen({
                 fill="hsl(var(--bg))"
               />
               <motion.path
+                initial={{ opacity: 0 }}
                 d="M 395 92 L 423 120 L 395 148 L 367 120 Z"
                 stroke="hsl(var(--accent))"
                 strokeWidth="2"
@@ -586,6 +596,7 @@ export default function LoadingScreen({
                 fill="hsl(var(--bg))"
               />
               <motion.rect
+                initial={{ opacity: 0 }}
                 x="480"
                 y="35"
                 width="120"
@@ -615,6 +626,7 @@ export default function LoadingScreen({
                 fill="hsl(var(--bg))"
               />
               <motion.rect
+                initial={{ opacity: 0 }}
                 x="480"
                 y="145"
                 width="120"
@@ -640,6 +652,7 @@ export default function LoadingScreen({
                 fill="hsl(var(--bg))"
               />
               <motion.path
+                initial={{ opacity: 0 }}
                 d="M 650 92 L 678 120 L 650 148 L 622 120 Z"
                 stroke="hsl(var(--accent))"
                 strokeWidth="2"
@@ -673,6 +686,7 @@ export default function LoadingScreen({
                 fill="hsl(var(--bg))"
               />
               <motion.circle
+                initial={{ opacity: 0 }}
                 cx="710"
                 cy="120"
                 r="18"

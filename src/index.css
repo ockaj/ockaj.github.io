@@ -452,3 +452,8 @@ p {
     background-color: hsl(var(--bg)) !important;
   }
 }
+
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 800px;
+}

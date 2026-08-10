@@ -71,6 +71,7 @@ export default function BpmnOverlay({
   useEffect(() => {
     if (isMobile || hasDismissedTip) return;
 
+    let fadeTimer: ReturnType<typeof setTimeout> | null = null;
     const timer = setTimeout(() => {
       setShowHotkeyTip(true);
       if (typeof window !== "undefined") {
@@ -78,13 +79,15 @@ export default function BpmnOverlay({
       }
       setHasDismissedTip(true);
       // Fade out after 6 seconds
-      const fadeTimer = setTimeout(() => {
+      fadeTimer = setTimeout(() => {
         setShowHotkeyTip(false);
       }, 6000);
-      return () => clearTimeout(fadeTimer);
     }, 12000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      if (fadeTimer) clearTimeout(fadeTimer);
+    };
   }, [isMobile, hasDismissedTip]);
 
   const handleTaskClick = (sectionId: string) => {
