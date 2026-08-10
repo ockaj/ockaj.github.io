@@ -32,6 +32,13 @@ interface CvLanguage {
   level: string;
 }
 
+interface CvCertificateItem {
+  name: string;
+  issuer: string;
+  date: string;
+  bullets?: string[];
+}
+
 interface CvProfile {
   title: string;
   text: string;
@@ -60,6 +67,10 @@ export interface CvDataLanguageSection {
     title: string;
     items: CvLanguage[];
   };
+  certificates?: {
+    title: string;
+    items: CvCertificateItem[];
+  };
 }
 
 export interface CvData {
@@ -76,7 +87,7 @@ export const CV_DATA: CvData = {
     phone: "Telefónne číslo na vyžiadanie",
     profile: {
       title: "Profil",
-      text: "Som študent informačného manažmentu so zameraním na procesné mapovanie, BPMN, AS-IS/TO-BE modelovanie a návrh digitálnych riešení. V bakalárskej práci som analyzoval procesy v 3 podnikoch v oblastiach skladového hospodárstva, dopravnej logistiky a HR, identifikoval problémové miesta a navrhol zlepšenia vrátane implementačného plánu, Ganttovho diagramu, RACI matice a ekonomického vyhodnotenia. Mám praktickú skúsenosť s nástrojom ADONIS, základnú skúsenosť s Camunda Modelerom a Enterprise Architectom.",
+      text: "Študent informačného manažmentu so zameraním na procesné mapovanie, AS-IS/TO-BE modelovanie a návrh digitálnych riešení. Praktické skúsenosti s identifikáciou problémových miest a optimalizáciou procesov v oblasti logistiky a HR s využitím nástroja ADONIS a notácie BPMN. Zameraný na prepojenie akademických vedomostí s practical biznis analýzou.",
     },
     experience: {
       title: "Pracovné skúsenosti",
@@ -86,11 +97,10 @@ export const CV_DATA: CvData = {
           company: "ppm factum s.r.o., stredné Slovensko",
           period: "2020 – súčasnosť",
           bullets: [
-            "Kontrola približne 30 produktových položiek značiek Birell, Gambrinus, Kozel, Pilsner Urquell, Radegast a Šariš vrátane dostupnosti, vystavenia, rotácie a exspirácie tovaru.",
-            "Identifikácia nedostatkov v regáloch, promo vystaveniach a doplnení tovaru.",
+            "Riadenie a analýza skladových zásob pre 30 produktových položiek značiek Prazdroj s dôrazom na minimalizáciu výpadkov (OOS).",
+            "Identifikácia neefektívností na predajných miestach a návrh opatrení na zlepšenie rotácie tovaru.",
             "Návrhy objednávok na základe stavu zásob, dostupnosti produktov a aktuálnej situácie v predajni.",
-            "Spracovanie reportov po návštevách predajného miesta a poskytovanie spätnej väzby k dostupnosti, vystaveniu a doplneniu tovaru.",
-            "Komunikácia s pracovníkmi predajného miesta a samostatné plnenie úloh podľa harmonogramu návštev a pravidiel merchandisingu.",
+            "Tvorba pravidelných reportov o dostupnosti produktov a poskytovanie analytickej spätnej väzby manažmentu.",
           ],
         },
       ],
@@ -102,31 +112,29 @@ export const CV_DATA: CvData = {
           degree: "Informačný manažment, inžinierske štúdium",
           school: UNIZA_FRI_SK,
           period: "2025 – súčasnosť",
+          details: {
+            thesisTitle: "Inžiniersky projekt (prebiehajúci)",
+            bullets: [
+              "Komplexné mapovanie a modelovanie procesov verejnej strednej školy v nástroji ADONIS (procesná mapa, 42 BPMN modelov, organizačná štruktúra, model dokumentov).",
+            ],
+          },
         },
         {
-          degree: "Manažment, bakalárske štúdium, Bc.",
+          degree: "Manažment, bakalárske štúdium, titul Bc.",
           school: UNIZA_FRI_SK,
           period: "Ukončené: 2025",
           details: {
             thesisTitle:
               "Bakalárska práca: Možnosti využitia digitálnych technológií v podnikoch",
             bullets: [
-              "Analýza procesov v 3 podnikoch so zameraním na skladové hospodárstvo, dopravnú logistiku a HR.",
-              "AS-IS a TO-BE modelovanie v BPMN a identifikácia problémových miest.",
-              "Návrh digitálnych riešení vrátane implementačného plánu, Ganttovho diagramu a RACI matice.",
-              "Ekonomické a mimoekonomické vyhodnotenie navrhovaných riešení.",
+              "Analýza a AS-IS/TO-BE modelovanie v BPMN v 3 podnikoch, návrh riešení (Gantt, RACI) a ekonomické vyhodnotenie.",
             ],
           },
-        },
-        {
-          degree: "Gymnaziálne štúdium so zameraním na dizajn",
-          school: "Súkromné gymnázium Banskobystrické, Banská Bystrica",
-          period: "Ukončené: 2022",
         },
       ],
     },
     skills: {
-      title: "Zručnosti & Kompetencie",
+      title: "Zručnosti",
       categories: [
         {
           name: "Procesná a biznis analýza",
@@ -137,43 +145,39 @@ export const CV_DATA: CvData = {
             "Procesná analýza",
             "Identifikácia problémových miest",
             "Návrh riešení",
-            "Requirements specification",
+            "Requirements specification (funkčné/nefunkčné požiadavky, User Stories)",
             "RACI matica",
             "Ganttov diagram",
             "Základy UML",
+            "Teoretické základy Agile a Scrum metodík (v rámci štúdia)",
           ],
         },
         {
           name: "Modelovacie nástroje",
           items: [
-            "ADONIS (praktické použitie)",
-            "Enterprise Architect (štúdium)",
+            "ADONIS (praktické použitie pri mapovaní procesov v inžinierskom projekte)",
+            "Enterprise Architect (použitie v rámci štúdia)",
             "Camunda Modeler (základy)",
           ],
         },
         {
-          name: "Podnikové systémy",
+          name: "Podnikové systémy a digitalizácia",
           items: [
-            "Koncepty ERP, CRM, WMS, TMS a HR systémov z akademických projektov a procesných analýz",
+            "Znalosť konceptov ERP, CRM, WMS, TMS a HR systémov z akademických projektov a procesných analýz",
           ],
         },
         {
-          name: "Kancelárske a dokumentačné nástroje",
+          name: "Kancelárske, analytické a dokumentačné nástroje",
           items: [
             "Microsoft Excel",
             "Microsoft PowerPoint",
             "Microsoft Word",
-            "Confluence (reporty, filtre, vzorce, analýza dát)",
-          ],
-        },
-        {
-          name: "Grafické a dizajnové nástroje",
-          items: [
-            "Adobe Photoshop",
-            "Adobe Illustrator",
-            "Affinity Design",
-            "3ds Max",
-            "ZBrush (vizuálne podklady a rozhrania)",
+            "Confluence (základy)",
+            "Reporting",
+            "Tabuľky",
+            "Filtre",
+            "Základné vzorce",
+            "Práca s dátami",
           ],
         },
         {
@@ -182,7 +186,7 @@ export const CV_DATA: CvData = {
             "Samostatnosť",
             "Systematický prístup",
             "Komunikácia",
-            "Dôslednosť pri kontrole",
+            "Dôslednosť pri kontrole a reportingu",
             "Identifikácia nedostatkov",
           ],
         },
@@ -192,8 +196,22 @@ export const CV_DATA: CvData = {
       title: "Jazykové znalosti",
       items: [
         { name: "Slovenský jazyk", level: "Materinský" },
-        { name: "Anglický jazyk", level: "Fluent (B2)" },
-        { name: "Ruský jazyk", level: "Intermediate (B1)" },
+        { name: "Anglický jazyk", level: "B2" },
+        { name: "Ruský jazyk", level: "B1" },
+      ],
+    },
+    certificates: {
+      title: "Certifikáty",
+      items: [
+        {
+          name: "Introduction to ADONIS (Student Level Credential)",
+          issuer:
+            "The BOC Group & Žilinská univerzita v Žiline (Fakulta riadenia a informatiky)",
+          date: "jún 2026",
+          bullets: [
+            "Rozvíjané zručnosti: Procesný manažment, biznis modelovanie, praktické mapovanie a konfigurácia atribútov.",
+          ],
+        },
       ],
     },
   },
@@ -205,7 +223,7 @@ export const CV_DATA: CvData = {
     phone: "Phone number on request",
     profile: {
       title: "Profile",
-      text: "I am an Information Management student specializing in process mapping, BPMN, AS-IS/TO-BE modeling, and digital solution design. In my bachelor's thesis, I analyzed processes in 3 enterprises focusing on warehouse management, transportation logistics, and HR, identifying bottlenecks and proposing improvements including an implementation roadmap, Gantt chart, RACI matrix, and economic evaluation. I have practical experience with ADONIS and foundational experience with Camunda Modeler and Enterprise Architect.",
+      text: "Information Management student specializing in process mapping, AS-IS/TO-BE modeling, and digital solution design. Practical experience in identifying operational bottlenecks and optimizing processes in logistics and HR using ADONIS and BPMN notation. Focused on bridging academic knowledge with practical business analysis.",
     },
     experience: {
       title: "Work Experience",
@@ -215,11 +233,10 @@ export const CV_DATA: CvData = {
           company: "ppm factum s.r.o., Central Slovakia",
           period: "2020 – Present",
           bullets: [
-            "Audited approximately 30 product lines (Birell, Gambrinus, Kozel, Pilsner Urquell, Radegast, and Šariš), monitoring stock availability, shelf display quality, inventory rotation, and expiration dates.",
-            "Identified out-of-stock items, promotional placement deficiencies, and restocked shelves.",
-            "Prepared purchase order recommendations based on stock levels, product availability, and real-time in-store scenarios.",
-            "Compiled detailed visit reports and provided feedback on stock availability, placement, and replenishment status.",
-            "Coordinated with store managers and executed tasks independently based on visit schedules and merchandising guidelines.",
+            "Inventory management and analysis for 30 Prazdroj brand product items with an emphasis on minimizing out-of-stock (OOS) situations.",
+            "Identifying inefficiencies at point-of-sale locations and proposing measures to improve inventory turnover.",
+            "Drafting purchase orders based on stock status, product availability, and current store conditions.",
+            "Generating regular product availability reports and providing analytical feedback to management.",
           ],
         },
       ],
@@ -231,6 +248,12 @@ export const CV_DATA: CvData = {
           degree: "Information Management, Master's degree (Ing.)",
           school: UNIZA_FRI_EN,
           period: "2025 – Present",
+          details: {
+            thesisTitle: "Engineering Project (ongoing)",
+            bullets: [
+              "Comprehensive mapping and process modeling of a public secondary school in ADONIS (process map, 42 BPMN models, organizational structure, document model).",
+            ],
+          },
         },
         {
           degree: "Management, Bachelor's degree (Bc.)",
@@ -240,17 +263,9 @@ export const CV_DATA: CvData = {
             thesisTitle:
               "Bachelor's Thesis: Options for Using Digital Technologies in Enterprises",
             bullets: [
-              "Analyzed processes in 3 companies focusing on warehouse management, transport logistics, and human resources.",
-              "Designed AS-IS and TO-BE processes using BPMN 2.0 and identified operational bottlenecks.",
-              "Proposed digital solutions, including an implementation plan, Gantt chart, and RACI matrix.",
-              "Performed economic and non-economic evaluations of the proposed solutions.",
+              "Process analysis and AS-IS/TO-BE modeling in BPMN across 3 enterprises, solution design (Gantt, RACI), and economic evaluation.",
             ],
           },
-        },
-        {
-          degree: "Secondary School with focus on Design",
-          school: "Súkromné gymnázium Banskobystrické, Banská Bystrica",
-          period: "Graduated: 2022",
         },
       ],
     },
@@ -266,43 +281,39 @@ export const CV_DATA: CvData = {
             "Process Analysis",
             "Bottleneck Identification",
             "Solution Design",
-            "Requirements Specification",
+            "Requirements Specification (functional/non-functional requirements, User Stories)",
             "RACI Matrix",
             "Gantt Charts",
             "UML Basics",
+            "Agile & Scrum Fundamentals (academic context)",
           ],
         },
         {
           name: "Modeling Tools",
           items: [
-            "ADONIS (practical application)",
+            "ADONIS (practical application in engineering project process mapping)",
             "Enterprise Architect (academic use)",
             "Camunda Modeler (foundational)",
           ],
         },
         {
-          name: "Enterprise Systems",
+          name: "Enterprise Systems & Digitalization",
           items: [
-            "Understanding of ERP, CRM, WMS, TMS, and HRIS concepts through academic projects and process audits",
+            "Understanding of ERP, CRM, WMS, TMS, and HRIS concepts from academic projects and process audits",
           ],
         },
         {
-          name: "Office & Documentation Tools",
+          name: "Office, Analytical & Documentation Tools",
           items: [
             "Microsoft Excel",
             "Microsoft PowerPoint",
             "Microsoft Word",
-            "Confluence (reports, filters, formulas, data management)",
-          ],
-        },
-        {
-          name: "Graphic & Design Tools",
-          items: [
-            "Adobe Photoshop",
-            "Adobe Illustrator",
-            "Affinity Suite",
-            "3ds Max",
-            "ZBrush (creating visual assets and UI layout designs)",
+            "Confluence (foundational)",
+            "Reporting",
+            "Spreadsheets",
+            "Data Filtering",
+            "Formulas",
+            "Data Processing",
           ],
         },
         {
@@ -321,8 +332,22 @@ export const CV_DATA: CvData = {
       title: "Languages",
       items: [
         { name: "Slovak", level: "Native" },
-        { name: "English", level: "Fluent (B2)" },
-        { name: "Russian", level: "Intermediate (B1)" },
+        { name: "English", level: "B2" },
+        { name: "Russian", level: "B1" },
+      ],
+    },
+    certificates: {
+      title: "Certificates",
+      items: [
+        {
+          name: "Introduction to ADONIS (Student Level Credential)",
+          issuer:
+            "The BOC Group & University of Žilina (Faculty of Management Science and Informatics)",
+          date: "June 2026",
+          bullets: [
+            "Developed skills: Process management, business modeling, practical mapping, and attribute configuration.",
+          ],
+        },
       ],
     },
   },
