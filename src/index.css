@@ -84,7 +84,6 @@ button,
 }
 
 html {
-  overscroll-behavior-y: none;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--stroke)) hsl(var(--bg));

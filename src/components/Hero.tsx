@@ -181,7 +181,7 @@ function HeroScrollIndicator({
     <motion.a
       href="#work"
       aria-label="Scroll process flow"
-      className="group focus-visible:ring-accent/60 absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 cursor-pointer flex-col items-center gap-2.5 rounded-xl select-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none md:bottom-8"
+      className="group focus-visible:ring-accent/60 hidden cursor-pointer flex-col items-center gap-2.5 rounded-xl select-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none md:absolute md:bottom-8 md:left-1/2 md:z-20 md:flex md:-translate-x-1/2"
       style={{ opacity: scrollOpacity, y: scrollYOffset }}
       variants={scrollIndicatorVariants}
       initial="initial"
