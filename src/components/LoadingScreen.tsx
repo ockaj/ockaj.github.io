@@ -77,7 +77,7 @@ export default function LoadingScreen({
   const doneRef = useRef(false);
 
   // Threshold-triggered React states (only re-render when crossed, not every frame)
-  const [loadingState, setLoadingState] = useState({
+  const [loadingState, setLoadingState] = useState(() => ({
     nodes: {
       start: initialVal >= 5,
       task1: initialVal >= 25,
@@ -89,7 +89,7 @@ export default function LoadingScreen({
     },
     activeStepIdx: -1,
     completedSteps: BPMN_STEPS.map(() => initialVal >= 100),
-  });
+  }));
   const { nodes, activeStepIdx, completedSteps } = loadingState;
 
   // Refs to avoid stale closures in RAF

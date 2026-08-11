@@ -12,7 +12,8 @@
     "analyze": "vite build --mode analyze",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "prepare": "husky",
-    "knip": "knip"
+    "knip": "knip",
+    "doctor": "react-doctor --verbose"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
@@ -59,6 +60,7 @@
     "lint-staged": "^17.3.0",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
+    "react-doctor": "^0.9.11",
     "rollup-plugin-visualizer": "^7.0.1",
     "svgo": "^4.0.2",
     "tailwindcss": "^4.3.3",

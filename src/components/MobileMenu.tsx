@@ -1,4 +1,4 @@
-import { memo, useState, useEffect } from "react";
+import { memo, useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import { cn } from "../utils/cn";
@@ -26,6 +26,8 @@ function MobileMenu({
   const [isHovered, setIsHovered] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const isMotionReduced = !!prefersReducedMotion;
+
+  const allLinks = useMemo(() => ["Home", ...navLinks, "Contact"], [navLinks]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -120,7 +122,7 @@ function MobileMenu({
                 highlightStyle={HIGHLIGHT_STYLE}
                 className="flex flex-col gap-1.5"
               >
-                {["Home", ...navLinks, "Contact"].map((link) => (
+                {allLinks.map((link) => (
                   <Tab
                     key={link}
                     value={link}

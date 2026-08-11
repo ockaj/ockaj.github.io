@@ -46,13 +46,6 @@ export default function ProcessMobileCarousel({
             {PROCESS_TOPICS.map((topic) => {
               const cardViewMode = viewModes[topic.id] || "asis";
               const cardVariant = topic[cardViewMode];
-              const cardItem = {
-                id: topic.id,
-                title: cardVariant.title,
-                description: cardVariant.description,
-                image: cardVariant.image,
-                type: cardVariant.type,
-              };
 
               return (
                 <div
@@ -131,7 +124,15 @@ export default function ProcessMobileCarousel({
                           <button
                             type="button"
                             className="flex h-full w-full cursor-zoom-in items-center justify-center p-3 focus-visible:outline-none sm:p-4"
-                            onClick={() => setLightboxItem(cardItem)}
+                            onClick={() =>
+                              setLightboxItem({
+                                id: topic.id,
+                                title: cardVariant.title,
+                                description: cardVariant.description,
+                                image: cardVariant.image,
+                                type: cardVariant.type,
+                              })
+                            }
                             aria-label={`Zoom diagram: ${cardVariant.title}`}
                           >
                             <img

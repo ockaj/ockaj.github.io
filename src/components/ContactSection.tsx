@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import BpmnNodeBadge from "./BpmnNodeBadge";
 import Contact from "./Contact";
@@ -12,7 +12,10 @@ import {
 
 function ContactSection() {
   const prefersReducedMotion = useReducedMotion();
-  const initialStyle = { opacity: 0, y: prefersReducedMotion ? 0 : 30 };
+  const initialStyle = useMemo(
+    () => ({ opacity: 0, y: prefersReducedMotion ? 0 : 30 }),
+    [prefersReducedMotion],
+  );
 
   return (
     <section

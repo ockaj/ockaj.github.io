@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useRef } from "react";
 import { useInView, useReducedMotion } from "motion/react";
 import NumberFlow from "@number-flow/react";
 
@@ -20,16 +20,7 @@ const MetricCountUp = memo(function MetricCountUp({
   const numericPart = NUMERIC_REGEX.exec(value);
   const target = numericPart ? parseFloat(numericPart[0]) : 0;
 
-  const [currentValue, setCurrentValue] = useState(
-    prefersReducedMotion ? target : 0,
-  );
-
-  useEffect(() => {
-    if (!numericPart || prefersReducedMotion) return;
-    if (isInView) {
-      setCurrentValue(target);
-    }
-  }, [isInView, target, numericPart, prefersReducedMotion]);
+  const displayValue = prefersReducedMotion || isInView ? target : 0;
 
   if (!numericPart) {
     return <span ref={containerRef}>{value}</span>;
@@ -42,7 +33,7 @@ const MetricCountUp = memo(function MetricCountUp({
   return (
     <span ref={containerRef} className="inline-block">
       <NumberFlow
-        value={currentValue}
+        value={displayValue}
         prefix={prefix}
         suffix={suffix}
         format={{

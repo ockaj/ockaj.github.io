@@ -1,4 +1,4 @@
-import { memo, type ReactNode, type RefObject } from "react";
+import { memo, useMemo, type ReactNode, type RefObject } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { BoneSuspense } from "boneyard-js/react";
 import { SuspenseTrigger } from "../store/useAppStore";
@@ -32,7 +32,10 @@ function LazySection({
   children,
 }: Readonly<LazySectionProps>) {
   const prefersReducedMotion = useReducedMotion();
-  const initialStyle = { opacity: 0, y: prefersReducedMotion ? 0 : 30 };
+  const initialStyle = useMemo(
+    () => ({ opacity: 0, y: prefersReducedMotion ? 0 : 30 }),
+    [prefersReducedMotion],
+  );
 
   return (
     <section
