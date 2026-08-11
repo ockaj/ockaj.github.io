@@ -172,6 +172,10 @@ p {
     inset 0 1px 1px rgba(255, 255, 255, 0.25),
     inset 0 4px 8px rgba(255, 255, 255, 0.03),
     0 4px 10px rgba(0, 0, 0, 0.08);
+  transition:
+    background-color 200ms cubic-bezier(0.25, 0.1, 0.25, 1),
+    box-shadow 200ms cubic-bezier(0.25, 0.1, 0.25, 1),
+    border-color 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 /* Flat state when navbar is stationary - solid rgba(122, 123, 191, 0.2), no box-shadow or refraction */
@@ -179,10 +183,6 @@ p {
   background: rgba(122, 123, 191, 0.2) !important;
   border-color: rgba(255, 255, 255, 0.04) !important;
   box-shadow: none !important;
-  transition:
-    background-color 200ms cubic-bezier(0.25, 0.1, 0.25, 1),
-    box-shadow 200ms cubic-bezier(0.25, 0.1, 0.25, 1),
-    border-color 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 /* Active state (hovering, scrolling, transitioning) - solid rgba(122, 123, 191, 0.1) with box-shadows */
@@ -193,10 +193,6 @@ p {
     inset 0 1px 1px rgba(255, 255, 255, 0.25),
     inset 0 4px 8px rgba(255, 255, 255, 0.03),
     0 4px 10px rgba(0, 0, 0, 0.08) !important;
-  transition:
-    background-color 200ms cubic-bezier(0.25, 0.1, 0.25, 1),
-    box-shadow 200ms cubic-bezier(0.25, 0.1, 0.25, 1),
-    border-color 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 /* Custom transition for the main navbar capsule matching the site-wide duration and bezier curve */
@@ -323,7 +319,7 @@ p {
 
 /* Smoothly eased horizontal scroll fade masks for mobile/tablet and vertical masks for desktop (Mobile-First) */
 .process-tabs-mask {
-  mask-image: linear-gradient(
+  --tabs-mask: linear-gradient(
     to right,
     transparent 0px,
     rgba(0, 0, 0, 0.15) 8px,
@@ -334,33 +330,13 @@ p {
     rgba(0, 0, 0, 0.15) calc(100% - 10px),
     transparent 100%
   );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0px,
-    rgba(0, 0, 0, 0.15) 8px,
-    rgba(0, 0, 0, 0.6) 18px,
-    black 32px,
-    black calc(100% - 36px),
-    rgba(0, 0, 0, 0.6) calc(100% - 20px),
-    rgba(0, 0, 0, 0.15) calc(100% - 10px),
-    transparent 100%
-  );
+  mask-image: var(--tabs-mask);
+  -webkit-mask-image: var(--tabs-mask);
 }
 
 @media (min-width: 768px) {
   .process-tabs-mask {
-    mask-image: linear-gradient(
-      to right,
-      transparent 0px,
-      rgba(0, 0, 0, 0.15) 12px,
-      rgba(0, 0, 0, 0.6) 26px,
-      black 48px,
-      black calc(100% - 52px),
-      rgba(0, 0, 0, 0.6) calc(100% - 28px),
-      rgba(0, 0, 0, 0.15) calc(100% - 12px),
-      transparent 100%
-    );
-    -webkit-mask-image: linear-gradient(
+    --tabs-mask: linear-gradient(
       to right,
       transparent 0px,
       rgba(0, 0, 0, 0.15) 12px,
@@ -376,18 +352,7 @@ p {
 
 @media (min-width: 1024px) {
   .process-tabs-mask {
-    mask-image: linear-gradient(
-      to bottom,
-      transparent 0px,
-      rgba(0, 0, 0, 0.15) 12px,
-      rgba(0, 0, 0, 0.6) 26px,
-      black 48px,
-      black calc(100% - 48px),
-      rgba(0, 0, 0, 0.6) calc(100% - 26px),
-      rgba(0, 0, 0, 0.15) calc(100% - 12px),
-      transparent 100%
-    );
-    -webkit-mask-image: linear-gradient(
+    --tabs-mask: linear-gradient(
       to bottom,
       transparent 0px,
       rgba(0, 0, 0, 0.15) 12px,

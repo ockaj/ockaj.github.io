@@ -23,6 +23,73 @@ const REVERSE_LABEL_MAP = new Map(
   Object.entries(LABEL_MAP).map(([id, label]) => [label, id]),
 );
 
+function useScrollSpy(
+  isLoading: boolean,
+  isNavigatingRef: React.RefObject<boolean>,
+  visibleSectionsRef: React.RefObject<Set<string> | null>,
+  setActiveSection: (section: string) => void,
+) {
+  useEffect(() => {
+    if (isLoading) return;
+
+    const visibleSections = visibleSectionsRef.current;
+    if (!visibleSections) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            visibleSections.add(entry.target.id);
+          } else {
+            visibleSections.delete(entry.target.id);
+          }
+        });
+
+        if (isNavigatingRef.current) return;
+
+        const targetId = SECTIONS.findLast((id) => visibleSections.has(id));
+        if (targetId) {
+          const sectionLabel = LABEL_MAP[targetId] ?? "Home";
+          startTransition(() => {
+            setActiveSection(sectionLabel);
+          });
+
+          const newHash = `#${targetId}`;
+          const currentHash = window.location.hash.substring(1);
+          const isModalActive = !!currentHash && !SECTIONS_SET.has(currentHash);
+
+          if (window.location.hash !== newHash && !isModalActive) {
+            window.history.replaceState(window.history.state, "", newHash);
+          }
+        }
+      },
+      { rootMargin: "-25% 0px -55% 0px" },
+    );
+
+    SECTIONS.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, [isLoading, isNavigatingRef, visibleSectionsRef, setActiveSection]);
+}
+
+function useInitialHashScroll(isLoading: boolean) {
+  useEffect(() => {
+    if (isLoading) return;
+    const hash = window.location.hash;
+    if (hash) {
+      const targetId = hash.substring(1);
+      if (targetId in LABEL_MAP) {
+        document
+          .getElementById(targetId)
+          ?.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [isLoading]);
+}
+
 export function useNavigation() {
   const isLoading = useAppStore((state) => state.isLoading);
 
@@ -78,65 +145,13 @@ export function useNavigation() {
     }
   }, []);
 
-  // Scroll spy effect
-  useEffect(() => {
-    if (isLoading) return;
-
-    const visibleSections = visibleSectionsRef.current;
-    if (!visibleSections) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            visibleSections.add(entry.target.id);
-          } else {
-            visibleSections.delete(entry.target.id);
-          }
-        });
-
-        if (isNavigatingRef.current) return;
-
-        const targetId = SECTIONS.findLast((id) => visibleSections.has(id));
-        if (targetId) {
-          const sectionLabel = LABEL_MAP[targetId] ?? "Home";
-          startTransition(() => {
-            setActiveSection(sectionLabel);
-          });
-
-          const newHash = `#${targetId}`;
-          const currentHash = window.location.hash.substring(1);
-          const isModalActive = !!currentHash && !SECTIONS_SET.has(currentHash);
-
-          if (window.location.hash !== newHash && !isModalActive) {
-            window.history.replaceState(window.history.state, "", newHash);
-          }
-        }
-      },
-      { rootMargin: "-25% 0px -55% 0px" },
-    );
-
-    SECTIONS.forEach((id) => {
-      const element = document.getElementById(id);
-      if (element) observer.observe(element);
-    });
-
-    return () => observer.disconnect();
-  }, [isLoading]);
-
-  // Initial deep-linking hash effect
-  useEffect(() => {
-    if (isLoading) return;
-    const hash = window.location.hash;
-    if (hash) {
-      const targetId = hash.substring(1);
-      if (targetId in LABEL_MAP) {
-        document
-          .getElementById(targetId)
-          ?.scrollIntoView({ behavior: "smooth" });
-      }
-    }
-  }, [isLoading]);
+  useScrollSpy(
+    isLoading,
+    isNavigatingRef,
+    visibleSectionsRef,
+    setActiveSection,
+  );
+  useInitialHashScroll(isLoading);
 
   return { activeSection, handleNavClick };
 }

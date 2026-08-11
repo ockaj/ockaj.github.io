@@ -162,6 +162,84 @@ const arrowVariants: Variants = {
   },
 };
 
+interface HeroScrollIndicatorProps {
+  onViewWork: () => void;
+  scrollOpacity: ReturnType<typeof useTransform<number, number>>;
+  scrollYOffset: ReturnType<typeof useTransform<number, number>>;
+  prefersReducedMotion: boolean | null;
+  isMobile: boolean;
+}
+
+function HeroScrollIndicator({
+  onViewWork,
+  scrollOpacity,
+  scrollYOffset,
+  prefersReducedMotion,
+  isMobile,
+}: Readonly<HeroScrollIndicatorProps>) {
+  return (
+    <motion.a
+      href="#work"
+      aria-label="Scroll process flow"
+      className="group focus-visible:ring-accent/60 absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 cursor-pointer flex-col items-center gap-2.5 rounded-xl select-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none md:bottom-8"
+      style={{ opacity: scrollOpacity, y: scrollYOffset }}
+      variants={scrollIndicatorVariants}
+      initial="initial"
+      animate={prefersReducedMotion ? undefined : "animate"}
+      whileHover={prefersReducedMotion || isMobile ? undefined : "hover"}
+      transition={SPRING.hero}
+      onClick={(e) => {
+        e.preventDefault();
+        onViewWork();
+      }}
+    >
+      <span className="text-muted/90 group-hover:text-accent text-xs font-semibold tracking-[0.25em] uppercase transition-colors duration-300">
+        Flow
+      </span>
+      <svg
+        width="24"
+        height="50"
+        viewBox="0 0 24 50"
+        fill="none"
+        className="text-muted/70 group-hover:text-accent/60 transition-colors duration-300"
+        aria-hidden="true"
+      >
+        {/* Top Open Circle (BPMN Message Flow Start) */}
+        <motion.circle
+          cx="12"
+          cy="6"
+          r="3"
+          strokeWidth="1.5"
+          fill="none"
+          variants={circleVariants}
+          style={{ transformOrigin: "12px 6px" }}
+        />
+
+        {/* Dashed Line */}
+        <motion.line
+          x1="12"
+          y1="10"
+          x2="12"
+          y2="34"
+          strokeWidth="1.5"
+          strokeDasharray="3 3"
+          variants={lineVariants}
+        />
+
+        {/* Bottom Open Arrowhead (BPMN Message Flow Target) */}
+        <motion.polygon
+          points="8,36 12,44 16,36"
+          strokeWidth="1.5"
+          fill="none"
+          strokeLinejoin="round"
+          variants={arrowVariants}
+          style={{ transformOrigin: "12px 40px" }}
+        />
+      </svg>
+    </motion.a>
+  );
+}
+
 function Hero({ onViewCv, onViewWork }: Readonly<HeroProps>) {
   const [roleIndex, setRoleIndex] = useState(0);
   const { scrollY } = useScroll();
@@ -284,66 +362,13 @@ function Hero({ onViewCv, onViewWork }: Readonly<HeroProps>) {
         </motion.div>
       </motion.div>
 
-      {/* Scroll indicator - Styled as a BPMN Message Flow */}
-      <motion.a
-        href="#work"
-        aria-label="Scroll process flow"
-        className="group focus-visible:ring-accent/60 absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 cursor-pointer flex-col items-center gap-2.5 rounded-xl select-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none md:bottom-8"
-        style={{ opacity: scrollOpacity, y: scrollYOffset }}
-        variants={scrollIndicatorVariants}
-        initial="initial"
-        animate={prefersReducedMotion ? undefined : "animate"}
-        whileHover={prefersReducedMotion || isMobile ? undefined : "hover"}
-        transition={SPRING.hero}
-        onClick={(e) => {
-          e.preventDefault();
-          onViewWork();
-        }}
-      >
-        <span className="text-muted/90 group-hover:text-accent text-xs font-semibold tracking-[0.25em] uppercase transition-colors duration-300">
-          Flow
-        </span>
-        <svg
-          width="24"
-          height="50"
-          viewBox="0 0 24 50"
-          fill="none"
-          className="text-muted/70 group-hover:text-accent/60 transition-colors duration-300"
-          aria-hidden="true"
-        >
-          {/* Top Open Circle (BPMN Message Flow Start) */}
-          <motion.circle
-            cx="12"
-            cy="6"
-            r="3"
-            strokeWidth="1.5"
-            fill="none"
-            variants={circleVariants}
-            style={{ transformOrigin: "12px 6px" }}
-          />
-
-          {/* Dashed Line */}
-          <motion.line
-            x1="12"
-            y1="10"
-            x2="12"
-            y2="34"
-            strokeWidth="1.5"
-            strokeDasharray="3 3"
-            variants={lineVariants}
-          />
-
-          {/* Bottom Open Arrowhead (BPMN Message Flow Target) */}
-          <motion.polygon
-            points="8,36 12,44 16,36"
-            strokeWidth="1.5"
-            fill="none"
-            strokeLinejoin="round"
-            variants={arrowVariants}
-            style={{ transformOrigin: "12px 40px" }}
-          />
-        </svg>
-      </motion.a>
+      <HeroScrollIndicator
+        onViewWork={onViewWork}
+        scrollOpacity={scrollOpacity}
+        scrollYOffset={scrollYOffset}
+        prefersReducedMotion={prefersReducedMotion}
+        isMobile={isMobile}
+      />
     </section>
   );
 }

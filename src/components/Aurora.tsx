@@ -117,7 +117,10 @@ interface AuroraProps {
 
 const DEFAULT_COLOR_STOPS = ["#1E1B4B", "#312E81", "#6667AB", "#A78BFA"];
 
-function AuroraCanvas(props: Readonly<AuroraProps>) {
+function useAuroraCanvas(
+  props: Readonly<AuroraProps>,
+  ctnRef: React.RefObject<HTMLDivElement | null>,
+) {
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
   const propsRef = useRef<AuroraProps>(props);
@@ -132,8 +135,6 @@ function AuroraCanvas(props: Readonly<AuroraProps>) {
     prefersReducedMotionRef.current = prefersReducedMotion;
     isMobileRef.current = isMobile;
   });
-
-  const ctnRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctn = ctnRef.current;
@@ -386,13 +387,20 @@ function AuroraCanvas(props: Readonly<AuroraProps>) {
       }
       activeGl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, []);
+  }, [ctnRef]);
 
   useEffect(() => {
     if (!prefersReducedMotion && triggerRef.current) {
       triggerRef.current();
     }
   }, [prefersReducedMotion]);
+
+  return { isContextLost };
+}
+
+function AuroraCanvas(props: Readonly<AuroraProps>) {
+  const ctnRef = useRef<HTMLDivElement>(null);
+  const { isContextLost } = useAuroraCanvas(props, ctnRef);
 
   return (
     <div ref={ctnRef} className="relative h-full w-full">
