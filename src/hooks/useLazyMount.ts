@@ -4,7 +4,11 @@ interface UseLazyMountOptions {
   rootMargin?: string;
 }
 
-export function useLazyMount(options: UseLazyMountOptions = {}) {
+const DEFAULT_LAZY_OPTIONS: UseLazyMountOptions = {};
+
+export function useLazyMount(
+  options: UseLazyMountOptions = DEFAULT_LAZY_OPTIONS,
+) {
   // Always mount immediately in development mode so boneyard CLI can capture DOM layout for skeletons
   const isDev = typeof import.meta !== "undefined" && !!import.meta.env?.DEV;
 

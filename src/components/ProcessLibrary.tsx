@@ -28,6 +28,13 @@ const isBuildMode = isBoneyardBuild();
 const containerVariants = containerStaggerVariants();
 const cardVariants = cardStaggerVariants;
 
+const PROCESS_TOPIC_MAP = new Map(
+  PROCESS_TOPICS.map((topic) => [topic.id, topic]),
+);
+const PROCESS_TOPIC_INDEX_MAP = new Map(
+  PROCESS_TOPICS.map((topic, index) => [topic.id, index]),
+);
+
 interface CustomAnimationProps {
   prefersReducedMotion?: boolean;
   direction?: number;
@@ -152,8 +159,7 @@ function ProcessLibrary() {
 
   const [direction, setDirection] = useState(1);
 
-  const activeTopic =
-    PROCESS_TOPICS.find((t) => t.id === activeTopicId) || PROCESS_TOPICS[0];
+  const activeTopic = PROCESS_TOPIC_MAP.get(activeTopicId) ?? PROCESS_TOPICS[0];
   const activeViewMode = viewModes[activeTopic.id] || "asis";
   const activeVariant = activeTopic[activeViewMode];
 
@@ -182,8 +188,8 @@ function ProcessLibrary() {
 
   const handleTopicChange = useCallback(
     (id: number) => {
-      const newIdx = PROCESS_TOPICS.findIndex((t) => t.id === id);
-      const oldIdx = PROCESS_TOPICS.findIndex((t) => t.id === activeTopicId);
+      const newIdx = PROCESS_TOPIC_INDEX_MAP.get(id) ?? -1;
+      const oldIdx = PROCESS_TOPIC_INDEX_MAP.get(activeTopicId) ?? -1;
       if (newIdx !== -1 && oldIdx !== -1 && newIdx !== oldIdx) {
         setDirection(newIdx > oldIdx ? 1 : -1);
         setActiveTopicId(id);
@@ -200,9 +206,7 @@ function ProcessLibrary() {
       emblaApi.scrollPrev();
       return;
     }
-    const currentIndex = PROCESS_TOPICS.findIndex(
-      (t) => t.id === activeTopicId,
-    );
+    const currentIndex = PROCESS_TOPIC_INDEX_MAP.get(activeTopicId) ?? -1;
     if (currentIndex > 0) {
       const prevTopic = PROCESS_TOPICS[currentIndex - 1];
       setDirection(-1);
@@ -215,9 +219,7 @@ function ProcessLibrary() {
       emblaApi.scrollNext();
       return;
     }
-    const currentIndex = PROCESS_TOPICS.findIndex(
-      (t) => t.id === activeTopicId,
-    );
+    const currentIndex = PROCESS_TOPIC_INDEX_MAP.get(activeTopicId) ?? -1;
     if (currentIndex >= 0 && currentIndex < PROCESS_TOPICS.length - 1) {
       const nextTopic = PROCESS_TOPICS[currentIndex + 1];
       setDirection(1);
