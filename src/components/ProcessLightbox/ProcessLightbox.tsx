@@ -83,7 +83,6 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
     <Dialog.Root
       open
       modal
-      disablePointerDismissal
       onOpenChange={(open) => {
         if (!open) {
           onClose();
@@ -91,41 +90,35 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
       }}
     >
       <Dialog.Portal keepMounted>
-        {/* Backdrop */}
-        <Dialog.Backdrop
-          onClick={onClose}
-          render={
-            <motion.div
-              className="pointer-events-auto fixed inset-0 z-[90] bg-black/80 backdrop-blur-md"
-              custom={{ prefersReducedMotion, isMobile }}
-              variants={backdropVariants}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-            />
-          }
-        />
+        <div className="fixed inset-0 z-[100] flex touch-none items-center justify-center p-0 md:p-6">
+          {/* Backdrop */}
+          <Dialog.Backdrop
+            onClick={onClose}
+            render={
+              <motion.div
+                className="pointer-events-auto fixed inset-0 bg-black/80 backdrop-blur-md"
+                custom={{ prefersReducedMotion, isMobile }}
+                variants={backdropVariants}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+              />
+            }
+          />
 
-        {/* Modal Popup Container */}
-        <Dialog.Popup
-          render={
-            <motion.div
-              className="pointer-events-auto fixed inset-0 z-[100] flex touch-none items-center justify-center p-0 md:p-6"
-              custom={{ prefersReducedMotion, isMobile }}
-              variants={dialogVariants}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              style={{ transformOrigin: "center center" }}
-              onClick={onClose}
-            />
-          }
-        >
-          <div
-            role="presentation"
-            className="bg-surface relative flex h-[100dvh] max-h-[100dvh] w-full max-w-7xl flex-col overflow-hidden rounded-none border-0 border-white/10 shadow-2xl md:aspect-[16/10] md:h-auto md:max-h-[85vh] md:rounded-3xl md:border"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.stopPropagation()}
+          {/* Modal Popup Container */}
+          <Dialog.Popup
+            render={
+              <motion.div
+                className="bg-surface relative z-10 flex h-[100dvh] max-h-[100dvh] w-full max-w-7xl flex-col overflow-hidden rounded-none border-0 border-white/10 shadow-2xl md:aspect-[16/10] md:h-auto md:max-h-[85vh] md:rounded-3xl md:border"
+                custom={{ prefersReducedMotion, isMobile }}
+                variants={dialogVariants}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                style={{ transformOrigin: "center center" }}
+              />
+            }
           >
             {/* Specular sheen header overlay matching CV modal */}
             <div className="pointer-events-none absolute top-0 right-0 left-0 z-20 h-28 bg-gradient-to-b from-white/5 to-transparent" />
@@ -215,8 +208,8 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
                 {item.description}
               </p>
             </div>
-          </div>
-        </Dialog.Popup>
+          </Dialog.Popup>
+        </div>
       </Dialog.Portal>
     </Dialog.Root>
   );

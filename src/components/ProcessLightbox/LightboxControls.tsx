@@ -1,4 +1,5 @@
 import { memo, useRef, useCallback, useEffect } from "react";
+import { Dialog } from "@base-ui/react/dialog";
 import { useControls, useTransformEffect } from "react-zoom-pan-pinch";
 import { Plus, Minus, X } from "lucide-react";
 import { LiquidGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
@@ -111,16 +112,20 @@ const LightboxControls = memo(function LightboxControls({
         <div className="mx-0.5 h-4 w-px bg-white/10" />
 
         {/* Close */}
-        <LiquidGlassButton
-          onClick={onClose}
-          ariaLabel="Close lightbox"
-          magnetic
-          magneticStrength={0.04}
-          roundedClass="rounded-full"
-          className="text-text-primary flex size-11 items-center justify-center p-0"
-        >
-          <X size={14} />
-        </LiquidGlassButton>
+        <Dialog.Close
+          render={
+            <LiquidGlassButton
+              onClick={onClose}
+              ariaLabel="Close lightbox"
+              magnetic
+              magneticStrength={0.04}
+              roundedClass="rounded-full"
+              className="text-text-primary flex size-11 items-center justify-center p-0"
+            >
+              <X size={14} />
+            </LiquidGlassButton>
+          }
+        />
       </div>
     </div>
   );
