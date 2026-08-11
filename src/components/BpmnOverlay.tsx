@@ -71,22 +71,21 @@ export default function BpmnOverlay({
   useEffect(() => {
     if (isMobile || hasDismissedTip) return;
 
-    let fadeTimer: ReturnType<typeof setTimeout> | null = null;
-    const timer = setTimeout(() => {
+    const showTipTimer = setTimeout(() => {
       setShowHotkeyTip(true);
       if (typeof window !== "undefined") {
         sessionStorage.setItem("bpmn_tip_dismissed", "true");
       }
       setHasDismissedTip(true);
-      // Fade out after 6 seconds
-      fadeTimer = setTimeout(() => {
-        setShowHotkeyTip(false);
-      }, 6000);
     }, 12000);
 
+    const hideTipTimer = setTimeout(() => {
+      setShowHotkeyTip(false);
+    }, 18000);
+
     return () => {
-      clearTimeout(timer);
-      if (fadeTimer) clearTimeout(fadeTimer);
+      clearTimeout(showTipTimer);
+      clearTimeout(hideTipTimer);
     };
   }, [isMobile, hasDismissedTip]);
 

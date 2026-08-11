@@ -9,7 +9,7 @@ function Footer() {
   const currentYear = CURRENT_YEAR;
 
   return (
-    <footer className="relative z-10 mx-auto w-full max-w-[1200px] px-6 pb-8 md:px-10 md:pb-12 lg:px-16">
+    <footer className="relative z-10 mx-auto w-full max-w-[1200px] px-6 pb-[calc(2rem+env(safe-area-inset-bottom))] md:px-10 md:pb-[calc(3rem+env(safe-area-inset-bottom))] lg:px-16">
       <div className="mb-6 h-px w-full bg-white/5" />
       <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
         {/* Copyright */}

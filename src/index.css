@@ -75,7 +75,16 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+a,
+button,
+[role="button"] {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 html {
+  overscroll-behavior-y: none;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--stroke)) hsl(var(--bg));

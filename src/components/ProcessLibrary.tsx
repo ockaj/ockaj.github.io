@@ -243,7 +243,7 @@ function ProcessLibrary() {
             className="hidden w-full flex-col justify-center lg:col-span-5 lg:flex"
           >
             <div className="relative w-full">
-              <div className="no-scrollbar process-tabs-mask -mx-6 overflow-x-auto overscroll-contain px-6 py-2 md:-mx-10 md:px-10 lg:-mx-4 lg:max-h-[360px] lg:overflow-x-hidden lg:overflow-y-auto lg:px-4 lg:py-6">
+              <div className="no-scrollbar process-tabs-mask -mx-6 touch-pan-y overflow-x-auto overscroll-contain px-6 py-2 md:-mx-10 md:px-10 lg:-mx-4 lg:max-h-[360px] lg:overflow-x-hidden lg:overflow-y-auto lg:px-4 lg:py-6">
                 <Tabs
                   value={activeTopicId}
                   onChange={handleTopicChange}

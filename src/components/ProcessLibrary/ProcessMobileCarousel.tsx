@@ -144,7 +144,7 @@ export default function ProcessMobileCarousel({
                             />
                           </button>
                           <div className="pointer-events-none absolute right-2.5 bottom-2.5 z-10">
-                            <span className="bg-surface/80 text-text-primary group-hover/canvas:border-accent/60 group-hover/canvas:text-accent inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-3 py-1.5 text-xs font-semibold shadow-xl backdrop-blur-md transition-all duration-200">
+                            <span className="bg-surface/80 text-text-primary group-hover/canvas:border-accent/60 group-hover/canvas:text-accent inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-3 py-1.5 text-xs font-semibold shadow-xl backdrop-blur-md transition-colors duration-200">
                               <Maximize2 size={12} className="text-accent" />
                               <span>Expand</span>
                             </span>

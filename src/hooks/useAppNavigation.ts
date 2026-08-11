@@ -26,7 +26,7 @@ const REVERSE_LABEL_MAP = new Map(
 function useScrollSpy(
   isLoading: boolean,
   isNavigatingRef: React.RefObject<boolean>,
-  visibleSectionsRef: React.RefObject<Set<string> | null>,
+  visibleSectionsRef: React.RefObject<Set<string>>,
   setActiveSection: (section: string) => void,
 ) {
   useEffect(() => {
@@ -66,10 +66,10 @@ function useScrollSpy(
       { rootMargin: "-25% 0px -55% 0px" },
     );
 
-    SECTIONS.forEach((id) => {
+    for (const id of SECTIONS) {
       const element = document.getElementById(id);
       if (element) observer.observe(element);
-    });
+    }
 
     return () => observer.disconnect();
   }, [isLoading, isNavigatingRef, visibleSectionsRef, setActiveSection]);
@@ -100,10 +100,7 @@ export function useNavigation() {
   });
 
   const isNavigatingRef = useRef(false);
-  const visibleSectionsRef = useRef<Set<string> | null>(null);
-  if (visibleSectionsRef.current === null) {
-    visibleSectionsRef.current = new Set<string>();
-  }
+  const visibleSectionsRef = useRef(new Set<string>());
   const scrollEndCleanupRef = useRef<(() => void) | null>(null);
 
   const handleNavClick = useCallback((section: string) => {

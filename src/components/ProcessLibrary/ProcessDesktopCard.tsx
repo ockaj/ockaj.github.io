@@ -137,7 +137,7 @@ export default function ProcessDesktopCard({
                 className="flex w-full flex-1 flex-col justify-between"
               >
                 {/* Blueprint Stage */}
-                <div className="group/canvas relative mb-6 flex aspect-[16/10] w-full items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white transition-all duration-300 select-none hover:border-white/25 sm:mb-7">
+                <div className="group/canvas relative mb-6 flex aspect-[16/10] w-full items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white transition-colors duration-300 select-none hover:border-white/25 sm:mb-7">
                   <button
                     type="button"
                     className="focus-visible:ring-accent flex h-full min-h-[44px] w-full cursor-zoom-in items-center justify-center p-4 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none sm:p-6 md:p-7"
@@ -162,7 +162,7 @@ export default function ProcessDesktopCard({
                     />
                   </button>
                   <div className="pointer-events-none absolute right-3 bottom-3 z-10">
-                    <span className="bg-surface/80 text-text-primary group-hover/canvas:border-accent/60 group-hover/canvas:text-accent inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-3.5 py-1.5 text-xs font-semibold shadow-xl backdrop-blur-md transition-all duration-200 group-hover/canvas:scale-105">
+                    <span className="bg-surface/80 text-text-primary group-hover/canvas:border-accent/60 group-hover/canvas:text-accent inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-3.5 py-1.5 text-xs font-semibold shadow-xl backdrop-blur-md transition duration-200 group-hover/canvas:scale-105">
                       <Maximize2 size={13} className="text-accent" />
                       <span>Expand Diagram</span>
                     </span>
