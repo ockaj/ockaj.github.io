@@ -98,7 +98,7 @@ export default function ProcessDesktopCard({
                   <Tab
                     value="asis"
                     className={cn(
-                      "focus-visible:ring-accent relative flex h-7 cursor-pointer items-center justify-center rounded-lg px-3 text-[11px] font-semibold tracking-wider uppercase transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none sm:h-8.5 sm:px-4 sm:text-xs",
+                      "focus-visible:ring-accent relative flex h-7 cursor-pointer items-center justify-center rounded-lg px-3 text-xs font-semibold tracking-wider uppercase transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none sm:h-8.5 sm:px-4 sm:text-xs",
                       activeViewMode === "asis"
                         ? "font-bold text-white"
                         : "text-white/70 hover:text-white",
@@ -109,7 +109,7 @@ export default function ProcessDesktopCard({
                   <Tab
                     value="tobe"
                     className={cn(
-                      "focus-visible:ring-accent relative flex h-7 cursor-pointer items-center justify-center rounded-lg px-3 text-[11px] font-semibold tracking-wider uppercase transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none sm:h-8.5 sm:px-4 sm:text-xs",
+                      "focus-visible:ring-accent relative flex h-7 cursor-pointer items-center justify-center rounded-lg px-3 text-xs font-semibold tracking-wider uppercase transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none sm:h-8.5 sm:px-4 sm:text-xs",
                       activeViewMode === "tobe"
                         ? "font-bold text-white"
                         : "text-white/70 hover:text-white",

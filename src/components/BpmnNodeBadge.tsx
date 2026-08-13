@@ -163,7 +163,7 @@ const BpmnNodeBadge = memo(function BpmnNodeBadge({
     <Tooltip content={getBpmnDescription(type)}>
       <span
         className={cn(
-          "text-accent inline-flex -translate-y-[0.5px] items-center justify-center text-[20px] leading-none",
+          "text-accent inline-flex -translate-y-[0.5px] items-center justify-center text-xl leading-none",
           iconClass,
           className,
         )}

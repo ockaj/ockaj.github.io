@@ -58,10 +58,13 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
       >
         {/* Header */}
         <motion.div variants={drawerItemVariants}>
-          <span className="text-accent bg-accent/20 border-accent/30 rounded-xl border px-2.5 py-0.5 text-[10px] font-bold uppercase">
-            {study.category}
-          </span>
-          <h3 className="font-display text-text-primary mt-2 text-2xl text-balance md:text-3xl">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="bg-accent size-1.5 rounded-full" />
+            <span className="text-accent text-xs font-bold tracking-widest uppercase">
+              {study.category}
+            </span>
+          </div>
+          <h3 className="font-display text-text-primary text-2xl text-balance md:text-3xl">
             {study.title}
           </h3>
           <p className="text-muted mt-0.5 text-xs text-pretty">

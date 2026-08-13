@@ -122,7 +122,7 @@ export default function LoadingMethodologyChecklist({
                         key={step.label}
                         className="flex h-[50px] flex-col justify-center pr-2"
                       >
-                        <span className="text-accent/80 mb-0.5 text-[10px] font-bold tracking-wider uppercase">
+                        <span className="text-accent/80 mb-0.5 text-xs font-bold tracking-wider uppercase">
                           Phase {idx + 1} of 7
                         </span>
                         <span className="text-text-primary block text-xs leading-snug font-semibold text-pretty">

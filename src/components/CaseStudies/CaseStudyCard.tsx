@@ -25,9 +25,10 @@ const CaseStudyCard = memo(function CaseStudyCard({
       <div className="relative z-10 grid h-full w-full gap-4 p-6 md:grid-cols-12 md:gap-8 md:p-8">
         {/* Left column: Title, challenge, solution */}
         <div className="flex flex-col gap-4 md:col-span-7 md:gap-6">
-          {/* Category badge */}
-          <div>
-            <span className="text-accent bg-accent/20 border-accent/30 inline-block rounded-xl border px-2.5 py-0.5 text-[10px] font-bold uppercase">
+          {/* Category kicker */}
+          <div className="flex items-center gap-2">
+            <span className="bg-accent size-1.5 rounded-full" />
+            <span className="text-accent text-xs font-bold tracking-widest uppercase">
               {study.category}
             </span>
           </div>

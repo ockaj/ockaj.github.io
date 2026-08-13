@@ -98,7 +98,7 @@ export function getGlassClasses({
       : "cursor-default";
 
   const baseClasses = cn(
-    "group relative inline-flex items-center justify-center backdrop-blur-sm md:backdrop-blur-lg text-text-primary select-none overflow-hidden",
+    "group relative inline-flex items-center justify-center bg-surface/35 backdrop-blur-sm md:backdrop-blur-lg backdrop-saturate-150 text-text-primary select-none overflow-hidden",
     cursorAndFocusClasses,
     roundedClass,
     className,

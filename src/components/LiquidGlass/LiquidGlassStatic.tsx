@@ -51,7 +51,7 @@ export default function LiquidGlassStatic({
 
   const baseClasses = `
     relative inline-flex items-center justify-center
-    backdrop-blur-sm md:backdrop-blur-lg
+    bg-surface/35 backdrop-blur-sm md:backdrop-blur-lg backdrop-saturate-150
     text-text-primary select-none
     overflow-hidden cursor-default ${roundedClass}
   `
