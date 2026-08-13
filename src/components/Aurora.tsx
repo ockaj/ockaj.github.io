@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState, memo } from "react";
+import { useEffect, useRef, useState, useCallback, memo } from "react";
 import { useReducedMotion } from "motion/react";
 import { ErrorBoundary } from "./ErrorBoundary";
 import AuroraFallback from "./AuroraFallback";
 import { useIsMobile } from "../hooks/useMediaQuery";
+import { useResizeObserver } from "../hooks/useResizeObserver";
 import {
   Renderer,
   Program,
@@ -129,6 +130,9 @@ function useAuroraCanvas(
   const triggerRef = useRef<(() => void) | null>(null);
   const [isContextLost, setIsContextLost] = useState(false);
   const isContextLostRef = useRef(false);
+  const resizeHandlerRef = useRef<
+    ((entry: ResizeObserverEntry) => void) | null
+  >(null);
 
   useEffect(() => {
     propsRef.current = props;
@@ -244,8 +248,9 @@ function useAuroraCanvas(
       }
     }
 
-    const resizeObserver = new ResizeObserver(resize);
-    resizeObserver.observe(ctn);
+    resizeHandlerRef.current = (entry: ResizeObserverEntry) => {
+      resize([entry]);
+    };
 
     const handleContextLost = (e: Event) => {
       e.preventDefault();
@@ -375,7 +380,7 @@ function useAuroraCanvas(
     const activeGl = gl;
     return () => {
       cancelAnimationFrame(animateId);
-      resizeObserver.disconnect();
+      resizeHandlerRef.current = null;
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       canvasEl.removeEventListener("webglcontextlost", handleContextLost);
       canvasEl.removeEventListener(
@@ -388,6 +393,12 @@ function useAuroraCanvas(
       activeGl.getExtension("WEBGL_lose_context")?.loseContext();
     };
   }, [ctnRef]);
+
+  const handleResize = useCallback((entry: ResizeObserverEntry) => {
+    resizeHandlerRef.current?.(entry);
+  }, []);
+
+  useResizeObserver(ctnRef.current, handleResize);
 
   useEffect(() => {
     if (!prefersReducedMotion && triggerRef.current) {

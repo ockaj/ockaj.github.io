@@ -183,26 +183,26 @@ export default function ProcessDesktopCard({
                     {activeVariant.description}
                   </p>
                   {activeVariant.specTags &&
-                    activeVariant.specTags.length > 0 && (
-                      <motion.div
-                        variants={tagContainerVariants}
-                        initial="hidden"
-                        animate="visible"
-                        custom={{ prefersReducedMotion }}
-                        className="flex flex-wrap gap-2 pt-1"
-                      >
-                        {activeVariant.specTags.map((tag) => (
-                          <motion.span
-                            key={tag}
-                            variants={tagItemVariants}
-                            custom={{ prefersReducedMotion }}
-                            className="text-muted hover:text-text-primary rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs transition-colors select-none hover:border-white/20"
-                          >
-                            {tag}
-                          </motion.span>
-                        ))}
-                      </motion.div>
-                    )}
+                  activeVariant.specTags.length > 0 ? (
+                    <motion.div
+                      variants={tagContainerVariants}
+                      initial="hidden"
+                      animate="visible"
+                      custom={{ prefersReducedMotion }}
+                      className="flex flex-wrap gap-2 pt-1"
+                    >
+                      {activeVariant.specTags.map((tag) => (
+                        <motion.span
+                          key={tag}
+                          variants={tagItemVariants}
+                          custom={{ prefersReducedMotion }}
+                          className="text-muted hover:text-text-primary rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs transition-colors select-none hover:border-white/20"
+                        >
+                          {tag}
+                        </motion.span>
+                      ))}
+                    </motion.div>
+                  ) : null}
                 </div>
               </motion.div>
             </AnimatePresence>

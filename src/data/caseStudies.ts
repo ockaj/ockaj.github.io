@@ -58,6 +58,8 @@ const parseTools = (raw: string): string[] =>
     .map((t) => t.trim())
     .filter(Boolean);
 
+const MD_EXT_REGEX = /\.md$/;
+
 export const CASE_STUDIES: CaseStudyDetail[] = Object.entries(
   caseStudyModules,
 ).map(([path, module]) => {
@@ -67,7 +69,8 @@ export const CASE_STUDIES: CaseStudyDetail[] = Object.entries(
   const fm = (parse(parts[1]) || {}) as CaseStudyFrontmatter;
   const body = parts.slice(2).join("---").trim();
 
-  let id: number | string = (fm.id as string) || filename.replace(/\.md$/, "");
+  let id: number | string =
+    (fm.id as string) || filename.replace(MD_EXT_REGEX, "");
   if (typeof id === "string" && !isNaN(Number(id))) id = Number(id);
 
   return {

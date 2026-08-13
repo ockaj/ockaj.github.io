@@ -164,18 +164,18 @@ export default function ProcessMobileCarousel({
                             {cardVariant.description}
                           </p>
                           {cardVariant.specTags &&
-                            cardVariant.specTags.length > 0 && (
-                              <div className="flex flex-wrap gap-2 pt-1">
-                                {cardVariant.specTags.map((tag) => (
-                                  <span
-                                    key={tag}
-                                    className="text-muted rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs transition-colors select-none"
-                                  >
-                                    {tag}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
+                          cardVariant.specTags.length > 0 ? (
+                            <div className="flex flex-wrap gap-2 pt-1">
+                              {cardVariant.specTags.map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="text-muted rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs transition-colors select-none"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          ) : null}
                         </div>
                       </motion.div>
                     </AnimatePresence>

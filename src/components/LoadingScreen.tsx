@@ -294,7 +294,7 @@ export default function LoadingScreen({
 
       {/* Center: BPMN Diagram Area */}
       <div className="relative z-10 flex w-full flex-1 items-center justify-center py-6">
-        {!isMobile && (
+        {!isMobile ? (
           <LoadingBpmnDiagram
             nodes={nodes}
             path1={path1}
@@ -310,8 +310,8 @@ export default function LoadingScreen({
             path4Visible={path4Visible}
             path5Visible={path5Visible}
           />
-        )}
-        {isMobile && <div className="flex-1" />}
+        ) : null}
+        {isMobile ? <div className="flex-1" /> : null}
       </div>
 
       {/* Bottom Layout Row */}

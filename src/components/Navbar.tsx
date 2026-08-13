@@ -343,7 +343,7 @@ export default function Navbar({
         </div>
 
         {/* Mobile Menu Dropdown Panel (Mobile Only) */}
-        {isMobile && (
+        {isMobile ? (
           <MobileMenu
             isOpen={isOpen}
             active={active}
@@ -351,7 +351,7 @@ export default function Navbar({
             onClose={handleClose}
             onChange={handleNav}
           />
-        )}
+        ) : null}
       </nav>
     </>
   );

@@ -269,8 +269,7 @@ export default function LiquidGlassDesktop({
   const ContentTag = isInline ? "span" : "div";
 
   const rendersFullEffects = interactive && !isMotionReduced;
-  const rendersReducedRipple =
-    interactive && isMotionReduced && effectiveSpringScale && effectiveRipple;
+  const rendersRipple = interactive && effectiveSpringScale && effectiveRipple;
 
   const innerElements = (
     <>
@@ -279,7 +278,7 @@ export default function LiquidGlassDesktop({
         roundedClass={roundedClass}
         style={innerGlassStyle}
       />
-      {rendersFullEffects && (
+      {rendersFullEffects ? (
         <>
           <SpecularGlowOverlay
             roundedClass={roundedClass}
@@ -290,29 +289,20 @@ export default function LiquidGlassDesktop({
             springOpacity={springOpacity}
           />
 
-          {effectiveSpringScale && effectiveRipple && (
-            <Ripple
-              rippleX={rippleX}
-              rippleY={rippleY}
-              rippleRadius={rippleRadius}
-              rippleOpacity={rippleOpacity}
-            />
-          )}
-
           <motion.span
             className="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
             style={{ background: borderGradient, mixBlendMode: "overlay" }}
           />
         </>
-      )}
-      {rendersReducedRipple && (
+      ) : null}
+      {rendersRipple ? (
         <Ripple
           rippleX={rippleX}
           rippleY={rippleY}
           rippleRadius={rippleRadius}
           rippleOpacity={rippleOpacity}
         />
-      )}
+      ) : null}
 
       <ContentTag className={contentClasses}>{children}</ContentTag>
     </>

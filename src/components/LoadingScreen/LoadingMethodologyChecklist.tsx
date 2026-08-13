@@ -31,7 +31,7 @@ export default function LoadingMethodologyChecklist({
         Process Modeling Methodology
       </span>
       {/* Methodology checklist — Desktop Only */}
-      {!isMobile && (
+      {!isMobile ? (
         <div className="flex w-full max-w-md flex-col gap-1.5 text-left select-none md:gap-2">
           {BPMN_STEPS.map((step, idx) => {
             const isActive = activeStepIdx === idx;
@@ -95,10 +95,10 @@ export default function LoadingMethodologyChecklist({
             );
           })}
         </div>
-      )}
+      ) : null}
 
       {/* Compact Active Phase Badge — Mobile Only */}
-      {isMobile && (
+      {isMobile ? (
         <div className="flex h-[64px] w-full flex-col justify-center gap-1 text-left select-none">
           {(() => {
             const displayIdx = getMobileDisplayIdx(
@@ -136,7 +136,7 @@ export default function LoadingMethodologyChecklist({
             );
           })()}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

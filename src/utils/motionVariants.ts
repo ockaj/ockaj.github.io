@@ -1,4 +1,4 @@
-import type { Variants } from "motion/react";
+import type { Variants, Transition } from "motion/react";
 import { EASE, SPRING } from "./springConfig";
 
 /** Standardized Motion Stagger & Viewport animation variants across section components */
@@ -64,7 +64,7 @@ export const createModalVariants = (yOffset = 15): Variants => ({
     };
   },
   visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => {
-    let transition: Record<string, unknown> = SPRING.modal;
+    let transition: Transition = SPRING.modal;
     if (custom.prefersReducedMotion) {
       transition = { duration: 0.15 };
     } else if (custom.isMobile) {

@@ -10,7 +10,12 @@ import {
 import { motion, type MotionStyle } from "motion/react";
 import { cn } from "../../utils/cn";
 import { springs } from "./config";
-import { type LiquidGlassProps, type LiquidGlassTagProps } from "./types";
+import {
+  type LiquidGlassProps,
+  type LiquidGlassTagProps,
+  type LiquidGlassAnimationProps,
+  type LiquidGlassDomProps,
+} from "./types";
 
 export const SCALE_TRANSITION = {
   scaleX: springs.scale,
@@ -122,8 +127,8 @@ export function setupTagProps(
   baseClasses: string,
   tagStyle: CSSProperties | MotionStyle,
   ariaLabel?: string,
-  sharedAnimationProps?: Record<string, unknown>,
-  domProps?: Record<string, unknown>,
+  sharedAnimationProps?: LiquidGlassAnimationProps,
+  domProps?: LiquidGlassDomProps,
 ): LiquidGlassTagProps {
   const tagProps: LiquidGlassTagProps = {
     className: baseClasses,

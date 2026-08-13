@@ -314,7 +314,7 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
                   : "hidden"
               }
             >
-              {activeTab === "pdf" && (
+              {activeTab === "pdf" ? (
                 <>
                   {pdfLoading ? (
                     <div className="bg-bg/80 absolute inset-0 z-20 flex flex-col items-center justify-center gap-3">
@@ -350,7 +350,7 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
                     </div>
                   </object>
                 </>
-              )}
+              ) : null}
             </div>
 
             {/* Tab 2: Interactive Resume HTML */}

@@ -44,6 +44,20 @@ export interface LiquidGlassPropsWithRef extends LiquidGlassProps {
   ref?: Ref<HTMLElement | null>;
 }
 
+export interface LiquidGlassAnimationProps {
+  whileHover?: unknown;
+  whileTap?: unknown;
+  transition?: unknown;
+  onMouseEnter?: (e: MouseEvent<HTMLElement>) => void;
+  onMouseMove?: (e: MouseEvent<HTMLElement>) => void;
+  onMouseLeave?: (e: MouseEvent<HTMLElement>) => void;
+  onPointerDown?: (e: React.PointerEvent<HTMLElement>) => void;
+}
+
+export type LiquidGlassDomProps = Partial<
+  Omit<AllHTMLAttributes<HTMLElement>, "style" | "onClick" | "onKeyDown">
+>;
+
 export interface LiquidGlassTagProps extends Omit<
   AllHTMLAttributes<HTMLElement>,
   "style"
