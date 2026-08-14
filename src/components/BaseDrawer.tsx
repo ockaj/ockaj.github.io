@@ -1,4 +1,4 @@
-import { useRef, ReactNode, memo } from "react";
+import { useRef, useState, ReactNode, memo } from "react";
 import { Dialog } from "@base-ui/react/dialog";
 import { motion, useReducedMotion, Variants } from "motion/react";
 import { X } from "lucide-react";
@@ -17,21 +17,35 @@ interface BaseDrawerProps {
   hashId?: string;
 }
 
-function getVisibleTransition(custom: {
+interface DrawerCustom {
   prefersReducedMotion: boolean;
   isMobile: boolean;
-}) {
+  exitVelocityX?: number;
+}
+
+function getVisibleTransition(custom: DrawerCustom) {
   if (custom.prefersReducedMotion) return { duration: 0.15 };
   return custom.isMobile ? SPRING.drawerMobile : SPRING.drawer;
 }
 
+function getHiddenTransition(custom: DrawerCustom) {
+  if (custom.prefersReducedMotion) return { duration: 0.15 };
+  if (custom.exitVelocityX !== undefined && custom.exitVelocityX > 0) {
+    return {
+      ...SPRING.exit,
+      velocity: custom.exitVelocityX,
+    };
+  }
+  return SPRING.exit;
+}
+
 const drawerVariants: Variants = {
-  hidden: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
+  hidden: (custom: DrawerCustom) => ({
     x: custom.prefersReducedMotion ? 0 : "100%",
     opacity: custom.prefersReducedMotion ? 0 : 1,
-    transition: custom.prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
+    transition: getHiddenTransition(custom),
   }),
-  visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
+  visible: (custom: DrawerCustom) => ({
     x: 0,
     opacity: 1,
     transition: getVisibleTransition(custom),
@@ -52,6 +66,9 @@ const BaseDrawer = memo(function BaseDrawer({
   const overlayRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
+  const [exitVelocityX, setExitVelocityX] = useState<number | undefined>(
+    undefined,
+  );
 
   useOverlay(true, onClose, hashId);
 
@@ -93,7 +110,11 @@ const BaseDrawer = memo(function BaseDrawer({
         <Dialog.Popup
           render={
             <motion.div
-              custom={{ prefersReducedMotion, isMobile }}
+              custom={{
+                prefersReducedMotion: !!prefersReducedMotion,
+                isMobile,
+                exitVelocityX,
+              }}
               initial="hidden"
               animate="visible"
               exit="hidden"
@@ -103,6 +124,7 @@ const BaseDrawer = memo(function BaseDrawer({
               dragElastic={DRAG_ELASTIC}
               onDragEnd={(_e, info) => {
                 if (info.offset.x > 100 || info.velocity.x > 300) {
+                  setExitVelocityX(info.velocity.x);
                   onClose();
                 }
               }}
