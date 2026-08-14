@@ -120,7 +120,7 @@ const DEFAULT_COLOR_STOPS = ["#1E1B4B", "#312E81", "#6667AB", "#A78BFA"];
 
 function useAuroraCanvas(
   props: Readonly<AuroraProps>,
-  ctnRef: React.RefObject<HTMLDivElement | null>,
+  container: HTMLDivElement | null,
 ) {
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
@@ -141,7 +141,7 @@ function useAuroraCanvas(
   });
 
   useEffect(() => {
-    const ctn = ctnRef.current;
+    const ctn = container;
     if (!ctn) return;
 
     const {
@@ -392,13 +392,13 @@ function useAuroraCanvas(
       }
       activeGl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, [ctnRef]);
+  }, [container]);
 
   const handleResize = useCallback((entry: ResizeObserverEntry) => {
     resizeHandlerRef.current?.(entry);
   }, []);
 
-  useResizeObserver(ctnRef.current, handleResize);
+  useResizeObserver(container, handleResize);
 
   useEffect(() => {
     if (!prefersReducedMotion && triggerRef.current) {
@@ -410,11 +410,11 @@ function useAuroraCanvas(
 }
 
 function AuroraCanvas(props: Readonly<AuroraProps>) {
-  const ctnRef = useRef<HTMLDivElement>(null);
-  const { isContextLost } = useAuroraCanvas(props, ctnRef);
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
+  const { isContextLost } = useAuroraCanvas(props, container);
 
   return (
-    <div ref={ctnRef} className="relative h-full w-full">
+    <div ref={setContainer} className="relative h-full w-full">
       {isContextLost ? <AuroraFallback /> : null}
     </div>
   );
