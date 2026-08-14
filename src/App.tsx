@@ -76,10 +76,19 @@ function App() {
   const isMobile = useIsMobile();
   const rootMargin = isMobile ? "500px" : "300px";
 
-  const [caseStudiesRef, caseStudiesInView] = useLazyMount({ rootMargin });
-  const [skillsRef, skillsInView] = useLazyMount({ rootMargin });
-  const [processesRef, processesInView] = useLazyMount({ rootMargin });
-  const [journalRef, journalInView] = useLazyMount({ rootMargin });
+  const [caseStudiesRef, caseStudiesInView] = useLazyMount({
+    id: "work",
+    rootMargin,
+  });
+  const [skillsRef, skillsInView] = useLazyMount({ id: "skills", rootMargin });
+  const [processesRef, processesInView] = useLazyMount({
+    id: "processes",
+    rootMargin,
+  });
+  const [journalRef, journalInView] = useLazyMount({
+    id: "journal",
+    rootMargin,
+  });
 
   // Preload lazy components concurrently with main-thread yielding to protect INP
   usePreloadComponents(isMobile);

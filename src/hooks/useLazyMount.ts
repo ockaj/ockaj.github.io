@@ -1,6 +1,27 @@
 import { useState, useEffect, useRef } from "react";
 
+const SECTIONS_ORDER = [
+  "home",
+  "work",
+  "skills",
+  "processes",
+  "journal",
+  "contact",
+];
+
+function shouldMountForHash(id?: string): boolean {
+  if (typeof window === "undefined" || !id) return false;
+  const hash = window.location.hash.substring(1);
+  if (!hash) return false;
+  const targetIndex = SECTIONS_ORDER.indexOf(hash);
+  const currentIndex = SECTIONS_ORDER.indexOf(id);
+  return (
+    targetIndex !== -1 && currentIndex !== -1 && currentIndex <= targetIndex
+  );
+}
+
 interface UseLazyMountOptions {
+  id?: string;
   rootMargin?: string;
 }
 
@@ -11,9 +32,10 @@ export function useLazyMount(
 ) {
   // Always mount immediately in development mode so boneyard CLI can capture DOM layout for skeletons
   const isDev = typeof import.meta !== "undefined" && !!import.meta.env?.DEV;
+  const initialMount = isDev || shouldMountForHash(options.id);
 
-  const [hasIntersected, setHasIntersected] = useState(isDev);
-  const hasIntersectedRef = useRef(isDev);
+  const [hasIntersected, setHasIntersected] = useState(initialMount);
+  const hasIntersectedRef = useRef(initialMount);
   const ref = useRef<HTMLElement | null>(null);
 
   // Destructure to avoid object reference changes re-triggering the effect

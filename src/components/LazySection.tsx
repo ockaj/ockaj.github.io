@@ -41,7 +41,7 @@ function LazySection({
     <section
       ref={sectionRef}
       id={id}
-      className="content-visibility-auto overflow-x-clip bg-transparent pt-16 md:pt-24"
+      className="overflow-x-clip bg-transparent pt-16 md:pt-24"
     >
       <div className="mx-auto max-w-[1200px]">
         <motion.div

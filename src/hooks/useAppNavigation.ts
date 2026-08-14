@@ -75,21 +75,6 @@ function useScrollSpy(
   }, [isLoading, isNavigatingRef, visibleSectionsRef, setActiveSection]);
 }
 
-function useInitialHashScroll(isLoading: boolean) {
-  useEffect(() => {
-    if (isLoading) return;
-    const hash = window.location.hash;
-    if (hash) {
-      const targetId = hash.substring(1);
-      if (targetId in LABEL_MAP) {
-        document
-          .getElementById(targetId)
-          ?.scrollIntoView({ behavior: "smooth" });
-      }
-    }
-  }, [isLoading]);
-}
-
 export function useNavigation() {
   const isLoading = useAppStore((state) => state.isLoading);
 
@@ -99,9 +84,36 @@ export function useNavigation() {
     return LABEL_MAP[hash] ?? "Home";
   });
 
-  const isNavigatingRef = useRef(false);
+  const isNavigatingRef = useRef(
+    typeof window !== "undefined" &&
+      !!window.location.hash &&
+      window.location.hash.substring(1) in LABEL_MAP &&
+      window.location.hash !== "#home",
+  );
   const visibleSectionsRef = useRef(new Set<string>());
   const scrollEndCleanupRef = useRef<(() => void) | null>(null);
+
+  useLayoutEffect(() => {
+    if (isLoading) return;
+    const hash = window.location.hash;
+    if (hash) {
+      const targetId = hash.substring(1);
+      if (targetId in LABEL_MAP) {
+        const element = document.getElementById(targetId);
+        if (element) {
+          isNavigatingRef.current = true;
+          element.scrollIntoView({ behavior: "auto" });
+
+          const unlock = () => {
+            isNavigatingRef.current = false;
+          };
+          requestAnimationFrame(() => {
+            requestAnimationFrame(unlock);
+          });
+        }
+      }
+    }
+  }, [isLoading]);
 
   const handleNavClick = useCallback((section: string) => {
     setActiveSection(section);
@@ -148,7 +160,6 @@ export function useNavigation() {
     visibleSectionsRef,
     setActiveSection,
   );
-  useInitialHashScroll(isLoading);
 
   return { activeSection, handleNavClick };
 }
