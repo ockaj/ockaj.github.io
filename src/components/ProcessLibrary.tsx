@@ -164,9 +164,37 @@ function ProcessLibrary() {
   const activeVariant = activeTopic[activeViewMode];
 
   useEffect(() => {
-    PROCESS_ITEMS.forEach((item) => {
-      prefetchAsset(item.image);
-    });
+    let idleId: number | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    if (
+      typeof window !== "undefined" &&
+      typeof window.requestIdleCallback === "function"
+    ) {
+      idleId = window.requestIdleCallback(
+        () => {
+          PROCESS_ITEMS.forEach((item) => {
+            prefetchAsset(item.image);
+          });
+        },
+        { timeout: 2000 },
+      );
+    } else if (typeof window !== "undefined") {
+      timeoutId = setTimeout(() => {
+        PROCESS_ITEMS.forEach((item) => {
+          prefetchAsset(item.image);
+        });
+      }, 300);
+    }
+
+    return () => {
+      if (idleId !== null && typeof window.cancelIdleCallback === "function") {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, []);
 
   useEffect(() => {

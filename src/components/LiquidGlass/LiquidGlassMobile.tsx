@@ -71,16 +71,16 @@ export default function LiquidGlassMobile(
 
   const handleRef = useCallback(
     (node: HTMLElement | null) => {
-      setElement(() => node);
-      if (node) {
+      setElement(() => (effectiveSpringScale ? node : null));
+      if (node && effectiveSpringScale) {
         setWidth(node.offsetWidth);
       }
       assignRef(ref, node);
     },
-    [ref],
+    [ref, effectiveSpringScale],
   );
 
-  useResizeObserver(element, (entry) => {
+  useResizeObserver(effectiveSpringScale ? element : null, (entry) => {
     const el = entry.target;
     if (!(el instanceof HTMLElement)) return;
     setWidth(el.offsetWidth);

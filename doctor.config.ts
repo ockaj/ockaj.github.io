@@ -2,7 +2,10 @@ import { defineConfig } from "react-doctor/api";
 
 export default defineConfig({
   ignore: {
-    rules: ["react-doctor/use-lazy-motion"],
+    rules: [
+      "react-doctor/use-lazy-motion",
+      "react-doctor/react-compiler-no-manual-memoization",
+    ],
     overrides: [
       {
         files: [

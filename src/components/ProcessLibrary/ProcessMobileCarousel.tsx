@@ -43,9 +43,10 @@ export default function ProcessMobileCarousel({
           ref={emblaRef}
         >
           <div className="flex touch-pan-y gap-4 sm:gap-6">
-            {PROCESS_TOPICS.map((topic) => {
+            {PROCESS_TOPICS.map((topic, idx) => {
               const cardViewMode = viewModes[topic.id] || "asis";
               const cardVariant = topic[cardViewMode];
+              const isFirstSlide = idx === 0;
 
               return (
                 <div
@@ -60,7 +61,7 @@ export default function ProcessMobileCarousel({
                   >
                     {/* Card Header */}
                     <div className="relative z-10 mb-4 flex w-full flex-col gap-3 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
-                      <h3 className="font-display text-text-primary text-2xl leading-tight tracking-tight text-balance sm:text-3xl">
+                      <h3 className="font-display text-text-primary flex min-h-[3.25rem] items-center text-2xl leading-tight tracking-tight text-balance sm:min-h-0 sm:text-3xl">
                         {topic.asis.title}
                       </h3>
 
@@ -141,7 +142,9 @@ export default function ProcessMobileCarousel({
                               width={800}
                               height={500}
                               className="h-full w-full rounded-lg object-contain"
-                              loading="lazy"
+                              loading={isFirstSlide ? "eager" : "lazy"}
+                              fetchPriority={isFirstSlide ? "high" : "low"}
+                              decoding={isFirstSlide ? "sync" : "async"}
                             />
                           </button>
                           <div className="pointer-events-none absolute right-2.5 bottom-2.5 z-10">
@@ -160,22 +163,22 @@ export default function ProcessMobileCarousel({
                               Operational Insight
                             </span>
                           </div>
-                          <p className="text-text-primary/90 line-clamp-3 text-sm leading-relaxed text-pretty">
+                          <p className="text-text-primary/90 line-clamp-3 min-h-[4.25rem] text-sm leading-relaxed text-pretty">
                             {cardVariant.description}
                           </p>
-                          {cardVariant.specTags &&
-                          cardVariant.specTags.length > 0 ? (
-                            <div className="flex flex-wrap gap-2 pt-1">
-                              {cardVariant.specTags.map((tag) => (
-                                <span
-                                  key={tag}
-                                  className="text-muted rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs transition-colors select-none"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          ) : null}
+                          <div className="flex min-h-[2rem] flex-wrap gap-2 pt-1">
+                            {cardVariant.specTags &&
+                            cardVariant.specTags.length > 0
+                              ? cardVariant.specTags.map((tag) => (
+                                  <span
+                                    key={tag}
+                                    className="text-muted rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs transition-colors select-none"
+                                  >
+                                    {tag}
+                                  </span>
+                                ))
+                              : null}
+                          </div>
                         </div>
                       </motion.div>
                     </AnimatePresence>
