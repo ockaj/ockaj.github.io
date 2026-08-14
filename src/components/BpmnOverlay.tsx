@@ -93,9 +93,7 @@ export default function BpmnOverlay({
     setIsOpen(false);
     const label = LABEL_MAP[sectionId];
     if (label) {
-      setTimeout(() => {
-        onNavigate(label);
-      }, 100);
+      onNavigate(label);
     }
   };
 
@@ -157,7 +155,7 @@ export default function BpmnOverlay({
       <AnimatePresence>
         {isOpen && typeof document !== "undefined" ? (
           <Dialog.Root
-            open
+            open={isOpen}
             modal
             disablePointerDismissal
             onOpenChange={(open) => {

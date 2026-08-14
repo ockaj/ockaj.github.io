@@ -177,9 +177,7 @@ export default function Navbar({
   const handleNav = useCallback(
     (label: string) => {
       dispatch({ type: "SET_IS_OPEN", isOpen: false });
-      setTimeout(() => {
-        onNavClick(label);
-      }, 100);
+      onNavClick(label);
     },
     [onNavClick],
   );
