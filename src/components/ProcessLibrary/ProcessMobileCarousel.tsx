@@ -1,9 +1,9 @@
-import { motion, AnimatePresence, Variants } from "motion/react";
-import { Sparkles, Maximize2 } from "lucide-react";
+import { motion } from "motion/react";
 import { LiquidGlass } from "../LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
 import { cn } from "../../utils/cn";
 import { PROCESS_TOPICS } from "../../data/processItems";
+import ProcessVariantStage from "./ProcessVariantStage";
 
 interface ProcessMobileCarouselProps {
   emblaRef: (node: HTMLElement | null) => void;
@@ -17,8 +17,6 @@ interface ProcessMobileCarouselProps {
     type: string;
   }) => void;
   prefersReducedMotion: boolean | null;
-  direction: number;
-  innerContentVariants: Variants;
 }
 
 export default function ProcessMobileCarousel({
@@ -27,8 +25,6 @@ export default function ProcessMobileCarousel({
   handleTopicViewModeChange,
   setLightboxItem,
   prefersReducedMotion,
-  direction,
-  innerContentVariants,
 }: Readonly<ProcessMobileCarouselProps>) {
   return (
     <div className="col-span-1 flex w-full min-w-0 flex-col justify-center lg:hidden">
@@ -45,8 +41,6 @@ export default function ProcessMobileCarousel({
           <div className="flex touch-pan-y gap-4 sm:gap-6">
             {PROCESS_TOPICS.map((topic, idx) => {
               const cardViewMode = viewModes[topic.id] || "asis";
-              const cardVariant = topic[cardViewMode];
-              const isFirstSlide = idx === 0;
 
               return (
                 <div
@@ -110,78 +104,13 @@ export default function ProcessMobileCarousel({
                       </div>
                     </div>
 
-                    <AnimatePresence mode="wait" initial={false}>
-                      <motion.div
-                        key={cardViewMode}
-                        custom={{ prefersReducedMotion, direction }}
-                        initial="hidden"
-                        animate="visible"
-                        exit="exit"
-                        variants={innerContentVariants}
-                        className="flex w-full flex-1 flex-col justify-start"
-                      >
-                        {/* Blueprint Stage */}
-                        <div className="group/canvas relative mb-4 flex aspect-[16/10] w-full items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white select-none sm:mb-5">
-                          <button
-                            type="button"
-                            className="flex h-full w-full cursor-zoom-in items-center justify-center p-3 focus-visible:outline-none sm:p-4"
-                            onClick={() =>
-                              setLightboxItem({
-                                id: topic.id,
-                                title: cardVariant.title,
-                                description: cardVariant.description,
-                                image: cardVariant.image,
-                                type: cardVariant.type,
-                              })
-                            }
-                            aria-label={`Zoom diagram: ${cardVariant.title}`}
-                          >
-                            <img
-                              src={cardVariant.image}
-                              alt={cardVariant.title}
-                              width={800}
-                              height={500}
-                              className="h-full w-full rounded-lg object-contain"
-                              loading={isFirstSlide ? "eager" : "lazy"}
-                              fetchPriority={isFirstSlide ? "high" : "low"}
-                              decoding={isFirstSlide ? "sync" : "async"}
-                            />
-                          </button>
-                          <div className="pointer-events-none absolute right-2.5 bottom-2.5 z-10">
-                            <span className="bg-surface/80 text-text-primary group-hover/canvas:border-accent/60 group-hover/canvas:text-accent inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-3 py-1.5 text-xs font-semibold shadow-xl backdrop-blur-md transition-colors duration-200">
-                              <Maximize2 size={12} className="text-accent" />
-                              <span>Expand</span>
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Card Footer Details */}
-                        <div className="relative z-10 flex flex-col gap-2.5">
-                          <div className="flex items-center gap-2">
-                            <Sparkles size={14} className="text-accent" />
-                            <span className="text-accent font-body text-xs font-bold tracking-wider uppercase">
-                              Operational Insight
-                            </span>
-                          </div>
-                          <p className="text-text-primary/90 line-clamp-3 min-h-[4.25rem] text-sm leading-relaxed text-pretty">
-                            {cardVariant.description}
-                          </p>
-                          <div className="flex min-h-[2rem] flex-wrap gap-2 pt-1">
-                            {cardVariant.specTags &&
-                            cardVariant.specTags.length > 0
-                              ? cardVariant.specTags.map((tag) => (
-                                  <span
-                                    key={tag}
-                                    className="text-muted rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs transition-colors select-none"
-                                  >
-                                    {tag}
-                                  </span>
-                                ))
-                              : null}
-                          </div>
-                        </div>
-                      </motion.div>
-                    </AnimatePresence>
+                    {/* Zero-Unmount Layer Staged Content */}
+                    <ProcessVariantStage
+                      topic={topic}
+                      activeViewMode={cardViewMode}
+                      setLightboxItem={setLightboxItem}
+                      isFirstSlide={idx === 0}
+                    />
                   </LiquidGlass>
                 </div>
               );

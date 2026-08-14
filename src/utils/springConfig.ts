@@ -104,4 +104,17 @@ export const SPRING = {
     damping: 18,
     mass: 0.8,
   },
+  /** Process model diagram & stage crossfade transition */
+  stage: {
+    type: "spring" as const,
+    duration: 0.45,
+    bounce: 0.04,
+    restDelta: 0.005,
+  },
+  stageExit: {
+    type: "spring" as const,
+    duration: 0.32,
+    bounce: 0,
+    restDelta: 0.005,
+  },
 } as const;

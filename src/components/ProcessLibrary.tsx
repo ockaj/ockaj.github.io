@@ -89,45 +89,6 @@ const tabContentVariants: Variants = {
   }),
 };
 
-const innerContentVariants: Variants = {
-  hidden: (props: CustomAnimationProps = {}) => ({
-    opacity: 0,
-    scale: props.prefersReducedMotion ? 1 : 0.995,
-    transition: SPRING.exit,
-  }),
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: SPRING.modal,
-  },
-};
-
-(innerContentVariants as { exit: unknown }).exit = innerContentVariants.hidden;
-
-const tagContainerVariants: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.035,
-    },
-  },
-};
-
-const tagItemVariants: Variants = {
-  hidden: (props: CustomAnimationProps = {}) => ({
-    opacity: 0,
-    y: props.prefersReducedMotion ? 0 : 5,
-    scale: props.prefersReducedMotion ? 1 : 0.96,
-    transition: SPRING.exit,
-  }),
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: SPRING.modal,
-  },
-};
-
 function ProcessLibrary() {
   const prefersReducedMotion = useReducedMotion();
   const [activeTopicId, setActiveTopicId] = useState(PROCESS_TOPICS[0].id);
@@ -161,7 +122,6 @@ function ProcessLibrary() {
 
   const activeTopic = PROCESS_TOPIC_MAP.get(activeTopicId) ?? PROCESS_TOPICS[0];
   const activeViewMode = viewModes[activeTopic.id] || "asis";
-  const activeVariant = activeTopic[activeViewMode];
 
   useEffect(() => {
     let idleId: number | null = null;
@@ -330,15 +290,12 @@ function ProcessLibrary() {
             handleTopicViewModeChange={handleTopicViewModeChange}
             setLightboxItem={setLightboxItem}
             prefersReducedMotion={prefersReducedMotion}
-            direction={direction}
-            innerContentVariants={innerContentVariants}
           />
 
           {/* Desktop Right Column: Display Stage */}
           <ProcessDesktopCard
             activeTopic={activeTopic}
             activeViewMode={activeViewMode}
-            activeVariant={activeVariant}
             handleTopicViewModeChange={handleTopicViewModeChange}
             setLightboxItem={setLightboxItem}
             prefersReducedMotion={prefersReducedMotion}
@@ -346,9 +303,6 @@ function ProcessLibrary() {
             isMobile={isMobile}
             cardVariants={cardVariants}
             tabContentVariants={tabContentVariants}
-            innerContentVariants={innerContentVariants}
-            tagContainerVariants={tagContainerVariants}
-            tagItemVariants={tagItemVariants}
           />
 
           {/* Mobile Topic Selector Dock */}
