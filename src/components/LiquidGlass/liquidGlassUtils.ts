@@ -107,6 +107,16 @@ export function getGlassClasses({
   return { borderActiveClasses, baseClasses };
 }
 
+export const SEMANTIC_CONTAINERS = new Set([
+  "article",
+  "section",
+  "nav",
+  "aside",
+  "header",
+  "footer",
+  "main",
+]);
+
 export const TAG_MAP: Record<string, ElementType> = {
   a: motion.a,
   button: motion.button,
@@ -149,10 +159,18 @@ export function setupTagProps(
     tagProps.onClick = onClick as MouseEventHandler<HTMLButtonElement>;
   } else if (onClick) {
     tagProps.onClick = onClick as MouseEventHandler<HTMLElement>;
-    if (as !== "a" && (as as string) !== "button") {
-      tagProps.tabIndex = 0;
+    if (
+      as !== "a" &&
+      (as as string) !== "button" &&
+      !SEMANTIC_CONTAINERS.has(as)
+    ) {
+      if (domProps?.role === undefined) {
+        tagProps.role = "button";
+      }
+      if (domProps?.tabIndex === undefined) {
+        tagProps.tabIndex = 0;
+      }
       tagProps.onKeyDown = handleKeyDown;
-      tagProps.role = "button";
     }
   }
 

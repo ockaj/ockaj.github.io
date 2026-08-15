@@ -59,13 +59,21 @@ const JournalEntry = memo(function JournalEntry({
             </span>
             <span>{article.date}</span>
           </div>
-          <span className="text-accent group-hover:text-accent/80 inline-flex items-center gap-1.5 text-sm font-semibold transition-colors duration-200">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpen(article);
+            }}
+            aria-label={`Read article: ${article.title}`}
+            className="text-accent group-hover:text-accent/80 inline-flex cursor-pointer items-center gap-1.5 text-sm font-semibold transition-colors duration-200 focus-visible:underline focus-visible:outline-none"
+          >
             <span>Read</span>
             <ArrowUpRight
               size={16}
               className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
             />
-          </span>
+          </button>
         </div>
       </div>
     </LiquidGlass>

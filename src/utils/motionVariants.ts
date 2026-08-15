@@ -85,3 +85,60 @@ export const SECTION_TRANSITION = {
   duration: 0.45,
   ease: EASE.out,
 };
+
+export const mobileMenuPanelVariants: Variants = {
+  hidden: (prefersReducedMotion: boolean | null) =>
+    prefersReducedMotion
+      ? { opacity: 0 }
+      : {
+          y: -6,
+          scale: 0.98,
+          opacity: 0,
+          backdropFilter: "blur(0px) saturate(100%)",
+          backgroundColor: "hsla(0, 0%, 8%, 0)",
+          borderColor: "hsla(0, 0%, 100%, 0)",
+        },
+  visible: (prefersReducedMotion: boolean | null) => ({
+    y: 0,
+    scale: 1,
+    opacity: 1,
+    backdropFilter: "blur(10px) saturate(180%)",
+    backgroundColor: "hsla(0, 0%, 8%, 0.85)",
+    borderColor: "hsla(0, 0%, 100%, 0.1)",
+    transition: prefersReducedMotion
+      ? { duration: 0.15 }
+      : {
+          ...SPRING.drawerMobile,
+          staggerChildren: 0.035,
+          delayChildren: 0.03,
+        },
+  }),
+  exit: (prefersReducedMotion: boolean | null) =>
+    prefersReducedMotion
+      ? { opacity: 0, transition: { duration: 0.15 } }
+      : {
+          y: -6,
+          scale: 0.98,
+          opacity: 0,
+          backdropFilter: "blur(0px) saturate(100%)",
+          backgroundColor: "hsla(0, 0%, 8%, 0)",
+          borderColor: "hsla(0, 0%, 100%, 0)",
+          transition: SPRING.exit,
+        },
+};
+
+export const mobileMenuItemVariants: Variants = {
+  hidden: (prefersReducedMotion: boolean | null) =>
+    prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -4 },
+  visible: (prefersReducedMotion: boolean | null) =>
+    prefersReducedMotion
+      ? { opacity: 1, transition: { duration: 0.15 } }
+      : {
+          opacity: 1,
+          y: 0,
+          transition: {
+            duration: 0.2,
+            ease: EASE.out,
+          },
+        },
+};

@@ -15,7 +15,7 @@ import {
   type HTMLAttributes,
   type ComponentPropsWithoutRef,
 } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion, LayoutGroup } from "motion/react";
 import { SPRING } from "../../utils/springConfig";
 import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
@@ -27,7 +27,7 @@ import { scaleDeltas, scaleVertical, springs, hoverDelta } from "./config";
 
 interface LiquidGlassTabsProps<
   T extends string | number = string | number,
-> extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
+> extends Omit<HTMLAttributes<HTMLDivElement>, "onChange" | "role"> {
   children: ReactNode;
   value: T;
   onChange?: (value: T) => void;
@@ -38,6 +38,7 @@ interface LiquidGlassTabsProps<
   squircle?: boolean;
   highlightClassName?: string;
   highlightStyle?: CSSProperties;
+  role?: string | null;
 }
 
 interface LiquidGlassTabProps extends Omit<
@@ -73,6 +74,7 @@ interface TabsContextValue {
   squircle: boolean;
   highlightClassName?: string;
   highlightStyle?: CSSProperties;
+  role?: string | null;
 }
 
 const TabsContext = createContext<TabsContextValue | null>(null);
@@ -98,6 +100,7 @@ function TabsInner<T extends TabValue>({
   highlightClassName = "",
   highlightStyle = DEFAULT_STYLE,
   style,
+  role = "tablist",
   ...rest
 }: Readonly<LiquidGlassTabsProps<T>>) {
   const hoverStore = useMemo(() => {
@@ -130,6 +133,7 @@ function TabsInner<T extends TabValue>({
       squircle,
       highlightClassName,
       highlightStyle,
+      role,
     }),
     [
       value,
@@ -142,26 +146,29 @@ function TabsInner<T extends TabValue>({
       squircle,
       highlightClassName,
       highlightStyle,
+      role,
     ],
   );
 
   return (
     <TabsContext value={contextValue}>
-      <div
-        role="tablist"
-        tabIndex={-1}
-        className={cn("flex", className)}
-        style={style}
-        {...rest}
-        onMouseLeave={(e) => {
-          hoverStore.set(null);
-          if (rest.onMouseLeave) {
-            rest.onMouseLeave(e);
-          }
-        }}
-      >
-        {children}
-      </div>
+      <LayoutGroup id={layoutId}>
+        <div
+          role={role ?? undefined}
+          tabIndex={role === "tablist" ? -1 : undefined}
+          className={cn("flex", className)}
+          style={style}
+          {...rest}
+          onMouseLeave={(e) => {
+            hoverStore.set(null);
+            if (rest.onMouseLeave) {
+              rest.onMouseLeave(e);
+            }
+          }}
+        >
+          {children}
+        </div>
+      </LayoutGroup>
     </TabsContext>
   );
 }
@@ -233,30 +240,54 @@ function computeTargetScales(
 }
 
 function computeTabAriaProps(
-  restAriaSelected: unknown,
-  restAriaControls: unknown,
-  restTabIndex: unknown,
+  restAriaSelected: boolean | undefined,
+  restAriaControls: string | undefined,
+  restTabIndex: number | undefined,
   isTabRole: boolean,
   isActive: boolean,
-  value: TabValue,
 ) {
-  let computedAriaSelected = restAriaSelected as
-    boolean | "true" | "false" | undefined;
+  let computedAriaSelected = restAriaSelected;
   if (computedAriaSelected === undefined && isTabRole) {
-    computedAriaSelected = isActive ? "true" : "false";
+    computedAriaSelected = isActive;
   }
 
-  let computedAriaControls = restAriaControls as string | undefined;
-  if (computedAriaControls === undefined && isTabRole) {
-    computedAriaControls = `tabpanel-${value}`;
-  }
+  const computedAriaControls = restAriaControls;
 
-  let computedTabIndex = restTabIndex as number | undefined;
+  let computedTabIndex = restTabIndex;
   if (computedTabIndex === undefined && isTabRole) {
     computedTabIndex = isActive ? 0 : -1;
   }
 
   return { computedAriaSelected, computedAriaControls, computedTabIndex };
+}
+
+function resolveTabRole(
+  explicitRole: string | null | undefined,
+  parentRole: string | null | undefined,
+): string | undefined {
+  if (explicitRole !== undefined) {
+    return explicitRole ?? undefined;
+  }
+  if (parentRole === null) {
+    return undefined;
+  }
+  return "tab";
+}
+
+function computeOuterHighlightStyle(
+  squircle: boolean,
+  height: number,
+  willChange: boolean,
+  contextHighlightStyle?: CSSProperties,
+  highlightStyle?: CSSProperties,
+): CSSProperties {
+  const baseRadius = squircle ? Math.min(height / 2, 16) : height / 2;
+  return {
+    "--base-radius": `${baseRadius}px`,
+    ...contextHighlightStyle,
+    ...highlightStyle,
+    willChange: willChange ? "transform" : "auto",
+  } as CSSProperties;
 }
 
 const HIGHLIGHT_TRANSITION = { layout: SPRING.highlight } as const;
@@ -283,6 +314,7 @@ const Tab = memo(function Tab({
     squircle,
     highlightClassName: contextHighlightClass,
     highlightStyle: contextHighlightStyle,
+    role: parentRole,
   } = useTabsContext();
 
   const prefersReducedMotion = useReducedMotion();
@@ -317,7 +349,7 @@ const Tab = memo(function Tab({
     return HIGHLIGHT_TRANSITION;
   }, [prefersReducedMotion]);
 
-  const tabRole = rest.role !== undefined ? rest.role : "tab";
+  const tabRole = resolveTabRole(rest.role, parentRole);
   const isTabRole = tabRole === "tab";
 
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -370,9 +402,12 @@ const Tab = memo(function Tab({
   const handlePointerDown = useCallback(
     (e: PointerEvent<HTMLButtonElement>) => {
       if (disabled) return;
+      if (hoverSlide) {
+        hoverStore.set(value);
+      }
       onPointerDown(e);
     },
-    [disabled, onPointerDown],
+    [disabled, hoverSlide, value, hoverStore, onPointerDown],
   );
 
   const handleMouseEnter = useCallback(() => {
@@ -404,28 +439,25 @@ const Tab = memo(function Tab({
 
   const outerHighlightClass =
     `absolute inset-0 z-[-1] pointer-events-none ${roundedClass}`.trim();
-  const baseRadius = squircle
-    ? Math.min(dimensions.height / 2, 16)
-    : dimensions.height / 2;
 
-  const outerHighlightStyle = {
-    "--base-radius": `${baseRadius}px`,
-    ...contextHighlightStyle,
-    ...highlightStyle,
-    willChange: willChange ? "transform" : "auto",
-  };
+  const outerHighlightStyle = computeOuterHighlightStyle(
+    squircle,
+    dimensions.height,
+    willChange,
+    contextHighlightStyle,
+    highlightStyle,
+  );
 
   const innerHighlightClass =
     `absolute inset-0 highlight-pill overflow-hidden ${roundedClass} ${contextHighlightClass} ${highlightClassName}`.trim();
 
   const { computedAriaSelected, computedAriaControls, computedTabIndex } =
     computeTabAriaProps(
-      rest["aria-selected"],
+      rest["aria-selected"] as boolean | undefined,
       rest["aria-controls"],
       rest.tabIndex,
       isTabRole,
       isActive,
-      value,
     );
 
   return (
@@ -440,7 +472,12 @@ const Tab = memo(function Tab({
         setIsPressed(true);
       }}
       onPointerUp={() => setIsPressed(false)}
-      onPointerCancel={() => setIsPressed(false)}
+      onPointerCancel={() => {
+        setIsPressed(false);
+        if (hoverSlide) {
+          hoverStore.set(null);
+        }
+      }}
       onMouseLeave={() => {
         setIsPressed(false);
       }}
@@ -453,16 +490,16 @@ const Tab = memo(function Tab({
         isActive && activeClassName,
       )}
       {...rest}
-      role={tabRole ?? undefined}
+      role={tabRole}
       aria-selected={computedAriaSelected}
       aria-controls={computedAriaControls}
-      id={`tab-${value}`}
+      id={isTabRole ? (rest.id ?? `tab-${value}`) : rest.id}
       tabIndex={computedTabIndex}
       onKeyDown={isTabRole ? handleTabKeyDown : rest.onKeyDown}
     >
       {showHighlight ? (
         <motion.span
-          layoutId={isMobileNav ? undefined : layoutId}
+          layoutId={layoutId}
           initial={false}
           className={outerHighlightClass}
           style={outerHighlightStyle as CSSProperties}

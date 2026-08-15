@@ -204,7 +204,7 @@ export default function Navbar({
       >
         <div
           className={cn(
-            "bg-surface/40 navbar-capsule pointer-events-auto relative isolate z-50 flex w-full max-w-[85vw] [transform:translateZ(0)] items-center justify-between gap-1 overflow-hidden rounded-full border border-white/10 p-[7px] md:w-auto md:max-w-[95vw] md:justify-start md:gap-1.5",
+            "bg-surface/40 navbar-capsule pointer-events-auto relative isolate z-50 flex w-full max-w-[85vw] [transform:translateZ(0)] items-center justify-between gap-1 overflow-hidden rounded-full border border-white/10 p-[7px] backdrop-saturate-[150%] md:w-auto md:max-w-[95vw] md:justify-start md:gap-1.5",
             isScrolling ? "backdrop-blur-[3px]" : "backdrop-blur-md",
             scrolled && "bg-surface/60 border-white/20",
           )}
@@ -213,6 +213,7 @@ export default function Navbar({
             value={active}
             onChange={handleNav}
             layoutId="active-nav-highlight"
+            role={null}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             highlightClassName={

@@ -3,6 +3,10 @@ import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import { cn } from "../utils/cn";
 import { SPRING } from "../utils/springConfig";
+import {
+  mobileMenuPanelVariants,
+  mobileMenuItemVariants,
+} from "../utils/motionVariants";
 
 const HIGHLIGHT_STYLE = {
   boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.15)",
@@ -61,42 +65,11 @@ function MobileMenu({
           />
 
           <motion.div
-            initial={
-              isMotionReduced
-                ? { opacity: 0 }
-                : {
-                    y: -8,
-                    scale: 0.96,
-                    opacity: 0,
-                    backdropFilter: "blur(0px)",
-                    backgroundColor: "hsla(0, 0%, 8%, 0)",
-                    borderColor: "hsla(0, 0%, 100%, 0)",
-                  }
-            }
-            animate={{
-              y: 0,
-              scale: 1,
-              opacity: 1,
-              backdropFilter: "blur(10px)",
-              backgroundColor: "hsla(0, 0%, 8%, 0.85)",
-              borderColor: "hsla(0, 0%, 100%, 0.1)",
-            }}
-            exit={
-              isMotionReduced
-                ? { opacity: 0 }
-                : {
-                    y: -8,
-                    scale: 0.96,
-                    opacity: 0,
-                    backdropFilter: "blur(0px)",
-                    backgroundColor: "hsla(0, 0%, 8%, 0)",
-                    borderColor: "hsla(0, 0%, 100%, 0)",
-                    transition: SPRING.exit,
-                  }
-            }
-            transition={
-              isMotionReduced ? { duration: 0.15 } : SPRING.drawerMobile
-            }
+            variants={mobileMenuPanelVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            custom={isMotionReduced}
             style={{
               transformOrigin: "top",
               boxShadow:
@@ -111,6 +84,7 @@ function MobileMenu({
                 value={active}
                 onChange={onChange}
                 layoutId="active-mobile-nav-highlight"
+                role={null}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 highlightClassName={cn(
@@ -126,9 +100,11 @@ function MobileMenu({
                   <Tab
                     key={link}
                     value={link}
+                    variants={mobileMenuItemVariants}
+                    custom={isMotionReduced}
                     tabIndex={0}
                     className={cn(
-                      "focus-visible:ring-accent/60 relative z-10 flex w-full items-center justify-center rounded-full px-4 py-3.5 text-center text-sm font-semibold transition-colors duration-300 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
+                      "focus-visible:ring-accent/60 relative z-10 flex w-full items-center justify-center rounded-full px-4 py-3.5 text-center text-sm font-semibold tracking-[0.01em] transition-colors duration-300 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
                       active === link
                         ? "text-text-primary"
                         : "text-muted hover:text-text-primary",
