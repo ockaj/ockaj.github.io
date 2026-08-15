@@ -125,7 +125,7 @@ export default function BpmnOverlay({
             >
               <BpmnNodeBadge type="script-task" className="flex-shrink-0" />
               <div className="flex-1 text-left">
-                <p className="text-text-primary text-xs font-semibold">
+                <p className="text-text-primary text-xs font-semibold text-pretty">
                   Process Analyst Easter Egg
                 </p>
                 <p className="text-muted mt-0.5 text-xs leading-normal text-pretty">
