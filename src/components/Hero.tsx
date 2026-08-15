@@ -34,7 +34,7 @@ interface HeroProps {
 }
 
 const containerVariants = {
-  hidden: { opacity: 0 },
+  hidden: { opacity: 1 },
   visible: {
     opacity: 1,
     transition: {
@@ -46,8 +46,8 @@ const containerVariants = {
 
 const nameVariants = {
   hidden: (prefersReducedMotion: boolean) => ({
-    opacity: 0,
-    y: prefersReducedMotion ? 0 : 50,
+    opacity: 1,
+    y: prefersReducedMotion ? 0 : 40,
   }),
   visible: {
     opacity: 1,

@@ -113,7 +113,7 @@ function App() {
         ) : null}
       </AnimatePresence>
 
-      {!isLoading ? <Aurora /> : null}
+      <Aurora paused={isLoading} />
 
       <main
         id="main-content"

@@ -67,17 +67,19 @@ export function usePreloadComponents(isMobile: boolean): void {
       }
     };
 
+    const idleTimeout = isMobile ? 4500 : 2500;
+
     if (typeof window.requestIdleCallback === "function") {
       idleId = window.requestIdleCallback(
         () => {
           if (active) void preloadAll();
         },
-        { timeout: 2000 },
+        { timeout: idleTimeout },
       );
     } else {
       timeoutId = window.setTimeout(() => {
         if (active) void preloadAll();
-      }, 0);
+      }, idleTimeout);
     }
 
     return () => {

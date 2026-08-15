@@ -216,7 +216,7 @@ export default function LoadingScreen({
         count.set(100);
         if (!doneRef.current) {
           doneRef.current = true;
-          timeoutId = setTimeout(onComplete, 300);
+          timeoutId = setTimeout(onComplete, 200);
         }
       }
     };

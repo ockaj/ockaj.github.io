@@ -114,6 +114,7 @@ interface AuroraProps {
   blend?: number;
   time?: number;
   speed?: number;
+  paused?: boolean;
 }
 
 const DEFAULT_COLOR_STOPS = ["#1E1B4B", "#312E81", "#6667AB", "#A78BFA"];
@@ -326,7 +327,7 @@ function useAuroraCanvas(
         animateId = 0;
         return;
       }
-      if (prefersReducedMotionRef.current) {
+      if (prefersReducedMotionRef.current || propsRef.current.paused) {
         animateId = 0;
       } else {
         animateId = requestAnimationFrame(update);
@@ -352,7 +353,7 @@ function useAuroraCanvas(
     animateId = requestAnimationFrame(update);
 
     triggerRef.current = () => {
-      if (!animateId && !isContextLostRef.current) {
+      if (!animateId && !isContextLostRef.current && !propsRef.current.paused) {
         animateId = requestAnimationFrame(update);
       }
     };
@@ -367,6 +368,7 @@ function useAuroraCanvas(
         if (
           !animateId &&
           !prefersReducedMotionRef.current &&
+          !propsRef.current.paused &&
           !isContextLostRef.current
         ) {
           animateId = requestAnimationFrame(update);
@@ -401,10 +403,10 @@ function useAuroraCanvas(
   useResizeObserver(container, handleResize);
 
   useEffect(() => {
-    if (!prefersReducedMotion && triggerRef.current) {
+    if (!props.paused && !prefersReducedMotion && triggerRef.current) {
       triggerRef.current();
     }
-  }, [prefersReducedMotion]);
+  }, [props.paused, prefersReducedMotion]);
 
   return { isContextLost };
 }
