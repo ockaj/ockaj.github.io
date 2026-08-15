@@ -284,28 +284,35 @@ function Hero({ onViewCv, onViewWork }: Readonly<HeroProps>) {
 
         {/* Role line */}
         <motion.p
+          data-nosnippet
           variants={itemVariants}
           className="text-muted mb-4 max-w-xl text-sm text-pretty md:text-base"
         >
-          <span className="block sm:inline">
-            Based in Slovakia, working as a{" "}
+          <span className="sr-only">
+            Based in Slovakia, working as a Business Analyst &amp; Process
+            Analyst.
           </span>
-          <span className="text-text-primary inline-block font-semibold whitespace-nowrap">
-            Business Analyst
-          </span>
-          <span className="text-text-primary ml-1 inline-block font-semibold whitespace-nowrap">
-            &amp;{" "}
-            <SlotText
-              text={SPECIALIZATIONS[roleIndex] + "."}
-              options={{
-                direction: "down",
-                skipUnchanged: false,
-                duration: prefersReducedMotion ? 0 : 350,
-                stagger: 50,
-                bounce: 0.2,
-                easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-              }}
-            />
+          <span aria-hidden="true">
+            <span className="block sm:inline">
+              Based in Slovakia, working as a{" "}
+            </span>
+            <span className="text-text-primary inline-block font-semibold whitespace-nowrap">
+              Business Analyst
+            </span>
+            <span className="text-text-primary ml-1 inline-block font-semibold whitespace-nowrap">
+              &amp;{" "}
+              <SlotText
+                text={SPECIALIZATIONS[roleIndex] + "."}
+                options={{
+                  direction: "down",
+                  skipUnchanged: false,
+                  duration: prefersReducedMotion ? 0 : 350,
+                  stagger: 50,
+                  bounce: 0.2,
+                  easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+                }}
+              />
+            </span>
           </span>
         </motion.p>
 
