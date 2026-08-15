@@ -56,8 +56,16 @@ export default defineConfig(({ mode }) => ({
               test: /Aurora\.tsx/,
             },
             {
+              name: "vendor-motion",
+              test: /node_modules[\\/]motion/,
+            },
+            {
+              name: "vendor-base-ui",
+              test: /node_modules[\\/]@base-ui/,
+            },
+            {
               name: "vendor-react",
-              test: /node_modules[\\/]react/,
+              test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/,
             },
           ],
         },

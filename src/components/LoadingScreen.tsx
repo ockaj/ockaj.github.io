@@ -216,7 +216,7 @@ export default function LoadingScreen({
         count.set(100);
         if (!doneRef.current) {
           doneRef.current = true;
-          timeoutId = setTimeout(onComplete, 200);
+          timeoutId = setTimeout(onComplete, 100);
         }
       }
     };
@@ -226,7 +226,7 @@ export default function LoadingScreen({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [onComplete, prefersReducedMotion, count]);
+  }, [onComplete, prefersReducedMotion, isMobile, count]);
 
   // Derived motion values — update without React re-renders
   const path1 = useTransform(count, [10, 25], [0, 1]);

@@ -15,7 +15,12 @@ import {
   type HTMLAttributes,
   type ComponentPropsWithoutRef,
 } from "react";
-import { motion, useReducedMotion, LayoutGroup } from "motion/react";
+import {
+  motion,
+  useReducedMotion,
+  LayoutGroup,
+  MotionContext,
+} from "motion/react";
 import { SPRING } from "../../utils/springConfig";
 import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
@@ -87,6 +92,8 @@ function useTabsContext() {
   return context;
 }
 
+const EMPTY_MOTION_CONTEXT = {};
+
 function TabsInner<T extends TabValue>({
   value,
   onChange,
@@ -151,25 +158,27 @@ function TabsInner<T extends TabValue>({
   );
 
   return (
-    <TabsContext value={contextValue}>
-      <LayoutGroup id={layoutId}>
-        <div
-          role={role ?? undefined}
-          tabIndex={role === "tablist" ? -1 : undefined}
-          className={cn("flex", className)}
-          style={style}
-          {...rest}
-          onMouseLeave={(e) => {
-            hoverStore.set(null);
-            if (rest.onMouseLeave) {
-              rest.onMouseLeave(e);
-            }
-          }}
-        >
-          {children}
-        </div>
-      </LayoutGroup>
-    </TabsContext>
+    <MotionContext value={EMPTY_MOTION_CONTEXT}>
+      <TabsContext value={contextValue}>
+        <LayoutGroup id={layoutId} inherit={false}>
+          <div
+            role={role ?? undefined}
+            tabIndex={role === "tablist" ? -1 : undefined}
+            className={cn("flex", className)}
+            style={style}
+            {...rest}
+            onMouseLeave={(e) => {
+              hoverStore.set(null);
+              if (rest.onMouseLeave) {
+                rest.onMouseLeave(e);
+              }
+            }}
+          >
+            {children}
+          </div>
+        </LayoutGroup>
+      </TabsContext>
+    </MotionContext>
   );
 }
 

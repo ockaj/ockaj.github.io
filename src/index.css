@@ -12,8 +12,6 @@
   --color-accent: hsl(var(--accent));
 }
 
-@import "bpmn-font/dist/css/bpmn.css";
-
 @font-face {
   font-family: "Libre Caslon Condensed";
   src: url("/fonts/LibreCaslonCondensed.woff2") format("woff2");
@@ -27,14 +25,6 @@
   font-weight: 400 700;
   font-style: italic;
   font-display: swap;
-}
-
-@font-face {
-  font-family: "bpmn";
-  src: url("/fonts/bpmn.woff2") format("woff2");
-  font-weight: normal;
-  font-style: normal;
-  font-display: block;
 }
 
 @font-face {
