@@ -26,6 +26,7 @@ import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
+import { getEntryDimensions } from "./liquidGlassUtils";
 import { cn } from "../../utils/cn";
 import { DEFAULT_STYLE } from "./types";
 import { scaleDeltas, scaleVertical, springs, hoverDelta } from "./config";
@@ -290,9 +291,9 @@ function computeOuterHighlightStyle(
   contextHighlightStyle?: CSSProperties,
   highlightStyle?: CSSProperties,
 ): CSSProperties {
-  const baseRadius = squircle ? Math.min(height / 2, 16) : height / 2;
+  const baseRadius = squircle ? `${Math.min(height / 2, 16)}px` : "9999px";
   return {
-    "--base-radius": `${baseRadius}px`,
+    "--base-radius": baseRadius,
     ...contextHighlightStyle,
     ...highlightStyle,
     willChange: willChange ? "transform" : "auto",
@@ -365,21 +366,20 @@ const Tab = memo(function Tab({
   const [element, setElement] = useState<HTMLButtonElement | null>(null);
   const [dimensions, setDimensions] = useState({ width: 120, height: 36 });
 
-  // measure element layout sizes using callback ref instead of mount useEffect to prevent extra render cycles
   const setButtonRef = useCallback((node: HTMLButtonElement | null) => {
     buttonRef.current = node;
     setElement(() => node);
-    if (!node) return;
-    setDimensions({ width: node.offsetWidth, height: node.offsetHeight });
   }, []);
 
-  // useResizeObserver prevents layout thrashing during interactions
   useResizeObserver(element, (entry) => {
-    const el = entry.target as HTMLElement;
-    setDimensions({
-      width: el.offsetWidth,
-      height: el.offsetHeight,
-    });
+    const { width, height } = getEntryDimensions(entry);
+    if (width > 0 && height > 0) {
+      setDimensions((prev) =>
+        prev.width === width && prev.height === height
+          ? prev
+          : { width, height },
+      );
+    }
   });
 
   const [isPressed, setIsPressed] = useState(false);

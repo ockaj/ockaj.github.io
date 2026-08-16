@@ -23,6 +23,7 @@ import {
   getGlassClasses,
   TAG_MAP,
   setupTagProps,
+  getEntryDimensions,
 } from "./liquidGlassUtils";
 import { InnerBorderOverlay } from "./LiquidGlassOverlays";
 
@@ -72,18 +73,16 @@ export default function LiquidGlassMobile(
   const handleRef = useCallback(
     (node: HTMLElement | null) => {
       setElement(() => (effectiveSpringScale ? node : null));
-      if (node && effectiveSpringScale) {
-        setWidth(node.offsetWidth);
-      }
       assignRef(ref, node);
     },
     [ref, effectiveSpringScale],
   );
 
   useResizeObserver(effectiveSpringScale ? element : null, (entry) => {
-    const el = entry.target;
-    if (!(el instanceof HTMLElement)) return;
-    setWidth(el.offsetWidth);
+    const { width: newWidth } = getEntryDimensions(entry);
+    if (newWidth > 0) {
+      setWidth((prev) => (prev === newWidth ? prev : newWidth));
+    }
   });
 
   const {

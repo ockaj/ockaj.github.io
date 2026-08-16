@@ -37,6 +37,7 @@ import {
   getGlassClasses,
   TAG_MAP,
   setupTagProps,
+  getEntryDimensions,
 } from "./liquidGlassUtils";
 import { InnerBorderOverlay, SpecularGlowOverlay } from "./LiquidGlassOverlays";
 
@@ -83,9 +84,6 @@ export default function LiquidGlassDesktop({
   const handleRef = useCallback(
     (node: HTMLElement | null) => {
       setElement(() => node);
-      if (node) {
-        setDimensions({ width: node.offsetWidth, height: node.offsetHeight });
-      }
       assignRef(ref, node);
     },
     [ref],
@@ -162,12 +160,14 @@ export default function LiquidGlassDesktop({
   const handleKeyDown = useKeyboardClick(onClick);
 
   useResizeObserver(interactive && isHovered ? element : null, (entry) => {
-    const el = entry.target;
-    if (!(el instanceof HTMLElement)) return;
-    setDimensions({
-      width: el.offsetWidth,
-      height: el.offsetHeight,
-    });
+    const { width, height } = getEntryDimensions(entry);
+    if (width > 0 && height > 0) {
+      setDimensions((prev) =>
+        prev.width === width && prev.height === height
+          ? prev
+          : { width, height },
+      );
+    }
   });
 
   const borderGradient = useTransform([springX, springY], ([x, y]) => {

@@ -176,3 +176,34 @@ export function setupTagProps(
 
   return tagProps;
 }
+
+export function getEntryDimensions(entry: ResizeObserverEntry): {
+  width: number;
+  height: number;
+} {
+  const el = entry.target as HTMLElement;
+  let width = 0;
+  let height = 0;
+
+  if (entry.borderBoxSize) {
+    const borderBox = Array.isArray(entry.borderBoxSize)
+      ? entry.borderBoxSize[0]
+      : entry.borderBoxSize;
+    if (borderBox && borderBox.inlineSize > 0 && borderBox.blockSize > 0) {
+      width = borderBox.inlineSize;
+      height = borderBox.blockSize;
+    }
+  }
+
+  if (width === 0 || height === 0) {
+    if (el && el.offsetWidth > 0 && el.offsetHeight > 0) {
+      width = el.offsetWidth;
+      height = el.offsetHeight;
+    } else {
+      width = entry.contentRect.width;
+      height = entry.contentRect.height;
+    }
+  }
+
+  return { width, height };
+}
