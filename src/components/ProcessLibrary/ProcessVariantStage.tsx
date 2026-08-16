@@ -60,7 +60,7 @@ const DiagramCanvasItem = memo(function DiagramCanvasItem({
       <button
         type="button"
         tabIndex={isSelected ? 0 : -1}
-        className="focus-visible:ring-accent flex h-full min-h-[44px] w-full cursor-zoom-in items-center justify-center p-3 transition-transform duration-100 ease-out focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none active:scale-[0.99] sm:p-5 md:p-6"
+        className="focus-visible:ring-accent flex h-full min-h-[44px] w-full cursor-zoom-in items-center justify-center p-3 transition-transform duration-100 ease-out focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none active:scale-[0.97] sm:p-5 md:p-6"
         onClick={() =>
           setLightboxItem({
             id: topicId,

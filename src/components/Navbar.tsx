@@ -259,7 +259,7 @@ export default function Navbar({
                     alt="Ondrej Michal Ockaj"
                     width="24"
                     height="24"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover outline outline-1 -outline-offset-1 outline-white/[0.08]"
                   />
                 )}
               </span>

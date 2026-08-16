@@ -71,6 +71,8 @@ button,
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: auto;
 }
 
 html {
@@ -161,9 +163,9 @@ p {
 /* Shared highlight pill — used by Navbar, ProcessLibrary, PdfViewerModal tabs */
 .highlight-pill {
   background: linear-gradient(
-    90deg,
-    rgba(122, 123, 191, 0.1) 0%,
-    rgba(102, 103, 171, 0.1) 100%
+    in oklab 90deg,
+    oklab(0.61 0.022 -0.1 / 0.1) 0%,
+    oklab(0.543 0.021 -0.103 / 0.1) 100%
   );
   border: 1px solid rgba(255, 255, 255, 0.04);
   box-shadow:
@@ -318,14 +320,14 @@ p {
 /* Smoothly eased horizontal scroll fade masks for mobile/tablet and vertical masks for desktop (Mobile-First) */
 .process-tabs-mask {
   --tabs-mask: linear-gradient(
-    to right,
+    in oklab to right,
     transparent 0px,
-    rgba(0, 0, 0, 0.15) 8px,
-    rgba(0, 0, 0, 0.6) 18px,
-    black 32px,
-    black calc(100% - 36px),
-    rgba(0, 0, 0, 0.6) calc(100% - 20px),
-    rgba(0, 0, 0, 0.15) calc(100% - 10px),
+    oklab(0 0 0 / 0.15) 8px,
+    oklab(0 0 0 / 0.6) 18px,
+    oklab(0 0 0) 32px,
+    oklab(0 0 0) calc(100% - 36px),
+    oklab(0 0 0 / 0.6) calc(100% - 20px),
+    oklab(0 0 0 / 0.15) calc(100% - 10px),
     transparent 100%
   );
   mask-image: var(--tabs-mask);
@@ -335,14 +337,14 @@ p {
 @media (min-width: 768px) {
   .process-tabs-mask {
     --tabs-mask: linear-gradient(
-      to right,
+      in oklab to right,
       transparent 0px,
-      rgba(0, 0, 0, 0.15) 12px,
-      rgba(0, 0, 0, 0.6) 26px,
-      black 48px,
-      black calc(100% - 52px),
-      rgba(0, 0, 0, 0.6) calc(100% - 28px),
-      rgba(0, 0, 0, 0.15) calc(100% - 12px),
+      oklab(0 0 0 / 0.15) 12px,
+      oklab(0 0 0 / 0.6) 26px,
+      oklab(0 0 0) 48px,
+      oklab(0 0 0) calc(100% - 52px),
+      oklab(0 0 0 / 0.6) calc(100% - 28px),
+      oklab(0 0 0 / 0.15) calc(100% - 12px),
       transparent 100%
     );
   }
@@ -351,14 +353,14 @@ p {
 @media (min-width: 1024px) {
   .process-tabs-mask {
     --tabs-mask: linear-gradient(
-      to bottom,
+      in oklab to bottom,
       transparent 0px,
-      rgba(0, 0, 0, 0.15) 12px,
-      rgba(0, 0, 0, 0.6) 26px,
-      black 48px,
-      black calc(100% - 48px),
-      rgba(0, 0, 0, 0.6) calc(100% - 26px),
-      rgba(0, 0, 0, 0.15) calc(100% - 12px),
+      oklab(0 0 0 / 0.15) 12px,
+      oklab(0 0 0 / 0.6) 26px,
+      oklab(0 0 0) 48px,
+      oklab(0 0 0) calc(100% - 48px),
+      oklab(0 0 0 / 0.6) calc(100% - 26px),
+      oklab(0 0 0 / 0.15) calc(100% - 12px),
       transparent 100%
     );
   }

@@ -36,7 +36,7 @@ const JournalEntry = memo(function JournalEntry({
               alt=""
               width={44}
               height={44}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover outline outline-1 -outline-offset-1 outline-white/[0.08]"
               loading="lazy"
             />
           </div>

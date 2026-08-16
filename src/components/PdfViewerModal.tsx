@@ -181,7 +181,7 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
                     alt="Ondrej Michal Očkaj"
                     width="32"
                     height="32"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover outline outline-1 -outline-offset-1 outline-white/[0.08]"
                   />
                 </div>
                 <div>
