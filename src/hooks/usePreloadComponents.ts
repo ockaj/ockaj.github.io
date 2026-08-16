@@ -34,9 +34,22 @@ export function usePreloadComponents(isMobile: boolean): void {
     let active = true;
     let idleId: number | null = null;
     let fallbackTimeoutId: number | null = null;
+    let started = false;
     const activeTimeouts = new Set<ReturnType<typeof setTimeout>>();
 
     const preloadAll = async () => {
+      if (started || !active) return;
+      started = true;
+
+      if (idleId !== null && typeof window.cancelIdleCallback === "function") {
+        window.cancelIdleCallback(idleId);
+        idleId = null;
+      }
+      if (fallbackTimeoutId !== null) {
+        window.clearTimeout(fallbackTimeoutId);
+        fallbackTimeoutId = null;
+      }
+
       const queue = [
         { loader: loadCaseStudies, key: "caseStudies" },
         { loader: loadSkills, key: "skills" },
@@ -67,44 +80,44 @@ export function usePreloadComponents(isMobile: boolean): void {
       }
     };
 
-    const handleUserIntent = () => {
-      cleanupListeners();
-
-      if (typeof window.requestIdleCallback === "function") {
-        idleId = window.requestIdleCallback(() => {
-          if (active) void preloadAll();
-        });
-      } else {
-        fallbackTimeoutId = window.setTimeout(() => {
-          if (active) void preloadAll();
-        }, 200);
-      }
+    const handleIntent = () => {
+      if (active) void preloadAll();
     };
 
-    const cleanupListeners = () => {
-      window.removeEventListener("scroll", handleUserIntent);
-      window.removeEventListener("pointerdown", handleUserIntent);
-      window.removeEventListener("keydown", handleUserIntent);
-    };
+    // 1. Immediate Intent Listeners (Fires on first user action)
+    window.addEventListener("scroll", handleIntent, {
+      once: true,
+      passive: true,
+    });
+    window.addEventListener("pointerdown", handleIntent, {
+      once: true,
+      passive: true,
+    });
+    window.addEventListener("keydown", handleIntent, {
+      once: true,
+      passive: true,
+    });
 
-    window.addEventListener("scroll", handleUserIntent, {
-      once: true,
-      passive: true,
-    });
-    window.addEventListener("pointerdown", handleUserIntent, {
-      once: true,
-      passive: true,
-    });
-    window.addEventListener("keydown", handleUserIntent, {
-      once: true,
-      passive: true,
-    });
+    // 2. Idle Background Fallback
+    const idleDelay = isMobile ? 3500 : 2000;
+    if (typeof window.requestIdleCallback === "function") {
+      idleId = window.requestIdleCallback(
+        () => {
+          if (active) void preloadAll();
+        },
+        { timeout: idleDelay },
+      );
+    } else {
+      fallbackTimeoutId = window.setTimeout(() => {
+        if (active) void preloadAll();
+      }, idleDelay);
+    }
 
     return () => {
       active = false;
-      window.removeEventListener("scroll", handleUserIntent);
-      window.removeEventListener("pointerdown", handleUserIntent);
-      window.removeEventListener("keydown", handleUserIntent);
+      window.removeEventListener("scroll", handleIntent);
+      window.removeEventListener("pointerdown", handleIntent);
+      window.removeEventListener("keydown", handleIntent);
       if (idleId !== null && typeof window.cancelIdleCallback === "function") {
         window.cancelIdleCallback(idleId);
       }
