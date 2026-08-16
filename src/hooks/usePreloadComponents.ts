@@ -33,7 +33,7 @@ export function usePreloadComponents(isMobile: boolean): void {
 
     let active = true;
     let idleId: number | null = null;
-    let timeoutId: number | null = null;
+    let fallbackTimeoutId: number | null = null;
     const activeTimeouts = new Set<ReturnType<typeof setTimeout>>();
 
     const preloadAll = async () => {
@@ -67,28 +67,49 @@ export function usePreloadComponents(isMobile: boolean): void {
       }
     };
 
-    const idleTimeout = isMobile ? 4500 : 2500;
+    const handleUserIntent = () => {
+      cleanupListeners();
 
-    if (typeof window.requestIdleCallback === "function") {
-      idleId = window.requestIdleCallback(
-        () => {
+      if (typeof window.requestIdleCallback === "function") {
+        idleId = window.requestIdleCallback(() => {
           if (active) void preloadAll();
-        },
-        { timeout: idleTimeout },
-      );
-    } else {
-      timeoutId = window.setTimeout(() => {
-        if (active) void preloadAll();
-      }, idleTimeout);
-    }
+        });
+      } else {
+        fallbackTimeoutId = window.setTimeout(() => {
+          if (active) void preloadAll();
+        }, 200);
+      }
+    };
+
+    const cleanupListeners = () => {
+      window.removeEventListener("scroll", handleUserIntent);
+      window.removeEventListener("pointerdown", handleUserIntent);
+      window.removeEventListener("keydown", handleUserIntent);
+    };
+
+    window.addEventListener("scroll", handleUserIntent, {
+      once: true,
+      passive: true,
+    });
+    window.addEventListener("pointerdown", handleUserIntent, {
+      once: true,
+      passive: true,
+    });
+    window.addEventListener("keydown", handleUserIntent, {
+      once: true,
+      passive: true,
+    });
 
     return () => {
       active = false;
-      if (idleId !== null) {
+      window.removeEventListener("scroll", handleUserIntent);
+      window.removeEventListener("pointerdown", handleUserIntent);
+      window.removeEventListener("keydown", handleUserIntent);
+      if (idleId !== null && typeof window.cancelIdleCallback === "function") {
         window.cancelIdleCallback(idleId);
       }
-      if (timeoutId !== null) {
-        window.clearTimeout(timeoutId);
+      if (fallbackTimeoutId !== null) {
+        window.clearTimeout(fallbackTimeoutId);
       }
       activeTimeouts.forEach((id) => clearTimeout(id));
       activeTimeouts.clear();
