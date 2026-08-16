@@ -246,7 +246,10 @@ export default function BpmnOverlay({
                         backgroundPosition: "center, center",
                       }}
                     >
-                      <div className="mx-auto flex w-full max-w-[1280px] items-center justify-center">
+                      <div
+                        className="notranslate mx-auto flex w-full max-w-[1280px] items-center justify-center"
+                        translate="no"
+                      >
                         <BpmnDiagram onTaskClick={handleTaskClick} />
                       </div>
                     </div>

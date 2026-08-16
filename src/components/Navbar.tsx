@@ -284,7 +284,7 @@ export default function Navbar({
                   )}
                   aria-current={active === link ? "page" : undefined}
                 >
-                  {link}
+                  <span>{link}</span>
                 </Tab>
               ))}
 
@@ -300,7 +300,7 @@ export default function Navbar({
                 )}
                 aria-current={active === "Contact" ? "page" : undefined}
               >
-                Contact
+                <span>Contact</span>
               </Tab>
             </div>
           </Tabs>

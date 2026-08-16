@@ -50,6 +50,7 @@
     "eslint": "^10.8.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-compiler": "^19.1.0-rc.2",
+    "eslint-plugin-react-google-translate": "^1.0.4",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.4",
     "eslint-plugin-sonarjs": "^4.2.0",

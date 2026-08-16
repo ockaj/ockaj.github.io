@@ -67,7 +67,7 @@ export default function LoadingBpmnDiagram({
   } = nodes;
 
   return (
-    <div className="w-full max-w-4xl px-4">
+    <div className="notranslate w-full max-w-4xl px-4" translate="no">
       <svg
         viewBox="0 0 800 240"
         className="h-auto w-full text-[hsl(var(--accent))]"

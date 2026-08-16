@@ -168,7 +168,7 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
   return (
     <svg
       viewBox="0 0 1420 500"
-      className="text-accent h-auto w-full min-w-[950px]"
+      className="text-accent notranslate h-auto w-full min-w-[950px]"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-label="BPMN 2.0 Interactive Portfolio Navigation Diagram"

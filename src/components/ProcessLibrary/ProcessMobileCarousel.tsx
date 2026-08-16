@@ -87,7 +87,7 @@ export default function ProcessMobileCarousel({
                                 : "text-white/70 hover:text-white",
                             )}
                           >
-                            SOURCE
+                            <span>SOURCE</span>
                           </Tab>
                           <Tab
                             value="tobe"
@@ -98,7 +98,7 @@ export default function ProcessMobileCarousel({
                                 : "text-white/70 hover:text-white",
                             )}
                           >
-                            OPTIMIZED
+                            <span>OPTIMIZED</span>
                           </Tab>
                         </Tabs>
                       </div>

@@ -49,11 +49,15 @@ const LightboxControls = memo(function LightboxControls({
   }, [isMobile, updateText]);
 
   return (
-    <div className="absolute top-4 left-1/2 z-[60] -translate-x-1/2 md:right-4 md:left-auto md:translate-x-0">
+    <div
+      className="notranslate absolute top-4 left-1/2 z-[60] -translate-x-1/2 md:right-4 md:left-auto md:translate-x-0"
+      translate="no"
+    >
       <div className="bg-surface/80 inline-flex items-center gap-1.5 rounded-full border border-white/10 p-[6px] shadow-2xl backdrop-blur-md select-none">
         {/* Scale / Reset */}
         <span
-          className="inline-flex"
+          className="notranslate inline-flex"
+          translate="no"
           onMouseEnter={() => {
             isHoveredRef.current = true;
             updateText();
@@ -69,7 +73,7 @@ const LightboxControls = memo(function LightboxControls({
             interactive={isZoomed}
             springScale={isZoomed}
             className={cn(
-              "text-text-primary flex h-10 w-16 items-center justify-center text-xs font-bold tracking-wider uppercase select-none",
+              "text-text-primary notranslate flex h-10 w-16 items-center justify-center text-xs font-bold tracking-wider uppercase select-none",
               isZoomed
                 ? "pointer-events-auto cursor-pointer"
                 : "pointer-events-none cursor-default",
@@ -78,7 +82,9 @@ const LightboxControls = memo(function LightboxControls({
             magnetic={isZoomed}
             magneticStrength={0.04}
           >
-            <span ref={scaleTextRef}>100%</span>
+            <span ref={scaleTextRef} className="notranslate" translate="no">
+              100%
+            </span>
           </LiquidGlass>
         </span>
 

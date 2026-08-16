@@ -4,6 +4,9 @@ import App from "./App.tsx";
 import "./index.css";
 import "./bones/registry";
 import { configureBoneyard } from "boneyard-js/react";
+import { applyDomTranslatePatch } from "./utils/domTranslatePatch";
+
+applyDomTranslatePatch();
 
 configureBoneyard({
   color: "rgba(255, 255, 255, 0.015)",

@@ -4,6 +4,7 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import reactCompiler from "eslint-plugin-react-compiler";
 import eslintReact from "@eslint-react/eslint-plugin";
+import reactGoogleTranslate from "eslint-plugin-react-google-translate";
 import tseslint from "typescript-eslint";
 import eslintConfigPrettier from "eslint-config-prettier";
 import sonarjs from "eslint-plugin-sonarjs";
@@ -16,6 +17,7 @@ export default tseslint.config(
       ...tseslint.configs.recommended,
       eslintReact.configs["recommended-typescript"],
       sonarjs.configs.recommended,
+      reactGoogleTranslate.configs.recommended,
     ],
     files: ["**/*.{ts,tsx}"],
     languageOptions: {

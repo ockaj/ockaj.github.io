@@ -247,7 +247,7 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
                     : "text-muted hover:text-text-primary",
                 )}
               >
-                {isMobile ? "PDF File ↗" : "PDF Document"}
+                <span>{isMobile ? "PDF File ↗" : "PDF Document"}</span>
               </Tab>
               <Tab
                 value="interactive"
@@ -261,7 +261,7 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
               >
                 <span className="flex items-center gap-1">
                   <Sparkles size={11} className="text-accent" />
-                  {isMobile ? "Interactive" : "Interactive CV"}
+                  <span>{isMobile ? "Interactive" : "Interactive CV"}</span>
                 </span>
               </Tab>
             </Tabs>
