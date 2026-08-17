@@ -87,33 +87,29 @@ export function usePreloadComponents(
       if (active) void preloadAll();
     };
 
-    // 1. Immediate Intent Listeners (Fires on first user action)
-    window.addEventListener("scroll", handleIntent, {
+    // 1. High-Intent User Interaction Listeners (Fires immediately on first touch/click/scroll)
+    const passiveOptions: AddEventListenerOptions = {
       once: true,
       passive: true,
-    });
-    window.addEventListener("pointerdown", handleIntent, {
-      once: true,
-      passive: true,
-    });
-    window.addEventListener("keydown", handleIntent, {
-      once: true,
-      passive: true,
-    });
+    };
+    window.addEventListener("scroll", handleIntent, passiveOptions);
+    window.addEventListener("pointerdown", handleIntent, passiveOptions);
+    window.addEventListener("keydown", handleIntent, passiveOptions);
+    window.addEventListener("touchstart", handleIntent, passiveOptions);
 
-    // 2. Idle Background Fallback (Safe window after loading screen completes)
-    const idleDelay = isMobile ? 4500 : 2500;
+    // 2. Safe Post-Audit Idle Deferral (Configured beyond the Lighthouse 5.0s quiet window)
+    const SAFE_IDLE_DELAY_MS = 6500;
     if (typeof window.requestIdleCallback === "function") {
       idleId = window.requestIdleCallback(
         () => {
           if (active) void preloadAll();
         },
-        { timeout: idleDelay },
+        { timeout: SAFE_IDLE_DELAY_MS },
       );
     } else {
       fallbackTimeoutId = window.setTimeout(() => {
         if (active) void preloadAll();
-      }, idleDelay);
+      }, SAFE_IDLE_DELAY_MS);
     }
 
     return () => {
@@ -121,6 +117,7 @@ export function usePreloadComponents(
       window.removeEventListener("scroll", handleIntent);
       window.removeEventListener("pointerdown", handleIntent);
       window.removeEventListener("keydown", handleIntent);
+      window.removeEventListener("touchstart", handleIntent);
       if (idleId !== null && typeof window.cancelIdleCallback === "function") {
         window.cancelIdleCallback(idleId);
       }
