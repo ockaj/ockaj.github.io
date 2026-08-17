@@ -27,9 +27,12 @@ function yieldToMain(
   });
 }
 
-export function usePreloadComponents(isMobile: boolean): void {
+export function usePreloadComponents(
+  isMobile: boolean,
+  isLoading: boolean,
+): void {
   useEffect(() => {
-    if (isSlowConnection()) return;
+    if (isLoading || isSlowConnection()) return;
 
     let active = true;
     let idleId: number | null = null;
@@ -98,8 +101,8 @@ export function usePreloadComponents(isMobile: boolean): void {
       passive: true,
     });
 
-    // 2. Idle Background Fallback
-    const idleDelay = isMobile ? 3500 : 2000;
+    // 2. Idle Background Fallback (Safe window after loading screen completes)
+    const idleDelay = isMobile ? 4500 : 2500;
     if (typeof window.requestIdleCallback === "function") {
       idleId = window.requestIdleCallback(
         () => {
@@ -127,5 +130,5 @@ export function usePreloadComponents(isMobile: boolean): void {
       activeTimeouts.forEach((id) => clearTimeout(id));
       activeTimeouts.clear();
     };
-  }, [isMobile]);
+  }, [isMobile, isLoading]);
 }

@@ -91,7 +91,7 @@ function App() {
   });
 
   // Preload lazy components concurrently with main-thread yielding to protect INP
-  usePreloadComponents(isMobile);
+  usePreloadComponents(isMobile, isLoading);
 
   const handleViewWork = useCallback(() => {
     handleNavClick("Case Studies");

@@ -2,6 +2,7 @@ import { memo, useMemo, type ReactNode, type RefObject } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { BoneSuspense } from "boneyard-js/react";
 import { SuspenseTrigger } from "../store/useAppStore";
+import { isBoneyardBuild } from "../utils/boneyard";
 import { cn } from "../utils/cn";
 
 interface LazySectionProps {
@@ -36,6 +37,19 @@ function LazySection({
     () => ({ opacity: 0, y: prefersReducedMotion ? 0 : 30 }),
     [prefersReducedMotion],
   );
+
+  let content: ReactNode;
+  if (isInView) {
+    content = children;
+  } else if (isBoneyardBuild()) {
+    content = <SuspenseTrigger />;
+  } else {
+    content = (
+      <div className="px-6 md:px-10 lg:px-16">
+        <div style={{ height: skeletonHeight }} />
+      </div>
+    );
+  }
 
   return (
     <section
@@ -72,7 +86,7 @@ function LazySection({
                 </div>
               }
             >
-              {isInView ? children : <SuspenseTrigger />}
+              {content}
             </BoneSuspense>
           </div>
         </motion.div>
