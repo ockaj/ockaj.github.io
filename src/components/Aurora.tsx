@@ -151,13 +151,36 @@ function useAuroraCanvas(
       blend = 0.5,
     } = propsRef.current;
 
-    const dpr = isMobileRef.current ? 1.0 : window.devicePixelRatio || 1.0;
+    const dpr = Math.min(
+      window.devicePixelRatio || 1.0,
+      isMobileRef.current ? 1.0 : 1.5,
+    );
+
+    // W3C Standard Hardware GPU Check: reject software rasterizers (SwiftShader / llvmpipe)
+    const testCanvas = document.createElement("canvas");
+    const testGl =
+      testCanvas.getContext("webgl2", {
+        failIfMajorPerformanceCaveat: true,
+      }) ||
+      testCanvas.getContext("webgl", {
+        failIfMajorPerformanceCaveat: true,
+      });
+
+    if (!testGl) {
+      console.warn(
+        "Hardware GPU acceleration unavailable. Applying SVG fallback.",
+      );
+      isContextLostRef.current = true;
+      queueMicrotask(() => setIsContextLost(true));
+      return;
+    }
 
     let renderer: Renderer;
     let gl: OGLRenderingContext;
 
     try {
       renderer = new Renderer({
+        canvas: testCanvas,
         alpha: true,
         premultipliedAlpha: true,
         antialias: true,
