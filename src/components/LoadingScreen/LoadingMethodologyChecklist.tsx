@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { cn } from "../../utils/cn";
+import { EASE } from "../../utils/springConfig";
 import { BPMN_STEPS } from "./loadingData";
 
 function getStepColorClass(isActive: boolean, isCompleted: boolean) {
@@ -52,7 +53,7 @@ export default function LoadingMethodologyChecklist({
                       scale: isCompleted ? 1 : 0,
                       opacity: isCompleted ? 1 : 0,
                     }}
-                    transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.4 }}
+                    transition={{ ease: EASE.out, duration: 0.4 }}
                     className="absolute inset-0 flex items-center justify-center text-xs font-bold text-[hsl(var(--accent))]"
                   >
                     ✓
@@ -63,11 +64,13 @@ export default function LoadingMethodologyChecklist({
                       scale: isActive ? 1 : 0,
                       opacity: isActive ? 1 : 0,
                     }}
-                    transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.4 }}
+                    transition={{ ease: EASE.out, duration: 0.4 }}
                     className="absolute inset-0 flex items-center justify-center"
                   >
                     <span className="relative flex size-1.5">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[hsl(var(--accent))] opacity-75" />
+                      {isActive ? (
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[hsl(var(--accent))] opacity-75" />
+                      ) : null}
                       <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent))]" />
                     </span>
                   </motion.span>
@@ -77,7 +80,7 @@ export default function LoadingMethodologyChecklist({
                       scale: !isCompleted && !isActive ? 1 : 0,
                       opacity: !isCompleted && !isActive ? 0.4 : 0,
                     }}
-                    transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.4 }}
+                    transition={{ ease: EASE.out, duration: 0.4 }}
                     className="text-muted absolute inset-0 flex items-center justify-center font-mono text-xs"
                   >
                     •

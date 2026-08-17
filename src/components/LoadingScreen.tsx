@@ -14,6 +14,16 @@ interface LoadingScreenProps {
   onComplete: () => void;
 }
 
+interface LoadingNodes {
+  start?: boolean;
+  task1?: boolean;
+  gateway?: boolean;
+  task2?: boolean;
+  task3?: boolean;
+  mergeGateway?: boolean;
+  end?: boolean;
+}
+
 function checkNodeThresholds(
   current: number,
   refs: {
@@ -26,7 +36,7 @@ function checkNodeThresholds(
     end: { current: boolean };
   },
 ) {
-  const updatedNodes: Record<string, boolean> = {};
+  const updatedNodes: LoadingNodes = {};
   let nodesUpdated = false;
 
   if (current >= 5 && !refs.start.current) {
@@ -63,6 +73,15 @@ function checkNodeThresholds(
   }
 
   return { nodesUpdated, updatedNodes };
+}
+
+function StaticLoadingBackground() {
+  return (
+    <>
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:32px_32px] opacity-60" />
+      <div className="pointer-events-none absolute inset-0 hidden bg-[radial-gradient(circle_at_center,transparent_20%,hsl(var(--bg))_85%)] md:block" />
+    </>
+  );
 }
 
 export default function LoadingScreen({
@@ -263,13 +282,12 @@ export default function LoadingScreen({
       aria-live="polite"
       aria-busy="true"
       aria-label="Loading portfolio system models"
-      className="bg-bg fixed inset-0 z-[9999] flex flex-col justify-between overflow-hidden p-6 select-none md:p-12"
+      className="bg-bg fixed inset-0 z-[9999] flex flex-col justify-between overflow-hidden p-6 contain-strict select-none md:p-12"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.25, ease: "easeOut" } }}
     >
       {/* Background aesthetics */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:32px_32px] opacity-60" />
-      <div className="pointer-events-none absolute inset-0 hidden bg-[radial-gradient(circle_at_center,transparent_20%,hsl(var(--bg))_85%)] md:block" />
+      <StaticLoadingBackground />
 
       {/* Top Header Row */}
       <div className="relative z-10 flex w-full items-center justify-between">
