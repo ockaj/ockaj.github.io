@@ -15,7 +15,13 @@ import { cn } from "../utils/cn";
 import { SPRING } from "../utils/springConfig";
 import MobileMenu from "./MobileMenu";
 
-const NAV_LINKS = ["Case Studies", "Skills", "Process Library", "Journal"];
+const NAV_LINKS = [
+  "Case Studies",
+  "Skills",
+  "Process Library",
+  "Journal",
+  "FAQ",
+];
 
 interface NavbarProps {
   activeSection: string;

@@ -17,6 +17,13 @@ export const SPRING = {
     damping: 24,
     mass: 0.6,
   },
+  /** Micro-interactions like accordion chevrons, toggles & layout morphs */
+  snappy: {
+    type: "spring" as const,
+    stiffness: 480,
+    damping: 32,
+    mass: 0.5,
+  },
   /** Drawers sliding in from edge (Smooth 350ms physical spring) */
   drawer: {
     type: "spring" as const,

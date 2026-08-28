@@ -14,6 +14,7 @@ export const LABEL_MAP: Record<string, string> = {
   skills: "Skills",
   processes: "Process Library",
   journal: "Journal",
+  faq: "FAQ",
   contact: "Contact",
 };
 

@@ -1,0 +1,49 @@
+{
+  "breakpoints": {
+    "375": {
+      "name": "faq",
+      "viewportWidth": 365,
+      "width": 365,
+      "height": 884,
+      "bones": [
+        [
+          0,
+          0,
+          100,
+          884,
+          8
+        ]
+      ]
+    },
+    "768": {
+      "name": "faq",
+      "viewportWidth": 758,
+      "width": 758,
+      "height": 844,
+      "bones": [
+        [
+          0,
+          0,
+          100,
+          844,
+          8
+        ]
+      ]
+    },
+    "1024": {
+      "name": "faq",
+      "viewportWidth": 1014,
+      "width": 1014,
+      "height": 794,
+      "bones": [
+        [
+          0,
+          0,
+          100,
+          794,
+          8
+        ]
+      ]
+    }
+  }
+}

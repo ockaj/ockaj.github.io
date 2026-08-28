@@ -26,6 +26,7 @@ import {
   Skills,
   ProcessLibrary,
   Journal,
+  Faq,
   PdfViewerModal,
   BpmnOverlay,
 } from "./lazyComponents";
@@ -34,6 +35,7 @@ import caseStudiesBones from "./bones/case-studies.bones.json";
 import skillsBones from "./bones/skills.bones.json";
 import processesBones from "./bones/processes.bones.json";
 import journalBones from "./bones/journal.bones.json";
+import faqBones from "./bones/faq.bones.json";
 
 interface AppSectionHeaderProps {
   badgeType: ComponentProps<typeof BpmnNodeBadge>["type"];
@@ -59,7 +61,6 @@ function AppSectionHeader({
 
 function App() {
   const isLoading = useAppStore((state) => state.isLoading);
-  const isCvOpen = useAppStore((state) => state.isCvOpen);
 
   const { activeSection, handleNavClick } = useNavigation();
 
@@ -69,6 +70,7 @@ function App() {
       skills: getSkeletonHeight(skillsBones),
       processes: getSkeletonHeight(processesBones),
       journal: getSkeletonHeight(journalBones),
+      faq: getSkeletonHeight(faqBones),
     }),
     [],
   );
@@ -87,6 +89,10 @@ function App() {
   });
   const [journalRef, journalInView] = useLazyMount({
     id: "journal",
+    rootMargin,
+  });
+  const [faqRef, faqInView] = useLazyMount({
+    id: "faq",
     rootMargin,
   });
 
@@ -200,13 +206,28 @@ function App() {
           <Journal />
         </LazySection>
 
+        <LazySection
+          id="faq"
+          sectionRef={faqRef}
+          bonesName="faq"
+          skeletonHeight={skeletonHeights.faq}
+          isInView={faqInView}
+          headerClassName="mb-10 md:mb-14 relative z-30 px-6 md:px-10 lg:px-16"
+          header={
+            <AppSectionHeader
+              badgeType="user-task"
+              title="Frequently asked questions"
+              subtitle="Key screening information on process projects, analysis methods, and roles."
+            />
+          }
+        >
+          <Faq />
+        </LazySection>
+
         <ContactSection />
 
         <Suspense fallback={null}>
-          <PdfViewerModal
-            isOpen={isCvOpen}
-            onClose={() => useAppStore.getState().setCvOpen(false)}
-          />
+          <PdfViewerModal />
         </Suspense>
 
         <Suspense fallback={null}>

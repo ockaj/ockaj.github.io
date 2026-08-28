@@ -5,6 +5,7 @@ import {
   loadSkills,
   loadProcessLibrary,
   loadJournal,
+  loadFaq,
   loadPdfViewerModal,
   loadBpmnOverlay,
 } from "../lazyComponents";
@@ -58,6 +59,7 @@ export function usePreloadComponents(
         { loader: loadSkills, key: "skills" },
         { loader: loadProcessLibrary, key: "processes" },
         { loader: loadJournal, key: "journal" },
+        { loader: loadFaq, key: "faq" },
         { loader: loadPdfViewerModal, key: "pdfViewerModal" },
         ...(isMobile ? [] : [{ loader: loadBpmnOverlay, key: "bpmnOverlay" }]),
       ];

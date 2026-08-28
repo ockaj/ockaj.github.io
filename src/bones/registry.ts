@@ -4,6 +4,7 @@ import { registerBones } from 'boneyard-js/react'
 
 import _case_studies from './case-studies.bones.json'
 import _contact from './contact.bones.json'
+import _faq from './faq.bones.json'
 import _journal from './journal.bones.json'
 import _processes from './processes.bones.json'
 import _skills from './skills.bones.json'
@@ -11,6 +12,7 @@ import _skills from './skills.bones.json'
 registerBones({
   "case-studies": _case_studies,
   "contact": _contact,
+  "faq": _faq,
   "journal": _journal,
   "processes": _processes,
   "skills": _skills,

@@ -18,6 +18,7 @@ import {
 } from "motion/react";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 import { SPRING } from "../../utils/springConfig";
+import { cn } from "../../utils/cn";
 
 import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
@@ -181,6 +182,7 @@ export default function LiquidGlassDesktop({
     onClick,
     roundedClass,
     className,
+    isHovered,
   });
 
   const innerGlassStyle = useMemo<CSSProperties>(() => {
@@ -290,7 +292,10 @@ export default function LiquidGlassDesktop({
           />
 
           <motion.span
-            className="pointer-events-none absolute inset-0 z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            className={cn(
+              "pointer-events-none absolute inset-0 z-10 transition-opacity duration-300",
+              isHovered ? "opacity-100" : "opacity-0",
+            )}
             style={{ background: borderGradient, mixBlendMode: "overlay" }}
           />
         </>

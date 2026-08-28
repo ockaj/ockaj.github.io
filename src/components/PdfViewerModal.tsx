@@ -20,18 +20,19 @@ import { createModalVariants } from "../utils/motionVariants";
 import { CV_DATA } from "../data/cvData";
 import { InteractiveCvView } from "./PdfViewerModal/InteractiveCvView";
 import { pdfReducer } from "./PdfViewerModal/pdfState";
-
-interface PdfViewerModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+import { useAppStore } from "../store/useAppStore";
 
 const modalVariants = createModalVariants(-10);
 
-function usePdfViewerModalController(isOpen: boolean, onClose: () => void) {
+function usePdfViewerModalController() {
   const isMobile = useIsMobile();
+  const isOpen = useAppStore((state) => state.isCvOpen);
 
-  useOverlay(isOpen, onClose, "cv");
+  const handleClose = useCallback(() => {
+    useAppStore.getState().setCvOpen(false);
+  }, []);
+
+  useOverlay(isOpen, handleClose, "cv");
 
   useEffect(() => {
     if (isOpen) {
@@ -77,10 +78,10 @@ function usePdfViewerModalController(isOpen: boolean, onClose: () => void) {
   const handleOpenChange = useCallback(
     (open: boolean) => {
       if (!open) {
-        onClose();
+        handleClose();
       }
     },
-    [onClose],
+    [handleClose],
   );
 
   useEffect(() => {
@@ -95,6 +96,8 @@ function usePdfViewerModalController(isOpen: boolean, onClose: () => void) {
   const activeCv = useMemo(() => CV_DATA[lang], [lang]);
 
   return {
+    isOpen,
+    handleClose,
     isMobile,
     dispatch,
     activeTab,
@@ -380,25 +383,25 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
   );
 });
 
-function PdfViewerModal({ isOpen, onClose }: Readonly<PdfViewerModalProps>) {
-  const controller = usePdfViewerModalController(isOpen, onClose);
+function PdfViewerModal() {
+  const controller = usePdfViewerModalController();
   const prefersReducedMotion = useReducedMotion();
 
   if (typeof document === "undefined") return null;
 
   return (
     <Dialog.Root
-      open={isOpen}
+      open={controller.isOpen}
       modal
       disablePointerDismissal
       onOpenChange={controller.handleOpenChange}
     >
       <Dialog.Portal keepMounted>
         <AnimatePresence>
-          {isOpen ? (
+          {controller.isOpen ? (
             <PdfModalPopupContent
               controller={controller}
-              onClose={onClose}
+              onClose={controller.handleClose}
               prefersReducedMotion={!!prefersReducedMotion}
             />
           ) : null}

@@ -69,6 +69,7 @@ export function getGlassClasses({
   onClick,
   roundedClass = "rounded-full",
   className = "",
+  isHovered = false,
 }: {
   active?: boolean;
   as?: string;
@@ -76,10 +77,12 @@ export function getGlassClasses({
   onClick?: unknown;
   roundedClass?: string;
   className?: string;
+  isHovered?: boolean;
 }) {
-  const borderActiveClasses = active
-    ? "border-white/[0.15] bg-white/[0.04]"
-    : "border-white/[0.04] group-hover:border-white/[0.08] bg-white/[0.015] group-hover:bg-white/[0.03]";
+  const isEffectivelyActive = active || isHovered;
+  const borderActiveClasses = isEffectivelyActive
+    ? "border-white/[0.12] bg-white/[0.04]"
+    : "border-white/[0.04] bg-white/[0.015]";
 
   const cursorAndFocusClasses =
     as === "button" || href || onClick
