@@ -95,6 +95,24 @@ function useTabsContext() {
 
 const EMPTY_MOTION_CONTEXT = {};
 
+function createHoverStore(): TabsContextValue["hoverStore"] {
+  let currentVal: TabValue | null = null;
+  const listeners = new Set<() => void>();
+  return {
+    get: () => currentVal,
+    set: (val: TabValue | null) => {
+      currentVal = val;
+      listeners.forEach((l) => l());
+    },
+    subscribe: (listener: () => void) => {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+  };
+}
+
 function TabsInner<T extends TabValue>({
   value,
   onChange,
@@ -111,23 +129,11 @@ function TabsInner<T extends TabValue>({
   role = "tablist",
   ...rest
 }: Readonly<LiquidGlassTabsProps<T>>) {
-  const hoverStore = useMemo(() => {
-    const ref = { current: null as string | number | null };
-    const listeners = new Set<() => void>();
-    return {
-      get: () => ref.current,
-      set: (val: string | number | null) => {
-        ref.current = val;
-        listeners.forEach((l) => l());
-      },
-      subscribe: (listener: () => void) => {
-        listeners.add(listener);
-        return () => {
-          listeners.delete(listener);
-        };
-      },
-    };
-  }, []);
+  const hoverStoreRef = useRef<TabsContextValue["hoverStore"]>(null);
+  if (hoverStoreRef.current === null) {
+    hoverStoreRef.current = createHoverStore();
+  }
+  const hoverStore = hoverStoreRef.current;
 
   const contextValue = useMemo<TabsContextValue>(
     () => ({
