@@ -84,8 +84,10 @@ function Faq() {
           transition={isReduced ? { duration: 0.1 } : SPRING.snappy}
         >
           <LiquidGlass
+            as="div"
             roundedClass="rounded-2xl"
-            className="w-full border-white/[0.08] bg-white/[0.02] transition-colors duration-300 hover:border-white/[0.15]"
+            className="w-full text-left"
+            tilt
           >
             <div className="flex flex-col items-start justify-between gap-6 p-7 sm:p-8 md:flex-row md:items-center md:gap-8">
               <div className="flex flex-col gap-1.5">

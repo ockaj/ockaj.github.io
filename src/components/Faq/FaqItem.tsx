@@ -46,12 +46,7 @@ export const FaqItem = memo(function FaqItem({
     <LiquidGlass
       as="div"
       roundedClass="rounded-2xl"
-      className={cn(
-        "w-full transition-colors duration-300",
-        isOpen
-          ? "border-white/[0.12] bg-white/[0.03]"
-          : "border-white/[0.04] bg-white/[0.015] hover:border-white/[0.08]",
-      )}
+      className="w-full text-left"
       tilt
     >
       <div className="p-6 md:p-7">
