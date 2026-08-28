@@ -22,17 +22,6 @@ export const SCALE_TRANSITION = {
   scaleY: springs.scale,
 } as const;
 
-export const omit = <T extends object, K extends keyof T>(
-  obj: T,
-  keys: K[],
-): Omit<T, K> => {
-  const result = { ...obj };
-  keys.forEach((key) => {
-    delete result[key];
-  });
-  return result;
-};
-
 export function assignRef<T>(ref: Ref<T> | undefined, node: T | null): void {
   if (!ref) return;
   if (typeof ref === "function") {

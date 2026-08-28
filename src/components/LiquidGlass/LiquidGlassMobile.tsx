@@ -16,7 +16,6 @@ import { type LiquidGlassPropsWithRef, DEFAULT_STYLE } from "./types";
 import { scaleDeltas, scaleVertical, getInnerGlassStyle } from "./config";
 import {
   SCALE_TRANSITION,
-  omit,
   assignRef,
   getContentTagAndClasses,
   useKeyboardClick,
@@ -26,13 +25,6 @@ import {
   getEntryDimensions,
 } from "./liquidGlassUtils";
 import { InnerBorderOverlay } from "./LiquidGlassOverlays";
-
-const OMIT_KEYS = [
-  "magnetic",
-  "tilt",
-  "magneticStrength",
-  "tiltStrength",
-] as const;
 
 export default function LiquidGlassMobile(
   props: Readonly<LiquidGlassPropsWithRef>,
@@ -56,11 +48,13 @@ export default function LiquidGlassMobile(
     variant = "flat",
     active = false,
     specularGlow = false,
+    magnetic: _magnetic,
+    tilt: _tilt,
+    magneticStrength: _magneticStrength,
+    tiltStrength: _tiltStrength,
     ref,
-    ...rest
+    ...domProps
   } = props;
-
-  const domProps = omit(rest, OMIT_KEYS as unknown as (keyof typeof rest)[]);
 
   const prefersReducedMotion = useReducedMotion();
   const isMotionReduced = !!prefersReducedMotion;

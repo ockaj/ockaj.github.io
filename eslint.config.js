@@ -45,6 +45,18 @@ export default tseslint.config(
       // Custom React rule overrides
       "@eslint-react/no-missing-key": "error",
       "@eslint-react/no-array-index-key": "warn",
+
+      // Unused vars: allow leading underscore and ignore rest siblings
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+          ignoreRestSiblings: true,
+        },
+      ],
+      "sonarjs/no-unused-vars": "off",
     },
     settings: {
       react: {

@@ -65,7 +65,7 @@ export default function LiquidGlassDesktop({
   active = false,
   specularGlow = false,
   ref,
-  ...rest
+  ...domProps
 }: Readonly<LiquidGlassPropsWithRef>) {
   const prefersReducedMotion = useReducedMotion();
   const isMotionReduced = !!prefersReducedMotion;
@@ -321,7 +321,7 @@ export default function LiquidGlassDesktop({
     tagStyle,
     ariaLabel,
     sharedAnimationProps,
-    rest,
+    domProps,
   );
 
   return (
