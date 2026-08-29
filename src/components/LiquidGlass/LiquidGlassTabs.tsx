@@ -81,6 +81,7 @@ interface TabsContextValue {
   highlightClassName?: string;
   highlightStyle?: CSSProperties;
   role?: string | null;
+  isTransitioning: boolean;
 }
 
 const TabsContext = createContext<TabsContextValue | null>(null);
@@ -135,6 +136,20 @@ function TabsInner<T extends TabValue>({
   }
   const hoverStore = hoverStoreRef.current;
 
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const prevValueRef = useRef(value);
+
+  useEffect(() => {
+    if (prevValueRef.current !== value) {
+      prevValueRef.current = value;
+      setIsTransitioning(true);
+      const timer = setTimeout(() => {
+        setIsTransitioning(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [value]);
+
   const contextValue = useMemo<TabsContextValue>(
     () => ({
       value,
@@ -148,6 +163,7 @@ function TabsInner<T extends TabValue>({
       highlightClassName,
       highlightStyle,
       role,
+      isTransitioning,
     }),
     [
       value,
@@ -161,6 +177,7 @@ function TabsInner<T extends TabValue>({
       highlightClassName,
       highlightStyle,
       role,
+      isTransitioning,
     ],
   );
 
@@ -331,6 +348,7 @@ const Tab = memo(function Tab({
     highlightClassName: contextHighlightClass,
     highlightStyle: contextHighlightStyle,
     role: parentRole,
+    isTransitioning,
   } = useTabsContext();
 
   const prefersReducedMotion = useReducedMotion();
@@ -390,9 +408,9 @@ const Tab = memo(function Tab({
 
   const [isPressed, setIsPressed] = useState(false);
 
-  const isNavbarActive = !!contextHighlightClass?.includes(
-    "navbar-highlight-active",
-  );
+  const isNavbarActive =
+    isTransitioning ||
+    !!contextHighlightClass?.includes("navbar-highlight-active");
 
   const { targetScaleX, targetScaleY } = computeTargetScales(
     isPressed,
@@ -463,8 +481,20 @@ const Tab = memo(function Tab({
     highlightStyle,
   );
 
-  const innerHighlightClass =
-    `absolute inset-0 highlight-pill overflow-hidden ${roundedClass} ${contextHighlightClass} ${highlightClassName}`.trim();
+  let resolvedContextHighlightClass = contextHighlightClass ?? "";
+  if (resolvedContextHighlightClass.includes("navbar-highlight-")) {
+    resolvedContextHighlightClass = resolvedContextHighlightClass.replace(
+      /navbar-highlight-(?:active|flat)/g,
+      isNavbarActive ? "navbar-highlight-active" : "navbar-highlight-flat",
+    );
+  }
+
+  const innerHighlightClass = cn(
+    "absolute inset-0 highlight-pill overflow-hidden",
+    roundedClass,
+    resolvedContextHighlightClass,
+    highlightClassName,
+  );
 
   const { computedAriaSelected, computedAriaControls, computedTabIndex } =
     computeTabAriaProps(

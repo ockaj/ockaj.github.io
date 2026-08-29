@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useLayoutEffect,
-  useCallback,
-  useReducer,
-  useRef,
-} from "react";
+import { useEffect, useCallback, useReducer, useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Menu, X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
@@ -33,7 +27,6 @@ interface NavbarState {
   isOpen: boolean;
   avatarError: boolean;
   isHovered: boolean;
-  isTransitioning: boolean;
   isScrolling: boolean;
 }
 
@@ -42,7 +35,6 @@ type NavbarAction =
   | { type: "SET_IS_OPEN"; isOpen: boolean }
   | { type: "SET_AVATAR_ERROR"; error: boolean }
   | { type: "SET_IS_HOVERED"; hovered: boolean }
-  | { type: "SET_IS_TRANSIENT"; transitioning: boolean }
   | { type: "SET_SCROLLING"; scrolling: boolean };
 
 function navbarReducer(state: NavbarState, action: NavbarAction): NavbarState {
@@ -55,8 +47,6 @@ function navbarReducer(state: NavbarState, action: NavbarAction): NavbarState {
       return { ...state, avatarError: action.error };
     case "SET_IS_HOVERED":
       return { ...state, isHovered: action.hovered };
-    case "SET_IS_TRANSIENT":
-      return { ...state, isTransitioning: action.transitioning };
     case "SET_SCROLLING":
       return { ...state, isScrolling: action.scrolling };
     default:
@@ -100,18 +90,10 @@ export default function Navbar({
     isOpen: false,
     avatarError: false,
     isHovered: false,
-    isTransitioning: false,
     isScrolling: false,
   });
 
-  const {
-    scrolled,
-    isOpen,
-    avatarError,
-    isHovered,
-    isTransitioning,
-    isScrolling,
-  } = state;
+  const { scrolled, isOpen, avatarError, isHovered, isScrolling } = state;
 
   const isScrollingRef = useRef(false);
 
@@ -144,23 +126,6 @@ export default function Navbar({
   }, [isMobile]);
 
   const active = activeSection;
-  const prevActiveRef = useRef(activeSection);
-
-  useLayoutEffect(() => {
-    if (prevActiveRef.current !== activeSection) {
-      prevActiveRef.current = activeSection;
-      dispatch({ type: "SET_IS_TRANSIENT", transitioning: true });
-    }
-  }, [activeSection]);
-
-  useEffect(() => {
-    if (isTransitioning) {
-      const timer = setTimeout(() => {
-        dispatch({ type: "SET_IS_TRANSIENT", transitioning: false });
-      }, 300); // 300ms covers SPRING.highlight settling
-      return () => clearTimeout(timer);
-    }
-  }, [isTransitioning]);
 
   // Track scroll depth for the navbar backdrop collapse effect
   useEffect(() => {
@@ -223,9 +188,7 @@ export default function Navbar({
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             highlightClassName={
-              isHovered || isTransitioning
-                ? "navbar-highlight-active"
-                : "navbar-highlight-flat"
+              isHovered ? "navbar-highlight-active" : "navbar-highlight-flat"
             }
             className="flex items-center gap-1 md:gap-1.5"
           >
