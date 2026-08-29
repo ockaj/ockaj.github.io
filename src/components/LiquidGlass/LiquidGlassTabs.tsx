@@ -130,11 +130,7 @@ function TabsInner<T extends TabValue>({
   role = "tablist",
   ...rest
 }: Readonly<LiquidGlassTabsProps<T>>) {
-  const hoverStoreRef = useRef<TabsContextValue["hoverStore"]>(null);
-  if (hoverStoreRef.current === null) {
-    hoverStoreRef.current = createHoverStore();
-  }
-  const hoverStore = hoverStoreRef.current;
+  const [hoverStore] = useState(createHoverStore);
 
   const [isTransitioning, setIsTransitioning] = useState(false);
   const prevValueRef = useRef(value);
