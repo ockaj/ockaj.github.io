@@ -1,10 +1,4 @@
-import {
-  Suspense,
-  useCallback,
-  useMemo,
-  memo,
-  type ComponentProps,
-} from "react";
+import { Suspense, useCallback, memo, type ComponentProps } from "react";
 import { AnimatePresence } from "motion/react";
 
 import LoadingScreen from "./components/LoadingScreen";
@@ -20,7 +14,6 @@ import { useLazyMount } from "./hooks/useLazyMount";
 import { usePreloadComponents } from "./hooks/usePreloadComponents";
 import { useNavigation } from "./hooks/useAppNavigation";
 import { useAppStore } from "./store/useAppStore";
-import { getSkeletonHeight } from "./utils/skeletonHeight";
 import {
   CaseStudies,
   Skills,
@@ -30,12 +23,6 @@ import {
   PdfViewerModal,
   BpmnOverlay,
 } from "./lazyComponents";
-
-import caseStudiesBones from "./bones/case-studies.bones.json";
-import skillsBones from "./bones/skills.bones.json";
-import processesBones from "./bones/processes.bones.json";
-import journalBones from "./bones/journal.bones.json";
-import faqBones from "./bones/faq.bones.json";
 
 interface AppSectionHeaderProps {
   badgeType: ComponentProps<typeof BpmnNodeBadge>["type"];
@@ -63,17 +50,6 @@ function App() {
   const isLoading = useAppStore((state) => state.isLoading);
 
   const { activeSection, handleNavClick } = useNavigation();
-
-  const skeletonHeights = useMemo(
-    () => ({
-      caseStudies: getSkeletonHeight(caseStudiesBones),
-      skills: getSkeletonHeight(skillsBones),
-      processes: getSkeletonHeight(processesBones),
-      journal: getSkeletonHeight(journalBones),
-      faq: getSkeletonHeight(faqBones),
-    }),
-    [],
-  );
 
   const isMobile = useIsMobile();
   const rootMargin = isMobile ? "500px" : "300px";
@@ -136,7 +112,6 @@ function App() {
           id="work"
           sectionRef={caseStudiesRef}
           bonesName="case-studies"
-          skeletonHeight={skeletonHeights.caseStudies}
           isInView={caseStudiesInView}
           headerClassName="mb-12 md:mb-16 relative z-30 px-6 md:px-10 lg:px-16"
           header={
@@ -154,7 +129,6 @@ function App() {
           id="skills"
           sectionRef={skillsRef}
           bonesName="skills"
-          skeletonHeight={skeletonHeights.skills}
           isInView={skillsInView}
           headerClassName="mb-8 md:mb-10 relative z-30 px-6 md:px-10 lg:px-16"
           header={
@@ -172,7 +146,6 @@ function App() {
           id="processes"
           sectionRef={processesRef}
           bonesName="processes"
-          skeletonHeight={skeletonHeights.processes}
           isInView={processesInView}
           headerClassName="mb-10 md:mb-14 relative z-30 px-6 md:px-10 lg:px-16"
           header={
@@ -190,7 +163,6 @@ function App() {
           id="journal"
           sectionRef={journalRef}
           bonesName="journal"
-          skeletonHeight={skeletonHeights.journal}
           isInView={journalInView}
           headerClassName="flex items-end justify-between mb-10 md:mb-14 px-6 md:px-10 lg:px-16"
           header={
@@ -210,7 +182,6 @@ function App() {
           id="faq"
           sectionRef={faqRef}
           bonesName="faq"
-          skeletonHeight={skeletonHeights.faq}
           isInView={faqInView}
           headerClassName="mb-10 md:mb-14 relative z-30 px-6 md:px-10 lg:px-16"
           header={

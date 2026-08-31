@@ -2,7 +2,6 @@ import { memo, useMemo, type ReactNode, type RefObject } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { BoneSuspense } from "boneyard-js/react";
 import { SuspenseTrigger } from "../store/useAppStore";
-import { isBoneyardBuild } from "../utils/boneyard";
 import { cn } from "../utils/cn";
 
 interface LazySectionProps {
@@ -11,7 +10,6 @@ interface LazySectionProps {
   header: ReactNode;
   headerClassName?: string;
   bonesName: string;
-  skeletonHeight: number;
   isInView: boolean;
   children: ReactNode;
 }
@@ -28,7 +26,6 @@ function LazySection({
   header,
   headerClassName = "relative z-30 px-6 md:px-10 lg:px-16",
   bonesName,
-  skeletonHeight,
   isInView,
   children,
 }: Readonly<LazySectionProps>) {
@@ -38,18 +35,7 @@ function LazySection({
     [prefersReducedMotion],
   );
 
-  let content: ReactNode;
-  if (isInView) {
-    content = children;
-  } else if (isBoneyardBuild()) {
-    content = <SuspenseTrigger />;
-  } else {
-    content = (
-      <div className="px-6 md:px-10 lg:px-16">
-        <div style={{ height: skeletonHeight }} />
-      </div>
-    );
-  }
+  const content = isInView ? children : <SuspenseTrigger />;
 
   return (
     <section
@@ -76,19 +62,7 @@ function LazySection({
           viewport={SECTION_VIEWPORT}
           transition={SECTION_TRANSITION}
         >
-          <div style={{ minHeight: skeletonHeight }}>
-            <BoneSuspense
-              name={bonesName}
-              className="min-h-[inherit]"
-              fallback={
-                <div className="px-6 md:px-10 lg:px-16">
-                  <div style={{ height: skeletonHeight }} />
-                </div>
-              }
-            >
-              {content}
-            </BoneSuspense>
-          </div>
+          <BoneSuspense name={bonesName}>{content}</BoneSuspense>
         </motion.div>
       </div>
     </section>
