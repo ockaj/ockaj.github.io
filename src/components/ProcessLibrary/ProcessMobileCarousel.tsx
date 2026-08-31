@@ -45,6 +45,7 @@ export default function ProcessMobileCarousel({
               return (
                 <div
                   key={topic.id}
+                  data-no-skeleton={idx > 0 ? "" : undefined}
                   className="min-w-0 flex-[0_0_96%] sm:flex-[0_0_92%]"
                 >
                   <LiquidGlass

@@ -1,6 +1,7 @@
 import { memo, useMemo, type ReactNode, type RefObject } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { BoneSuspense } from "boneyard-js/react";
+import type { SnapshotConfig } from "boneyard-js";
 import { SuspenseTrigger } from "../store/useAppStore";
 import { cn } from "../utils/cn";
 
@@ -12,6 +13,7 @@ interface LazySectionProps {
   bonesName: string;
   isInView: boolean;
   children: ReactNode;
+  snapshotConfig?: SnapshotConfig;
 }
 
 import {
@@ -19,6 +21,10 @@ import {
   SECTION_VIEWPORT,
   SECTION_TRANSITION,
 } from "../utils/motionVariants";
+
+const DEFAULT_SNAPSHOT_CONFIG: SnapshotConfig = {
+  excludeSelectors: ["[data-no-skeleton]"],
+};
 
 function LazySection({
   id,
@@ -28,6 +34,7 @@ function LazySection({
   bonesName,
   isInView,
   children,
+  snapshotConfig = DEFAULT_SNAPSHOT_CONFIG,
 }: Readonly<LazySectionProps>) {
   const prefersReducedMotion = useReducedMotion();
   const initialStyle = useMemo(
@@ -62,7 +69,9 @@ function LazySection({
           viewport={SECTION_VIEWPORT}
           transition={SECTION_TRANSITION}
         >
-          <BoneSuspense name={bonesName}>{content}</BoneSuspense>
+          <BoneSuspense name={bonesName} snapshotConfig={snapshotConfig}>
+            {content}
+          </BoneSuspense>
         </motion.div>
       </div>
     </section>

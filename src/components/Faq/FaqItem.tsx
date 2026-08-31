@@ -50,9 +50,16 @@ export const FaqItem = memo(function FaqItem({
       tilt
     >
       <div className="p-6 md:p-7">
-        <button
-          type="button"
+        <div
+          role="button"
+          tabIndex={0}
           onClick={() => onToggle(item.id)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              onToggle(item.id);
+            }
+          }}
           aria-expanded={isOpen}
           aria-controls={contentId}
           className="focus-visible:ring-accent/60 flex w-full cursor-pointer items-center justify-between gap-4 rounded-lg text-left select-none focus-visible:ring-2 focus-visible:outline-none"
@@ -73,6 +80,7 @@ export const FaqItem = memo(function FaqItem({
             specularGlow
           >
             <motion.span
+              data-no-skeleton=""
               initial={false}
               animate={{ rotate: isOpen ? 180 : 0 }}
               transition={isReduced ? { duration: 0.1 } : SPRING.snappy}
@@ -81,14 +89,18 @@ export const FaqItem = memo(function FaqItem({
               <ChevronDown size={18} aria-hidden="true" />
             </motion.span>
           </LiquidGlass>
-        </button>
+        </div>
 
         <div
           id={contentId}
           role="region"
+          aria-hidden={!isOpen}
+          data-no-skeleton={!isOpen ? "" : undefined}
           className={cn(
-            "grid transition-[grid-template-rows] duration-350 ease-[cubic-bezier(0.16,1,0.3,1)]",
-            isOpen ? "grid-rows-[1fr]" : "pointer-events-none grid-rows-[0fr]",
+            "grid transition-[grid-template-rows,visibility] duration-350 ease-[cubic-bezier(0.16,1,0.3,1)]",
+            isOpen
+              ? "visible grid-rows-[1fr]"
+              : "pointer-events-none invisible grid-rows-[0fr]",
           )}
         >
           <div className="overflow-hidden">

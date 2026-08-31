@@ -4,30 +4,16 @@ import { ArrowDown } from "lucide-react";
 import { LiquidGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import { FaqItem } from "./FaqItem";
 import { FAQ_ITEMS } from "../../data/faqData";
-import { SPRING, EASE } from "../../utils/springConfig";
+import { isBoneyardBuild } from "../../utils/boneyard";
+import {
+  containerStaggerVariants,
+  cardStaggerVariants,
+  SECTION_VIEWPORT,
+} from "../../utils/motionVariants";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.05,
-      delayChildren: 0.05,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.35,
-      ease: EASE.out,
-    },
-  },
-};
+const isBuildMode = isBoneyardBuild();
+const containerVariants = containerStaggerVariants(0.05);
+const cardVariants = cardStaggerVariants;
 
 function Faq() {
   const prefersReducedMotion = useReducedMotion();
@@ -56,19 +42,21 @@ function Faq() {
   }, [isReduced]);
 
   return (
-    <div className="relative mx-auto max-w-[1200px] px-6 pb-12 md:px-10 lg:px-16">
+    <div className="px-6 md:px-10 lg:px-16">
       {/* Accordion Items List & Editorial Transition Card */}
       <motion.div
-        variants={isReduced ? undefined : containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-40px" }}
+        custom={prefersReducedMotion}
+        variants={containerVariants}
+        initial={isBuildMode ? "visible" : "hidden"}
+        whileInView={isBuildMode ? undefined : "visible"}
+        viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
         className="flex flex-col gap-4"
       >
         {FAQ_ITEMS.map((item) => (
           <motion.div
             key={item.id}
-            variants={isReduced ? undefined : itemVariants}
+            variants={cardVariants}
+            custom={prefersReducedMotion}
           >
             <FaqItem
               item={item}
@@ -79,10 +67,7 @@ function Faq() {
         ))}
 
         {/* Editorial Transition Card */}
-        <motion.div
-          variants={isReduced ? undefined : itemVariants}
-          transition={isReduced ? { duration: 0.1 } : SPRING.snappy}
-        >
+        <motion.div variants={cardVariants} custom={prefersReducedMotion}>
           <LiquidGlass
             as="div"
             roundedClass="rounded-2xl"
