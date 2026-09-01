@@ -6,6 +6,7 @@ const SECTIONS_ORDER = [
   "skills",
   "processes",
   "journal",
+  "faq",
   "contact",
 ];
 
