@@ -255,11 +255,23 @@ function useAuroraCanvas(
 
     let w = 0,
       h = 0;
-    function resize(entries?: ResizeObserverEntry[]) {
-      if (!ctn) return;
-      const entry = entries?.[0];
-      const newW = entry ? entry.contentRect.width : ctn.offsetWidth;
-      const newH = entry ? entry.contentRect.height : ctn.offsetHeight;
+    function resize(entry?: ResizeObserverEntry) {
+      if (!ctn || !entry) return;
+      let newW = 0;
+      let newH = 0;
+      if (entry.borderBoxSize) {
+        const borderBox = Array.isArray(entry.borderBoxSize)
+          ? entry.borderBoxSize[0]
+          : entry.borderBoxSize;
+        if (borderBox && borderBox.inlineSize > 0 && borderBox.blockSize > 0) {
+          newW = borderBox.inlineSize;
+          newH = borderBox.blockSize;
+        }
+      }
+      if (newW === 0 || newH === 0) {
+        newW = entry.contentRect.width;
+        newH = entry.contentRect.height;
+      }
       if (newW > 0 && newH > 0 && (newW !== w || newH !== h)) {
         w = newW;
         h = newH;
@@ -273,7 +285,7 @@ function useAuroraCanvas(
     }
 
     resizeHandlerRef.current = (entry: ResizeObserverEntry) => {
-      resize([entry]);
+      resize(entry);
     };
 
     const handleContextLost = (e: Event) => {
@@ -399,8 +411,6 @@ function useAuroraCanvas(
       }
     };
     document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    resize();
 
     const activeGl = gl;
     return () => {

@@ -173,7 +173,6 @@ export function getEntryDimensions(entry: ResizeObserverEntry): {
   width: number;
   height: number;
 } {
-  const el = entry.target as HTMLElement;
   let width = 0;
   let height = 0;
 
@@ -188,13 +187,8 @@ export function getEntryDimensions(entry: ResizeObserverEntry): {
   }
 
   if (width === 0 || height === 0) {
-    if (el && el.offsetWidth > 0 && el.offsetHeight > 0) {
-      width = el.offsetWidth;
-      height = el.offsetHeight;
-    } else {
-      width = entry.contentRect.width;
-      height = entry.contentRect.height;
-    }
+    width = entry.contentRect?.width ?? 0;
+    height = entry.contentRect?.height ?? 0;
   }
 
   return { width, height };

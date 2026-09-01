@@ -94,7 +94,7 @@ export function useNavigation() {
   const visibleSectionsRef = useRef(new Set<string>());
   const scrollEndCleanupRef = useRef<(() => void) | null>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (isLoading) return;
     const hash = window.location.hash;
     if (hash) {
