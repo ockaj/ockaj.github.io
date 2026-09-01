@@ -1,12 +1,6 @@
 import { create } from "zustand";
 import { isBoneyardBuild } from "../utils/boneyard";
 
-const PENDING_PROMISE = new Promise<void>(() => {});
-
-export function SuspenseTrigger(): never {
-  throw PENDING_PROMISE;
-}
-
 export interface AppState {
   isLoading: boolean;
   isCvOpen: boolean;

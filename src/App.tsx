@@ -10,7 +10,6 @@ import Aurora from "./components/Aurora";
 import ContactSection from "./components/ContactSection";
 
 import { useIsMobile } from "./hooks/useMediaQuery";
-import { useLazyMount } from "./hooks/useLazyMount";
 import { usePreloadComponents } from "./hooks/usePreloadComponents";
 import { useNavigation } from "./hooks/useAppNavigation";
 import { useAppStore } from "./store/useAppStore";
@@ -52,25 +51,6 @@ function App() {
   const { activeSection, handleNavClick } = useNavigation();
 
   const isMobile = useIsMobile();
-  const rootMargin = isMobile ? "500px" : "300px";
-
-  const [caseStudiesRef, caseStudiesInView] = useLazyMount({
-    id: "work",
-    rootMargin,
-  });
-  const [skillsRef, skillsInView] = useLazyMount({ id: "skills", rootMargin });
-  const [processesRef, processesInView] = useLazyMount({
-    id: "processes",
-    rootMargin,
-  });
-  const [journalRef, journalInView] = useLazyMount({
-    id: "journal",
-    rootMargin,
-  });
-  const [faqRef, faqInView] = useLazyMount({
-    id: "faq",
-    rootMargin,
-  });
 
   // Preload lazy components concurrently with main-thread yielding to protect INP
   usePreloadComponents(isMobile, isLoading);
@@ -110,9 +90,7 @@ function App() {
 
         <LazySection
           id="work"
-          sectionRef={caseStudiesRef}
           bonesName="case-studies"
-          isInView={caseStudiesInView}
           headerClassName="mb-12 md:mb-16 relative z-30 px-6 md:px-10 lg:px-16"
           header={
             <AppSectionHeader
@@ -127,9 +105,7 @@ function App() {
 
         <LazySection
           id="skills"
-          sectionRef={skillsRef}
           bonesName="skills"
-          isInView={skillsInView}
           headerClassName="mb-8 md:mb-10 relative z-30 px-6 md:px-10 lg:px-16"
           header={
             <AppSectionHeader
@@ -144,9 +120,7 @@ function App() {
 
         <LazySection
           id="processes"
-          sectionRef={processesRef}
           bonesName="processes"
-          isInView={processesInView}
           headerClassName="mb-10 md:mb-14 relative z-30 px-6 md:px-10 lg:px-16"
           header={
             <AppSectionHeader
@@ -161,9 +135,7 @@ function App() {
 
         <LazySection
           id="journal"
-          sectionRef={journalRef}
           bonesName="journal"
-          isInView={journalInView}
           headerClassName="flex items-end justify-between mb-10 md:mb-14 px-6 md:px-10 lg:px-16"
           header={
             <div>
@@ -180,9 +152,7 @@ function App() {
 
         <LazySection
           id="faq"
-          sectionRef={faqRef}
           bonesName="faq"
-          isInView={faqInView}
           headerClassName="mb-10 md:mb-14 relative z-30 px-6 md:px-10 lg:px-16"
           header={
             <AppSectionHeader

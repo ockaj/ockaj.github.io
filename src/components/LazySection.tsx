@@ -1,26 +1,23 @@
-import { memo, useMemo, type ReactNode, type RefObject } from "react";
+import { memo, useMemo, type ReactNode, type CSSProperties } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { BoneSuspense } from "boneyard-js/react";
 import type { SnapshotConfig } from "boneyard-js";
-import { SuspenseTrigger } from "../store/useAppStore";
 import { cn } from "../utils/cn";
-
-interface LazySectionProps {
-  id: string;
-  sectionRef: RefObject<HTMLElement | null>;
-  header: ReactNode;
-  headerClassName?: string;
-  bonesName: string;
-  isInView: boolean;
-  children: ReactNode;
-  snapshotConfig?: SnapshotConfig;
-}
-
+import { getSkeletonHeights } from "../utils/bonesHelper";
 import {
   SECTION_ANIMATE,
   SECTION_VIEWPORT,
   SECTION_TRANSITION,
 } from "../utils/motionVariants";
+
+interface LazySectionProps {
+  id: string;
+  header: ReactNode;
+  headerClassName?: string;
+  bonesName: string;
+  children: ReactNode;
+  snapshotConfig?: SnapshotConfig;
+}
 
 const DEFAULT_SNAPSHOT_CONFIG: SnapshotConfig = {
   excludeSelectors: ["[data-no-skeleton]"],
@@ -28,11 +25,9 @@ const DEFAULT_SNAPSHOT_CONFIG: SnapshotConfig = {
 
 function LazySection({
   id,
-  sectionRef,
   header,
   headerClassName = "relative z-30 px-6 md:px-10 lg:px-16",
   bonesName,
-  isInView,
   children,
   snapshotConfig = DEFAULT_SNAPSHOT_CONFIG,
 }: Readonly<LazySectionProps>) {
@@ -42,14 +37,17 @@ function LazySection({
     [prefersReducedMotion],
   );
 
-  const content = isInView ? children : <SuspenseTrigger />;
+  const containerStyle = useMemo<CSSProperties>(() => {
+    const { mob, tab, desk } = getSkeletonHeights(bonesName);
+    return {
+      "--skeleton-min-h-mob": mob > 0 ? `${mob}px` : undefined,
+      "--skeleton-min-h-tab": tab > 0 ? `${tab}px` : undefined,
+      "--skeleton-min-h-desk": desk > 0 ? `${desk}px` : undefined,
+    } as CSSProperties;
+  }, [bonesName]);
 
   return (
-    <section
-      ref={sectionRef}
-      id={id}
-      className="overflow-x-clip bg-transparent pt-16 md:pt-24"
-    >
+    <section id={id} className="overflow-x-clip bg-transparent pt-16 md:pt-24">
       <div className="mx-auto max-w-[1200px]">
         <motion.div
           initial={initialStyle}
@@ -68,9 +66,15 @@ function LazySection({
           whileInView={SECTION_ANIMATE}
           viewport={SECTION_VIEWPORT}
           transition={SECTION_TRANSITION}
+          style={containerStyle}
+          className="min-h-[var(--skeleton-min-h-mob)] md:min-h-[var(--skeleton-min-h-tab)] lg:min-h-[var(--skeleton-min-h-desk)]"
         >
-          <BoneSuspense name={bonesName} snapshotConfig={snapshotConfig}>
-            {content}
+          <BoneSuspense
+            name={bonesName}
+            select="viewport"
+            snapshotConfig={snapshotConfig}
+          >
+            {children}
           </BoneSuspense>
         </motion.div>
       </div>

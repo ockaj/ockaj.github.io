@@ -18,6 +18,7 @@ configureBoneyard({
   shimmerAngle: 110,
   stagger: 80,
   transition: 300,
+  select: "viewport",
 });
 
 if (import.meta.env.DEV) {
