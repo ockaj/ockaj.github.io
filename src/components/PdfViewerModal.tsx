@@ -321,7 +321,9 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
                 <>
                   {pdfLoading ? (
                     <div className="bg-bg/80 absolute inset-0 z-20 flex flex-col items-center justify-center gap-3">
-                      <Loader2 className="text-accent animate-spin" size={32} />
+                      <div className="animate-spin">
+                        <Loader2 className="text-accent" size={32} />
+                      </div>
                       <p className="text-muted text-xs">
                         Loading PDF Document…
                       </p>

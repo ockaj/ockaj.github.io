@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo } from "react";
 import { Clock, ArrowUpRight } from "lucide-react";
 import type { Article } from "../../data/articles";
 import { LiquidGlass } from "../LiquidGlass/LiquidGlass";
@@ -8,17 +8,10 @@ interface EntryProps {
   onOpen: (article: Article) => void;
 }
 
-const WORDS_REGEX = /\s+/;
-
 const JournalEntry = memo(function JournalEntry({
   article,
   onOpen,
 }: EntryProps) {
-  const excerpt = useMemo(() => {
-    const words = article.body.split(WORDS_REGEX);
-    return words.slice(0, 40).join(" ") + "...";
-  }, [article.body]);
-
   return (
     <LiquidGlass
       as="article"
@@ -48,7 +41,7 @@ const JournalEntry = memo(function JournalEntry({
         </div>
 
         <p className="text-text-primary/80 group-hover:text-text-primary line-clamp-3 text-sm leading-relaxed text-pretty transition-colors duration-200 md:text-base">
-          {excerpt}
+          {article.excerpt}
         </p>
 
         <div className="flex items-center justify-between pt-2">

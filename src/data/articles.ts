@@ -25,6 +25,7 @@ export interface Article {
   date: string;
   image: string;
   body: string;
+  excerpt: string;
 }
 
 export const ARTICLES: Article[] = Object.entries(markdownModules)
@@ -35,7 +36,9 @@ export const ARTICLES: Article[] = Object.entries(markdownModules)
     const frontmatter = (parse(parts[1]) || {}) as ArticleFrontmatter;
     const body = parts.slice(2).join("---").trim();
 
-    const wordCount = body.split(WHITESPACE_REGEX).filter(Boolean).length;
+    const words = body.split(WHITESPACE_REGEX).filter(Boolean);
+    const wordCount = words.length;
+    const excerpt = words.slice(0, 40).join(" ") + "...";
 
     return {
       id: frontmatter.id || filename.replace(MD_EXT_REGEX, ""),
@@ -47,6 +50,7 @@ export const ARTICLES: Article[] = Object.entries(markdownModules)
       date: frontmatter.date || "",
       image: frontmatter.image || "",
       body,
+      excerpt,
     };
   })
   .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

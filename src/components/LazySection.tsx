@@ -32,10 +32,7 @@ function LazySection({
   snapshotConfig = DEFAULT_SNAPSHOT_CONFIG,
 }: Readonly<LazySectionProps>) {
   const prefersReducedMotion = useReducedMotion();
-  const initialStyle = useMemo(
-    () => ({ opacity: 0, y: prefersReducedMotion ? 0 : 30 }),
-    [prefersReducedMotion],
-  );
+  const initialStyle = { opacity: 0, y: prefersReducedMotion ? 0 : 30 };
 
   const containerStyle = useMemo<CSSProperties>(() => {
     const { mob, tab, desk } = getSkeletonHeights(bonesName);
