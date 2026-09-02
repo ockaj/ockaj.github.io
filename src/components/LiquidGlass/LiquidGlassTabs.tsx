@@ -320,6 +320,7 @@ function computeOuterHighlightStyle(
 }
 
 const HIGHLIGHT_TRANSITION = { layout: SPRING.highlight } as const;
+const NAVBAR_HIGHLIGHT_REGEX = /navbar-highlight-(?:active|flat)/g;
 
 const Tab = memo(function Tab({
   value,
@@ -366,9 +367,8 @@ const Tab = memo(function Tab({
       const currentHovered = hoverStore.get();
       setIsHovered(currentHovered === value);
       setIsAnyHovered(currentHovered !== null);
-      setWillChange(true);
     });
-  }, [hoverStore, value, setWillChange]);
+  }, [hoverStore, value]);
 
   const isMobileNav = layoutId?.includes("mobile") || isMobile;
 
@@ -480,7 +480,7 @@ const Tab = memo(function Tab({
   let resolvedContextHighlightClass = contextHighlightClass ?? "";
   if (resolvedContextHighlightClass.includes("navbar-highlight-")) {
     resolvedContextHighlightClass = resolvedContextHighlightClass.replace(
-      /navbar-highlight-(?:active|flat)/g,
+      NAVBAR_HIGHLIGHT_REGEX,
       isNavbarActive ? "navbar-highlight-active" : "navbar-highlight-flat",
     );
   }

@@ -28,6 +28,48 @@ const preloadPdfModal = () => {
   return loadPdfViewerModal.load();
 };
 
+const SLOT_TEXT_OPTIONS = {
+  direction: "down" as const,
+  skipUnchanged: false,
+  duration: 350,
+  stagger: 50,
+  bounce: 0.2,
+  easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+};
+
+const REDUCED_MOTION_SLOT_TEXT_OPTIONS = {
+  ...SLOT_TEXT_OPTIONS,
+  duration: 0,
+};
+
+interface RotatingSpecializationProps {
+  prefersReducedMotion: boolean | null;
+}
+
+function RotatingSpecialization({
+  prefersReducedMotion,
+}: Readonly<RotatingSpecializationProps>) {
+  const [roleIndex, setRoleIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRoleIndex((i) => (i + 1) % SPECIALIZATIONS.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <SlotText
+      text={SPECIALIZATIONS[roleIndex] + "."}
+      options={
+        prefersReducedMotion
+          ? REDUCED_MOTION_SLOT_TEXT_OPTIONS
+          : SLOT_TEXT_OPTIONS
+      }
+    />
+  );
+}
+
 interface HeroProps {
   onViewCv: () => void;
   onViewWork: () => void;
@@ -241,20 +283,12 @@ function HeroScrollIndicator({
 }
 
 function Hero({ onViewCv, onViewWork }: Readonly<HeroProps>) {
-  const [roleIndex, setRoleIndex] = useState(0);
   const { scrollY } = useScroll();
   const prefersReducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
 
   const scrollOpacity = useTransform(scrollY, [0, 150], [1, 0]);
   const scrollYOffset = useTransform(scrollY, [0, 150], [0, 15]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRoleIndex((i) => (i + 1) % SPECIALIZATIONS.length);
-    }, 2500);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <section className="relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden pt-24 pb-28 md:py-0">
@@ -301,16 +335,8 @@ function Hero({ onViewCv, onViewWork }: Readonly<HeroProps>) {
             </span>
             <span className="text-text-primary ml-1 inline-block font-semibold whitespace-nowrap">
               &amp;{" "}
-              <SlotText
-                text={SPECIALIZATIONS[roleIndex] + "."}
-                options={{
-                  direction: "down",
-                  skipUnchanged: false,
-                  duration: prefersReducedMotion ? 0 : 350,
-                  stagger: 50,
-                  bounce: 0.2,
-                  easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-                }}
+              <RotatingSpecialization
+                prefersReducedMotion={prefersReducedMotion}
               />
             </span>
           </span>
