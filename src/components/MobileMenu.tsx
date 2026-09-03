@@ -1,9 +1,9 @@
-import { memo, useState, useEffect, useMemo } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { memo, useEffect, useMemo } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import { cn } from "../utils/cn";
-import { SPRING } from "../utils/springConfig";
 import {
+  mobileMenuBackdropVariants,
   mobileMenuPanelVariants,
   mobileMenuItemVariants,
 } from "../utils/motionVariants";
@@ -27,7 +27,6 @@ function MobileMenu({
   onClose,
   onChange,
 }: Readonly<MobileMenuProps>) {
-  const [isHovered, setIsHovered] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const isMotionReduced = !!prefersReducedMotion;
 
@@ -63,25 +62,21 @@ function MobileMenu({
 
   return (
     <>
-      <motion.div
-        initial="hidden"
-        animate={isOpen ? "visible" : "hidden"}
-        variants={{
-          hidden: {
-            opacity: 0,
-            pointerEvents: "none",
-            transition: SPRING.exit,
-          },
-          visible: {
-            opacity: 1,
-            pointerEvents: "auto",
-            transition: SPRING.drawerMobile,
-          },
-        }}
-        aria-hidden="true"
-        className="fixed top-0 right-0 bottom-[-20vh] left-0 z-40 touch-none bg-black/50 backdrop-blur-sm md:hidden"
-        onClick={onClose}
-      />
+      <AnimatePresence>
+        {isOpen ? (
+          <motion.div
+            key="mobile-menu-backdrop"
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={mobileMenuBackdropVariants}
+            custom={isMotionReduced}
+            aria-hidden="true"
+            className="fixed top-0 right-0 bottom-[-20vh] left-0 z-40 touch-none bg-black/50 backdrop-blur-sm md:hidden"
+            onClick={onClose}
+          />
+        ) : null}
+      </AnimatePresence>
 
       <motion.div
         variants={mobileMenuPanelVariants}
@@ -107,12 +102,7 @@ function MobileMenu({
             onChange={onChange}
             layoutId="active-mobile-nav-highlight"
             role={null}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            highlightClassName={cn(
-              "border border-white/10",
-              isHovered ? "navbar-highlight-active" : "navbar-highlight-flat",
-            )}
+            highlightClassName="border border-white/10 navbar-highlight-flat"
             highlightStyle={HIGHLIGHT_STYLE}
             className="flex flex-col gap-1.5"
           >
@@ -123,13 +113,8 @@ function MobileMenu({
                 variants={mobileMenuItemVariants}
                 custom={isMotionReduced}
                 tabIndex={isOpen ? 0 : -1}
-                className={cn(
-                  "focus-visible:ring-accent/60 relative z-10 flex w-full items-center justify-center rounded-full px-4 py-3.5 text-center text-sm font-semibold tracking-[0.01em] transition-colors duration-300 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
-                  active === link
-                    ? "text-text-primary"
-                    : "text-muted hover:text-text-primary",
-                )}
-                aria-current={active === link ? "page" : undefined}
+                className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 flex w-full items-center justify-center rounded-full px-4 py-3.5 text-center text-sm font-semibold tracking-[0.01em] transition-colors duration-300 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
+                activeClassName="text-text-primary"
               >
                 <span>{link}</span>
               </Tab>

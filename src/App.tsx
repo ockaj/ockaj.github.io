@@ -49,7 +49,7 @@ function AppSectionHeader({
 function App() {
   const isLoading = useAppStore((state) => state.isLoading);
 
-  const { activeSection, handleNavClick } = useNavigation();
+  const { handleNavClick } = useNavigation();
 
   const isMobile = useIsMobile();
 
@@ -84,7 +84,7 @@ function App() {
           inert={isLoading}
           className="text-text-primary font-body relative z-10"
         >
-          <Navbar activeSection={activeSection} onNavClick={handleNavClick} />
+          <Navbar onNavClick={handleNavClick} />
 
           <div id="home">
             <Hero onViewCv={handleViewCv} onViewWork={handleViewWork} />

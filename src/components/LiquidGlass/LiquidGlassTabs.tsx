@@ -4,6 +4,8 @@ import {
   useMemo,
   useState,
   useEffect,
+  useLayoutEffect,
+  useSyncExternalStore,
   memo,
   useRef,
   useCallback,
@@ -65,15 +67,59 @@ interface LiquidGlassTabPanelProps extends HTMLAttributes<HTMLDivElement> {
 
 type TabValue = string | number;
 
+export interface ActiveStore {
+  get: () => TabValue;
+  isTransitioning: () => boolean;
+  set: (val: TabValue) => void;
+  subscribe: (listener: () => void) => () => void;
+  destroy: () => void;
+}
+
+function createActiveStore(initialValue: TabValue): ActiveStore {
+  let currentVal: TabValue = initialValue;
+  let isTransitioningVal = false;
+  let transitionTimer: ReturnType<typeof setTimeout> | null = null;
+  const listeners = new Set<() => void>();
+
+  return {
+    get: () => currentVal,
+    isTransitioning: () => isTransitioningVal,
+    set: (val: TabValue) => {
+      if (currentVal === val) return;
+      currentVal = val;
+      isTransitioningVal = true;
+      if (transitionTimer) clearTimeout(transitionTimer);
+      transitionTimer = setTimeout(() => {
+        isTransitioningVal = false;
+        listeners.forEach((l) => l());
+      }, 300);
+      listeners.forEach((l) => l());
+    },
+    subscribe: (listener: () => void) => {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    destroy: () => {
+      if (transitionTimer) clearTimeout(transitionTimer);
+      listeners.clear();
+    },
+  };
+}
+
+export interface HoverStore {
+  get: () => TabValue | null;
+  set: (val: TabValue | null) => void;
+  subscribe: (listener: () => void) => () => void;
+  destroy: () => void;
+}
+
 interface TabsContextValue {
-  value: TabValue;
   onChange?: (value: TabValue) => void;
   layoutId: string;
-  hoverStore: {
-    get: () => TabValue | null;
-    set: (val: TabValue | null) => void;
-    subscribe: (listener: () => void) => () => void;
-  };
+  hoverStore: HoverStore;
+  activeStore: ActiveStore;
   hoverSlide: boolean;
   ripple: boolean;
   roundedClass: string;
@@ -81,7 +127,6 @@ interface TabsContextValue {
   highlightClassName?: string;
   highlightStyle?: CSSProperties;
   role?: string | null;
-  isTransitioning: boolean;
 }
 
 const TabsContext = createContext<TabsContextValue | null>(null);
@@ -96,12 +141,13 @@ function useTabsContext() {
 
 const EMPTY_MOTION_CONTEXT = {};
 
-function createHoverStore(): TabsContextValue["hoverStore"] {
+function createHoverStore(): HoverStore {
   let currentVal: TabValue | null = null;
   const listeners = new Set<() => void>();
   return {
     get: () => currentVal,
     set: (val: TabValue | null) => {
+      if (currentVal === val) return;
       currentVal = val;
       listeners.forEach((l) => l());
     },
@@ -110,6 +156,9 @@ function createHoverStore(): TabsContextValue["hoverStore"] {
       return () => {
         listeners.delete(listener);
       };
+    },
+    destroy: () => {
+      listeners.clear();
     },
   };
 }
@@ -131,27 +180,25 @@ function TabsInner<T extends TabValue>({
   ...rest
 }: Readonly<LiquidGlassTabsProps<T>>) {
   const [hoverStore] = useState(createHoverStore);
+  const [activeStore] = useState(() => createActiveStore(value));
 
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const prevValueRef = useRef(value);
+  useLayoutEffect(() => {
+    activeStore.set(value);
+  }, [value, activeStore]);
 
   useEffect(() => {
-    if (prevValueRef.current !== value) {
-      prevValueRef.current = value;
-      setIsTransitioning(true);
-      const timer = setTimeout(() => {
-        setIsTransitioning(false);
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [value]);
+    return () => {
+      activeStore.destroy();
+      hoverStore.destroy();
+    };
+  }, [activeStore, hoverStore]);
 
   const contextValue = useMemo<TabsContextValue>(
     () => ({
-      value,
       onChange: onChange as (value: string | number) => void,
       layoutId,
       hoverStore,
+      activeStore,
       hoverSlide,
       ripple,
       roundedClass,
@@ -159,13 +206,12 @@ function TabsInner<T extends TabValue>({
       highlightClassName,
       highlightStyle,
       role,
-      isTransitioning,
     }),
     [
-      value,
       onChange,
       layoutId,
       hoverStore,
+      activeStore,
       hoverSlide,
       ripple,
       roundedClass,
@@ -173,7 +219,6 @@ function TabsInner<T extends TabValue>({
       highlightClassName,
       highlightStyle,
       role,
-      isTransitioning,
     ],
   );
 
@@ -272,6 +317,9 @@ function computeTabAriaProps(
   restAriaSelected: boolean | undefined,
   restAriaControls: string | undefined,
   restTabIndex: number | undefined,
+  restAriaCurrent: ComponentPropsWithoutRef<
+    typeof motion.button
+  >["aria-current"],
   isTabRole: boolean,
   isActive: boolean,
 ) {
@@ -287,7 +335,17 @@ function computeTabAriaProps(
     computedTabIndex = isActive ? 0 : -1;
   }
 
-  return { computedAriaSelected, computedAriaControls, computedTabIndex };
+  let computedAriaCurrent = restAriaCurrent;
+  if (computedAriaCurrent === undefined && !isTabRole && isActive) {
+    computedAriaCurrent = "page";
+  }
+
+  return {
+    computedAriaSelected,
+    computedAriaControls,
+    computedTabIndex,
+    computedAriaCurrent,
+  };
 }
 
 function resolveTabRole(
@@ -320,7 +378,74 @@ function computeOuterHighlightStyle(
 }
 
 const HIGHLIGHT_TRANSITION = { layout: SPRING.highlight } as const;
-const NAVBAR_HIGHLIGHT_REGEX = /navbar-highlight-(?:active|flat)/g;
+const NAVBAR_HIGHLIGHT_REGEX = /navbar-highlight-(?:active|flat)/;
+const GET_FALSE = () => false;
+
+function useTabActive(activeStore: ActiveStore, value: TabValue) {
+  const getSnapshot = useCallback(
+    () => activeStore.get() === value,
+    [activeStore, value],
+  );
+
+  const isActive = useSyncExternalStore(
+    activeStore.subscribe,
+    getSnapshot,
+    getSnapshot,
+  );
+
+  const getTransitioningSnapshot = useCallback(
+    () => activeStore.get() === value && activeStore.isTransitioning(),
+    [activeStore, value],
+  );
+
+  const isTransitioning = useSyncExternalStore(
+    activeStore.subscribe,
+    getTransitioningSnapshot,
+    GET_FALSE,
+  );
+
+  return { isActive, isTransitioning };
+}
+
+function useTabHover(
+  hoverStore: {
+    get: () => TabValue | null;
+    subscribe: (listener: () => void) => () => void;
+  },
+  value: TabValue,
+  isActive: boolean,
+  hoverSlide: boolean,
+) {
+  const isHovered = useSyncExternalStore(
+    hoverStore.subscribe,
+    useCallback(() => hoverStore.get() === value, [hoverStore, value]),
+    GET_FALSE,
+  );
+  const showHighlight = useSyncExternalStore(
+    hoverStore.subscribe,
+    useCallback(() => {
+      if (!hoverSlide) return isActive;
+      const current = hoverStore.get();
+      return current === value || (isActive && current === null);
+    }, [hoverStore, hoverSlide, isActive, value]),
+    useCallback(() => isActive, [isActive]),
+  );
+  return { isHovered, showHighlight };
+}
+
+function resolveContextHighlightClass(
+  contextHighlightClass: string | undefined,
+  isNavbarActive: boolean,
+): string {
+  if (!contextHighlightClass) return "";
+  if (contextHighlightClass.includes("navbar-highlight-")) {
+    return contextHighlightClass.replace(
+      NAVBAR_HIGHLIGHT_REGEX,
+      isNavbarActive ? "navbar-highlight-active" : "navbar-highlight-flat",
+    );
+  }
+  return contextHighlightClass;
+}
 
 const Tab = memo(function Tab({
   value,
@@ -334,10 +459,10 @@ const Tab = memo(function Tab({
   ...rest
 }: LiquidGlassTabProps) {
   const {
-    value: activeValue,
     onChange,
     layoutId,
     hoverStore,
+    activeStore,
     hoverSlide,
     ripple,
     roundedClass,
@@ -345,7 +470,6 @@ const Tab = memo(function Tab({
     highlightClassName: contextHighlightClass,
     highlightStyle: contextHighlightStyle,
     role: parentRole,
-    isTransitioning,
   } = useTabsContext();
 
   const prefersReducedMotion = useReducedMotion();
@@ -354,21 +478,14 @@ const Tab = memo(function Tab({
     useRipple(ripple && !prefersReducedMotion);
 
   const isMobile = useIsMobile();
-  const isActive = activeValue === value;
-
-  const [isHovered, setIsHovered] = useState(() => hoverStore.get() === value);
-  const [isAnyHovered, setIsAnyHovered] = useState(
-    () => hoverStore.get() !== null,
+  const { isActive, isTransitioning } = useTabActive(activeStore, value);
+  const { isHovered, showHighlight } = useTabHover(
+    hoverStore,
+    value,
+    isActive,
+    hoverSlide,
   );
   const [willChange, setWillChange] = useState(false);
-
-  useEffect(() => {
-    return hoverStore.subscribe(() => {
-      const currentHovered = hoverStore.get();
-      setIsHovered(currentHovered === value);
-      setIsAnyHovered(currentHovered !== null);
-    });
-  }, [hoverStore, value]);
 
   const isMobileNav = layoutId?.includes("mobile") || isMobile;
 
@@ -405,6 +522,7 @@ const Tab = memo(function Tab({
   const [isPressed, setIsPressed] = useState(false);
 
   const isNavbarActive =
+    isHovered ||
     isTransitioning ||
     !!contextHighlightClass?.includes("navbar-highlight-active");
 
@@ -414,10 +532,6 @@ const Tab = memo(function Tab({
     !!isMobileNav,
     dimensions,
   );
-
-  const showHighlight = hoverSlide
-    ? isHovered || (isActive && !isAnyHovered)
-    : isActive;
 
   useEffect(() => {
     if (isActive) {
@@ -458,11 +572,10 @@ const Tab = memo(function Tab({
   }, [setWillChange]);
 
   const scaleAnimationTarget = useMemo(
-    () =>
-      ({
-        "--scale-x": targetScaleX,
-        "--scale-y": targetScaleY,
-      }) as Record<string, number>,
+    () => ({
+      "--scale-x": targetScaleX,
+      "--scale-y": targetScaleY,
+    }),
     [targetScaleX, targetScaleY],
   );
 
@@ -477,13 +590,10 @@ const Tab = memo(function Tab({
     highlightStyle,
   );
 
-  let resolvedContextHighlightClass = contextHighlightClass ?? "";
-  if (resolvedContextHighlightClass.includes("navbar-highlight-")) {
-    resolvedContextHighlightClass = resolvedContextHighlightClass.replace(
-      NAVBAR_HIGHLIGHT_REGEX,
-      isNavbarActive ? "navbar-highlight-active" : "navbar-highlight-flat",
-    );
-  }
+  const resolvedContextHighlightClass = resolveContextHighlightClass(
+    contextHighlightClass,
+    isNavbarActive,
+  );
 
   const innerHighlightClass = cn(
     "absolute inset-0 highlight-pill overflow-hidden",
@@ -492,14 +602,19 @@ const Tab = memo(function Tab({
     highlightClassName,
   );
 
-  const { computedAriaSelected, computedAriaControls, computedTabIndex } =
-    computeTabAriaProps(
-      rest["aria-selected"] as boolean | undefined,
-      rest["aria-controls"],
-      rest.tabIndex,
-      isTabRole,
-      isActive,
-    );
+  const {
+    computedAriaSelected,
+    computedAriaControls,
+    computedTabIndex,
+    computedAriaCurrent,
+  } = computeTabAriaProps(
+    rest["aria-selected"] as boolean | undefined,
+    rest["aria-controls"],
+    rest.tabIndex,
+    rest["aria-current"],
+    isTabRole,
+    isActive,
+  );
 
   return (
     <motion.button
@@ -534,6 +649,7 @@ const Tab = memo(function Tab({
       role={tabRole}
       aria-selected={computedAriaSelected}
       aria-controls={computedAriaControls}
+      aria-current={computedAriaCurrent}
       id={isTabRole ? (rest.id ?? `tab-${value}`) : rest.id}
       tabIndex={computedTabIndex}
       onKeyDown={isTabRole ? handleTabKeyDown : rest.onKeyDown}

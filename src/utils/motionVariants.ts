@@ -86,6 +86,23 @@ export const SECTION_TRANSITION = {
   ease: EASE.out,
 };
 
+export const mobileMenuBackdropVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    pointerEvents: "none",
+  },
+  visible: (prefersReducedMotion: boolean | null) => ({
+    opacity: 1,
+    pointerEvents: "auto",
+    transition: prefersReducedMotion ? { duration: 0.15 } : SPRING.modalMobile,
+  }),
+  exit: (prefersReducedMotion: boolean | null) => ({
+    opacity: 0,
+    pointerEvents: "none",
+    transition: prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
+  }),
+};
+
 export const mobileMenuPanelVariants: Variants = {
   hidden: (prefersReducedMotion: boolean | null) =>
     prefersReducedMotion

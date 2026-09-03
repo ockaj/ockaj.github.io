@@ -1,10 +1,17 @@
-import { useEffect, useCallback, useReducer, useRef } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+  useReducer,
+  useRef,
+} from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Menu, X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import { useIsMobile } from "../hooks/useMediaQuery";
 import { useOverlay } from "../hooks/useAppNavigation";
+import { useAppStore } from "../store/useAppStore";
 import { cn } from "../utils/cn";
 import { SPRING } from "../utils/springConfig";
 import MobileMenu from "./MobileMenu";
@@ -18,7 +25,6 @@ const NAV_LINKS = [
 ];
 
 interface NavbarProps {
-  activeSection: string;
   onNavClick: (section: string) => void;
 }
 
@@ -26,16 +32,12 @@ interface NavbarState {
   scrolled: boolean;
   isOpen: boolean;
   avatarError: boolean;
-  isHovered: boolean;
-  isScrolling: boolean;
 }
 
 type NavbarAction =
   | { type: "SET_SCROLLED"; scrolled: boolean }
   | { type: "SET_IS_OPEN"; isOpen: boolean }
-  | { type: "SET_AVATAR_ERROR"; error: boolean }
-  | { type: "SET_IS_HOVERED"; hovered: boolean }
-  | { type: "SET_SCROLLING"; scrolling: boolean };
+  | { type: "SET_AVATAR_ERROR"; error: boolean };
 
 function navbarReducer(state: NavbarState, action: NavbarAction): NavbarState {
   switch (action.type) {
@@ -45,10 +47,6 @@ function navbarReducer(state: NavbarState, action: NavbarAction): NavbarState {
       return { ...state, isOpen: action.isOpen };
     case "SET_AVATAR_ERROR":
       return { ...state, avatarError: action.error };
-    case "SET_IS_HOVERED":
-      return { ...state, isHovered: action.hovered };
-    case "SET_SCROLLING":
-      return { ...state, isScrolling: action.scrolling };
     default:
       return state;
   }
@@ -76,24 +74,22 @@ function getMenuIconAnim(isOpen: boolean, isMotionReduced: boolean) {
   };
 }
 
-export default function Navbar({
-  activeSection,
-  onNavClick,
-}: Readonly<NavbarProps>) {
+export default function Navbar({ onNavClick }: Readonly<NavbarProps>) {
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
   const isMotionReduced = !!prefersReducedMotion;
   const localSentinelRef = useRef<HTMLDivElement>(null);
+  const capsuleRef = useRef<HTMLDivElement>(null);
+
+  const active = useAppStore((state) => state.activeSection);
 
   const [state, dispatch] = useReducer(navbarReducer, {
     scrolled: false,
     isOpen: false,
     avatarError: false,
-    isHovered: false,
-    isScrolling: false,
   });
 
-  const { scrolled, isOpen, avatarError, isHovered, isScrolling } = state;
+  const { scrolled, isOpen, avatarError } = state;
 
   const isScrollingRef = useRef(false);
 
@@ -104,28 +100,46 @@ export default function Navbar({
     "nav",
   );
 
+  useLayoutEffect(() => {
+    if (!isMobile || !capsuleRef.current) return;
+    if (isScrollingRef.current) {
+      capsuleRef.current.classList.add("backdrop-blur-[3px]");
+      capsuleRef.current.classList.remove("backdrop-blur-md");
+    }
+  });
+
   useEffect(() => {
     if (!isMobile) return;
+    const capsule = capsuleRef.current;
     let t: number;
     const handleScroll = () => {
       if (!isScrollingRef.current) {
         isScrollingRef.current = true;
-        dispatch({ type: "SET_SCROLLING", scrolling: true });
+        if (capsule) {
+          capsule.classList.add("backdrop-blur-[3px]");
+          capsule.classList.remove("backdrop-blur-md");
+        }
       }
       clearTimeout(t);
       t = window.setTimeout(() => {
         isScrollingRef.current = false;
-        dispatch({ type: "SET_SCROLLING", scrolling: false });
+        if (capsule) {
+          capsule.classList.remove("backdrop-blur-[3px]");
+          capsule.classList.add("backdrop-blur-md");
+        }
       }, 120);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
       clearTimeout(t);
+      isScrollingRef.current = false;
+      if (capsule) {
+        capsule.classList.remove("backdrop-blur-[3px]");
+        capsule.classList.add("backdrop-blur-md");
+      }
     };
   }, [isMobile]);
-
-  const active = activeSection;
 
   // Track scroll depth for the navbar backdrop collapse effect
   useEffect(() => {
@@ -153,16 +167,6 @@ export default function Navbar({
     [onNavClick],
   );
 
-  const handleMouseEnter = useCallback(
-    () => dispatch({ type: "SET_IS_HOVERED", hovered: true }),
-    [],
-  );
-
-  const handleMouseLeave = useCallback(
-    () => dispatch({ type: "SET_IS_HOVERED", hovered: false }),
-    [],
-  );
-
   return (
     <>
       <div
@@ -174,9 +178,9 @@ export default function Navbar({
         className="pointer-events-none fixed top-0 right-0 left-0 z-50 flex flex-col items-center px-4 pt-4 md:pt-6"
       >
         <div
+          ref={capsuleRef}
           className={cn(
-            "bg-surface/40 navbar-capsule pointer-events-auto relative isolate z-50 flex w-full max-w-[85vw] [transform:translateZ(0)] items-center justify-between gap-1 overflow-hidden rounded-full border border-white/10 p-[7px] backdrop-saturate-[150%] md:w-auto md:max-w-[95vw] md:justify-start md:gap-1.5",
-            isScrolling ? "backdrop-blur-[3px]" : "backdrop-blur-md",
+            "bg-surface/40 navbar-capsule pointer-events-auto relative isolate z-50 flex w-full max-w-[85vw] [transform:translateZ(0)] items-center justify-between gap-1 overflow-hidden rounded-full border border-white/10 p-[7px] backdrop-blur-md backdrop-saturate-[150%] md:w-auto md:max-w-[95vw] md:justify-start md:gap-1.5",
             scrolled && "bg-surface/60 border-white/20",
           )}
         >
@@ -185,11 +189,7 @@ export default function Navbar({
             onChange={handleNav}
             layoutId="active-nav-highlight"
             role={null}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            highlightClassName={
-              isHovered ? "navbar-highlight-active" : "navbar-highlight-flat"
-            }
+            highlightClassName="navbar-highlight-flat"
             className="flex items-center gap-1 md:gap-1.5"
           >
             {/* Home Button (Avatar + Name) */}
@@ -197,14 +197,9 @@ export default function Navbar({
               value="Home"
               tabIndex={0}
               highlightClassName="hidden md:block"
-              className={cn(
-                "focus-visible:ring-accent/60 relative z-10 flex items-center gap-2 rounded-full py-1.5 pr-3 pl-1.5 text-xs transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset sm:text-sm md:py-[9px] md:pr-[15px] md:pl-[9px]",
-                active === "Home"
-                  ? "text-text-primary"
-                  : "text-muted hover:text-text-primary",
-              )}
+              className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 flex items-center gap-2 rounded-full py-1.5 pr-3 pl-1.5 text-xs transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset sm:text-sm md:py-[9px] md:pr-[15px] md:pl-[9px]"
+              activeClassName="text-text-primary"
               aria-label="Home"
-              aria-current={active === "Home" ? "page" : undefined}
             >
               <span className="bg-bg relative z-10 flex size-6 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/5">
                 {avatarError ? (
@@ -245,13 +240,8 @@ export default function Navbar({
                   key={link}
                   value={link}
                   tabIndex={0}
-                  className={cn(
-                    "focus-visible:ring-accent/60 relative z-10 rounded-full px-3 py-1.5 text-xs transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px] md:text-sm",
-                    active === link
-                      ? "text-text-primary"
-                      : "text-muted hover:text-text-primary",
-                  )}
-                  aria-current={active === link ? "page" : undefined}
+                  className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 rounded-full px-3 py-1.5 text-xs transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px] md:text-sm"
+                  activeClassName="text-text-primary"
                 >
                   <span>{link}</span>
                 </Tab>
@@ -261,13 +251,8 @@ export default function Navbar({
               <Tab
                 value="Contact"
                 tabIndex={0}
-                className={cn(
-                  "focus-visible:ring-accent/60 relative z-10 rounded-full px-3 py-1.5 text-xs transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px] md:text-sm",
-                  active === "Contact"
-                    ? "text-text-primary"
-                    : "text-muted hover:text-text-primary",
-                )}
-                aria-current={active === "Contact" ? "page" : undefined}
+                className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 rounded-full px-3 py-1.5 text-xs transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px] md:text-sm"
+                activeClassName="text-text-primary"
               >
                 <span>Contact</span>
               </Tab>

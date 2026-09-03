@@ -1,22 +1,12 @@
 import {
-  useState,
   useEffect,
   useLayoutEffect,
   useRef,
   useCallback,
   startTransition,
 } from "react";
-import { useAppStore } from "../store/useAppStore";
-
-export const LABEL_MAP: Record<string, string> = {
-  home: "Home",
-  work: "Case Studies",
-  skills: "Skills",
-  processes: "Process Library",
-  journal: "Journal",
-  faq: "FAQ",
-  contact: "Contact",
-};
+import { useAppStore, LABEL_MAP } from "../store/useAppStore";
+export { LABEL_MAP } from "../store/useAppStore";
 
 const SECTIONS = Object.keys(LABEL_MAP);
 const SECTIONS_SET = new Set(SECTIONS);
@@ -28,7 +18,6 @@ function useScrollSpy(
   isLoading: boolean,
   isNavigatingRef: React.RefObject<boolean>,
   visibleSectionsRef: React.RefObject<Set<string>>,
-  setActiveSection: (section: string) => void,
 ) {
   useEffect(() => {
     if (isLoading) return;
@@ -52,7 +41,7 @@ function useScrollSpy(
         if (targetId) {
           const sectionLabel = LABEL_MAP[targetId] ?? "Home";
           startTransition(() => {
-            setActiveSection(sectionLabel);
+            useAppStore.getState().setActiveSection(sectionLabel);
           });
 
           const newHash = `#${targetId}`;
@@ -73,17 +62,11 @@ function useScrollSpy(
     }
 
     return () => observer.disconnect();
-  }, [isLoading, isNavigatingRef, visibleSectionsRef, setActiveSection]);
+  }, [isLoading, isNavigatingRef, visibleSectionsRef]);
 }
 
 export function useNavigation() {
   const isLoading = useAppStore((state) => state.isLoading);
-
-  const [activeSection, setActiveSection] = useState(() => {
-    if (typeof window === "undefined") return "Home";
-    const hash = window.location.hash.substring(1);
-    return LABEL_MAP[hash] ?? "Home";
-  });
 
   const isNavigatingRef = useRef(
     typeof window !== "undefined" &&
@@ -117,7 +100,7 @@ export function useNavigation() {
   }, [isLoading]);
 
   const handleNavClick = useCallback((section: string) => {
-    setActiveSection(section);
+    useAppStore.getState().setActiveSection(section);
     isNavigatingRef.current = true;
 
     if (scrollEndCleanupRef.current) {
@@ -155,14 +138,9 @@ export function useNavigation() {
     }
   }, []);
 
-  useScrollSpy(
-    isLoading,
-    isNavigatingRef,
-    visibleSectionsRef,
-    setActiveSection,
-  );
+  useScrollSpy(isLoading, isNavigatingRef, visibleSectionsRef);
 
-  return { activeSection, handleNavClick };
+  return { handleNavClick };
 }
 
 type OverlayCallback = () => void;
