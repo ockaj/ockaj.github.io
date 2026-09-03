@@ -39,12 +39,12 @@ function BpmnDefs() {
 function BpmnPoolFrame() {
   return (
     <>
-      <rect width="1420" height="500" fill="#FFFFFF" rx="8" />
+      <rect width="1420" height="600" fill="#FFFFFF" rx="8" />
       <rect
         x="30"
         y="20"
         width="1360"
-        height="460"
+        height="560"
         rx="6"
         stroke="#000000"
         strokeWidth="1.5"
@@ -56,19 +56,19 @@ function BpmnPoolFrame() {
         x1="65"
         y1="20"
         x2="65"
-        y2="480"
+        y2="580"
         stroke="#000000"
         strokeWidth="1.5"
         strokeOpacity="1"
       />
       <text
         x="47.5"
-        y="250"
+        y="300"
         fill="#000000"
         fillOpacity="1"
         fontSize="15"
         fontWeight="bold"
-        transform="rotate(-90,47.5,250)"
+        transform="rotate(-90,47.5,300)"
         textAnchor="middle"
         dominantBaseline="middle"
         className="font-body"
@@ -167,7 +167,7 @@ function BpmnTaskNode({
 function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
   return (
     <svg
-      viewBox="0 0 1420 500"
+      viewBox="0 0 1420 600"
       className="text-accent notranslate h-auto w-full min-w-[950px]"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -179,7 +179,7 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
       {/* Start Event */}
       <circle
         cx="110"
-        cy="250"
+        cy="300"
         r="27"
         stroke="#000000"
         strokeWidth="1.5"
@@ -187,7 +187,7 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
       />
       <text
         x="110"
-        y="295"
+        y="345"
         textAnchor="middle"
         fill="#000000"
         fillOpacity="1"
@@ -204,7 +204,7 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
 
       {/* Flow: Start -> Hero */}
       <path
-        d="M 137,250 L 164.5,250"
+        d="M 137,300 L 164.5,300"
         stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
@@ -212,11 +212,11 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
 
       <BpmnTaskNode
         x={164.5}
-        y={211.75}
+        y={261.75}
         iconX={168.5}
-        iconY={217.75}
+        iconY={267.75}
         textX={240}
-        textY={250}
+        textY={300}
         label="View Hero"
         sectionId="home"
         ariaLabel="Navigate to Home section"
@@ -225,7 +225,7 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
 
       {/* Flow: Hero -> Gateway */}
       <path
-        d="M 315.5,250 L 358,250"
+        d="M 315.5,300 L 358,300"
         stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
@@ -233,38 +233,44 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
 
       {/* Split Parallel Gateway */}
       <path
-        d="M 385,223 L 412,250 L 385,277 L 358,250 Z"
+        d="M 385,273 L 412,300 L 385,327 L 358,300 Z"
         stroke="#000000"
         strokeWidth="1.5"
         fill="#FDD061"
       />
       <path
-        d="M 385,235 L 385,265 M 370,250 L 400,250"
+        d="M 385,285 L 385,315 M 370,300 L 400,300"
         stroke="#000000"
         strokeWidth="5"
       />
 
       {/* Parallel Gateway branches */}
       <path
-        d="M 412,250 L 457,250 L 457,80 L 502,80"
+        d="M 412,300 L 457,300 L 457,80 L 502,80"
         stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
       <path
-        d="M 412,250 L 457,250 L 457,193 L 502,193"
+        d="M 412,300 L 457,300 L 457,190 L 502,190"
         stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
       <path
-        d="M 412,250 L 457,250 L 457,307 L 502,307"
+        d="M 412,300 L 502,300"
         stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
       <path
-        d="M 412,250 L 457,250 L 457,420 L 502,420"
+        d="M 412,300 L 457,300 L 457,410 L 502,410"
+        stroke="#000000"
+        strokeWidth="1.2"
+        markerEnd="url(#bpmn-arrow)"
+      />
+      <path
+        d="M 412,300 L 457,300 L 457,520 L 502,520"
         stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
@@ -286,11 +292,11 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
 
       <BpmnTaskNode
         x={502}
-        y={154.75}
+        y={151.75}
         iconX={506}
-        iconY={160.75}
+        iconY={157.75}
         textX={577.5}
-        textY={193}
+        textY={190}
         label="Scan Competencies"
         sectionId="skills"
         ariaLabel="Navigate to Skills section"
@@ -300,11 +306,11 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
 
       <BpmnTaskNode
         x={502}
-        y={268.75}
+        y={261.75}
         iconX={506}
-        iconY={274.75}
+        iconY={267.75}
         textX={577.5}
-        textY={307}
+        textY={300}
         label="Inspect Process Library"
         sectionId="processes"
         ariaLabel="Navigate to Process Models section"
@@ -314,11 +320,11 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
 
       <BpmnTaskNode
         x={502}
-        y={381.75}
+        y={371.75}
         iconX={506}
-        iconY={387.75}
+        iconY={377.75}
         textX={577.5}
-        textY={420}
+        textY={410}
         label="Read Journal"
         sectionId="journal"
         ariaLabel="Navigate to Journal section"
@@ -328,46 +334,59 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
         rx={5}
       />
 
+      <BpmnTaskNode
+        x={502}
+        y={481.75}
+        iconX={506}
+        iconY={487.75}
+        textX={577.5}
+        textY={520}
+        label="Review FAQ"
+        sectionId="faq"
+        ariaLabel="Navigate to FAQ section"
+        onTaskClick={onTaskClick}
+        rx={5}
+      />
+
       {/* Branch merges to Join Parallel Gateway */}
       <path
-        d="M 653,80 L 698,80 L 698,250 L 743,250"
+        d="M 653,80 L 698,80 L 698,300 L 743,300"
         stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
       <path
-        d="M 653,193 L 698,193 L 698,250 L 743,250"
+        d="M 653,190 L 698,190 L 698,300 L 743,300"
         stroke="#000000"
         strokeWidth="1.2"
-        markerEnd="url(#bpmn-arrow)"
       />
+      <path d="M 653,300 L 743,300" stroke="#000000" strokeWidth="1.2" />
       <path
-        d="M 653,307 L 698,307 L 698,250 L 743,250"
+        d="M 653,410 L 698,410 L 698,300 L 743,300"
         stroke="#000000"
         strokeWidth="1.2"
-        markerEnd="url(#bpmn-arrow)"
       />
       <path
-        d="M 653,420 L 698,420 L 698,250 L 743,250"
+        d="M 653,520 L 698,520 L 698,300 L 743,300"
         stroke="#000000"
         strokeWidth="1.2"
       />
 
       {/* Join Parallel Gateway */}
       <path
-        d="M 770,223 L 797,250 L 770,277 L 743,250 Z"
+        d="M 770,273 L 797,300 L 770,327 L 743,300 Z"
         stroke="#000000"
         strokeWidth="1.5"
         fill="#FDD061"
       />
       <path
-        d="M 770,235 L 770,265 M 755,250 L 785,250"
+        d="M 770,285 L 770,315 M 755,300 L 785,300"
         stroke="#000000"
         strokeWidth="5"
       />
 
       <path
-        d="M 797,250 L 852,250"
+        d="M 797,300 L 852,300"
         stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
@@ -375,14 +394,14 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
 
       {/* Exclusive Gateway: Contact wanted? */}
       <path
-        d="M 879,223 L 906,250 L 879,277 L 852,250 Z"
+        d="M 879,273 L 906,300 L 879,327 L 852,300 Z"
         stroke="#000000"
         strokeWidth="1.5"
         fill="#FDD061"
       />
       <text
         x="879"
-        y="295"
+        y="345"
         textAnchor="middle"
         fill="#000000"
         fillOpacity="1"
@@ -399,14 +418,14 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
 
       {/* Flow Yes -> Contact Task */}
       <path
-        d="M 906,250 L 1026,250"
+        d="M 906,300 L 1026,300"
         stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
       <text
         x="996"
-        y="272"
+        y="322"
         textAnchor="middle"
         fill="#000000"
         fillOpacity="1"
@@ -418,11 +437,11 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
 
       <BpmnTaskNode
         x={1026}
-        y={211.75}
+        y={261.75}
         iconX={1030}
-        iconY={217.75}
+        iconY={267.75}
         textX={1101.5}
-        textY={250}
+        textY={300}
         label="Get In Touch"
         sectionId="contact"
         ariaLabel="Navigate to Contact section"
@@ -431,14 +450,14 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
 
       {/* Flow No -> End Event */}
       <path
-        d="M 906,250 L 966,250 L 966,340 L 1237,340 L 1237,250 L 1297,250"
+        d="M 906,300 L 966,300 L 966,390 L 1237,390 L 1237,300 L 1297,300"
         stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
       />
       <text
         x="1101.5"
-        y="362"
+        y="412"
         textAnchor="middle"
         fill="#000000"
         fillOpacity="1"
@@ -450,7 +469,7 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
 
       {/* Merge Contact flow to End */}
       <path
-        d="M 1177,250 L 1297,250"
+        d="M 1177,300 L 1297,300"
         stroke="#000000"
         strokeWidth="1.2"
         markerEnd="url(#bpmn-arrow)"
@@ -459,7 +478,7 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
       {/* End Event */}
       <circle
         cx="1324"
-        cy="250"
+        cy="300"
         r="27"
         stroke="#000000"
         strokeWidth="3"
@@ -467,7 +486,7 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
       />
       <text
         x="1324"
-        y="295"
+        y="345"
         textAnchor="middle"
         fill="#000000"
         fillOpacity="1"
