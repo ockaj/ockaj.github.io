@@ -9,6 +9,8 @@ import {
   memo,
   useRef,
   useCallback,
+  isValidElement,
+  type ReactElement,
   type CSSProperties,
   type ReactNode,
   type MouseEvent,
@@ -22,6 +24,7 @@ import {
   useReducedMotion,
   LayoutGroup,
   MotionContext,
+  type Transition,
 } from "motion/react";
 import { SPRING } from "../../utils/springConfig";
 import Ripple from "./Ripple";
@@ -46,6 +49,7 @@ interface LiquidGlassTabsProps<
   squircle?: boolean;
   highlightClassName?: string;
   highlightStyle?: CSSProperties;
+  highlightTransition?: Transition;
   role?: string | null;
 }
 
@@ -58,6 +62,7 @@ interface LiquidGlassTabProps extends Omit<
   activeClassName?: string;
   highlightClassName?: string;
   highlightStyle?: CSSProperties;
+  highlightTransition?: Transition;
 }
 
 interface LiquidGlassTabPanelProps extends HTMLAttributes<HTMLDivElement> {
@@ -126,6 +131,7 @@ interface TabsContextValue {
   squircle: boolean;
   highlightClassName?: string;
   highlightStyle?: CSSProperties;
+  highlightTransition?: Transition;
   role?: string | null;
 }
 
@@ -175,6 +181,7 @@ function TabsInner<T extends TabValue>({
   className = "",
   highlightClassName = "",
   highlightStyle = DEFAULT_STYLE,
+  highlightTransition,
   style,
   role = "tablist",
   ...rest
@@ -205,6 +212,7 @@ function TabsInner<T extends TabValue>({
       squircle,
       highlightClassName,
       highlightStyle,
+      highlightTransition,
       role,
     }),
     [
@@ -218,6 +226,7 @@ function TabsInner<T extends TabValue>({
       squircle,
       highlightClassName,
       highlightStyle,
+      highlightTransition,
       role,
     ],
   );
@@ -447,17 +456,111 @@ function resolveContextHighlightClass(
   return contextHighlightClass;
 }
 
-const Tab = memo(function Tab({
+function areElementsEqual(prev: ReactElement, next: ReactElement): boolean {
+  if (prev.type !== next.type || prev.key !== next.key) return false;
+  const prevProps = (prev.props ?? {}) as { [key: string]: unknown };
+  const nextProps = (next.props ?? {}) as { [key: string]: unknown };
+  const prevKeys = Object.keys(prevProps);
+  if (prevKeys.length !== Object.keys(nextProps).length) return false;
+
+  return prevKeys.every((key) => {
+    if (!Object.prototype.hasOwnProperty.call(nextProps, key)) return false;
+    if (key === "children") {
+      return areChildrenEqual(
+        prevProps.children as ReactNode,
+        nextProps.children as ReactNode,
+      );
+    }
+    if (key === "style") {
+      return areStylesEqual(
+        prevProps.style as CSSProperties | undefined,
+        nextProps.style as CSSProperties | undefined,
+      );
+    }
+    return prevProps[key] === nextProps[key];
+  });
+}
+
+function areArrayChildrenEqual(prev: ReactNode[], next: ReactNode[]): boolean {
+  if (prev.length !== next.length) return false;
+  return prev.every((node, i) => areChildrenEqual(node, next[i]));
+}
+
+function areChildrenEqual(prev: ReactNode, next: ReactNode): boolean {
+  if (prev === next) return true;
+  if (!prev || !next) return false;
+  if (typeof prev === "string" || typeof prev === "number") {
+    return prev === next;
+  }
+  if (Array.isArray(prev) && Array.isArray(next)) {
+    return areArrayChildrenEqual(prev, next);
+  }
+  if (isValidElement(prev) && isValidElement(next)) {
+    return areElementsEqual(prev, next);
+  }
+  return false;
+}
+
+function areDefinedStylesEqual(
+  prev: CSSProperties,
+  next: CSSProperties,
+): boolean {
+  const pKeys = Object.keys(prev) as (keyof CSSProperties)[];
+  const nKeys = Object.keys(next);
+  if (pKeys.length !== nKeys.length) return false;
+
+  return pKeys.every((key) => {
+    if (!Object.prototype.hasOwnProperty.call(next, key)) return false;
+    return prev[key] === next[key];
+  });
+}
+
+function areStylesEqual(
+  prev: CSSProperties | undefined,
+  next: CSSProperties | undefined,
+): boolean {
+  if (prev === next) return true;
+  if (!prev || !next) return false;
+  return areDefinedStylesEqual(prev, next);
+}
+
+function areTabPropsEqual(
+  prev: Readonly<LiquidGlassTabProps>,
+  next: Readonly<LiquidGlassTabProps>,
+): boolean {
+  const prevKeys = Object.keys(prev) as (keyof LiquidGlassTabProps)[];
+  if (prevKeys.length !== Object.keys(next).length) return false;
+
+  return prevKeys.every((key) => {
+    if (!Object.prototype.hasOwnProperty.call(next, key)) return false;
+    if (key === "children") {
+      return areChildrenEqual(prev.children, next.children);
+    }
+    if (key === "highlightStyle") {
+      return areStylesEqual(prev.highlightStyle, next.highlightStyle);
+    }
+    if (key === "style") {
+      return areStylesEqual(
+        prev.style as CSSProperties | undefined,
+        next.style as CSSProperties | undefined,
+      );
+    }
+    return prev[key] === next[key];
+  });
+}
+
+function TabComponent({
   value,
   children,
   className = "",
   activeClassName = "",
   highlightClassName = "",
   highlightStyle = DEFAULT_STYLE,
+  highlightTransition,
   onClick,
   disabled = false,
   ...rest
-}: LiquidGlassTabProps) {
+}: Readonly<LiquidGlassTabProps>) {
   const {
     onChange,
     layoutId,
@@ -469,6 +572,7 @@ const Tab = memo(function Tab({
     squircle,
     highlightClassName: contextHighlightClass,
     highlightStyle: contextHighlightStyle,
+    highlightTransition: contextHighlightTransition,
     role: parentRole,
   } = useTabsContext();
 
@@ -493,22 +597,19 @@ const Tab = memo(function Tab({
     if (prefersReducedMotion) {
       return { layout: { duration: 0 } };
     }
-    return HIGHLIGHT_TRANSITION;
-  }, [prefersReducedMotion]);
+    return (
+      highlightTransition ?? contextHighlightTransition ?? HIGHLIGHT_TRANSITION
+    );
+  }, [prefersReducedMotion, highlightTransition, contextHighlightTransition]);
 
   const tabRole = resolveTabRole(rest.role, parentRole);
   const isTabRole = tabRole === "tab";
 
   const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const [element, setElement] = useState<HTMLButtonElement | null>(null);
   const [dimensions, setDimensions] = useState({ width: 120, height: 36 });
+  const [isPressed, setIsPressed] = useState(false);
 
-  const setButtonRef = useCallback((node: HTMLButtonElement | null) => {
-    buttonRef.current = node;
-    setElement(() => node);
-  }, []);
-
-  useResizeObserver(element, (entry) => {
+  useResizeObserver(showHighlight || isPressed ? buttonRef : null, (entry) => {
     const { width, height } = getEntryDimensions(entry);
     if (width > 0 && height > 0) {
       setDimensions((prev) =>
@@ -518,8 +619,6 @@ const Tab = memo(function Tab({
       );
     }
   });
-
-  const [isPressed, setIsPressed] = useState(false);
 
   const isNavbarActive =
     isHovered ||
@@ -618,7 +717,7 @@ const Tab = memo(function Tab({
 
   return (
     <motion.button
-      ref={setButtonRef}
+      ref={buttonRef}
       type="button"
       disabled={disabled}
       onClick={selectOption}
@@ -689,7 +788,10 @@ const Tab = memo(function Tab({
       {children}
     </motion.button>
   );
-});
+}
+
+const Tab = memo(TabComponent, areTabPropsEqual);
+Tab.displayName = "Tab";
 
 const TabPanel = memo(function TabPanel({
   value,

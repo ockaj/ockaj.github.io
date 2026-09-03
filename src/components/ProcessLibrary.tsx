@@ -1,4 +1,11 @@
-import { useState, useEffect, useCallback, memo } from "react";
+import {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+  useRef,
+  memo,
+} from "react";
 import {
   motion,
   AnimatePresence,
@@ -92,13 +99,19 @@ const tabContentVariants: Variants = {
 function ProcessLibrary() {
   const prefersReducedMotion = useReducedMotion();
   const [activeTopicId, setActiveTopicId] = useState(PROCESS_TOPICS[0].id);
+  const activeTopicIdRef = useRef(activeTopicId);
+  useLayoutEffect(() => {
+    activeTopicIdRef.current = activeTopicId;
+  }, [activeTopicId]);
   const [viewModes, setViewModes] = useState<Record<number, "tobe" | "asis">>(
     {},
   );
 
   const handleTopicViewModeChange = useCallback(
     (topicId: number, mode: "tobe" | "asis") => {
-      setViewModes((prev) => ({ ...prev, [topicId]: mode }));
+      setViewModes((prev) =>
+        prev[topicId] === mode ? prev : { ...prev, [topicId]: mode },
+      );
     },
     [],
   );
@@ -163,8 +176,10 @@ function ProcessLibrary() {
     const onSelect = () => {
       const selectedIdx = emblaApi.selectedScrollSnap();
       const targetTopic = PROCESS_TOPICS[selectedIdx];
-      if (targetTopic && targetTopic.id !== activeTopicId) {
-        setActiveTopicId(targetTopic.id);
+      if (targetTopic) {
+        setActiveTopicId((prevId) =>
+          prevId === targetTopic.id ? prevId : targetTopic.id,
+        );
       }
     };
 
@@ -172,21 +187,25 @@ function ProcessLibrary() {
     return () => {
       emblaApi.off("select", onSelect);
     };
-  }, [emblaApi, activeTopicId]);
+  }, [emblaApi]);
 
   const handleTopicChange = useCallback(
     (id: number) => {
       const newIdx = PROCESS_TOPIC_INDEX_MAP.get(id) ?? -1;
-      const oldIdx = PROCESS_TOPIC_INDEX_MAP.get(activeTopicId) ?? -1;
-      if (newIdx !== -1 && oldIdx !== -1 && newIdx !== oldIdx) {
+      if (newIdx === -1) return;
+
+      const oldIdx =
+        PROCESS_TOPIC_INDEX_MAP.get(activeTopicIdRef.current) ?? -1;
+      if (oldIdx !== -1 && newIdx !== oldIdx) {
         setDirection(newIdx > oldIdx ? 1 : -1);
-        setActiveTopicId(id);
         if (emblaApi && isMobile) {
           emblaApi.scrollTo(newIdx);
         }
       }
+      activeTopicIdRef.current = id;
+      setActiveTopicId((prevId) => (prevId === id ? prevId : id));
     },
-    [activeTopicId, emblaApi, isMobile],
+    [emblaApi, isMobile],
   );
 
   const handlePrevTopic = useCallback(() => {
@@ -194,26 +213,30 @@ function ProcessLibrary() {
       emblaApi.scrollPrev();
       return;
     }
-    const currentIndex = PROCESS_TOPIC_INDEX_MAP.get(activeTopicId) ?? -1;
-    if (currentIndex > 0) {
-      const prevTopic = PROCESS_TOPICS[currentIndex - 1];
-      setDirection(-1);
-      setActiveTopicId(prevTopic.id);
-    }
-  }, [isMobile, emblaApi, activeTopicId]);
+    setDirection(-1);
+    setActiveTopicId((prevId) => {
+      const currentIndex = PROCESS_TOPIC_INDEX_MAP.get(prevId) ?? -1;
+      if (currentIndex > 0) {
+        return PROCESS_TOPICS[currentIndex - 1].id;
+      }
+      return prevId;
+    });
+  }, [isMobile, emblaApi]);
 
   const handleNextTopic = useCallback(() => {
     if (isMobile && emblaApi) {
       emblaApi.scrollNext();
       return;
     }
-    const currentIndex = PROCESS_TOPIC_INDEX_MAP.get(activeTopicId) ?? -1;
-    if (currentIndex >= 0 && currentIndex < PROCESS_TOPICS.length - 1) {
-      const nextTopic = PROCESS_TOPICS[currentIndex + 1];
-      setDirection(1);
-      setActiveTopicId(nextTopic.id);
-    }
-  }, [isMobile, emblaApi, activeTopicId]);
+    setDirection(1);
+    setActiveTopicId((prevId) => {
+      const currentIndex = PROCESS_TOPIC_INDEX_MAP.get(prevId) ?? -1;
+      if (currentIndex >= 0 && currentIndex < PROCESS_TOPICS.length - 1) {
+        return PROCESS_TOPICS[currentIndex + 1].id;
+      }
+      return prevId;
+    });
+  }, [isMobile, emblaApi]);
 
   return (
     <>
@@ -309,6 +332,7 @@ function ProcessLibrary() {
           <div className="flex w-full justify-center lg:hidden">
             <LiquidGlass
               as="div"
+              interactive={false}
               roundedClass="rounded-full"
               className="px-2.5 py-2 shadow-lg"
               innerClassName="flex items-center gap-3.5"

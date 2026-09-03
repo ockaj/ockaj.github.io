@@ -1,5 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "tags": ["-lintignore"],
-  "entry": ["src/components/LiquidGlass/LiquidGlassTabs.tsx!"]
+  "entry": ["src/components/LiquidGlass/LiquidGlassTabs.tsx!"],
+  "ignore": ["doctor.config.ts"]
 }

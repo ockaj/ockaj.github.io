@@ -78,7 +78,7 @@ function App() {
 
       <Aurora paused={isLoading} />
 
-      <BaseTooltip.Provider delay={120} timeout={400}>
+      <BaseTooltip.Provider delay={0} timeout={300}>
         <main
           id="main-content"
           inert={isLoading}

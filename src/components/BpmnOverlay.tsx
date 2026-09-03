@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Dialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
@@ -89,13 +89,16 @@ export default function BpmnOverlay({
     };
   }, [isMobile, hasDismissedTip]);
 
-  const handleTaskClick = (sectionId: string) => {
-    setIsOpen(false);
-    const label = LABEL_MAP[sectionId];
-    if (label) {
-      onNavigate(label);
-    }
-  };
+  const handleTaskClick = useCallback(
+    (sectionId: string) => {
+      setIsOpen(false);
+      const label = LABEL_MAP[sectionId];
+      if (label) {
+        onNavigate(label);
+      }
+    },
+    [onNavigate],
+  );
 
   return (
     <>

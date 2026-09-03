@@ -12,6 +12,8 @@ const HIGHLIGHT_STYLE = {
   boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.15)",
 } as const;
 
+const INSTANT_LAYOUT_TRANSITION = { layout: { duration: 0 } } as const;
+
 interface MobileMenuProps {
   isOpen: boolean;
   active: string;
@@ -104,6 +106,9 @@ function MobileMenu({
             role={null}
             highlightClassName="border border-white/10 navbar-highlight-flat"
             highlightStyle={HIGHLIGHT_STYLE}
+            highlightTransition={
+              !isOpen ? INSTANT_LAYOUT_TRANSITION : undefined
+            }
             className="flex flex-col gap-1.5"
           >
             {allLinks.map((link) => (
@@ -126,4 +131,17 @@ function MobileMenu({
   );
 }
 
-export default memo(MobileMenu);
+function areMobileMenuPropsEqual(
+  prev: Readonly<MobileMenuProps>,
+  next: Readonly<MobileMenuProps>,
+): boolean {
+  return (
+    prev.isOpen === next.isOpen &&
+    prev.active === next.active &&
+    prev.onClose === next.onClose &&
+    prev.onChange === next.onChange &&
+    prev.navLinks === next.navLinks
+  );
+}
+
+export default memo(MobileMenu, areMobileMenuPropsEqual);

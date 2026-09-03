@@ -47,7 +47,9 @@ export const FaqItem = memo(function FaqItem({
       as="div"
       roundedClass="rounded-2xl"
       className="w-full text-left"
-      tilt
+      interactive
+      tilt={false}
+      specularGlow
     >
       <div className="p-6 md:p-7">
         <div
@@ -97,7 +99,7 @@ export const FaqItem = memo(function FaqItem({
           aria-hidden={!isOpen}
           data-no-skeleton={!isOpen ? "" : undefined}
           className={cn(
-            "grid transition-[grid-template-rows,visibility] duration-350 ease-[cubic-bezier(0.16,1,0.3,1)]",
+            "grid transition-[grid-template-rows,visibility] duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none",
             isOpen
               ? "visible grid-rows-[1fr]"
               : "pointer-events-none invisible grid-rows-[0fr]",
@@ -106,11 +108,11 @@ export const FaqItem = memo(function FaqItem({
           <div className="overflow-hidden">
             <div
               className={cn(
-                "mt-4 border-t border-white/[0.06] pt-4 transition-transform duration-350 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                "mt-4 border-t border-white/[0.06] pt-4 transition-transform duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] select-text motion-reduce:transition-none",
                 isOpen ? "translate-y-0" : "-translate-y-2",
               )}
             >
-              <p className="text-muted text-sm leading-relaxed text-pretty whitespace-pre-line md:text-base">
+              <p className="text-muted text-sm leading-relaxed text-pretty whitespace-pre-line select-text md:text-base">
                 {item.answer}
               </p>
 

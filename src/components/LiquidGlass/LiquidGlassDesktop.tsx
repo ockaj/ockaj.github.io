@@ -1,33 +1,25 @@
 "use client";
 
-import {
-  useState,
-  useCallback,
-  useMemo,
-  type CSSProperties,
-  type PointerEvent,
-  type MouseEvent,
-} from "react";
+import { useMemo, useCallback, type CSSProperties } from "react";
 import {
   motion,
-  useMotionValue,
-  useSpring,
-  useTransform,
   useReducedMotion,
   type MotionStyle,
+  type MotionValue,
 } from "motion/react";
-import { useResizeObserver } from "../../hooks/useResizeObserver";
-import { SPRING } from "../../utils/springConfig";
-import { cn } from "../../utils/cn";
 
 import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
-import { type LiquidGlassPropsWithRef, DEFAULT_STYLE } from "./types";
+import { useLiquidGlassPhysics } from "./useLiquidGlassPhysics";
+import {
+  type LiquidGlassPropsWithRef,
+  type LiquidGlassProps,
+  DEFAULT_STYLE,
+} from "./types";
 import {
   hoverDelta,
   scaleDeltas,
   scaleVertical,
-  tilt as tiltConfig,
   getInnerGlassStyle,
 } from "./config";
 import {
@@ -38,9 +30,104 @@ import {
   getGlassClasses,
   TAG_MAP,
   setupTagProps,
-  getEntryDimensions,
 } from "./liquidGlassUtils";
-import { InnerBorderOverlay, SpecularGlowOverlay } from "./LiquidGlassOverlays";
+import {
+  InnerBorderOverlay,
+  DesktopEffectsOverlay,
+} from "./LiquidGlassOverlays";
+
+interface MotionFlagOptions {
+  magnetic: boolean;
+  tilt: boolean;
+  springScale: boolean;
+  ripple: boolean;
+}
+
+function getEffectiveMotionFlags(
+  prefersReducedMotion: boolean | null,
+  options: MotionFlagOptions,
+) {
+  const isReduced = Boolean(prefersReducedMotion);
+  return {
+    isMotionReduced: isReduced,
+    effectiveMagnetic: options.magnetic && !isReduced,
+    effectiveTilt: options.tilt && !isReduced,
+    effectiveSpringScale: options.springScale && !isReduced,
+    effectiveRipple: options.ripple && !isReduced,
+  };
+}
+
+function computeInnerGlassStyle(
+  variant: LiquidGlassProps["variant"],
+  isActive: boolean,
+  specularGlow: boolean,
+): CSSProperties {
+  const baseStyle = getInnerGlassStyle(variant, isActive);
+  if (specularGlow && isActive && variant === "flat") {
+    const defaultShadow =
+      "inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 4px 8px rgba(255, 255, 255, 0.03), 0 4px 10px rgba(0, 0, 0, 0.08)";
+    return {
+      boxShadow: `inset 0 1px 2px rgba(255, 255, 255, 0.24), inset 0 8px 16px rgba(255, 255, 255, 0.06), ${defaultShadow}`,
+    };
+  }
+  return baseStyle;
+}
+
+function computeTagStyle(
+  style: MotionStyle | CSSProperties | undefined,
+  effectiveMagnetic: boolean,
+  effectiveTilt: boolean,
+  effectiveSpringScale: boolean,
+  springPullX: MotionValue<number>,
+  springPullY: MotionValue<number>,
+  springTiltX: MotionValue<number>,
+  springTiltY: MotionValue<number>,
+): MotionStyle {
+  const hasTransform =
+    effectiveMagnetic || effectiveTilt || effectiveSpringScale;
+  return {
+    WebkitBackfaceVisibility: hasTransform ? "hidden" : undefined,
+    backfaceVisibility: hasTransform ? "hidden" : undefined,
+    willChange:
+      style?.willChange ??
+      (hasTransform ? "transform, filter, backdrop-filter" : undefined),
+    x: effectiveMagnetic ? springPullX : undefined,
+    y: effectiveMagnetic ? springPullY : undefined,
+    rotateX: effectiveTilt ? springTiltX : undefined,
+    rotateY: effectiveTilt ? springTiltY : undefined,
+    transformStyle: effectiveTilt ? "preserve-3d" : undefined,
+    transformPerspective: effectiveTilt ? 1000 : undefined,
+    ...style,
+  };
+}
+
+function getScaleAnimationProps(
+  effectiveSpringScale: boolean,
+  dimensions: { width: number; height: number },
+) {
+  if (!effectiveSpringScale) {
+    return {
+      whileHover: undefined,
+      whileTap: undefined,
+      transition: undefined,
+    };
+  }
+
+  const delta = hoverDelta.desktop;
+  const tapDeltaX = scaleDeltas.tap.desktop;
+
+  return {
+    whileHover: {
+      scaleX: 1 + (2 * delta) / dimensions.width,
+      scaleY: 1 + (2 * delta) / dimensions.height,
+    },
+    whileTap: {
+      scaleX: 1 + tapDeltaX / dimensions.width,
+      scaleY: scaleVertical.tap.desktop,
+    },
+    transition: SCALE_TRANSITION,
+  };
+}
 
 export default function LiquidGlassDesktop({
   children,
@@ -69,111 +156,47 @@ export default function LiquidGlassDesktop({
   ...domProps
 }: Readonly<LiquidGlassPropsWithRef>) {
   const prefersReducedMotion = useReducedMotion();
-  const isMotionReduced = !!prefersReducedMotion;
-  const effectiveMagnetic = magnetic && !isMotionReduced;
-  const effectiveTilt = tilt && !isMotionReduced;
-  const effectiveSpringScale = springScale && !isMotionReduced;
-  const effectiveRipple = ripple && !isMotionReduced;
+  const {
+    isMotionReduced,
+    effectiveMagnetic,
+    effectiveTilt,
+    effectiveSpringScale,
+    effectiveRipple,
+  } = getEffectiveMotionFlags(prefersReducedMotion, {
+    magnetic,
+    tilt,
+    springScale,
+    ripple,
+  });
 
-  const [element, setElement] = useState<HTMLElement | null>(null);
-  const [dimensions, setDimensions] = useState({ width: 120, height: 36 });
+  const physics = useLiquidGlassPhysics({
+    interactive,
+    effectiveMagnetic,
+    effectiveTilt,
+    magneticStrength,
+    tiltStrength,
+  });
 
-  const rawTilt =
-    tiltStrength * (tiltConfig.referenceWidth / Math.max(dimensions.width, 1));
-  const effectiveTiltStrength = Math.min(rawTilt, tiltConfig.maxStrength);
+  const { setElementRef } = physics;
 
   const handleRef = useCallback(
     (node: HTMLElement | null) => {
-      setElement(() => node);
+      setElementRef(node);
       assignRef(ref, node);
     },
-    [ref],
+    [ref, setElementRef],
   );
 
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const opacity = useMotionValue(0);
-
-  const springX = useSpring(mouseX, SPRING.glassMouse);
-  const springY = useSpring(mouseY, SPRING.glassMouse);
-  const springOpacity = useSpring(opacity, SPRING.glassOpacity);
-
-  const lagX = useSpring(mouseX, SPRING.glassLag);
-  const lagY = useSpring(mouseY, SPRING.glassLag);
-
-  const springPullX = useTransform(springX, (x) =>
-    effectiveMagnetic ? x * magneticStrength : 0,
-  );
-  const springPullY = useTransform(springY, (y) =>
-    effectiveMagnetic ? y * magneticStrength : 0,
-  );
-
-  const springTiltX = useTransform(springY, (y) => {
-    if (!effectiveTilt || !dimensions.height) return 0;
-    const halfHeight = dimensions.height / 2;
-    const pctY = y / halfHeight;
-    return -pctY * effectiveTiltStrength;
-  });
-
-  const springTiltY = useTransform(springX, (x) => {
-    if (!effectiveTilt || !dimensions.width) return 0;
-    const halfWidth = dimensions.width / 2;
-    const pctX = x / halfWidth;
-    return pctX * effectiveTiltStrength;
-  });
-
-  const [isHovered, setIsHovered] = useState(false);
-
+  const rendersRipple = interactive && effectiveSpringScale && effectiveRipple;
   const {
     rippleX,
     rippleY,
     rippleRadius,
     rippleOpacity,
     onPointerDown: handlePointerDown,
-  } = useRipple(interactive && effectiveSpringScale && effectiveRipple);
-
-  const handleMouseEnter = useCallback(() => {
-    if (!interactive) return;
-    opacity.set(1);
-    setIsHovered(true);
-  }, [interactive, opacity]);
-
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (!interactive) return;
-      const rect = e.currentTarget.getBoundingClientRect();
-      const x = e.clientX - rect.left - rect.width / 2;
-      const y = e.clientY - rect.top - rect.height / 2;
-      mouseX.set(x);
-      mouseY.set(y);
-    },
-    [interactive, mouseX, mouseY],
-  );
-
-  const handleMouseLeave = useCallback(() => {
-    if (!interactive) return;
-    opacity.set(0);
-    mouseX.set(0);
-    mouseY.set(0);
-    setIsHovered(false);
-  }, [interactive, opacity, mouseX, mouseY]);
+  } = useRipple(rendersRipple);
 
   const handleKeyDown = useKeyboardClick(onClick);
-
-  useResizeObserver(interactive && isHovered ? element : null, (entry) => {
-    const { width, height } = getEntryDimensions(entry);
-    if (width > 0 && height > 0) {
-      setDimensions((prev) =>
-        prev.width === width && prev.height === height
-          ? prev
-          : { width, height },
-      );
-    }
-  });
-
-  const borderGradient = useTransform([springX, springY], ([x, y]) => {
-    return `radial-gradient(180px circle at calc(50% + ${x}px) calc(50% + ${y}px), rgba(255, 255, 255, 0.06) 0%, transparent 80%)`;
-  });
 
   const { borderActiveClasses, baseClasses } = getGlassClasses({
     active,
@@ -182,85 +205,62 @@ export default function LiquidGlassDesktop({
     onClick,
     roundedClass,
     className,
-    isHovered,
+    isHovered: physics.isHovered,
   });
 
-  const innerGlassStyle = useMemo<CSSProperties>(() => {
-    const isEffectivelyActive = active || isHovered;
-    const baseStyle = getInnerGlassStyle(variant, isEffectivelyActive);
-    if (specularGlow && isEffectivelyActive && variant === "flat") {
-      const defaultShadow =
-        "inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 4px 8px rgba(255, 255, 255, 0.03), 0 4px 10px rgba(0, 0, 0, 0.08)";
-      return {
-        boxShadow: `inset 0 1px 2px rgba(255, 255, 255, 0.24), inset 0 8px 16px rgba(255, 255, 255, 0.06), ${defaultShadow}`,
-      };
-    }
-    return baseStyle;
-  }, [variant, active, isHovered, specularGlow]);
-
-  const tagStyle = useMemo<MotionStyle>(() => {
-    return {
-      WebkitBackfaceVisibility: "hidden",
-      backfaceVisibility: "hidden",
-      willChange: style?.willChange ?? "transform, filter, backdrop-filter",
-      x: effectiveMagnetic ? springPullX : undefined,
-      y: effectiveMagnetic ? springPullY : undefined,
-      rotateX: effectiveTilt ? springTiltX : undefined,
-      rotateY: effectiveTilt ? springTiltY : undefined,
-      transformStyle: effectiveTilt ? "preserve-3d" : undefined,
-      transformPerspective: effectiveTilt ? 1000 : undefined,
-      ...style,
-    };
-  }, [
-    style,
-    effectiveMagnetic,
-    springPullX,
-    springPullY,
-    effectiveTilt,
-    springTiltX,
-    springTiltY,
-  ]);
-
-  const tapDeltaX = scaleDeltas.tap.desktop;
-  const tapScaleX = 1 + tapDeltaX / dimensions.width;
-  const tapScaleY = scaleVertical.tap.desktop;
-
-  const handlePointerDownWrapper = useCallback(
-    (e: PointerEvent<HTMLElement>) => {
-      handlePointerDown(e);
-    },
-    [handlePointerDown],
+  const innerGlassStyle = useMemo(
+    () =>
+      computeInnerGlassStyle(
+        variant,
+        active || physics.isHovered,
+        specularGlow,
+      ),
+    [variant, active, physics.isHovered, specularGlow],
   );
 
-  const hoverTarget = useMemo(() => {
-    const delta = hoverDelta.desktop;
-    return {
-      scaleX: 1 + (2 * delta) / dimensions.width,
-      scaleY: 1 + (2 * delta) / dimensions.height,
-    };
-  }, [dimensions.width, dimensions.height]);
+  const tagStyle = useMemo(
+    () =>
+      computeTagStyle(
+        style,
+        effectiveMagnetic,
+        effectiveTilt,
+        effectiveSpringScale,
+        physics.springPullX,
+        physics.springPullY,
+        physics.springTiltX,
+        physics.springTiltY,
+      ),
+    [
+      style,
+      effectiveMagnetic,
+      effectiveTilt,
+      effectiveSpringScale,
+      physics.springPullX,
+      physics.springPullY,
+      physics.springTiltX,
+      physics.springTiltY,
+    ],
+  );
+
+  const scaleAnimationProps = useMemo(
+    () => getScaleAnimationProps(effectiveSpringScale, physics.dimensions),
+    [effectiveSpringScale, physics.dimensions],
+  );
 
   const sharedAnimationProps = useMemo(
     () => ({
-      whileHover: effectiveSpringScale ? hoverTarget : undefined,
-      whileTap: effectiveSpringScale
-        ? { scaleX: tapScaleX, scaleY: tapScaleY }
-        : undefined,
-      transition: effectiveSpringScale ? SCALE_TRANSITION : undefined,
-      onMouseEnter: handleMouseEnter,
-      onMouseMove: handleMouseMove,
-      onMouseLeave: handleMouseLeave,
-      onPointerDown: handlePointerDownWrapper,
+      ...scaleAnimationProps,
+      onMouseEnter: physics.handleMouseEnter,
+      onMouseMove: physics.handleMouseMove,
+      onMouseLeave: physics.handleMouseLeave,
+      onPointerDown: handlePointerDown,
     }),
     [
-      effectiveSpringScale,
-      hoverTarget,
-      tapScaleX,
-      tapScaleY,
-      handleMouseEnter,
-      handleMouseMove,
-      handleMouseLeave,
-      handlePointerDownWrapper,
+      scaleAnimationProps,
+      physics.handleMouseEnter,
+      physics.handleMouseMove,
+      physics.handleMouseLeave,
+      handlePointerDown,
     ],
   );
 
@@ -271,48 +271,6 @@ export default function LiquidGlassDesktop({
   const ContentTag = isInline ? "span" : "div";
 
   const rendersFullEffects = interactive && !isMotionReduced;
-  const rendersRipple = interactive && effectiveSpringScale && effectiveRipple;
-
-  const innerElements = (
-    <>
-      <InnerBorderOverlay
-        borderActiveClasses={borderActiveClasses}
-        roundedClass={roundedClass}
-        style={innerGlassStyle}
-      />
-      {rendersFullEffects ? (
-        <>
-          <SpecularGlowOverlay
-            roundedClass={roundedClass}
-            springX={springX}
-            springY={springY}
-            lagX={lagX}
-            lagY={lagY}
-            springOpacity={springOpacity}
-          />
-
-          <motion.span
-            className={cn(
-              "pointer-events-none absolute inset-0 z-10 transition-opacity duration-300",
-              isHovered ? "opacity-100" : "opacity-0",
-            )}
-            style={{ background: borderGradient, mixBlendMode: "overlay" }}
-          />
-        </>
-      ) : null}
-      {rendersRipple ? (
-        <Ripple
-          rippleX={rippleX}
-          rippleY={rippleY}
-          rippleRadius={rippleRadius}
-          rippleOpacity={rippleOpacity}
-        />
-      ) : null}
-
-      <ContentTag className={contentClasses}>{children}</ContentTag>
-    </>
-  );
-
   const Tag = href ? motion.a : (TAG_MAP[as] ?? motion.div);
   const tagProps = setupTagProps(
     href,
@@ -331,7 +289,32 @@ export default function LiquidGlassDesktop({
 
   return (
     <Tag ref={handleRef} {...tagProps}>
-      {innerElements}
+      <InnerBorderOverlay
+        borderActiveClasses={borderActiveClasses}
+        roundedClass={roundedClass}
+        style={innerGlassStyle}
+      />
+      {rendersFullEffects ? (
+        <DesktopEffectsOverlay
+          roundedClass={roundedClass}
+          springX={physics.springX}
+          springY={physics.springY}
+          lagX={physics.lagX}
+          lagY={physics.lagY}
+          springOpacity={physics.springOpacity}
+          borderGradient={physics.borderGradient}
+          isHovered={physics.isHovered}
+        />
+      ) : null}
+      {rendersRipple ? (
+        <Ripple
+          rippleX={rippleX}
+          rippleY={rippleY}
+          rippleRadius={rippleRadius}
+          rippleOpacity={rippleOpacity}
+        />
+      ) : null}
+      <ContentTag className={contentClasses}>{children}</ContentTag>
     </Tag>
   );
 }

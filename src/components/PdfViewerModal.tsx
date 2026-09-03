@@ -95,22 +95,40 @@ function usePdfViewerModalController() {
 
   const activeCv = useMemo(() => CV_DATA[lang], [lang]);
 
-  return {
-    isOpen,
-    handleClose,
-    isMobile,
-    dispatch,
-    activeTab,
-    lang,
-    pdfLoading,
-    isHovered,
-    isTransitioning,
-    handleTabChange,
-    handleTabsMouseEnter,
-    handleTabsMouseLeave,
-    handleOpenChange,
-    activeCv,
-  };
+  return useMemo(
+    () => ({
+      isOpen,
+      handleClose,
+      isMobile,
+      dispatch,
+      activeTab,
+      lang,
+      pdfLoading,
+      isHovered,
+      isTransitioning,
+      handleTabChange,
+      handleTabsMouseEnter,
+      handleTabsMouseLeave,
+      handleOpenChange,
+      activeCv,
+    }),
+    [
+      isOpen,
+      handleClose,
+      isMobile,
+      dispatch,
+      activeTab,
+      lang,
+      pdfLoading,
+      isHovered,
+      isTransitioning,
+      handleTabChange,
+      handleTabsMouseEnter,
+      handleTabsMouseLeave,
+      handleOpenChange,
+      activeCv,
+    ],
+  );
 }
 
 const PdfModalPopupContent = memo(function PdfModalPopupContent({

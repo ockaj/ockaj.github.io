@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, useCallback, memo } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  memo,
+  type RefObject,
+} from "react";
 import { useReducedMotion } from "motion/react";
 import { ErrorBoundary } from "./ErrorBoundary";
 import AuroraFallback from "./AuroraFallback";
@@ -121,7 +128,7 @@ const DEFAULT_COLOR_STOPS = ["#1E1B4B", "#312E81", "#6667AB", "#A78BFA"];
 
 function useAuroraCanvas(
   props: Readonly<AuroraProps>,
-  container: HTMLDivElement | null,
+  container: RefObject<HTMLDivElement | null>,
 ) {
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
@@ -142,7 +149,7 @@ function useAuroraCanvas(
   });
 
   useEffect(() => {
-    const ctn = container;
+    const ctn = container.current;
     if (!ctn) return;
 
     const {
@@ -445,11 +452,11 @@ function useAuroraCanvas(
 }
 
 function AuroraCanvas(props: Readonly<AuroraProps>) {
-  const [container, setContainer] = useState<HTMLDivElement | null>(null);
-  const { isContextLost } = useAuroraCanvas(props, container);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const { isContextLost } = useAuroraCanvas(props, containerRef);
 
   return (
-    <div ref={setContainer} className="relative h-full w-full">
+    <div ref={containerRef} className="relative h-full w-full">
       {isContextLost ? <AuroraFallback /> : null}
     </div>
   );

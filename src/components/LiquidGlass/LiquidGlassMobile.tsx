@@ -2,6 +2,7 @@
 
 import {
   useState,
+  useRef,
   useCallback,
   useMemo,
   type CSSProperties,
@@ -61,18 +62,18 @@ export default function LiquidGlassMobile(
   const effectiveSpringScale = springScale && !isMotionReduced;
   const effectiveRipple = ripple && !isMotionReduced;
 
-  const [element, setElement] = useState<HTMLElement | null>(null);
+  const elementRef = useRef<HTMLElement | null>(null);
   const [width, setWidth] = useState(120);
 
   const handleRef = useCallback(
     (node: HTMLElement | null) => {
-      setElement(() => (effectiveSpringScale ? node : null));
+      elementRef.current = node;
       assignRef(ref, node);
     },
-    [ref, effectiveSpringScale],
+    [ref],
   );
 
-  useResizeObserver(effectiveSpringScale ? element : null, (entry) => {
+  useResizeObserver(effectiveSpringScale ? elementRef : null, (entry) => {
     const { width: newWidth } = getEntryDimensions(entry);
     if (newWidth > 0) {
       setWidth((prev) => (prev === newWidth ? prev : newWidth));
@@ -112,12 +113,16 @@ export default function LiquidGlassMobile(
 
   const tagStyle = useMemo<CSSProperties>(() => {
     return {
-      WebkitBackfaceVisibility: "hidden",
-      backfaceVisibility: "hidden",
-      willChange: style?.willChange ?? "transform, filter, backdrop-filter",
+      WebkitBackfaceVisibility: effectiveSpringScale ? "hidden" : undefined,
+      backfaceVisibility: effectiveSpringScale ? "hidden" : undefined,
+      willChange:
+        style?.willChange ??
+        (effectiveSpringScale
+          ? "transform, filter, backdrop-filter"
+          : undefined),
       ...style,
     };
-  }, [style]);
+  }, [effectiveSpringScale, style]);
 
   const tapDeltaX = scaleDeltas.tap.mobile;
   const tapScaleX = 1 + tapDeltaX / width;

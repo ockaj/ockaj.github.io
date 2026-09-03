@@ -23,7 +23,7 @@ export function InnerBorderOverlay({
   );
 }
 
-export function SpecularGlowOverlay({
+function SpecularGlowOverlay({
   roundedClass,
   springX,
   springY,
@@ -66,5 +66,45 @@ export function SpecularGlowOverlay({
         }}
       />
     </span>
+  );
+}
+
+export function DesktopEffectsOverlay({
+  roundedClass,
+  springX,
+  springY,
+  lagX,
+  lagY,
+  springOpacity,
+  borderGradient,
+  isHovered,
+}: Readonly<{
+  roundedClass: string;
+  springX: MotionValue<number>;
+  springY: MotionValue<number>;
+  lagX: MotionValue<number>;
+  lagY: MotionValue<number>;
+  springOpacity: MotionValue<number>;
+  borderGradient: MotionValue<string>;
+  isHovered: boolean;
+}>) {
+  return (
+    <>
+      <SpecularGlowOverlay
+        roundedClass={roundedClass}
+        springX={springX}
+        springY={springY}
+        lagX={lagX}
+        lagY={lagY}
+        springOpacity={springOpacity}
+      />
+      <motion.span
+        className={cn(
+          "pointer-events-none absolute inset-0 z-10 transition-opacity duration-300",
+          isHovered ? "opacity-100" : "opacity-0",
+        )}
+        style={{ background: borderGradient, mixBlendMode: "overlay" }}
+      />
+    </>
   );
 }

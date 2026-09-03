@@ -1,29 +1,23 @@
 import { memo } from "react";
-import { useControls } from "react-zoom-pan-pinch";
+import { useControls, useTransformContext } from "react-zoom-pan-pinch";
 
 interface ZoomClickAreaProps {
   children: React.ReactNode;
-  isZoomed: boolean;
-  isPanning: boolean;
   wasPanningRef: { current: boolean };
 }
 
 const ZoomClickArea = memo(function ZoomClickArea({
   children,
-  isZoomed,
-  isPanning,
   wasPanningRef,
 }: ZoomClickAreaProps) {
   const { resetTransform, centerView } = useControls();
-  let cursorStyle = "zoom-in";
-  if (isZoomed) {
-    cursorStyle = isPanning ? "grabbing" : "grab";
-  }
+  const libraryContext = useTransformContext();
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       if (wasPanningRef.current) return;
+      const isZoomed = libraryContext.state.scale > 1.01;
       if (isZoomed) {
         resetTransform(200);
       } else {
@@ -36,11 +30,11 @@ const ZoomClickArea = memo(function ZoomClickArea({
     <button
       type="button"
       aria-label="Toggle Zoom"
-      style={{ cursor: cursorStyle }}
-      className="focus-visible:ring-accent m-0 flex h-full w-full items-center justify-center border-0 bg-transparent p-0 focus-visible:ring-2 focus-visible:outline-none"
+      className="focus-visible:ring-accent m-0 flex h-full w-full cursor-zoom-in items-center justify-center border-0 bg-transparent p-0 group-data-[zoomed=true]:cursor-grab focus-visible:ring-2 focus-visible:outline-none group-data-[zoomed=true]:active:cursor-grabbing"
       onClick={(e) => {
         e.stopPropagation();
         if (wasPanningRef.current) return;
+        const isZoomed = libraryContext.state.scale > 1.01;
         if (isZoomed) {
           resetTransform(200);
         } else {

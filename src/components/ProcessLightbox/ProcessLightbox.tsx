@@ -1,11 +1,10 @@
-import { useState, useRef, memo } from "react";
+import { useRef, memo } from "react";
 import { Dialog } from "@base-ui/react/dialog";
 import { motion, useReducedMotion, Variants } from "motion/react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useOverlay } from "../../hooks/useAppNavigation";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { SPRING } from "../../utils/springConfig";
-import { cn } from "../../utils/cn";
 import ZoomableImage from "./ZoomableImage";
 import ZoomClickArea from "./ZoomClickArea";
 import LightboxControls from "./LightboxControls";
@@ -68,16 +67,10 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
   useOverlay(true, onClose, `lightbox-${item.id}`);
 
   const isMobile = useIsMobile();
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [isPanning, setIsPanning] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const wasPanningRef = useRef(false);
 
   if (typeof document === "undefined") return null;
-
-  let cursorStyle = "zoom-in";
-  if (isZoomed) {
-    cursorStyle = isPanning ? "grabbing" : "grab";
-  }
 
   return (
     <Dialog.Root
@@ -124,10 +117,9 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
             <div className="pointer-events-none absolute top-0 right-0 left-0 z-20 h-28 bg-gradient-to-b from-white/5 to-transparent" />
             {/* Full Viewport for Diagram (Responsive flex) */}
             <div
-              className={cn(
-                "bg-surface relative flex w-full flex-1 touch-none items-center justify-center overflow-hidden md:h-full",
-                isZoomed ? "p-0" : "p-4 md:p-6",
-              )}
+              ref={containerRef}
+              data-zoomed="false"
+              className="bg-surface group relative flex w-full flex-1 cursor-zoom-in touch-none items-center justify-center overflow-hidden p-0 data-[zoomed=true]:cursor-grab data-[zoomed=true]:active:cursor-grabbing md:h-full"
             >
               <TransformWrapper
                 initialScale={1}
@@ -142,34 +134,32 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
                 zoomAnimation={{ disabled: true }}
                 onTransform={(_ref, state) => {
                   const zoomed = state.scale > 1.01;
-                  if (zoomed !== isZoomed) {
-                    setIsZoomed(zoomed);
+                  if (
+                    containerRef.current &&
+                    (containerRef.current.dataset.zoomed === "true") !== zoomed
+                  ) {
+                    containerRef.current.dataset.zoomed = String(zoomed);
                   }
                 }}
                 onPanningStart={() => {
-                  setIsPanning(true);
                   wasPanningRef.current = false;
                 }}
                 onPanning={() => {
                   wasPanningRef.current = true;
                 }}
-                onPanningStop={() => setIsPanning(false)}
               >
                 {/* Floating Island Control Panel inside context to use useControls */}
-                <LightboxControls
-                  isMobile={isMobile}
-                  isZoomed={isZoomed}
-                  onClose={onClose}
-                />
+                <LightboxControls isMobile={isMobile} onClose={onClose} />
 
                 <TransformComponent
+                  wrapperClass="w-full h-full flex justify-center items-center cursor-zoom-in group-data-[zoomed=true]:cursor-grab group-data-[zoomed=true]:active:cursor-grabbing"
+                  contentClass="w-full h-full flex justify-center items-center cursor-zoom-in group-data-[zoomed=true]:cursor-grab group-data-[zoomed=true]:active:cursor-grabbing"
                   wrapperStyle={{
                     width: "100%",
                     height: "100%",
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    cursor: cursorStyle,
                   }}
                   contentStyle={{
                     width: "100%",
@@ -177,20 +167,10 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    cursor: cursorStyle,
                   }}
                 >
-                  <ZoomClickArea
-                    isZoomed={isZoomed}
-                    isPanning={isPanning}
-                    wasPanningRef={wasPanningRef}
-                  >
-                    <ZoomableImage
-                      src={item.image}
-                      alt={item.title}
-                      isZoomed={isZoomed}
-                      isPanning={isPanning}
-                    />
+                  <ZoomClickArea wasPanningRef={wasPanningRef}>
+                    <ZoomableImage src={item.image} alt={item.title} />
                   </ZoomClickArea>
                 </TransformComponent>
               </TransformWrapper>

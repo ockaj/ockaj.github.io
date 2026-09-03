@@ -1,9 +1,13 @@
+import { memo, type CSSProperties } from "react";
 import { motion, AnimatePresence, type Variants } from "motion/react";
 import { LiquidGlass } from "../LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
-import { cn } from "../../utils/cn";
 import { type ProcessTopic } from "../../data/processItems";
 import ProcessVariantStage from "./ProcessVariantStage";
+
+const DESKTOP_HIGHLIGHT_STYLE: CSSProperties = {
+  "--base-radius": "8px",
+} as CSSProperties;
 
 interface ProcessDesktopCardProps {
   activeTopic: ProcessTopic;
@@ -23,7 +27,7 @@ interface ProcessDesktopCardProps {
   tabContentVariants: Variants;
 }
 
-export default function ProcessDesktopCard({
+function ProcessDesktopCard({
   activeTopic,
   activeViewMode,
   handleTopicViewModeChange,
@@ -81,31 +85,21 @@ export default function ProcessDesktopCard({
                   }
                   layoutId={`process-view-mode-pill-${activeTopic.id}`}
                   roundedClass="rounded-xl"
-                  highlightStyle={
-                    { "--base-radius": "8px" } as React.CSSProperties
-                  }
+                  highlightStyle={DESKTOP_HIGHLIGHT_STYLE}
                   className="bg-surface/90 isolate inline-flex [transform:translateZ(0)] items-center rounded-xl border border-white/10 p-[4px] shadow-lg backdrop-blur-md select-none"
                   highlightClassName="bg-white/15 border border-white/20 shadow-md"
                 >
                   <Tab
                     value="asis"
-                    className={cn(
-                      "focus-visible:ring-accent relative flex h-7 cursor-pointer items-center justify-center rounded-lg px-3 text-xs font-semibold tracking-wider uppercase transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none sm:h-8.5 sm:px-4 sm:text-xs",
-                      activeViewMode === "asis"
-                        ? "font-bold text-white"
-                        : "text-white/70 hover:text-white",
-                    )}
+                    className="focus-visible:ring-accent relative flex h-7 cursor-pointer items-center justify-center rounded-lg px-3 text-xs font-semibold tracking-wider text-white/70 uppercase transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 hover:text-white focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none sm:h-8.5 sm:px-4 sm:text-xs"
+                    activeClassName="font-bold text-white"
                   >
                     <span>SOURCE</span>
                   </Tab>
                   <Tab
                     value="tobe"
-                    className={cn(
-                      "focus-visible:ring-accent relative flex h-7 cursor-pointer items-center justify-center rounded-lg px-3 text-xs font-semibold tracking-wider uppercase transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none sm:h-8.5 sm:px-4 sm:text-xs",
-                      activeViewMode === "tobe"
-                        ? "font-bold text-white"
-                        : "text-white/70 hover:text-white",
-                    )}
+                    className="focus-visible:ring-accent relative flex h-7 cursor-pointer items-center justify-center rounded-lg px-3 text-xs font-semibold tracking-wider text-white/70 uppercase transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 hover:text-white focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none sm:h-8.5 sm:px-4 sm:text-xs"
+                    activeClassName="font-bold text-white"
                   >
                     <span>OPTIMIZED</span>
                   </Tab>
@@ -125,3 +119,5 @@ export default function ProcessDesktopCard({
     </motion.div>
   );
 }
+
+export default memo(ProcessDesktopCard);

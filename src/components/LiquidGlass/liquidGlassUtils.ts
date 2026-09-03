@@ -99,7 +99,7 @@ export function getGlassClasses({
   return { borderActiveClasses, baseClasses };
 }
 
-export const SEMANTIC_CONTAINERS = new Set([
+const SEMANTIC_CONTAINERS = new Set([
   "article",
   "section",
   "nav",
