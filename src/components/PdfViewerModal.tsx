@@ -1,4 +1,5 @@
 import {
+  useState,
   useEffect,
   useCallback,
   memo,
@@ -83,11 +84,10 @@ function usePdfModalDialog() {
 function usePdfViewerState(isMobile: boolean) {
   const [state, dispatch] = useReducer(pdfReducer, {
     activeTab: "interactive",
-    pdfLoading: true,
     isTransitioning: false,
   });
 
-  const { activeTab, pdfLoading, isTransitioning } = state;
+  const { activeTab, isTransitioning } = state;
 
   const handleTabChange = useCallback(
     (tab: "pdf" | "interactive") => {
@@ -104,10 +104,6 @@ function usePdfViewerState(isMobile: boolean) {
     [isMobile],
   );
 
-  const handlePdfLoaded = useCallback(() => {
-    dispatch({ type: "SET_PDF_LOADING", loading: false });
-  }, []);
-
   useEffect(() => {
     if (!isTransitioning) return;
     const timer = setTimeout(
@@ -120,10 +116,8 @@ function usePdfViewerState(isMobile: boolean) {
   return {
     dispatch,
     activeTab,
-    pdfLoading,
     isTransitioning,
     handleTabChange,
-    handlePdfLoaded,
   };
 }
 
@@ -295,15 +289,16 @@ const PdfModalTabs = memo(function PdfModalTabs({
 
 interface PdfDocumentPanelProps {
   isActive: boolean;
-  pdfLoading: boolean;
-  onPdfLoaded: () => void;
 }
 
 const PdfDocumentPanel = memo(function PdfDocumentPanel({
   isActive,
-  pdfLoading,
-  onPdfLoaded,
 }: PdfDocumentPanelProps) {
+  const [pdfLoading, setPdfLoading] = useState(true);
+  const handlePdfLoaded = useCallback(() => {
+    setPdfLoading(false);
+  }, []);
+
   return (
     <div
       role="tabpanel"
@@ -324,7 +319,7 @@ const PdfDocumentPanel = memo(function PdfDocumentPanel({
         type="application/pdf"
         className="relative z-10 h-full w-full border-0"
         title="Ondrej Michal Ockaj CV"
-        onLoad={onPdfLoaded}
+        onLoad={handlePdfLoaded}
       >
         <div className="bg-bg/85 absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 p-4 text-center">
           <p className="text-muted text-sm">
@@ -434,22 +429,16 @@ function PdfViewerModal() {
     handleClose,
     isMobile,
     activeTab,
-    pdfLoading,
     isTransitioning,
     handleTabChange,
     handleOpenChange,
-    handlePdfLoaded,
   } = usePdfViewerModalController();
   const prefersReducedMotion = useReducedMotion();
 
   const modalBody = useMemo(
     () => (
       <>
-        <PdfDocumentPanel
-          isActive={activeTab === "pdf"}
-          pdfLoading={pdfLoading}
-          onPdfLoaded={handlePdfLoaded}
-        />
+        <PdfDocumentPanel isActive={activeTab === "pdf"} />
         <div
           role="tabpanel"
           id="tabpanel-interactive"
@@ -464,7 +453,7 @@ function PdfViewerModal() {
         </div>
       </>
     ),
-    [activeTab, pdfLoading, handlePdfLoaded],
+    [activeTab],
   );
 
   return (
