@@ -72,7 +72,7 @@ interface LiquidGlassTabPanelProps extends HTMLAttributes<HTMLDivElement> {
 
 type TabValue = string | number;
 
-export interface ActiveStore {
+interface ActiveStore {
   get: () => TabValue;
   isTransitioning: () => boolean;
   set: (val: TabValue) => void;
@@ -113,7 +113,7 @@ function createActiveStore(initialValue: TabValue): ActiveStore {
   };
 }
 
-export interface HoverStore {
+interface HoverStore {
   get: () => TabValue | null;
   set: (val: TabValue | null) => void;
   subscribe: (listener: () => void) => () => void;
@@ -812,4 +812,4 @@ const TabPanel = memo(function TabPanel({
 
 TabPanel.displayName = "TabPanel";
 
-export { Tabs, Tab, TabPanel };
+export { Tabs, Tab };

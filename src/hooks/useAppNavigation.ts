@@ -1,7 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, startTransition } from "react";
 import { useAppStore, LABEL_MAP } from "../store/useAppStore";
-export { LABEL_MAP } from "../store/useAppStore";
-
 const SECTIONS = Object.keys(LABEL_MAP);
 const SECTIONS_SET = new Set(SECTIONS);
 const REVERSE_LABEL_MAP = new Map(
@@ -27,9 +25,7 @@ const SECTION_ALIASES: Record<string, string> = {
   "get in touch": "contact",
 };
 
-export function resolveSection(
-  target: string,
-): { id: string; label: string } | null {
+function resolveSection(target: string): { id: string; label: string } | null {
   if (!target) return null;
   const clean = target.startsWith("#") ? target.slice(1) : target;
   const trimmed = clean.trim();
@@ -67,7 +63,7 @@ let isNavigating = false;
 let scrollEndCleanup: (() => void) | null = null;
 let navigationTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
-export function setNavigationLock(duration = 1000): void {
+function setNavigationLock(duration = 1000): void {
   isNavigating = true;
 
   if (scrollEndCleanup) {
