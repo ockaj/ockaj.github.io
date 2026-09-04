@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { ChevronDown, ArrowUpRight } from "lucide-react";
 import { LiquidGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import { useAppStore } from "../../store/useAppStore";
+import { navigateTo } from "../../hooks/useAppNavigation";
 import { cn } from "../../utils/cn";
 import { SPRING } from "../../utils/springConfig";
 import type { FaqItem as FaqItemType } from "../../data/faqData";
@@ -22,25 +23,18 @@ export const FaqItem = memo(function FaqItem({
   const prefersReducedMotion = useReducedMotion();
   const isReduced = !!prefersReducedMotion;
 
-  const handleAction = useCallback(
-    (action?: string) => {
-      if (!action) return;
-      if (action === "cv") {
-        useAppStore.getState().setCvOpen(true);
-      } else if (
-        action === "work" ||
-        action === "processes" ||
-        action === "contact"
-      ) {
-        const target = document.getElementById(action);
-        if (target) {
-          target.scrollIntoView({ behavior: isReduced ? "auto" : "smooth" });
-          window.history.pushState(window.history.state, "", `#${action}`);
-        }
-      }
-    },
-    [isReduced],
-  );
+  const handleAction = useCallback((action?: string) => {
+    if (!action) return;
+    if (action === "cv") {
+      useAppStore.getState().setCvOpen(true);
+    } else if (
+      action === "work" ||
+      action === "processes" ||
+      action === "contact"
+    ) {
+      navigateTo(action);
+    }
+  }, []);
 
   return (
     <LiquidGlass

@@ -1,4 +1,4 @@
-import { useEffect, useState, memo, MouseEvent } from "react";
+import { useEffect, useState, memo, MouseEvent, useCallback } from "react";
 import { FileText } from "lucide-react";
 import {
   motion,
@@ -12,6 +12,8 @@ import { SlotText } from "slot-text/react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import BpmnNodeBadge from "./BpmnNodeBadge";
 import { useIsMobile } from "../hooks/useMediaQuery";
+import { useAppStore } from "../store/useAppStore";
+import { navigateTo } from "../hooks/useAppNavigation";
 
 import { prefetchAsset } from "../utils/quicklink";
 import { loadPdfViewerModal } from "../lazyComponents";
@@ -87,11 +89,6 @@ function RotatingSpecialization({
       }
     />
   );
-}
-
-interface HeroProps {
-  onViewCv: () => void;
-  onViewWork: () => void;
 }
 
 const containerVariants = {
@@ -224,7 +221,6 @@ const arrowVariants: Variants = {
 };
 
 interface HeroScrollIndicatorProps {
-  onViewWork: () => void;
   scrollOpacity: ReturnType<typeof useTransform<number, number>>;
   scrollYOffset: ReturnType<typeof useTransform<number, number>>;
   prefersReducedMotion: boolean | null;
@@ -232,7 +228,6 @@ interface HeroScrollIndicatorProps {
 }
 
 function HeroScrollIndicator({
-  onViewWork,
   scrollOpacity,
   scrollYOffset,
   prefersReducedMotion,
@@ -251,7 +246,7 @@ function HeroScrollIndicator({
       transition={SPRING.hero}
       onClick={(e) => {
         e.preventDefault();
-        onViewWork();
+        navigateTo("work");
       }}
     >
       <span className="text-muted/90 group-hover:text-accent text-xs font-semibold tracking-[0.25em] uppercase transition-colors duration-300">
@@ -301,13 +296,22 @@ function HeroScrollIndicator({
   );
 }
 
-function Hero({ onViewCv, onViewWork }: Readonly<HeroProps>) {
+function Hero() {
   const { scrollY } = useScroll();
   const prefersReducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
 
   const scrollOpacity = useTransform(scrollY, [0, 150], [1, 0]);
   const scrollYOffset = useTransform(scrollY, [0, 150], [0, 15]);
+
+  const handleViewCv = useCallback(() => {
+    useAppStore.getState().setCvOpen(true);
+  }, []);
+
+  const handleViewWork = useCallback((e: MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    navigateTo("work");
+  }, []);
 
   return (
     <section className="relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden pt-24 pb-28 md:py-0">
@@ -381,7 +385,7 @@ function Hero({ onViewCv, onViewWork }: Readonly<HeroProps>) {
             className="inline-flex"
           >
             <LiquidGlassButton
-              onClick={onViewCv}
+              onClick={handleViewCv}
               className="px-8 py-4"
               ariaLabel="View CV"
               magnetic
@@ -404,10 +408,7 @@ function Hero({ onViewCv, onViewWork }: Readonly<HeroProps>) {
             tilt
             magneticStrength={0.02}
             specularGlow
-            onClick={(e: MouseEvent<HTMLElement>) => {
-              e.preventDefault();
-              onViewWork();
-            }}
+            onClick={handleViewWork}
           >
             View Case Studies
           </LiquidGlassButton>
@@ -415,7 +416,6 @@ function Hero({ onViewCv, onViewWork }: Readonly<HeroProps>) {
       </motion.div>
 
       <HeroScrollIndicator
-        onViewWork={onViewWork}
         scrollOpacity={scrollOpacity}
         scrollYOffset={scrollYOffset}
         prefersReducedMotion={prefersReducedMotion}

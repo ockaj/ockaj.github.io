@@ -16,7 +16,7 @@
     "doctor": "react-doctor --verbose"
   },
   "dependencies": {
-    "@base-ui/react": "^1.7.0",
+    "@base-ui/react": "^1.8.0",
     "@number-flow/react": "^0.6.2",
     "clsx": "^2.1.1",
     "embla-carousel-react": "^8.6.0",

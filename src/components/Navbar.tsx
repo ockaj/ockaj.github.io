@@ -10,7 +10,7 @@ import { Menu, X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import { useIsMobile } from "../hooks/useMediaQuery";
-import { useOverlay } from "../hooks/useAppNavigation";
+import { useOverlay, navigateTo } from "../hooks/useAppNavigation";
 import { useAppStore } from "../store/useAppStore";
 import { cn } from "../utils/cn";
 import { SPRING } from "../utils/springConfig";
@@ -23,10 +23,6 @@ const NAV_LINKS = [
   "Journal",
   "FAQ",
 ];
-
-interface NavbarProps {
-  onNavClick: (section: string) => void;
-}
 
 interface NavbarState {
   scrolled: boolean;
@@ -74,7 +70,7 @@ function getMenuIconAnim(isOpen: boolean, isMotionReduced: boolean) {
   };
 }
 
-export default function Navbar({ onNavClick }: Readonly<NavbarProps>) {
+export default function Navbar() {
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
   const isMotionReduced = !!prefersReducedMotion;
@@ -159,13 +155,10 @@ export default function Navbar({ onNavClick }: Readonly<NavbarProps>) {
     [],
   );
 
-  const handleNav = useCallback(
-    (label: string) => {
-      dispatch({ type: "SET_IS_OPEN", isOpen: false });
-      onNavClick(label);
-    },
-    [onNavClick],
-  );
+  const handleNav = useCallback((label: string) => {
+    dispatch({ type: "SET_IS_OPEN", isOpen: false });
+    navigateTo(label);
+  }, []);
 
   return (
     <>

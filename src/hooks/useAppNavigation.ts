@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useCallback,
-  startTransition,
-} from "react";
+import { useEffect, useLayoutEffect, useRef, startTransition } from "react";
 import { useAppStore, LABEL_MAP } from "../store/useAppStore";
 export { LABEL_MAP } from "../store/useAppStore";
 
@@ -14,9 +8,150 @@ const REVERSE_LABEL_MAP = new Map(
   Object.entries(LABEL_MAP).map(([id, label]) => [label, id]),
 );
 
+const SECTION_ALIASES: Record<string, string> = {
+  home: "home",
+  work: "work",
+  "case studies": "work",
+  "case-studies": "work",
+  skills: "skills",
+  "skills & stack": "skills",
+  "skills & competencies": "skills",
+  processes: "processes",
+  "process models": "processes",
+  "process library": "processes",
+  journal: "journal",
+  "engineering log": "journal",
+  "recent thought pieces": "journal",
+  faq: "faq",
+  contact: "contact",
+  "get in touch": "contact",
+};
+
+export function resolveSection(
+  target: string,
+): { id: string; label: string } | null {
+  if (!target) return null;
+  const clean = target.startsWith("#") ? target.slice(1) : target;
+  const trimmed = clean.trim();
+  if (!trimmed) return null;
+
+  if (trimmed in LABEL_MAP) {
+    return { id: trimmed, label: LABEL_MAP[trimmed] };
+  }
+
+  if (REVERSE_LABEL_MAP.has(trimmed)) {
+    const id = REVERSE_LABEL_MAP.get(trimmed)!;
+    return { id, label: LABEL_MAP[id] ?? trimmed };
+  }
+
+  const lower = trimmed.toLowerCase();
+  if (lower in LABEL_MAP) {
+    return { id: lower, label: LABEL_MAP[lower] };
+  }
+
+  const aliasId = SECTION_ALIASES[lower];
+  if (aliasId && aliasId in LABEL_MAP) {
+    return { id: aliasId, label: LABEL_MAP[aliasId] };
+  }
+
+  for (const [id, label] of Object.entries(LABEL_MAP)) {
+    if (label.toLowerCase() === lower) {
+      return { id, label };
+    }
+  }
+
+  return null;
+}
+
+let isNavigating = false;
+let scrollEndCleanup: (() => void) | null = null;
+let navigationTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+export function setNavigationLock(duration = 1000): void {
+  isNavigating = true;
+
+  if (scrollEndCleanup) {
+    scrollEndCleanup();
+    scrollEndCleanup = null;
+  }
+  if (navigationTimeoutId !== null) {
+    clearTimeout(navigationTimeoutId);
+    navigationTimeoutId = null;
+  }
+
+  const unlock = () => {
+    isNavigating = false;
+    if (scrollEndCleanup) {
+      scrollEndCleanup();
+      scrollEndCleanup = null;
+    }
+    if (navigationTimeoutId !== null) {
+      clearTimeout(navigationTimeoutId);
+      navigationTimeoutId = null;
+    }
+  };
+
+  if (typeof window !== "undefined") {
+    const onScrollEnd = () => {
+      unlock();
+    };
+
+    window.addEventListener("scrollend", onScrollEnd, {
+      once: true,
+      passive: true,
+    });
+    window.addEventListener("wheel", unlock, { once: true, passive: true });
+    window.addEventListener("touchstart", unlock, {
+      once: true,
+      passive: true,
+    });
+
+    scrollEndCleanup = () => {
+      window.removeEventListener("scrollend", onScrollEnd);
+      window.removeEventListener("wheel", unlock);
+      window.removeEventListener("touchstart", unlock);
+    };
+    navigationTimeoutId = setTimeout(unlock, duration);
+  }
+}
+
+export interface NavigateToOptions {
+  behavior?: ScrollBehavior;
+  replace?: boolean;
+}
+
+export function navigateTo(target: string, options?: NavigateToOptions): void {
+  if (typeof window === "undefined") return;
+
+  const resolved = resolveSection(target);
+  if (!resolved) return;
+
+  const { id: sectionId, label: sectionLabel } = resolved;
+
+  useAppStore.getState().setActiveSection(sectionLabel);
+  setNavigationLock();
+
+  const isReduced = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+  const scrollBehavior = options?.behavior ?? (isReduced ? "auto" : "smooth");
+
+  document
+    .getElementById(sectionId)
+    ?.scrollIntoView({ behavior: scrollBehavior });
+
+  const newHash = `#${sectionId}`;
+  if (window.location.hash !== newHash) {
+    if (options?.replace) {
+      window.history.replaceState(window.history.state, "", newHash);
+    } else {
+      window.history.pushState(window.history.state, "", newHash);
+    }
+  }
+}
+
 function useScrollSpy(
   isLoading: boolean,
-  isNavigatingRef: React.RefObject<boolean>,
   visibleSectionsRef: React.RefObject<Set<string>>,
 ) {
   useEffect(() => {
@@ -35,7 +170,7 @@ function useScrollSpy(
           }
         });
 
-        if (isNavigatingRef.current) return;
+        if (isNavigating) return;
 
         const targetId = SECTIONS.findLast((id) => visibleSections.has(id));
         if (targetId) {
@@ -62,85 +197,42 @@ function useScrollSpy(
     }
 
     return () => observer.disconnect();
-  }, [isLoading, isNavigatingRef, visibleSectionsRef]);
+  }, [isLoading, visibleSectionsRef]);
 }
 
 export function useNavigation() {
   const isLoading = useAppStore((state) => state.isLoading);
-
-  const isNavigatingRef = useRef(
-    typeof window !== "undefined" &&
-      !!window.location.hash &&
-      window.location.hash.substring(1) in LABEL_MAP &&
-      window.location.hash !== "#home",
-  );
   const visibleSectionsRef = useRef(new Set<string>());
-  const scrollEndCleanupRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (isLoading) return;
     const hash = window.location.hash;
-    if (hash) {
-      const targetId = hash.substring(1);
-      if (targetId in LABEL_MAP) {
-        const element = document.getElementById(targetId);
-        if (element) {
-          isNavigatingRef.current = true;
-          element.scrollIntoView({ behavior: "auto" });
+    if (!hash) return;
 
-          const unlock = () => {
-            isNavigatingRef.current = false;
-          };
-          requestAnimationFrame(() => {
-            requestAnimationFrame(unlock);
-          });
-        }
+    if (hash === "#cv") {
+      useAppStore.getState().setCvOpen(true);
+      return;
+    }
+
+    if (hash === "#bpmn") {
+      const isMobile = window.matchMedia("(max-width: 767px)").matches;
+      if (!isMobile) {
+        useAppStore.getState().setBpmnOpen(true);
+      } else {
+        window.history.replaceState(window.history.state, "", "#home");
       }
+      return;
+    }
+
+    const resolved = resolveSection(hash);
+    if (resolved) {
+      navigateTo(resolved.id, { behavior: "auto", replace: true });
     }
   }, [isLoading]);
 
-  const handleNavClick = useCallback((section: string) => {
-    useAppStore.getState().setActiveSection(section);
-    isNavigatingRef.current = true;
+  useScrollSpy(isLoading, visibleSectionsRef);
 
-    if (scrollEndCleanupRef.current) {
-      scrollEndCleanupRef.current();
-    }
-
-    const onScrollEnd = () => {
-      isNavigatingRef.current = false;
-      scrollEndCleanupRef.current = null;
-    };
-
-    window.addEventListener("scrollend", onScrollEnd, {
-      once: true,
-      passive: true,
-    });
-    scrollEndCleanupRef.current = () => {
-      window.removeEventListener("scrollend", onScrollEnd);
-    };
-
-    const isReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    const scrollBehavior = isReduced ? "auto" : "smooth";
-    const sectionId = REVERSE_LABEL_MAP.get(section);
-
-    if (sectionId) {
-      document
-        .getElementById(sectionId)
-        ?.scrollIntoView({ behavior: scrollBehavior });
-
-      const newHash = `#${sectionId}`;
-      if (window.location.hash !== newHash) {
-        window.history.pushState(window.history.state, "", newHash);
-      }
-    }
-  }, []);
-
-  useScrollSpy(isLoading, isNavigatingRef, visibleSectionsRef);
-
-  return { handleNavClick };
+  return { navigateTo, handleNavClick: navigateTo };
 }
 
 type OverlayCallback = () => void;

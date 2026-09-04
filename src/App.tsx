@@ -49,20 +49,12 @@ function AppSectionHeader({
 function App() {
   const isLoading = useAppStore((state) => state.isLoading);
 
-  const { handleNavClick } = useNavigation();
+  useNavigation();
 
   const isMobile = useIsMobile();
 
   // Preload lazy components concurrently with main-thread yielding to protect INP
   usePreloadComponents(isMobile, isLoading);
-
-  const handleViewWork = useCallback(() => {
-    handleNavClick("Case Studies");
-  }, [handleNavClick]);
-
-  const handleViewCv = useCallback(() => {
-    useAppStore.getState().setCvOpen(true);
-  }, []);
 
   const handleLoadingComplete = useCallback(() => {
     useAppStore.getState().completeLoading();
@@ -84,10 +76,10 @@ function App() {
           inert={isLoading}
           className="text-text-primary font-body relative z-10"
         >
-          <Navbar onNavClick={handleNavClick} />
+          <Navbar />
 
           <div id="home">
-            <Hero onViewCv={handleViewCv} onViewWork={handleViewWork} />
+            <Hero />
           </div>
 
           <LazySection
@@ -174,9 +166,7 @@ function App() {
           </Suspense>
 
           <Suspense fallback={null}>
-            {!isLoading && !isMobile ? (
-              <BpmnOverlay onNavigate={handleNavClick} />
-            ) : null}
+            {!isLoading && !isMobile ? <BpmnOverlay /> : null}
           </Suspense>
         </main>
       </BaseTooltip.Provider>

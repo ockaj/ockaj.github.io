@@ -14,10 +14,12 @@ export const LABEL_MAP: Record<string, string> = {
 export interface AppState {
   isLoading: boolean;
   isCvOpen: boolean;
+  isBpmnOpen: boolean;
   cvLang: "en" | "sk";
   activeSection: string;
   completeLoading: () => void;
   setCvOpen: (isOpen: boolean) => void;
+  setBpmnOpen: (isOpen: boolean) => void;
   setCvLang: (lang: "en" | "sk") => void;
   setActiveSection: (section: string) => void;
 }
@@ -48,6 +50,7 @@ const getInitialActiveSection = (): string => {
 export const useAppStore = create<AppState>((set) => ({
   isLoading: getInitialLoading(),
   isCvOpen: false,
+  isBpmnOpen: false,
   activeSection: getInitialActiveSection(),
   cvLang: "en",
   completeLoading: () => {
@@ -59,6 +62,7 @@ export const useAppStore = create<AppState>((set) => ({
     set({ isLoading: false });
   },
   setCvOpen: (isOpen: boolean) => set({ isCvOpen: isOpen }),
+  setBpmnOpen: (isOpen: boolean) => set({ isBpmnOpen: isOpen }),
   setCvLang: (lang: "en" | "sk") =>
     set((state) => (state.cvLang === lang ? state : { cvLang: lang })),
   setActiveSection: (section: string) =>

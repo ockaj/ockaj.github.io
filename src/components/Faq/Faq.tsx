@@ -5,6 +5,7 @@ import { LiquidGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import { FaqItem } from "./FaqItem";
 import { FAQ_ITEMS } from "../../data/faqData";
 import { isBoneyardBuild } from "../../utils/boneyard";
+import { navigateTo } from "../../hooks/useAppNavigation";
 import {
   containerStaggerVariants,
   cardStaggerVariants,
@@ -17,7 +18,6 @@ const cardVariants = cardStaggerVariants;
 
 function Faq() {
   const prefersReducedMotion = useReducedMotion();
-  const isReduced = !!prefersReducedMotion;
 
   const [openItemIds, setOpenItemIds] = useState<Set<string>>(() => new Set());
 
@@ -34,12 +34,8 @@ function Faq() {
   }, []);
 
   const handleScrollToContact = useCallback(() => {
-    const target = document.getElementById("contact");
-    if (target) {
-      target.scrollIntoView({ behavior: isReduced ? "auto" : "smooth" });
-      window.history.pushState(window.history.state, "", "#contact");
-    }
-  }, [isReduced]);
+    navigateTo("contact");
+  }, []);
 
   return (
     <div className="px-6 md:px-10 lg:px-16">

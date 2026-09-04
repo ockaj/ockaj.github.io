@@ -6,24 +6,19 @@ import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import BpmnNodeBadge from "./BpmnNodeBadge";
 import BpmnDiagram from "./BpmnDiagram";
 import { useIsMobile } from "../hooks/useMediaQuery";
-import { useOverlay, LABEL_MAP } from "../hooks/useAppNavigation";
+import { useOverlay, navigateTo } from "../hooks/useAppNavigation";
+import { useAppStore } from "../store/useAppStore";
 import { SPRING } from "../utils/springConfig";
 import { createModalVariants } from "../utils/motionVariants";
-
-interface BpmnOverlayProps {
-  onNavigate: (sectionLabel: string) => void;
-}
 
 const bpmnModalVariants = createModalVariants(15);
 
 const BPMN_KEYS = new Set(["b", "p", "m", "n"]);
 
-export default function BpmnOverlay({
-  onNavigate,
-}: Readonly<BpmnOverlayProps>) {
+export default function BpmnOverlay() {
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
-  const [isOpen, setIsOpen] = useState(false);
+  const isOpen = useAppStore((state) => state.isBpmnOpen);
   const typedBufferRef = useRef<string[]>([]);
   const [showHotkeyTip, setShowHotkeyTip] = useState(false);
   const [hasDismissedTip, setHasDismissedTip] = useState(() => {
@@ -33,7 +28,11 @@ export default function BpmnOverlay({
     );
   });
 
-  useOverlay(isOpen, () => setIsOpen(false), "bpmn");
+  const handleClose = useCallback(() => {
+    useAppStore.getState().setBpmnOpen(false);
+  }, []);
+
+  useOverlay(isOpen, handleClose, "bpmn");
 
   // Keyboard shortcut listener for 'B-P-M-N'
   useEffect(() => {
@@ -55,7 +54,7 @@ export default function BpmnOverlay({
       if (BPMN_KEYS.has(key)) {
         typedBufferRef.current = [...typedBufferRef.current, key].slice(-4);
         if (typedBufferRef.current.join("") === "bpmn") {
-          setIsOpen(true);
+          useAppStore.getState().setBpmnOpen(true);
           typedBufferRef.current = [];
         }
       } else {
@@ -89,16 +88,10 @@ export default function BpmnOverlay({
     };
   }, [isMobile, hasDismissedTip]);
 
-  const handleTaskClick = useCallback(
-    (sectionId: string) => {
-      setIsOpen(false);
-      const label = LABEL_MAP[sectionId];
-      if (label) {
-        onNavigate(label);
-      }
-    },
-    [onNavigate],
-  );
+  const handleTaskClick = useCallback((sectionId: string) => {
+    useAppStore.getState().setBpmnOpen(false);
+    navigateTo(sectionId);
+  }, []);
 
   return (
     <>
@@ -163,7 +156,7 @@ export default function BpmnOverlay({
             disablePointerDismissal
             onOpenChange={(open) => {
               if (!open) {
-                setIsOpen(false);
+                handleClose();
               }
             }}
           >
@@ -171,7 +164,7 @@ export default function BpmnOverlay({
               <div className="fixed inset-0 z-[120] flex items-center justify-center p-0 md:p-6 lg:p-8">
                 {/* Backdrop */}
                 <Dialog.Backdrop
-                  onClick={() => setIsOpen(false)}
+                  onClick={handleClose}
                   render={
                     <motion.div
                       initial={{ opacity: 0 }}
@@ -227,7 +220,7 @@ export default function BpmnOverlay({
                       <Dialog.Close
                         render={
                           <LiquidGlassButton
-                            onClick={() => setIsOpen(false)}
+                            onClick={handleClose}
                             ariaLabel="Close model overlay"
                             className="size-10 flex-shrink-0 p-0 md:size-11"
                           >
