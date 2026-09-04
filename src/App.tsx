@@ -46,15 +46,23 @@ function AppSectionHeader({
   );
 }
 
+function DesktopBpmnOverlay() {
+  const isMobile = useIsMobile();
+  if (isMobile) return null;
+  return (
+    <Suspense fallback={null}>
+      <BpmnOverlay />
+    </Suspense>
+  );
+}
+
 function App() {
   const isLoading = useAppStore((state) => state.isLoading);
 
   useNavigation();
 
-  const isMobile = useIsMobile();
-
   // Preload lazy components concurrently with main-thread yielding to protect INP
-  usePreloadComponents(isMobile, isLoading);
+  usePreloadComponents(isLoading);
 
   const handleLoadingComplete = useCallback(() => {
     useAppStore.getState().completeLoading();
@@ -165,9 +173,7 @@ function App() {
             <PdfViewerModal />
           </Suspense>
 
-          <Suspense fallback={null}>
-            {!isLoading && !isMobile ? <BpmnOverlay /> : null}
-          </Suspense>
+          {!isLoading ? <DesktopBpmnOverlay /> : null}
         </main>
       </BaseTooltip.Provider>
     </>

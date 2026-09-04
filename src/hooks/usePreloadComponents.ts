@@ -28,10 +28,7 @@ function yieldToMain(
   });
 }
 
-export function usePreloadComponents(
-  isMobile: boolean,
-  isLoading: boolean,
-): void {
+export function usePreloadComponents(isLoading: boolean): void {
   useEffect(() => {
     if (isLoading || isSlowConnection()) return;
 
@@ -54,6 +51,10 @@ export function usePreloadComponents(
         fallbackTimeoutId = null;
       }
 
+      const isDesktop =
+        typeof window !== "undefined" &&
+        window.matchMedia("(min-width: 768px)").matches;
+
       const loaders = [
         loadCaseStudies,
         loadSkills,
@@ -61,7 +62,7 @@ export function usePreloadComponents(
         loadJournal,
         loadFaq,
         loadPdfViewerModal,
-        ...(isMobile ? [] : [loadBpmnOverlay]),
+        ...(isDesktop ? [loadBpmnOverlay] : []),
       ];
 
       if (import.meta.env.DEV) {
@@ -129,5 +130,5 @@ export function usePreloadComponents(
       activeTimeouts.forEach((id) => clearTimeout(id));
       activeTimeouts.clear();
     };
-  }, [isMobile, isLoading]);
+  }, [isLoading]);
 }
