@@ -9,6 +9,10 @@ import { useIsMobile } from "../hooks/useMediaQuery";
 import LoadingBpmnDiagram from "./LoadingScreen/LoadingBpmnDiagram";
 import LoadingMethodologyChecklist from "./LoadingScreen/LoadingMethodologyChecklist";
 import { BPMN_STEPS } from "./LoadingScreen/loadingData";
+import { SECTION_ANIMATE } from "../utils/motionVariants";
+
+const HEADER_INITIAL = { opacity: 0, y: -10 };
+const HEADER_TRANSITION = { duration: 0.6 };
 
 interface LoadingScreenProps {
   onComplete: () => void;
@@ -165,6 +169,16 @@ export default function LoadingScreen({
 
     const DURATION = 1800;
 
+    const nodeRefs = {
+      start: nodeStartRef,
+      task1: nodeTask1Ref,
+      gateway: nodeGatewayRef,
+      task2: nodeTask2Ref,
+      task3: nodeTask3Ref,
+      mergeGateway: nodeMergeGatewayRef,
+      end: nodeEndRef,
+    };
+
     const tick = (timestamp: number) => {
       if (!startTimeRef.current) startTimeRef.current = timestamp;
       const elapsed = timestamp - startTimeRef.current;
@@ -174,15 +188,6 @@ export default function LoadingScreen({
 
       count.set(eased * 100);
 
-      const nodeRefs = {
-        start: nodeStartRef,
-        task1: nodeTask1Ref,
-        gateway: nodeGatewayRef,
-        task2: nodeTask2Ref,
-        task3: nodeTask3Ref,
-        mergeGateway: nodeMergeGatewayRef,
-        end: nodeEndRef,
-      };
       const { nodesUpdated, updatedNodes } = checkNodeThresholds(
         current,
         nodeRefs,
@@ -245,7 +250,7 @@ export default function LoadingScreen({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [onComplete, prefersReducedMotion, isMobile, count]);
+  }, [onComplete, prefersReducedMotion, count]);
 
   // Derived motion values — update without React re-renders
   const path1 = useTransform(count, [10, 25], [0, 1]);
@@ -293,18 +298,18 @@ export default function LoadingScreen({
       <div className="relative z-10 flex w-full items-center justify-between">
         <motion.div
           className="text-muted font-sans text-xs font-semibold uppercase"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial={HEADER_INITIAL}
+          animate={SECTION_ANIMATE}
+          transition={HEADER_TRANSITION}
         >
           ONDREJ MICHAL OČKAJ
         </motion.div>
         <motion.button
           onClick={handleSkip}
           className="text-muted hover:text-text-primary pointer-events-auto z-20 cursor-pointer rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs transition-colors duration-200 hover:border-white/20 hover:bg-white/[0.08] active:scale-95"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial={HEADER_INITIAL}
+          animate={SECTION_ANIMATE}
+          transition={HEADER_TRANSITION}
         >
           Skip
         </motion.button>

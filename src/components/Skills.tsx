@@ -16,6 +16,7 @@ import { SPRING } from "../utils/springConfig";
 import {
   cardStaggerVariants,
   containerStaggerVariants,
+  SECTION_ANIMATE,
   SECTION_VIEWPORT,
 } from "../utils/motionVariants";
 
@@ -141,10 +142,10 @@ function Skills() {
       <motion.div
         initial={
           isBuildMode
-            ? { opacity: 1, y: 0 }
+            ? SECTION_ANIMATE
             : { opacity: 0, y: prefersReducedMotion ? 0 : 30 }
         }
-        whileInView={isBuildMode ? undefined : { opacity: 1, y: 0 }}
+        whileInView={isBuildMode ? undefined : SECTION_ANIMATE}
         transition={SPRING.hero}
         viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
         className="relative z-30 pt-10 md:pt-14"

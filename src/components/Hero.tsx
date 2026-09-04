@@ -46,17 +46,36 @@ interface RotatingSpecializationProps {
   prefersReducedMotion: boolean | null;
 }
 
+const getNextRoleIndex = (i: number) => (i + 1) % SPECIALIZATIONS.length;
+
 function RotatingSpecialization({
   prefersReducedMotion,
 }: Readonly<RotatingSpecializationProps>) {
   const [roleIndex, setRoleIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(
+    () => typeof document !== "undefined" && document.hidden,
+  );
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setRoleIndex((i) => (i + 1) % SPECIALIZATIONS.length);
-    }, 2500);
-    return () => clearInterval(interval);
+    const handleVisibilityChange = () => {
+      setIsPaused(document.hidden);
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
+
+  useEffect(() => {
+    if (isPaused) return;
+
+    const interval = setInterval(() => {
+      setRoleIndex(getNextRoleIndex);
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [isPaused]);
 
   return (
     <SlotText

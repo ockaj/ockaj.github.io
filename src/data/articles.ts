@@ -40,17 +40,24 @@ export const ARTICLES: Article[] = Object.entries(markdownModules)
     const wordCount = words.length;
     const excerpt = words.slice(0, 40).join(" ") + "...";
 
+    const dateStr = frontmatter.date || "";
+    const timestamp = dateStr ? Date.parse(dateStr) || 0 : 0;
+
     return {
-      id: frontmatter.id || filename.replace(MD_EXT_REGEX, ""),
-      title: frontmatter.title || "Untitled",
-      subtitle: frontmatter.subtitle || "",
-      readTime:
-        frontmatter.readTime ||
-        `${Math.max(1, Math.ceil(wordCount / 200))} min read`,
-      date: frontmatter.date || "",
-      image: frontmatter.image || "",
-      body,
-      excerpt,
+      article: {
+        id: frontmatter.id || filename.replace(MD_EXT_REGEX, ""),
+        title: frontmatter.title || "Untitled",
+        subtitle: frontmatter.subtitle || "",
+        readTime:
+          frontmatter.readTime ||
+          `${Math.max(1, Math.ceil(wordCount / 200))} min read`,
+        date: dateStr,
+        image: frontmatter.image || "",
+        body,
+        excerpt,
+      },
+      timestamp,
     };
   })
-  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  .sort((a, b) => b.timestamp - a.timestamp)
+  .map((item) => item.article);

@@ -52,11 +52,16 @@ const parseResults = (raw: string): { metric: string; description: string }[] =>
     return [{ metric, description }];
   });
 
-const parseTools = (raw: string): string[] =>
-  raw
-    .split(",")
-    .map((t) => t.trim())
-    .filter(Boolean);
+const parseTools = (raw: string): string[] => {
+  if (!raw) return [];
+  const parts = raw.split(",");
+  const tools: string[] = [];
+  for (let i = 0; i < parts.length; i++) {
+    const tool = parts[i].trim();
+    if (tool) tools.push(tool);
+  }
+  return tools;
+};
 
 const MD_EXT_REGEX = /\.md$/;
 

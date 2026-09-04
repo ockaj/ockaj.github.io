@@ -18,6 +18,8 @@ interface DrawerProps {
   onClose: () => void;
 }
 
+const REMARK_PLUGINS = [remarkGfm];
+
 const JOURNAL_MARKDOWN_COMPONENTS = {
   ...COMMON_MARKDOWN_COMPONENTS,
   h3: ({ children }: { children?: React.ReactNode }) => (
@@ -114,7 +116,7 @@ const JournalDrawer = memo(function JournalDrawer({
           className="text-text-primary/90 max-w-[70ch] text-sm leading-relaxed md:text-base"
         >
           <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
+            remarkPlugins={REMARK_PLUGINS}
             components={JOURNAL_MARKDOWN_COMPONENTS}
           >
             {article.body}

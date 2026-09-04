@@ -21,6 +21,7 @@ interface ProcessVariantStageProps {
 }
 
 const MODES = ["asis", "tobe"] as const;
+const SPRING_STAGE_DELAYED = { ...SPRING.stage, delay: 0.04 };
 
 interface DiagramCanvasItemProps {
   topicId: number;
@@ -110,9 +111,7 @@ const FooterDetailsItem = memo(function FooterDetailsItem({
       inert={!isSelected}
       initial={false}
       animate={isSelected ? { opacity: 1, x: 0 } : { opacity: 0, x: xOffset }}
-      transition={
-        isSelected ? { ...SPRING.stage, delay: 0.04 } : SPRING.stageExit
-      }
+      transition={isSelected ? SPRING_STAGE_DELAYED : SPRING.stageExit}
       className={cn(
         "col-start-1 row-start-1 flex flex-col gap-2.5",
         isSelected ? "pointer-events-auto" : "pointer-events-none",

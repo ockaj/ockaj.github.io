@@ -60,6 +60,20 @@ const dialogVariants: Variants = {
   }),
 };
 
+const DOUBLE_CLICK_CONFIG = { disabled: true };
+const WHEEL_CONFIG = { step: 0.00125 };
+const ZOOM_ANIMATION_CONFIG = { disabled: true };
+const TRANSFORM_CONTAINER_STYLE: React.CSSProperties = {
+  width: "100%",
+  height: "100%",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+};
+const DIALOG_POPUP_STYLE: React.CSSProperties = {
+  transformOrigin: "center center",
+};
+
 function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
   const prefersReducedMotion = useReducedMotion();
 
@@ -109,7 +123,7 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
-                style={{ transformOrigin: "center center" }}
+                style={DIALOG_POPUP_STYLE}
               />
             }
           >
@@ -129,9 +143,9 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
                 centerZoomedOut
                 smooth
                 disablePadding
-                doubleClick={{ disabled: true }}
-                wheel={{ step: 0.00125 }}
-                zoomAnimation={{ disabled: true }}
+                doubleClick={DOUBLE_CLICK_CONFIG}
+                wheel={WHEEL_CONFIG}
+                zoomAnimation={ZOOM_ANIMATION_CONFIG}
                 onTransform={(_ref, state) => {
                   const zoomed = state.scale > 1.01;
                   if (
@@ -154,20 +168,8 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
                 <TransformComponent
                   wrapperClass="w-full h-full flex justify-center items-center cursor-zoom-in group-data-[zoomed=true]:cursor-grab group-data-[zoomed=true]:active:cursor-grabbing"
                   contentClass="w-full h-full flex justify-center items-center cursor-zoom-in group-data-[zoomed=true]:cursor-grab group-data-[zoomed=true]:active:cursor-grabbing"
-                  wrapperStyle={{
-                    width: "100%",
-                    height: "100%",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                  contentStyle={{
-                    width: "100%",
-                    height: "100%",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
+                  wrapperStyle={TRANSFORM_CONTAINER_STYLE}
+                  contentStyle={TRANSFORM_CONTAINER_STYLE}
                 >
                   <ZoomClickArea wasPanningRef={wasPanningRef}>
                     <ZoomableImage src={item.image} alt={item.title} />

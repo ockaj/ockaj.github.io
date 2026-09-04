@@ -1,4 +1,11 @@
-import { useEffect, useCallback, useMemo, memo, useReducer } from "react";
+import {
+  useEffect,
+  useCallback,
+  useMemo,
+  memo,
+  useReducer,
+  useState,
+} from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Dialog } from "@base-ui/react/dialog";
 import {
@@ -23,6 +30,11 @@ import { pdfReducer } from "./PdfViewerModal/pdfState";
 import { useAppStore } from "../store/useAppStore";
 
 const modalVariants = createModalVariants(-10);
+const MODAL_CONTAINER_STYLE: React.CSSProperties = {
+  transformOrigin: "center top",
+  boxShadow:
+    "inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 16px rgba(0, 0, 0, 0.6)",
+};
 
 function usePdfViewerModalController() {
   const isMobile = useIsMobile();
@@ -44,11 +56,10 @@ function usePdfViewerModalController() {
     activeTab: "interactive",
     lang: "en",
     pdfLoading: true,
-    isHovered: false,
     isTransitioning: false,
   });
 
-  const { activeTab, lang, pdfLoading, isHovered, isTransitioning } = state;
+  const { activeTab, lang, pdfLoading, isTransitioning } = state;
 
   const handleTabChange = useCallback(
     (tab: "pdf" | "interactive") => {
@@ -63,16 +74,6 @@ function usePdfViewerModalController() {
       dispatch({ type: "CHANGE_TAB", tab });
     },
     [isMobile],
-  );
-
-  const handleTabsMouseEnter = useCallback(
-    () => dispatch({ type: "SET_IS_HOVERED", hovered: true }),
-    [],
-  );
-
-  const handleTabsMouseLeave = useCallback(
-    () => dispatch({ type: "SET_IS_HOVERED", hovered: false }),
-    [],
   );
 
   const handleOpenChange = useCallback(
@@ -93,7 +94,7 @@ function usePdfViewerModalController() {
     return () => clearTimeout(timer);
   }, [isTransitioning]);
 
-  const activeCv = useMemo(() => CV_DATA[lang], [lang]);
+  const activeCv = CV_DATA[lang];
 
   return useMemo(
     () => ({
@@ -104,11 +105,8 @@ function usePdfViewerModalController() {
       activeTab,
       lang,
       pdfLoading,
-      isHovered,
       isTransitioning,
       handleTabChange,
-      handleTabsMouseEnter,
-      handleTabsMouseLeave,
       handleOpenChange,
       activeCv,
     }),
@@ -120,16 +118,75 @@ function usePdfViewerModalController() {
       activeTab,
       lang,
       pdfLoading,
-      isHovered,
       isTransitioning,
       handleTabChange,
-      handleTabsMouseEnter,
-      handleTabsMouseLeave,
       handleOpenChange,
       activeCv,
     ],
   );
 }
+
+interface PdfModalTabsProps {
+  activeTab: "pdf" | "interactive";
+  onTabChange: (tab: "pdf" | "interactive") => void;
+  isMobile: boolean;
+  isTransitioning: boolean;
+}
+
+const PdfModalTabs = memo(function PdfModalTabs({
+  activeTab,
+  onTabChange,
+  isMobile,
+  isTransitioning,
+}: PdfModalTabsProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  const handleMouseEnter = useCallback(() => setIsHovered(true), []);
+  const handleMouseLeave = useCallback(() => setIsHovered(false), []);
+
+  return (
+    <Tabs
+      value={activeTab}
+      onChange={onTabChange}
+      layoutId="active-viewer-tab"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      highlightClassName={
+        isHovered || isTransitioning
+          ? "navbar-highlight-active"
+          : "navbar-highlight-flat"
+      }
+      className="isolate flex [transform:translateZ(0)] items-center gap-0.5 overflow-hidden rounded-full border border-white/5 bg-white/[0.03] p-2"
+    >
+      <Tab
+        value="pdf"
+        aria-controls="tabpanel-pdf"
+        className={cn(
+          "focus-visible:ring-accent/60 relative z-10 rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
+          activeTab === "pdf"
+            ? "text-text-primary"
+            : "text-muted hover:text-text-primary",
+        )}
+      >
+        <span>{isMobile ? "PDF File ↗" : "PDF Document"}</span>
+      </Tab>
+      <Tab
+        value="interactive"
+        aria-controls="tabpanel-interactive"
+        className={cn(
+          "focus-visible:ring-accent/60 relative z-10 rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
+          activeTab === "interactive"
+            ? "text-text-primary"
+            : "text-muted hover:text-text-primary",
+        )}
+      >
+        <span className="flex items-center gap-1">
+          <Sparkles size={11} className="text-accent" />
+          <span>{isMobile ? "Interactive" : "Interactive CV"}</span>
+        </span>
+      </Tab>
+    </Tabs>
+  );
+});
 
 const PdfModalPopupContent = memo(function PdfModalPopupContent({
   controller,
@@ -146,11 +203,8 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
     activeTab,
     lang,
     pdfLoading,
-    isHovered,
     isTransitioning,
     handleTabChange,
-    handleTabsMouseEnter,
-    handleTabsMouseLeave,
     activeCv,
   } = controller;
 
@@ -179,11 +233,7 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
             exit="hidden"
             variants={modalVariants}
             className="bg-surface/85 pointer-events-auto relative z-10 flex h-full w-full flex-col overflow-hidden rounded-none border-0 backdrop-blur-2xl md:h-[85vh] md:max-w-5xl md:rounded-3xl md:border md:border-white/10"
-            style={{
-              transformOrigin: "center top",
-              boxShadow:
-                "inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 16px rgba(0, 0, 0, 0.6)",
-            }}
+            style={MODAL_CONTAINER_STYLE}
           />
         }
       >
@@ -245,47 +295,12 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
             </div>
 
             {/* Tab Selector */}
-            <Tabs
-              value={activeTab}
-              onChange={handleTabChange}
-              layoutId="active-viewer-tab"
-              onMouseEnter={handleTabsMouseEnter}
-              onMouseLeave={handleTabsMouseLeave}
-              highlightClassName={
-                isHovered || isTransitioning
-                  ? "navbar-highlight-active"
-                  : "navbar-highlight-flat"
-              }
-              className="isolate flex [transform:translateZ(0)] items-center gap-0.5 overflow-hidden rounded-full border border-white/5 bg-white/[0.03] p-2"
-            >
-              <Tab
-                value="pdf"
-                aria-controls="tabpanel-pdf"
-                className={cn(
-                  "focus-visible:ring-accent/60 relative z-10 rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
-                  activeTab === "pdf"
-                    ? "text-text-primary"
-                    : "text-muted hover:text-text-primary",
-                )}
-              >
-                <span>{isMobile ? "PDF File ↗" : "PDF Document"}</span>
-              </Tab>
-              <Tab
-                value="interactive"
-                aria-controls="tabpanel-interactive"
-                className={cn(
-                  "focus-visible:ring-accent/60 relative z-10 rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
-                  activeTab === "interactive"
-                    ? "text-text-primary"
-                    : "text-muted hover:text-text-primary",
-                )}
-              >
-                <span className="flex items-center gap-1">
-                  <Sparkles size={11} className="text-accent" />
-                  <span>{isMobile ? "Interactive" : "Interactive CV"}</span>
-                </span>
-              </Tab>
-            </Tabs>
+            <PdfModalTabs
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              isMobile={isMobile}
+              isTransitioning={isTransitioning}
+            />
 
             {/* Desktop Action Buttons */}
             <div className="hidden items-center gap-2 sm:flex">
