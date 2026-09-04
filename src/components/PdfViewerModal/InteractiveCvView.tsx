@@ -14,7 +14,7 @@ import {
 import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import { cn } from "../../utils/cn";
 import { type CvDataLanguageSection } from "../../data/cvData";
-import { type PdfAction } from "./pdfState";
+import { useAppStore } from "../../store/useAppStore";
 
 const WHITESPACE_REGEX = /\s+/g;
 const PHONE_PREFIX_REGEX = /^[+\d]/;
@@ -41,15 +41,11 @@ function BulletList({
 interface InteractiveCvViewProps {
   activeCv: CvDataLanguageSection;
   lang: "en" | "sk";
-  isMobile: boolean;
-  dispatch: React.Dispatch<PdfAction>;
 }
 
 export const InteractiveCvView = memo(function InteractiveCvView({
   activeCv,
   lang,
-  isMobile,
-  dispatch,
 }: InteractiveCvViewProps) {
   return (
     <div className="mx-auto max-w-4xl space-y-10 pb-12">
@@ -106,7 +102,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
         {/* Language Toggler */}
         <div className="relative z-10 flex items-center gap-1.5 self-start md:self-auto">
           <LiquidGlassButton
-            onClick={() => dispatch({ type: "SET_LANG", lang: "en" })}
+            onClick={() => useAppStore.getState().setCvLang("en")}
             className={cn(
               "flex items-center gap-1 px-3 py-1.5 text-xs font-semibold",
               lang === "en" ? "text-accent" : "text-muted",
@@ -116,7 +112,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
             EN
           </LiquidGlassButton>
           <LiquidGlassButton
-            onClick={() => dispatch({ type: "SET_LANG", lang: "sk" })}
+            onClick={() => useAppStore.getState().setCvLang("sk")}
             className={cn(
               "flex items-center gap-1 px-3 py-1.5 text-xs font-semibold",
               lang === "sk" ? "text-accent" : "text-muted",
@@ -325,23 +321,21 @@ export const InteractiveCvView = memo(function InteractiveCvView({
           </div>
 
           {/* Mobile Warning Notice */}
-          {isMobile ? (
-            <div className="border-accent/20 bg-accent/5 space-y-2 rounded-lg border p-4 text-center">
-              <p className="text-muted text-xs text-pretty">
-                PDF view is optimized for desktop viewports. To read the
-                official document, you can open or download the PDF below.
-              </p>
-              <a
-                href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-accent hover:text-text-primary inline-flex items-center gap-1.5 text-xs font-semibold transition-colors"
-              >
-                <ExternalLink size={12} />
-                Open PDF Document
-              </a>
-            </div>
-          ) : null}
+          <div className="border-accent/20 bg-accent/5 space-y-2 rounded-lg border p-4 text-center md:hidden">
+            <p className="text-muted text-xs text-pretty">
+              PDF view is optimized for desktop viewports. To read the official
+              document, you can open or download the PDF below.
+            </p>
+            <a
+              href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent hover:text-text-primary inline-flex items-center gap-1.5 text-xs font-semibold transition-colors"
+            >
+              <ExternalLink size={12} />
+              Open PDF Document
+            </a>
+          </div>
         </div>
       </div>
     </div>
