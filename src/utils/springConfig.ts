@@ -31,20 +31,8 @@ export const SPRING = {
     bounce: 0.08,
     restDelta: 0.5,
   },
-  drawerMobile: {
-    type: "spring" as const,
-    duration: 0.35,
-    bounce: 0.08,
-    restDelta: 0.5,
-  },
   /** Modals scaling in (Smooth 350ms physical spring) */
   modal: {
-    type: "spring" as const,
-    duration: 0.35,
-    bounce: 0.08,
-    restDelta: 0.005,
-  },
-  modalMobile: {
     type: "spring" as const,
     duration: 0.35,
     bounce: 0.08,
@@ -56,13 +44,6 @@ export const SPRING = {
     duration: 0.22,
     bounce: 0,
     restDelta: 0.005,
-  },
-  /** Tooltips entrance */
-  tooltip: {
-    type: "spring" as const,
-    stiffness: 400,
-    damping: 25,
-    mass: 0.8,
   },
   /** Hero elements & scroll indicator */
   hero: {

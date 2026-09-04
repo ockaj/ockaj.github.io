@@ -25,7 +25,7 @@ interface DrawerCustom {
 
 function getVisibleTransition(custom: DrawerCustom) {
   if (custom.prefersReducedMotion) return { duration: 0.15 };
-  return custom.isMobile ? SPRING.drawerMobile : SPRING.drawer;
+  return SPRING.drawer;
 }
 
 function getHiddenTransition(custom: DrawerCustom) {

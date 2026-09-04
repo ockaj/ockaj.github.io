@@ -65,11 +65,6 @@ interface LiquidGlassTabProps extends Omit<
   highlightTransition?: Transition;
 }
 
-interface LiquidGlassTabPanelProps extends HTMLAttributes<HTMLDivElement> {
-  value: string | number;
-  children?: ReactNode;
-}
-
 type TabValue = string | number;
 
 interface ActiveStore {
@@ -792,24 +787,5 @@ function TabComponent({
 
 const Tab = memo(TabComponent, areTabPropsEqual);
 Tab.displayName = "Tab";
-
-const TabPanel = memo(function TabPanel({
-  value,
-  children,
-  ...rest
-}: LiquidGlassTabPanelProps) {
-  return (
-    <div
-      role="tabpanel"
-      id={`tabpanel-${value}`}
-      aria-labelledby={`tab-${value}`}
-      {...rest}
-    >
-      {children}
-    </div>
-  );
-});
-
-TabPanel.displayName = "TabPanel";
 
 export { Tabs, Tab };

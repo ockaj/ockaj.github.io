@@ -64,12 +64,9 @@ export const createModalVariants = (yOffset = 15): Variants => ({
     };
   },
   visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => {
-    let transition: Transition = SPRING.modal;
-    if (custom.prefersReducedMotion) {
-      transition = { duration: 0.15 };
-    } else if (custom.isMobile) {
-      transition = SPRING.modalMobile;
-    }
+    const transition: Transition = custom.prefersReducedMotion
+      ? { duration: 0.15 }
+      : SPRING.modal;
     return {
       opacity: 1,
       scale: 1,
@@ -94,7 +91,7 @@ export const mobileMenuBackdropVariants: Variants = {
   visible: (prefersReducedMotion: boolean | null) => ({
     opacity: 1,
     pointerEvents: "auto",
-    transition: prefersReducedMotion ? { duration: 0.15 } : SPRING.modalMobile,
+    transition: prefersReducedMotion ? { duration: 0.15 } : SPRING.modal,
   }),
   exit: (prefersReducedMotion: boolean | null) => ({
     opacity: 0,
@@ -125,7 +122,7 @@ export const mobileMenuPanelVariants: Variants = {
     transition: prefersReducedMotion
       ? { duration: 0.15 }
       : {
-          ...SPRING.drawerMobile,
+          ...SPRING.drawer,
           staggerChildren: 0.035,
           delayChildren: 0.03,
         },

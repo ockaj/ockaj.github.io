@@ -37,13 +37,13 @@ function CaseStudies() {
           viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
         >
           {CASE_STUDIES.map((study) => (
-            <motion.article
+            <motion.div
               key={study.id}
               variants={cardVariants}
               custom={prefersReducedMotion}
             >
               <CaseStudyCard study={study} onOpen={setSelectedStudy} />
-            </motion.article>
+            </motion.div>
           ))}
         </motion.div>
       </div>

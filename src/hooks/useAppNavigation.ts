@@ -2,60 +2,15 @@ import { useEffect, useLayoutEffect, useRef, startTransition } from "react";
 import { useAppStore, LABEL_MAP } from "../store/useAppStore";
 const SECTIONS = Object.keys(LABEL_MAP);
 const SECTIONS_SET = new Set(SECTIONS);
-const REVERSE_LABEL_MAP = new Map(
-  Object.entries(LABEL_MAP).map(([id, label]) => [label, id]),
-);
 
-const SECTION_ALIASES: Record<string, string> = {
-  home: "home",
-  work: "work",
-  "case studies": "work",
-  "case-studies": "work",
-  skills: "skills",
-  "skills & stack": "skills",
-  "skills & competencies": "skills",
-  processes: "processes",
-  "process models": "processes",
-  "process library": "processes",
-  journal: "journal",
-  "engineering log": "journal",
-  "recent thought pieces": "journal",
-  faq: "faq",
-  contact: "contact",
-  "get in touch": "contact",
-};
-
-function resolveSection(target: string): { id: string; label: string } | null {
+function resolveSection(target: string): string | null {
   if (!target) return null;
-  const clean = target.startsWith("#") ? target.slice(1) : target;
-  const trimmed = clean.trim();
-  if (!trimmed) return null;
-
-  if (trimmed in LABEL_MAP) {
-    return { id: trimmed, label: LABEL_MAP[trimmed] };
+  const clean = (target.startsWith("#") ? target.slice(1) : target)
+    .trim()
+    .toLowerCase();
+  if (clean in LABEL_MAP) {
+    return clean;
   }
-
-  if (REVERSE_LABEL_MAP.has(trimmed)) {
-    const id = REVERSE_LABEL_MAP.get(trimmed)!;
-    return { id, label: LABEL_MAP[id] ?? trimmed };
-  }
-
-  const lower = trimmed.toLowerCase();
-  if (lower in LABEL_MAP) {
-    return { id: lower, label: LABEL_MAP[lower] };
-  }
-
-  const aliasId = SECTION_ALIASES[lower];
-  if (aliasId && aliasId in LABEL_MAP) {
-    return { id: aliasId, label: LABEL_MAP[aliasId] };
-  }
-
-  for (const [id, label] of Object.entries(LABEL_MAP)) {
-    if (label.toLowerCase() === lower) {
-      return { id, label };
-    }
-  }
-
   return null;
 }
 
@@ -119,12 +74,10 @@ export interface NavigateToOptions {
 export function navigateTo(target: string, options?: NavigateToOptions): void {
   if (typeof window === "undefined") return;
 
-  const resolved = resolveSection(target);
-  if (!resolved) return;
+  const sectionId = resolveSection(target);
+  if (!sectionId) return;
 
-  const { id: sectionId, label: sectionLabel } = resolved;
-
-  useAppStore.getState().setActiveSection(sectionLabel);
+  useAppStore.getState().setActiveSection(sectionId);
   setNavigationLock();
 
   const isReduced = window.matchMedia(
@@ -170,9 +123,8 @@ function useScrollSpy(
 
         const targetId = SECTIONS.findLast((id) => visibleSections.has(id));
         if (targetId) {
-          const sectionLabel = LABEL_MAP[targetId] ?? "Home";
           startTransition(() => {
-            useAppStore.getState().setActiveSection(sectionLabel);
+            useAppStore.getState().setActiveSection(targetId);
           });
 
           const newHash = `#${targetId}`;
@@ -220,15 +172,15 @@ export function useNavigation() {
       return;
     }
 
-    const resolved = resolveSection(hash);
-    if (resolved) {
-      navigateTo(resolved.id, { behavior: "auto", replace: true });
+    const resolvedId = resolveSection(hash);
+    if (resolvedId) {
+      navigateTo(resolvedId, { behavior: "auto", replace: true });
     }
   }, [isLoading]);
 
   useScrollSpy(isLoading, visibleSectionsRef);
 
-  return { navigateTo, handleNavClick: navigateTo };
+  return { navigateTo };
 }
 
 type OverlayCallback = () => void;

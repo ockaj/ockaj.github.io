@@ -8,11 +8,16 @@ interface MediaQueryStore {
 
 const stores = new Map<string, MediaQueryStore>();
 
-function subscribeMediaQuery(query: string, callback: () => void): () => void {
-  if (typeof window === "undefined") {
-    return () => {
-      /* no-op SSR cleanup */
-    };
+if (import.meta.env.DEV && typeof window !== "undefined") {
+  (window as unknown as { __mqStores: typeof stores }).__mqStores = stores;
+}
+
+function getOrCreateStore(query: string): MediaQueryStore | null {
+  if (
+    typeof window === "undefined" ||
+    typeof window.matchMedia !== "function"
+  ) {
+    return null;
   }
 
   let store = stores.get(query);
@@ -20,32 +25,40 @@ function subscribeMediaQuery(query: string, callback: () => void): () => void {
     const mql = window.matchMedia(query);
     const subscribers = new Set<() => void>();
     const listener = () => {
-      subscribers.forEach((cb) => cb());
+      Array.from(subscribers).forEach((cb) => cb());
     };
 
-    mql.addEventListener("change", listener);
     store = { mql, subscribers, listener };
     stores.set(query, store);
   }
+  return store;
+}
 
+function subscribeMediaQuery(query: string, callback: () => void): () => void {
+  const store = getOrCreateStore(query);
+  if (!store) {
+    return () => {
+      /* no-op SSR cleanup */
+    };
+  }
+
+  if (store.subscribers.size === 0) {
+    store.mql.addEventListener("change", store.listener);
+  }
   store.subscribers.add(callback);
 
   return () => {
-    const currentStore = stores.get(query);
-    if (!currentStore) return;
-
-    currentStore.subscribers.delete(callback);
-    if (currentStore.subscribers.size === 0) {
-      currentStore.mql.removeEventListener("change", currentStore.listener);
+    store.subscribers.delete(callback);
+    if (store.subscribers.size === 0) {
+      store.mql.removeEventListener("change", store.listener);
       stores.delete(query);
     }
   };
 }
 
 function getMediaQuerySnapshot(query: string): boolean {
-  if (typeof window === "undefined") return false;
-  const store = stores.get(query);
-  return store ? store.mql.matches : window.matchMedia(query).matches;
+  const store = getOrCreateStore(query);
+  return store ? store.mql.matches : false;
 }
 
 function getServerSnapshot(): boolean {

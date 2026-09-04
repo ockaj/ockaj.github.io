@@ -1,6 +1,10 @@
-import { memo, useRef, useCallback, useEffect } from "react";
+import { memo, useRef, useCallback, useSyncExternalStore } from "react";
 import { Dialog } from "@base-ui/react/dialog";
-import { useControls, useTransformEffect } from "react-zoom-pan-pinch";
+import {
+  useControls,
+  useTransformContext,
+  useTransformEffect,
+} from "react-zoom-pan-pinch";
 import { Plus, Minus, X } from "lucide-react";
 import { LiquidGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 
@@ -13,47 +17,41 @@ const LightboxControls = memo(function LightboxControls({
   isMobile,
   onClose,
 }: LightboxControlsProps) {
+  const libraryContext = useTransformContext();
   const scaleTextRef = useRef<HTMLSpanElement>(null);
-  const zoomOutBtnRef = useRef<HTMLButtonElement>(null);
-  const resetBtnRef = useRef<HTMLButtonElement>(null);
   const { zoomIn, zoomOut, resetTransform } = useControls();
   const isHoveredRef = useRef(false);
   const currentScaleRef = useRef(1);
 
-  const updateControls = useCallback(() => {
+  const canZoomIn = useSyncExternalStore(
+    libraryContext.onChange,
+    () => libraryContext.state.scale < 7.99,
+    () => true,
+  );
+
+  const canZoomOut = useSyncExternalStore(
+    libraryContext.onChange,
+    () => libraryContext.state.scale > 1.01,
+    () => false,
+  );
+
+  const updateText = useCallback(() => {
     const scaleVal = currentScaleRef.current;
-    const zoomed = scaleVal > 1.01;
+    const isZoomed = scaleVal > 1.01;
 
     if (scaleTextRef.current) {
-      if (zoomed && (isMobile || isHoveredRef.current)) {
+      if (isZoomed && (isMobile || isHoveredRef.current)) {
         scaleTextRef.current.innerText = "Reset";
       } else {
         scaleTextRef.current.innerText = `${Math.round(scaleVal * 100)}%`;
       }
     }
-
-    if (resetBtnRef.current) {
-      resetBtnRef.current.dataset.zoomed = String(zoomed);
-    }
-
-    if (zoomOutBtnRef.current) {
-      zoomOutBtnRef.current.disabled = !zoomed;
-    }
   }, [isMobile]);
 
-  const handleTransform = useCallback(
-    ({ state }: { state: { scale: number } }) => {
-      currentScaleRef.current = state.scale;
-      updateControls();
-    },
-    [updateControls],
-  );
-
-  useTransformEffect(handleTransform);
-
-  useEffect(() => {
-    updateControls();
-  }, [updateControls]);
+  useTransformEffect(({ state }) => {
+    currentScaleRef.current = state.scale;
+    updateText();
+  });
 
   return (
     <div
@@ -67,27 +65,26 @@ const LightboxControls = memo(function LightboxControls({
           translate="no"
           onMouseEnter={() => {
             isHoveredRef.current = true;
-            updateControls();
+            updateText();
           }}
           onMouseLeave={() => {
             isHoveredRef.current = false;
-            updateControls();
+            updateText();
           }}
         >
           <LiquidGlass
-            ref={resetBtnRef}
             as="button"
-            data-zoomed="false"
+            disabled={!canZoomOut}
             roundedClass="rounded-full"
-            interactive
-            springScale
-            className="text-text-primary notranslate pointer-events-none flex h-10 w-16 cursor-default items-center justify-center text-xs font-bold tracking-wider uppercase opacity-80 transition-opacity select-none data-[zoomed=true]:pointer-events-auto data-[zoomed=true]:cursor-pointer data-[zoomed=true]:opacity-100"
+            interactive={canZoomOut}
+            springScale={canZoomOut}
+            className="text-text-primary notranslate flex h-10 w-16 items-center justify-center text-xs font-bold tracking-wider uppercase transition-opacity select-none disabled:pointer-events-none disabled:cursor-default disabled:opacity-40"
             onClick={() => {
               if (currentScaleRef.current > 1.01) {
                 resetTransform();
               }
             }}
-            magnetic
+            magnetic={canZoomOut}
             magneticStrength={0.04}
           >
             <span ref={scaleTextRef} className="notranslate" translate="no">
@@ -99,11 +96,11 @@ const LightboxControls = memo(function LightboxControls({
         {/* Zoom In */}
         <LiquidGlassButton
           onClick={() => zoomIn(0.15, 0)}
-          disabled={false}
-          magnetic
+          disabled={!canZoomIn}
+          magnetic={canZoomIn}
           magneticStrength={0.04}
           roundedClass="rounded-full"
-          className="text-text-primary flex size-11 items-center justify-center p-0"
+          className="text-text-primary flex size-11 items-center justify-center p-0 transition-opacity disabled:pointer-events-none disabled:opacity-40"
           ariaLabel="Zoom In"
         >
           <Plus size={14} />
@@ -111,13 +108,12 @@ const LightboxControls = memo(function LightboxControls({
 
         {/* Zoom Out */}
         <LiquidGlassButton
-          ref={zoomOutBtnRef}
           onClick={() => zoomOut(0.15, 0)}
-          disabled
-          magnetic
+          disabled={!canZoomOut}
+          magnetic={canZoomOut}
           magneticStrength={0.04}
           roundedClass="rounded-full"
-          className="text-text-primary flex size-11 items-center justify-center p-0 disabled:pointer-events-none disabled:opacity-40"
+          className="text-text-primary flex size-11 items-center justify-center p-0 transition-opacity disabled:pointer-events-none disabled:opacity-40"
           ariaLabel="Zoom Out"
         >
           <Minus size={14} />

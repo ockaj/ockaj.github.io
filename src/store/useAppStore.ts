@@ -37,13 +37,13 @@ const getInitialLoading = (): boolean => {
 
 const getInitialActiveSection = (): string => {
   if (typeof window === "undefined") {
-    return "Home";
+    return "home";
   }
   try {
     const hash = window.location.hash.substring(1);
-    return LABEL_MAP[hash] ?? "Home";
+    return hash in LABEL_MAP ? hash : "home";
   } catch {
-    return "Home";
+    return "home";
   }
 };
 

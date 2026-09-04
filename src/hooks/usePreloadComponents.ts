@@ -54,24 +54,24 @@ export function usePreloadComponents(
         fallbackTimeoutId = null;
       }
 
-      const queue = [
-        { loader: loadCaseStudies, key: "caseStudies" },
-        { loader: loadSkills, key: "skills" },
-        { loader: loadProcessLibrary, key: "processes" },
-        { loader: loadJournal, key: "journal" },
-        { loader: loadFaq, key: "faq" },
-        { loader: loadPdfViewerModal, key: "pdfViewerModal" },
-        ...(isMobile ? [] : [{ loader: loadBpmnOverlay, key: "bpmnOverlay" }]),
+      const loaders = [
+        loadCaseStudies,
+        loadSkills,
+        loadProcessLibrary,
+        loadJournal,
+        loadFaq,
+        loadPdfViewerModal,
+        ...(isMobile ? [] : [loadBpmnOverlay]),
       ];
 
       if (import.meta.env.DEV) {
         performance.mark("preload-queue-start");
       }
 
-      for (const item of queue) {
+      for (const loader of loaders) {
         if (!active) break;
-        if (item.loader.getReady()) continue;
-        item.loader.load().catch(() => {});
+        if (loader.getReady()) continue;
+        loader.load().catch(() => {});
         await yieldToMain(activeTimeouts);
       }
 

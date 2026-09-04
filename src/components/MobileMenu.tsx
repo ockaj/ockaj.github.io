@@ -14,10 +14,15 @@ const HIGHLIGHT_STYLE = {
 
 const INSTANT_LAYOUT_TRANSITION = { layout: { duration: 0 } } as const;
 
+interface NavLinkItem {
+  id: string;
+  label: string;
+}
+
 interface MobileMenuProps {
   isOpen: boolean;
   active: string;
-  navLinks: string[];
+  navLinks: readonly NavLinkItem[];
   onClose: () => void;
   onChange: (value: string) => void;
 }
@@ -32,7 +37,14 @@ function MobileMenu({
   const prefersReducedMotion = useReducedMotion();
   const isMotionReduced = !!prefersReducedMotion;
 
-  const allLinks = useMemo(() => ["Home", ...navLinks, "Contact"], [navLinks]);
+  const allLinks = useMemo<readonly NavLinkItem[]>(
+    () => [
+      { id: "home", label: "Home" },
+      ...navLinks,
+      { id: "contact", label: "Contact" },
+    ],
+    [navLinks],
+  );
 
   useEffect(() => {
     if (!isOpen) {
@@ -113,15 +125,15 @@ function MobileMenu({
           >
             {allLinks.map((link) => (
               <Tab
-                key={link}
-                value={link}
+                key={link.id}
+                value={link.id}
                 variants={mobileMenuItemVariants}
                 custom={isMotionReduced}
                 tabIndex={isOpen ? 0 : -1}
                 className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 flex w-full items-center justify-center rounded-full px-4 py-3.5 text-center text-sm font-semibold tracking-[0.01em] transition-colors duration-300 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
                 activeClassName="text-text-primary"
               >
-                <span>{link}</span>
+                <span>{link.label}</span>
               </Tab>
             ))}
           </Tabs>

@@ -17,12 +17,12 @@ import { SPRING } from "../utils/springConfig";
 import MobileMenu from "./MobileMenu";
 
 const NAV_LINKS = [
-  "Case Studies",
-  "Skills",
-  "Process Library",
-  "Journal",
-  "FAQ",
-];
+  { id: "work", label: "Case Studies" },
+  { id: "skills", label: "Skills" },
+  { id: "processes", label: "Process Library" },
+  { id: "journal", label: "Journal" },
+  { id: "faq", label: "FAQ" },
+] as const;
 
 interface NavbarState {
   scrolled: boolean;
@@ -155,9 +155,9 @@ export default function Navbar() {
     [],
   );
 
-  const handleNav = useCallback((label: string) => {
+  const handleNav = useCallback((id: string) => {
     dispatch({ type: "SET_IS_OPEN", isOpen: false });
-    navigateTo(label);
+    navigateTo(id);
   }, []);
 
   return (
@@ -187,7 +187,7 @@ export default function Navbar() {
           >
             {/* Home Button (Avatar + Name) */}
             <Tab
-              value="Home"
+              value="home"
               tabIndex={0}
               highlightClassName="hidden md:block"
               className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 flex items-center gap-2 rounded-full py-1.5 pr-3 pl-1.5 text-xs transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset sm:text-sm md:py-[9px] md:pr-[15px] md:pl-[9px]"
@@ -230,19 +230,19 @@ export default function Navbar() {
             <div className="hidden items-center gap-0.5 md:flex">
               {NAV_LINKS.map((link) => (
                 <Tab
-                  key={link}
-                  value={link}
+                  key={link.id}
+                  value={link.id}
                   tabIndex={0}
                   className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 rounded-full px-3 py-1.5 text-xs transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px] md:text-sm"
                   activeClassName="text-text-primary"
                 >
-                  <span>{link}</span>
+                  <span>{link.label}</span>
                 </Tab>
               ))}
 
               {/* Contact link (Desktop Only) */}
               <Tab
-                value="Contact"
+                value="contact"
                 tabIndex={0}
                 className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 rounded-full px-3 py-1.5 text-xs transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px] md:text-sm"
                 activeClassName="text-text-primary"

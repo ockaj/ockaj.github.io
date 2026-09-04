@@ -6,7 +6,6 @@ import { useOverlay } from "../../hooks/useAppNavigation";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { SPRING } from "../../utils/springConfig";
 import ZoomableImage from "./ZoomableImage";
-import ZoomClickArea from "./ZoomClickArea";
 import LightboxControls from "./LightboxControls";
 
 interface ProcessLightboxProps {
@@ -44,7 +43,7 @@ function getDialogVisibleTransition(custom: {
   isMobile: boolean;
 }) {
   if (custom.prefersReducedMotion) return { duration: 0.15 };
-  return custom.isMobile ? SPRING.modalMobile : SPRING.modal;
+  return SPRING.modal;
 }
 
 const dialogVariants: Variants = {
@@ -73,6 +72,28 @@ const TRANSFORM_CONTAINER_STYLE: React.CSSProperties = {
 const DIALOG_POPUP_STYLE: React.CSSProperties = {
   transformOrigin: "center center",
 };
+
+interface LightboxFooterProps {
+  title: string;
+  description: string;
+}
+
+const LightboxFooter = memo(function LightboxFooter({
+  title,
+  description,
+}: LightboxFooterProps) {
+  return (
+    <div className="pointer-events-none absolute right-0 bottom-0 left-0 z-20 bg-gradient-to-t from-black/95 via-black/40 to-transparent p-5">
+      <Dialog.Title
+        id="lightbox-title"
+        className="mb-1 text-sm font-semibold text-balance text-white"
+      >
+        {title}
+      </Dialog.Title>
+      <p className="text-xs text-pretty text-white/80">{description}</p>
+    </div>
+  );
+});
 
 function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
   const prefersReducedMotion = useReducedMotion();
@@ -171,25 +192,17 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
                   wrapperStyle={TRANSFORM_CONTAINER_STYLE}
                   contentStyle={TRANSFORM_CONTAINER_STYLE}
                 >
-                  <ZoomClickArea wasPanningRef={wasPanningRef}>
-                    <ZoomableImage src={item.image} alt={item.title} />
-                  </ZoomClickArea>
+                  <ZoomableImage
+                    src={item.image}
+                    alt={item.title}
+                    wasPanningRef={wasPanningRef}
+                  />
                 </TransformComponent>
               </TransformWrapper>
             </div>
 
             {/* Bottom text info overlay */}
-            <div className="pointer-events-none absolute right-0 bottom-0 left-0 z-20 bg-gradient-to-t from-black/95 via-black/40 to-transparent p-5">
-              <Dialog.Title
-                id="lightbox-title"
-                className="mb-1 text-sm font-semibold text-balance text-white"
-              >
-                {item.title}
-              </Dialog.Title>
-              <p className="text-xs text-pretty text-white/80">
-                {item.description}
-              </p>
-            </div>
+            <LightboxFooter title={item.title} description={item.description} />
           </Dialog.Popup>
         </div>
       </Dialog.Portal>
