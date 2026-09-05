@@ -205,6 +205,15 @@ p {
     -webkit-backdrop-filter 250ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
+/* Reduce backdrop filter blur cost while actively scrolling on mobile */
+@media (max-width: 767px) {
+  .navbar-capsule[data-scrolling="true"] {
+    --tw-backdrop-blur: blur(3px) !important;
+    -webkit-backdrop-filter: blur(3px) saturate(150%) !important;
+    backdrop-filter: blur(3px) saturate(150%) !important;
+  }
+}
+
 /* CV modal scrollbar */
 .custom-cv-scrollbar {
   scrollbar-width: thin;

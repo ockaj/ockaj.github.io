@@ -6,10 +6,9 @@ import {
   memo,
   type RefObject,
 } from "react";
-import { useReducedMotion } from "motion/react";
 import { ErrorBoundary } from "./ErrorBoundary";
 import AuroraFallback from "./AuroraFallback";
-import { useIsMobile } from "../hooks/useMediaQuery";
+import { useIsMobile, useMediaQuery } from "../hooks/useMediaQuery";
 import { useResizeObserver } from "../hooks/useResizeObserver";
 import {
   Renderer,
@@ -131,7 +130,9 @@ function useAuroraCanvas(
   container: RefObject<HTMLDivElement | null>,
 ) {
   const isMobile = useIsMobile();
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = useMediaQuery(
+    "(prefers-reduced-motion: reduce)",
+  );
   const propsRef = useRef<AuroraProps>(props);
   const prefersReducedMotionRef = useRef(prefersReducedMotion);
   const isMobileRef = useRef(isMobile);

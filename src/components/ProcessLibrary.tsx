@@ -307,13 +307,15 @@ function ProcessLibrary() {
           </motion.div>
 
           {/* Mobile Column: Embla Carousel */}
-          <ProcessMobileCarousel
-            emblaRef={emblaRef}
-            viewModes={viewModes}
-            handleTopicViewModeChange={handleTopicViewModeChange}
-            setLightboxItem={setLightboxItem}
-            prefersReducedMotion={prefersReducedMotion}
-          />
+          {isMobile ? (
+            <ProcessMobileCarousel
+              emblaRef={emblaRef}
+              viewModes={viewModes}
+              handleTopicViewModeChange={handleTopicViewModeChange}
+              setLightboxItem={setLightboxItem}
+              prefersReducedMotion={prefersReducedMotion}
+            />
+          ) : null}
 
           {/* Desktop Right Column: Display Stage */}
           <ProcessDesktopCard

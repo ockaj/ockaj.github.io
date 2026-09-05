@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useLayoutEffect,
-  useCallback,
-  useReducer,
-  useRef,
-} from "react";
+import { useEffect, useCallback, useReducer, useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Menu, X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
@@ -94,14 +88,6 @@ export default function Navbar() {
     "nav",
   );
 
-  useLayoutEffect(() => {
-    if (!isMobile || !capsuleRef.current) return;
-    if (isScrollingRef.current) {
-      capsuleRef.current.classList.add("backdrop-blur-[3px]");
-      capsuleRef.current.classList.remove("backdrop-blur-md");
-    }
-  });
-
   useEffect(() => {
     if (!isMobile) return;
     const capsule = capsuleRef.current;
@@ -109,18 +95,12 @@ export default function Navbar() {
     const handleScroll = () => {
       if (!isScrollingRef.current) {
         isScrollingRef.current = true;
-        if (capsule) {
-          capsule.classList.add("backdrop-blur-[3px]");
-          capsule.classList.remove("backdrop-blur-md");
-        }
+        capsule?.setAttribute("data-scrolling", "true");
       }
       clearTimeout(t);
       t = window.setTimeout(() => {
         isScrollingRef.current = false;
-        if (capsule) {
-          capsule.classList.remove("backdrop-blur-[3px]");
-          capsule.classList.add("backdrop-blur-md");
-        }
+        capsule?.removeAttribute("data-scrolling");
       }, 120);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -128,10 +108,7 @@ export default function Navbar() {
       window.removeEventListener("scroll", handleScroll);
       clearTimeout(t);
       isScrollingRef.current = false;
-      if (capsule) {
-        capsule.classList.remove("backdrop-blur-[3px]");
-        capsule.classList.add("backdrop-blur-md");
-      }
+      capsule?.removeAttribute("data-scrolling");
     };
   }, [isMobile]);
 
@@ -171,7 +148,7 @@ export default function Navbar() {
         <div
           ref={capsuleRef}
           className={cn(
-            "bg-surface/40 navbar-capsule pointer-events-auto relative isolate z-50 flex w-full max-w-[85vw] [transform:translateZ(0)] items-center justify-between gap-1 overflow-hidden rounded-full border border-white/10 p-[7px] backdrop-blur-md backdrop-saturate-[150%] md:w-auto md:max-w-[95vw] md:justify-start md:gap-1.5",
+            "bg-surface/40 navbar-capsule pointer-events-auto relative isolate z-50 flex w-full max-w-[85vw] [transform:translateZ(0)] items-center justify-between gap-1 overflow-hidden rounded-full border border-white/10 p-[7px] backdrop-blur-md backdrop-saturate-[150%] max-md:data-[scrolling=true]:backdrop-blur-[3px] md:w-auto md:max-w-[95vw] md:justify-start md:gap-1.5",
             scrolled && "bg-surface/60 border-white/20",
           )}
         >

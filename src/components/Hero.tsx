@@ -219,18 +219,19 @@ const arrowVariants: Variants = {
 };
 
 interface HeroScrollIndicatorProps {
-  scrollOpacity: ReturnType<typeof useTransform<number, number>>;
-  scrollYOffset: ReturnType<typeof useTransform<number, number>>;
   prefersReducedMotion: boolean | null;
   isMobile: boolean;
 }
 
-function HeroScrollIndicator({
-  scrollOpacity,
-  scrollYOffset,
+function HeroScrollIndicatorDesktop({
   prefersReducedMotion,
-  isMobile,
-}: Readonly<HeroScrollIndicatorProps>) {
+}: {
+  readonly prefersReducedMotion: boolean | null;
+}) {
+  const { scrollY } = useScroll();
+  const scrollOpacity = useTransform(scrollY, [0, 150], [1, 0]);
+  const scrollYOffset = useTransform(scrollY, [0, 150], [0, 15]);
+
   return (
     <motion.a
       href="#work"
@@ -240,7 +241,7 @@ function HeroScrollIndicator({
       variants={scrollIndicatorVariants}
       initial="initial"
       animate={prefersReducedMotion ? undefined : "animate"}
-      whileHover={prefersReducedMotion || isMobile ? undefined : "hover"}
+      whileHover={prefersReducedMotion ? undefined : "hover"}
       transition={SPRING.hero}
       onClick={(e) => {
         e.preventDefault();
@@ -294,13 +295,19 @@ function HeroScrollIndicator({
   );
 }
 
+function HeroScrollIndicator({
+  prefersReducedMotion,
+  isMobile,
+}: Readonly<HeroScrollIndicatorProps>) {
+  if (isMobile) return null;
+  return (
+    <HeroScrollIndicatorDesktop prefersReducedMotion={prefersReducedMotion} />
+  );
+}
+
 function Hero() {
-  const { scrollY } = useScroll();
   const prefersReducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
-
-  const scrollOpacity = useTransform(scrollY, [0, 150], [1, 0]);
-  const scrollYOffset = useTransform(scrollY, [0, 150], [0, 15]);
 
   const handleViewCv = useCallback(() => {
     useAppStore.getState().setCvOpen(true);
@@ -414,8 +421,6 @@ function Hero() {
       </motion.div>
 
       <HeroScrollIndicator
-        scrollOpacity={scrollOpacity}
-        scrollYOffset={scrollYOffset}
         prefersReducedMotion={prefersReducedMotion}
         isMobile={isMobile}
       />

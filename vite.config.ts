@@ -52,8 +52,8 @@ export default defineConfig(({ mode }) => ({
         codeSplitting: {
           groups: [
             {
-              name: "vendor-aurora",
-              test: /Aurora\.tsx/,
+              name: "vendor-ogl",
+              test: /node_modules[\\/]ogl/,
             },
             {
               name: "vendor-motion",
