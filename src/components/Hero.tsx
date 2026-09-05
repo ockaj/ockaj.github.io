@@ -104,8 +104,8 @@ const containerVariants = {
 
 const nameVariants = {
   hidden: (prefersReducedMotion: boolean) => ({
-    opacity: 1,
-    y: prefersReducedMotion ? 0 : 40,
+    opacity: 0,
+    y: prefersReducedMotion ? 0 : 28,
   }),
   visible: {
     opacity: 1,
@@ -118,12 +118,10 @@ const itemVariants = {
   hidden: (prefersReducedMotion: boolean) => ({
     opacity: 0,
     y: prefersReducedMotion ? 0 : 20,
-    filter: prefersReducedMotion ? "blur(0px)" : "blur(10px)",
   }),
   visible: {
     opacity: 1,
     y: 0,
-    filter: "blur(0px)",
     transition: SPRING.hero,
   },
 };

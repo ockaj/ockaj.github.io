@@ -50,23 +50,21 @@ function navbarReducer(state: NavbarState, action: NavbarAction): NavbarState {
 
 function getCloseIconAnim(isOpen: boolean, isMotionReduced: boolean) {
   if (isMotionReduced) {
-    return { opacity: isOpen ? 1 : 0, scale: 1, filter: "none" };
+    return { opacity: isOpen ? 1 : 0, scale: 1 };
   }
   return {
     opacity: isOpen ? 1 : 0,
     scale: isOpen ? 1 : 0.25,
-    filter: isOpen ? "blur(0px)" : "blur(4px)",
   };
 }
 
 function getMenuIconAnim(isOpen: boolean, isMotionReduced: boolean) {
   if (isMotionReduced) {
-    return { opacity: isOpen ? 0 : 1, scale: 1, filter: "none" };
+    return { opacity: isOpen ? 0 : 1, scale: 1 };
   }
   return {
     opacity: isOpen ? 0 : 1,
     scale: isOpen ? 0.25 : 1,
-    filter: isOpen ? "blur(4px)" : "blur(0px)",
   };
 }
 
