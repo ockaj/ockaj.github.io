@@ -1,32 +1,15 @@
 import { lazy } from "react";
-import { makePreloadable } from "./utils/preloadable";
 
-export const loadCaseStudies = makePreloadable(
+export const CaseStudies = lazy(
   () => import("./components/CaseStudies/CaseStudies.tsx"),
 );
-export const loadSkills = makePreloadable(
-  () => import("./components/Skills.tsx"),
-);
-export const loadProcessLibrary = makePreloadable(
+export const Skills = lazy(() => import("./components/Skills.tsx"));
+export const ProcessLibrary = lazy(
   () => import("./components/ProcessLibrary.tsx"),
 );
-export const loadJournal = makePreloadable(
-  () => import("./components/Journal/Journal.tsx"),
-);
-export const loadFaq = makePreloadable(
-  () => import("./components/Faq/Faq.tsx"),
-);
-export const loadPdfViewerModal = makePreloadable(
-  () => import("./components/PdfViewerModal.tsx"),
-);
-export const loadBpmnOverlay = makePreloadable(
-  () => import("./components/BpmnOverlay.tsx"),
-);
-
-export const CaseStudies = lazy(loadCaseStudies.load);
-export const Skills = lazy(loadSkills.load);
-export const ProcessLibrary = lazy(loadProcessLibrary.load);
-export const Journal = lazy(loadJournal.load);
-export const Faq = lazy(loadFaq.load);
-export const PdfViewerModal = lazy(loadPdfViewerModal.load);
-export const BpmnOverlay = lazy(loadBpmnOverlay.load);
+export const Journal = lazy(() => import("./components/Journal/Journal.tsx"));
+export const Faq = lazy(() => import("./components/Faq/Faq.tsx"));
+export const loadPdfViewerModal = () =>
+  import("./components/PdfViewerModal.tsx");
+export const PdfViewerModal = lazy(loadPdfViewerModal);
+export const BpmnOverlay = lazy(() => import("./components/BpmnOverlay.tsx"));

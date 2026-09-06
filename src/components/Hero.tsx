@@ -26,8 +26,9 @@ const SPECIALIZATIONS = [
   "Enterprise Consultant",
 ];
 const preloadPdfModal = () => {
+  useAppStore.getState().mountCv();
   prefetchAsset("/cv/Ondrej_Michal_Ockaj_CV.pdf");
-  return loadPdfViewerModal.load();
+  return loadPdfViewerModal();
 };
 
 const SLOT_TEXT_OPTIONS = {
@@ -387,6 +388,7 @@ function Hero() {
           <span
             onMouseEnter={preloadPdfModal}
             onFocusCapture={preloadPdfModal}
+            onTouchStart={preloadPdfModal}
             className="inline-flex"
           >
             <LiquidGlassButton

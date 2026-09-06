@@ -19,6 +19,7 @@ import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import ProcessLightbox from "./ProcessLightbox/ProcessLightbox";
 import useEmblaCarousel from "embla-carousel-react";
 import { prefetchAsset } from "../utils/quicklink";
+import { requestIdle, cancelIdle } from "../utils/idleCallback";
 import { cn } from "../utils/cn";
 import { SPRING } from "../utils/springConfig";
 import { useMediaQuery } from "../hooks/useMediaQuery";
@@ -137,36 +138,17 @@ function ProcessLibrary() {
   const activeViewMode = viewModes[activeTopic.id] || "asis";
 
   useEffect(() => {
-    let idleId: number | null = null;
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-
-    if (
-      typeof window !== "undefined" &&
-      typeof window.requestIdleCallback === "function"
-    ) {
-      idleId = window.requestIdleCallback(
-        () => {
-          PROCESS_ITEMS.forEach((item) => {
-            prefetchAsset(item.image);
-          });
-        },
-        { timeout: 2000 },
-      );
-    } else if (typeof window !== "undefined") {
-      timeoutId = setTimeout(() => {
+    const handle = requestIdle(
+      () => {
         PROCESS_ITEMS.forEach((item) => {
           prefetchAsset(item.image);
         });
-      }, 300);
-    }
+      },
+      { timeout: 2000 },
+    );
 
     return () => {
-      if (idleId !== null && typeof window.cancelIdleCallback === "function") {
-        window.cancelIdleCallback(idleId);
-      }
-      if (timeoutId !== null) {
-        clearTimeout(timeoutId);
-      }
+      cancelIdle(handle);
     };
   }, []);
 

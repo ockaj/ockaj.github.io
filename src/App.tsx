@@ -11,7 +11,6 @@ import Aurora from "./components/Aurora";
 import ContactSection from "./components/ContactSection";
 
 import { useIsMobile } from "./hooks/useMediaQuery";
-import { usePreloadComponents } from "./hooks/usePreloadComponents";
 import { useNavigation } from "./hooks/useAppNavigation";
 import { useAppStore } from "./store/useAppStore";
 import {
@@ -58,11 +57,9 @@ function DesktopBpmnOverlay() {
 
 function App() {
   const isLoading = useAppStore((state) => state.isLoading);
+  const hasCvMounted = useAppStore((state) => state.hasCvMounted);
 
   useNavigation();
-
-  // Preload lazy components concurrently with main-thread yielding to protect INP
-  usePreloadComponents(isLoading);
 
   const handleLoadingComplete = useCallback(() => {
     useAppStore.getState().completeLoading();
@@ -169,9 +166,11 @@ function App() {
 
           <ContactSection />
 
-          <Suspense fallback={null}>
-            <PdfViewerModal />
-          </Suspense>
+          {hasCvMounted ? (
+            <Suspense fallback={null}>
+              <PdfViewerModal />
+            </Suspense>
+          ) : null}
 
           {!isLoading ? <DesktopBpmnOverlay /> : null}
         </main>

@@ -23,6 +23,7 @@ import { SPRING } from "../utils/springConfig";
 import { useIsMobile } from "../hooks/useMediaQuery";
 import { useOverlay } from "../hooks/useAppNavigation";
 import { prefetchAsset } from "../utils/quicklink";
+import { requestIdle, cancelIdle } from "../utils/idleCallback";
 import { cn } from "../utils/cn";
 import { createModalVariants } from "../utils/motionVariants";
 import { CV_DATA } from "../data/cvData";
@@ -295,9 +296,30 @@ const PdfDocumentPanel = memo(function PdfDocumentPanel({
   isActive,
 }: PdfDocumentPanelProps) {
   const [pdfLoading, setPdfLoading] = useState(true);
+  const [hasDeferredMount, setHasDeferredMount] = useState(false);
+  const shouldMountPdf = hasDeferredMount || isActive;
+
   const handlePdfLoaded = useCallback(() => {
     setPdfLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (shouldMountPdf) return;
+
+    let idleId: number | null = null;
+    const timerId = window.setTimeout(() => {
+      idleId = requestIdle(() => {
+        setHasDeferredMount(true);
+      });
+    }, 350);
+
+    return () => {
+      window.clearTimeout(timerId);
+      if (idleId !== null) {
+        cancelIdle(idleId);
+      }
+    };
+  }, [shouldMountPdf]);
 
   return (
     <div
@@ -314,26 +336,28 @@ const PdfDocumentPanel = memo(function PdfDocumentPanel({
           <p className="text-muted text-xs">Loading PDF Document…</p>
         </div>
       ) : null}
-      <object
-        data="/cv/Ondrej_Michal_Ockaj_CV.pdf#toolbar=0&navpanes=0&scrollbar=1"
-        type="application/pdf"
-        className="relative z-10 h-full w-full border-0"
-        title="Ondrej Michal Ockaj CV"
-        onLoad={handlePdfLoaded}
-      >
-        <div className="bg-bg/85 absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 p-4 text-center">
-          <p className="text-muted text-sm">
-            Your browser does not support PDF viewing in-page.
-          </p>
-          <a
-            href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
-            download
-            className="bg-accent text-bg hover:bg-accent-hover rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-200"
-          >
-            Download CV PDF
-          </a>
-        </div>
-      </object>
+      {shouldMountPdf ? (
+        <object
+          data="/cv/Ondrej_Michal_Ockaj_CV.pdf#toolbar=0&navpanes=0&scrollbar=1"
+          type="application/pdf"
+          className="relative z-10 h-full w-full border-0"
+          title="Ondrej Michal Ockaj CV"
+          onLoad={handlePdfLoaded}
+        >
+          <div className="bg-bg/85 absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 p-4 text-center">
+            <p className="text-muted text-sm">
+              Your browser does not support PDF viewing in-page.
+            </p>
+            <a
+              href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
+              download
+              className="bg-accent text-bg hover:bg-accent-hover rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-200"
+            >
+              Download CV PDF
+            </a>
+          </div>
+        </object>
+      ) : null}
     </div>
   );
 });

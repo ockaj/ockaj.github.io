@@ -14,10 +14,12 @@ export const LABEL_MAP: Record<string, string> = {
 export interface AppState {
   isLoading: boolean;
   isCvOpen: boolean;
+  hasCvMounted: boolean;
   isBpmnOpen: boolean;
   cvLang: "en" | "sk";
   activeSection: string;
   completeLoading: () => void;
+  mountCv: () => void;
   setCvOpen: (isOpen: boolean) => void;
   setBpmnOpen: (isOpen: boolean) => void;
   setCvLang: (lang: "en" | "sk") => void;
@@ -56,6 +58,7 @@ const getInitialActiveSection = (): string => {
 export const useAppStore = create<AppState>((set) => ({
   isLoading: getInitialLoading(),
   isCvOpen: false,
+  hasCvMounted: typeof window !== "undefined" && window.location.hash === "#cv",
   isBpmnOpen: false,
   activeSection: getInitialActiveSection(),
   cvLang: "en",
@@ -67,7 +70,13 @@ export const useAppStore = create<AppState>((set) => ({
     }
     set({ isLoading: false });
   },
-  setCvOpen: (isOpen: boolean) => set({ isCvOpen: isOpen }),
+  mountCv: () =>
+    set((state) => (state.hasCvMounted ? state : { hasCvMounted: true })),
+  setCvOpen: (isOpen: boolean) =>
+    set((state) => ({
+      isCvOpen: isOpen,
+      hasCvMounted: isOpen || state.hasCvMounted,
+    })),
   setBpmnOpen: (isOpen: boolean) => set({ isBpmnOpen: isOpen }),
   setCvLang: (lang: "en" | "sk") =>
     set((state) => (state.cvLang === lang ? state : { cvLang: lang })),

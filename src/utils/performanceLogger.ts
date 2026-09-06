@@ -20,6 +20,7 @@ import {
   type FCPMetricWithAttribution,
   type TTFBMetricWithAttribution,
 } from "web-vitals/attribution";
+import { requestIdle } from "./idleCallback";
 
 interface ScriptLogItem {
   invoker: string;
@@ -366,12 +367,7 @@ export function initPerformanceLogging(): void {
   isInitialized = true;
 
   // Defer initialization to idle time to avoid interfering with initial hydration
-  const scheduleInit =
-    typeof window.requestIdleCallback === "function"
-      ? window.requestIdleCallback
-      : (cb: () => void) => setTimeout(cb, 100);
-
-  scheduleInit(() => {
+  requestIdle(() => {
     // 1. Subscribe to Core Web Vitals with attribution
     onINP(logWebVital, {
       reportAllChanges: true,
