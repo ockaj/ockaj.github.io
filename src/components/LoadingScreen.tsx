@@ -79,6 +79,35 @@ function checkNodeThresholds(
   return { nodesUpdated, updatedNodes };
 }
 
+interface StepSnapshot {
+  idx: number;
+  completed: boolean[];
+}
+
+function checkStepThresholds(
+  current: number,
+  prev: StepSnapshot,
+): { stepsDirty: boolean; stepIdx: number; completed: boolean[] } {
+  const stepIdx = BPMN_STEPS.findIndex(
+    (s) => current >= s.threshold && current < s.completedThreshold,
+  );
+  let stepsDirty = stepIdx !== prev.idx;
+  if (!stepsDirty) {
+    for (let i = 0; i < BPMN_STEPS.length; i++) {
+      if (current >= BPMN_STEPS[i].completedThreshold !== prev.completed[i]) {
+        stepsDirty = true;
+        break;
+      }
+    }
+  }
+
+  const completed = stepsDirty
+    ? BPMN_STEPS.map((s) => current >= s.completedThreshold)
+    : prev.completed;
+
+  return { stepsDirty, stepIdx, completed };
+}
+
 function StaticLoadingBackground() {
   return (
     <>
@@ -168,6 +197,7 @@ export default function LoadingScreen({
     }
 
     const DURATION = 1800;
+    startTimeRef.current = null;
 
     const nodeRefs = {
       start: nodeStartRef,
@@ -193,27 +223,11 @@ export default function LoadingScreen({
         nodeRefs,
       );
 
-      const stepIdx = BPMN_STEPS.findIndex(
-        (s) => current >= s.threshold && current < s.completedThreshold,
+      const { stepsDirty, stepIdx, completed } = checkStepThresholds(
+        current,
+        lastStepSnapshotRef.current,
       );
-      const prev = lastStepSnapshotRef.current;
-      let stepsDirty = false;
-      if (stepIdx !== prev.idx) stepsDirty = true;
-      if (!stepsDirty) {
-        for (let i = 0; i < BPMN_STEPS.length; i++) {
-          if (
-            current >= BPMN_STEPS[i].completedThreshold !==
-            prev.completed[i]
-          ) {
-            stepsDirty = true;
-            break;
-          }
-        }
-      }
-
-      let completed: boolean[] = [];
       if (stepsDirty) {
-        completed = BPMN_STEPS.map((s) => current >= s.completedThreshold);
         lastStepSnapshotRef.current = { idx: stepIdx, completed };
       }
 
@@ -252,35 +266,9 @@ export default function LoadingScreen({
     };
   }, [onComplete, prefersReducedMotion, count]);
 
-  // Derived motion values — update without React re-renders
-  const path1 = useTransform(count, [10, 25], [0, 1]);
-  const path2 = useTransform(count, [35, 50], [0, 1]);
-  const path3a = useTransform(count, [60, 75], [0, 1]);
-  const path3b = useTransform(count, [60, 75], [0, 1]);
-  const path4a = useTransform(count, [80, 90], [0, 1]);
-  const path4b = useTransform(count, [80, 90], [0, 1]);
-  const path5 = useTransform(count, [90, 95], [0, 1]);
-
-  const path1Visible = useTransform<number, number>(count, (v) =>
-    v >= 10 ? 1 : 0,
-  );
-  const path2Visible = useTransform<number, number>(count, (v) =>
-    v >= 35 ? 1 : 0,
-  );
-  const path3Visible = useTransform<number, number>(count, (v) =>
-    v >= 60 ? 1 : 0,
-  );
-  const path4Visible = useTransform<number, number>(count, (v) =>
-    v >= 80 ? 1 : 0,
-  );
-  const path5Visible = useTransform<number, number>(count, (v) =>
-    v >= 90 ? 1 : 0,
-  );
-
   const displayText = useTransform(count, (v) =>
     String(Math.floor(v)).padStart(3, "0"),
   );
-  const progressScale = useTransform(count, [0, 100], [0, 1]);
 
   return (
     <motion.output
@@ -317,23 +305,7 @@ export default function LoadingScreen({
 
       {/* Center: BPMN Diagram Area */}
       <div className="relative z-10 flex w-full flex-1 items-center justify-center py-6">
-        {!isMobile ? (
-          <LoadingBpmnDiagram
-            nodes={nodes}
-            path1={path1}
-            path2={path2}
-            path3a={path3a}
-            path3b={path3b}
-            path4a={path4a}
-            path4b={path4b}
-            path5={path5}
-            path1Visible={path1Visible}
-            path2Visible={path2Visible}
-            path3Visible={path3Visible}
-            path4Visible={path4Visible}
-            path5Visible={path5Visible}
-          />
-        ) : null}
+        {!isMobile ? <LoadingBpmnDiagram nodes={nodes} count={count} /> : null}
         {isMobile ? <div className="flex-1" /> : null}
       </div>
 
@@ -358,13 +330,7 @@ export default function LoadingScreen({
 
           {/* Micro progress line */}
           <div className="bg-stroke/60 relative h-[2px] w-full max-w-xs overflow-hidden rounded-full">
-            <motion.div
-              className="absolute top-0 left-0 h-full origin-left bg-gradient-to-r from-[hsl(var(--accent))]/70 to-[hsl(var(--accent))]"
-              style={{
-                scaleX: progressScale,
-                width: "100%",
-              }}
-            />
+            <div className="loading-progress-line absolute top-0 left-0 h-full w-full bg-gradient-to-r from-[hsl(var(--accent))]/70 to-[hsl(var(--accent))]" />
           </div>
         </div>
       </div>

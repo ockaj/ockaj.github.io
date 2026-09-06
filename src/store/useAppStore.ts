@@ -28,8 +28,14 @@ const getInitialLoading = (): boolean => {
   if (isBoneyardBuild()) {
     return false;
   }
+  if (
+    typeof window !== "undefined" &&
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+  ) {
+    return false;
+  }
   try {
-    return !sessionStorage.getItem("portfolio_loaded");
+    return !localStorage.getItem("portfolio_loaded");
   } catch {
     return true;
   }
@@ -55,7 +61,7 @@ export const useAppStore = create<AppState>((set) => ({
   cvLang: "en",
   completeLoading: () => {
     try {
-      sessionStorage.setItem("portfolio_loaded", "true");
+      localStorage.setItem("portfolio_loaded", "true");
     } catch {
       // Ignore errors (e.g. private browsing restrictions)
     }

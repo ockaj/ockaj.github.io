@@ -1,4 +1,4 @@
-import { motion, type MotionValue } from "motion/react";
+import { motion, useTransform, type MotionValue } from "motion/react";
 
 const nodeOpacityAnimate = (active: boolean) => ({ opacity: active ? 1 : 0 });
 const nodeOpacityTransition = { duration: 0.4 };
@@ -165,52 +165,54 @@ function StaticBpmnNodeBases() {
 
 interface LoadingBpmnDiagramProps {
   nodes: {
-    start: boolean;
-    task1: boolean;
-    gateway: boolean;
-    task2: boolean;
-    task3: boolean;
-    mergeGateway: boolean;
-    end: boolean;
+    start?: boolean;
+    task1?: boolean;
+    gateway?: boolean;
+    task2?: boolean;
+    task3?: boolean;
+    mergeGateway?: boolean;
+    end?: boolean;
   };
-  path1: MotionValue<number>;
-  path2: MotionValue<number>;
-  path3a: MotionValue<number>;
-  path3b: MotionValue<number>;
-  path4a: MotionValue<number>;
-  path4b: MotionValue<number>;
-  path5: MotionValue<number>;
-  path1Visible: MotionValue<number>;
-  path2Visible: MotionValue<number>;
-  path3Visible: MotionValue<number>;
-  path4Visible: MotionValue<number>;
-  path5Visible: MotionValue<number>;
+  count: MotionValue<number>;
 }
 
 export default function LoadingBpmnDiagram({
   nodes,
-  path1,
-  path2,
-  path3a,
-  path3b,
-  path4a,
-  path4b,
-  path5,
-  path1Visible,
-  path2Visible,
-  path3Visible,
-  path4Visible,
-  path5Visible,
+  count,
 }: Readonly<LoadingBpmnDiagramProps>) {
   const {
-    start: nodeStart,
-    task1: nodeTask1,
-    gateway: nodeGateway,
-    task2: nodeTask2,
-    task3: nodeTask3,
-    mergeGateway: nodeMergeGateway,
-    end: nodeEnd,
+    start: nodeStart = false,
+    task1: nodeTask1 = false,
+    gateway: nodeGateway = false,
+    task2: nodeTask2 = false,
+    task3: nodeTask3 = false,
+    mergeGateway: nodeMergeGateway = false,
+    end: nodeEnd = false,
   } = nodes;
+
+  const path1 = useTransform(count, [10, 25], [0, 1]);
+  const path2 = useTransform(count, [35, 50], [0, 1]);
+  const path3a = useTransform(count, [60, 75], [0, 1]);
+  const path3b = useTransform(count, [60, 75], [0, 1]);
+  const path4a = useTransform(count, [80, 90], [0, 1]);
+  const path4b = useTransform(count, [80, 90], [0, 1]);
+  const path5 = useTransform(count, [90, 95], [0, 1]);
+
+  const path1Visible = useTransform<number, number>(count, (v) =>
+    v >= 10 ? 1 : 0,
+  );
+  const path2Visible = useTransform<number, number>(count, (v) =>
+    v >= 35 ? 1 : 0,
+  );
+  const path3Visible = useTransform<number, number>(count, (v) =>
+    v >= 60 ? 1 : 0,
+  );
+  const path4Visible = useTransform<number, number>(count, (v) =>
+    v >= 80 ? 1 : 0,
+  );
+  const path5Visible = useTransform<number, number>(count, (v) =>
+    v >= 90 ? 1 : 0,
+  );
 
   return (
     <div className="notranslate w-full max-w-4xl px-4" translate="no">
