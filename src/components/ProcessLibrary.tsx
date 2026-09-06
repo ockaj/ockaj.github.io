@@ -43,6 +43,11 @@ const PROCESS_TOPIC_MAP = new Map(
 const PROCESS_TOPIC_INDEX_MAP = new Map(
   PROCESS_TOPICS.map((topic, index) => [topic.id, index]),
 );
+const INITIAL_TOPIC_IMAGES = new Set(
+  PROCESS_TOPICS[0]
+    ? [PROCESS_TOPICS[0].asis.image, PROCESS_TOPICS[0].tobe.image]
+    : [],
+);
 
 interface CustomAnimationProps {
   prefersReducedMotion?: boolean;
@@ -141,11 +146,10 @@ function ProcessLibrary() {
   useEffect(() => {
     if (isConnectionConstrained()) return;
 
-    const initialImage = PROCESS_TOPICS[0]?.asis.image;
     const handle = requestIdle(
       () => {
         PROCESS_ITEMS.forEach((item) => {
-          if (item.image !== initialImage) {
+          if (!INITIAL_TOPIC_IMAGES.has(item.image)) {
             prefetchAsset(item.image);
           }
         });
