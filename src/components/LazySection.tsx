@@ -20,6 +20,7 @@ import {
   SECTION_VIEWPORT,
   SECTION_TRANSITION,
 } from "../utils/motionVariants";
+import { getConnectionRootMargin } from "../utils/connection";
 
 interface LazySectionProps {
   id: string;
@@ -33,27 +34,6 @@ interface LazySectionProps {
 const DEFAULT_SNAPSHOT_CONFIG: SnapshotConfig = {
   excludeSelectors: ["[data-no-skeleton]"],
 };
-
-interface NetworkInfoLike {
-  saveData?: boolean;
-  effectiveType?: string;
-}
-
-function isConnectionConstrained(): boolean {
-  if (typeof navigator === "undefined") return false;
-  const nav = navigator as Navigator & { connection?: NetworkInfoLike };
-  const conn = nav.connection;
-  if (!conn) return false;
-  return Boolean(
-    conn.saveData ||
-    conn.effectiveType === "slow-2g" ||
-    conn.effectiveType === "2g",
-  );
-}
-
-function getIntersectionRootMargin(): string {
-  return isConnectionConstrained() ? "0px" : "1200px 0px";
-}
 
 function isInitialTarget(id: string): boolean {
   if (isBoneyardBuild()) return true;
@@ -89,7 +69,7 @@ function LazySection({
     if (!el) return;
 
     let idleId: number | null = null;
-    const rootMargin = getIntersectionRootMargin();
+    const rootMargin = getConnectionRootMargin();
 
     const observer = new IntersectionObserver(
       (entries) => {

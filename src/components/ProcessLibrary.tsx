@@ -20,6 +20,7 @@ import ProcessLightbox from "./ProcessLightbox/ProcessLightbox";
 import useEmblaCarousel from "embla-carousel-react";
 import { prefetchAsset } from "../utils/quicklink";
 import { requestIdle, cancelIdle } from "../utils/idleCallback";
+import { isConnectionConstrained } from "../utils/connection";
 import { cn } from "../utils/cn";
 import { SPRING } from "../utils/springConfig";
 import { useMediaQuery } from "../hooks/useMediaQuery";
@@ -138,10 +139,15 @@ function ProcessLibrary() {
   const activeViewMode = viewModes[activeTopic.id] || "asis";
 
   useEffect(() => {
+    if (isConnectionConstrained()) return;
+
+    const initialImage = PROCESS_TOPICS[0]?.asis.image;
     const handle = requestIdle(
       () => {
         PROCESS_ITEMS.forEach((item) => {
-          prefetchAsset(item.image);
+          if (item.image !== initialImage) {
+            prefetchAsset(item.image);
+          }
         });
       },
       { timeout: 2000 },

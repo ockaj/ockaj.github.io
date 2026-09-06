@@ -15,7 +15,7 @@ import { useIsMobile } from "../hooks/useMediaQuery";
 import { useAppStore } from "../store/useAppStore";
 import { navigateTo } from "../hooks/useAppNavigation";
 
-import { prefetchAsset } from "../utils/quicklink";
+import { requestIdle, cancelIdle } from "../utils/idleCallback";
 import { loadPdfViewerModal } from "../lazyComponents";
 import { SPRING } from "../utils/springConfig";
 
@@ -25,11 +25,6 @@ const SPECIALIZATIONS = [
   "Solution Designer",
   "Enterprise Consultant",
 ];
-const preloadPdfModal = () => {
-  useAppStore.getState().mountCv();
-  prefetchAsset("/cv/Ondrej_Michal_Ockaj_CV.pdf");
-  return loadPdfViewerModal();
-};
 
 const SLOT_TEXT_OPTIONS = {
   direction: "down" as const,
@@ -310,7 +305,23 @@ function Hero() {
   const prefersReducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
 
+  useEffect(() => {
+    const handle = requestIdle(
+      () => {
+        useAppStore.getState().mountCv();
+        void loadPdfViewerModal();
+      },
+      { timeout: 2000 },
+    );
+
+    return () => {
+      cancelIdle(handle);
+    };
+  }, []);
+
   const handleViewCv = useCallback(() => {
+    useAppStore.getState().mountCv();
+    void loadPdfViewerModal();
     useAppStore.getState().setCvOpen(true);
   }, []);
 
@@ -385,12 +396,7 @@ function Hero() {
           variants={itemVariants}
           className="inline-flex flex-wrap justify-center gap-4 md:justify-start"
         >
-          <span
-            onMouseEnter={preloadPdfModal}
-            onFocusCapture={preloadPdfModal}
-            onTouchStart={preloadPdfModal}
-            className="inline-flex"
-          >
+          <span className="inline-flex">
             <LiquidGlassButton
               onClick={handleViewCv}
               className="px-8 py-4"
