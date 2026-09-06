@@ -76,10 +76,13 @@ function LazySection({
         const entry = entries[0];
         if (entry?.isIntersecting) {
           observer.disconnect();
-          idleId = requestIdle(() => {
-            idleId = null;
-            setHasLoaded(true);
-          });
+          idleId = requestIdle(
+            () => {
+              idleId = null;
+              setHasLoaded(true);
+            },
+            { timeout: 1000 },
+          );
         }
       },
       { rootMargin },
