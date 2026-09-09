@@ -123,7 +123,10 @@ const BaseDrawer = memo(function BaseDrawer({
               dragConstraints={DRAG_CONSTRAINTS}
               dragElastic={DRAG_ELASTIC}
               onDragEnd={(_e, info) => {
-                if (info.offset.x > 100 || info.velocity.x > 300) {
+                const projectedX =
+                  info.offset.x +
+                  (info.velocity.x / 1000) * (0.998 / (1 - 0.998));
+                if (projectedX > 160 || info.velocity.x > 450) {
                   setExitVelocityX(info.velocity.x);
                   onClose();
                 }

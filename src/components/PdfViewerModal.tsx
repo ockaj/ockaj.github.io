@@ -85,10 +85,9 @@ function usePdfModalDialog() {
 function usePdfViewerState(isMobile: boolean) {
   const [state, dispatch] = useReducer(pdfReducer, {
     activeTab: "interactive",
-    isTransitioning: false,
   });
 
-  const { activeTab, isTransitioning } = state;
+  const { activeTab } = state;
 
   const handleTabChange = useCallback(
     (tab: "pdf" | "interactive") => {
@@ -105,19 +104,9 @@ function usePdfViewerState(isMobile: boolean) {
     [isMobile],
   );
 
-  useEffect(() => {
-    if (!isTransitioning) return;
-    const timer = setTimeout(
-      () => dispatch({ type: "SET_IS_TRANSITIONING", transitioning: false }),
-      500,
-    );
-    return () => clearTimeout(timer);
-  }, [isTransitioning]);
-
   return {
     dispatch,
     activeTab,
-    isTransitioning,
     handleTabChange,
   };
 }
@@ -238,23 +227,19 @@ interface PdfModalTabsProps {
   activeTab: "pdf" | "interactive";
   onTabChange: (tab: "pdf" | "interactive") => void;
   isMobile: boolean;
-  isTransitioning: boolean;
 }
 
 const PdfModalTabs = memo(function PdfModalTabs({
   activeTab,
   onTabChange,
   isMobile,
-  isTransitioning,
 }: PdfModalTabsProps) {
   return (
     <Tabs
       value={activeTab}
       onChange={onTabChange}
       layoutId="active-viewer-tab"
-      highlightClassName={
-        isTransitioning ? "navbar-highlight-active" : "navbar-highlight-flat"
-      }
+      highlightClassName="navbar-highlight-flat"
       className="isolate flex [transform:translateZ(0)] items-center gap-0.5 overflow-hidden rounded-full border border-white/5 bg-white/[0.03] p-2"
     >
       <Tab
@@ -377,7 +362,6 @@ const InteractiveCvContent = memo(function InteractiveCvContent() {
 
 interface PdfModalPopupContentProps {
   activeTab: "pdf" | "interactive";
-  isTransitioning: boolean;
   onTabChange: (tab: "pdf" | "interactive") => void;
   onClose: () => void;
   isMobile: boolean;
@@ -387,7 +371,6 @@ interface PdfModalPopupContentProps {
 
 const PdfModalPopupContent = memo(function PdfModalPopupContent({
   activeTab,
-  isTransitioning,
   onTabChange,
   onClose,
   isMobile,
@@ -430,7 +413,6 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
               activeTab={activeTab}
               onTabChange={onTabChange}
               isMobile={isMobile}
-              isTransitioning={isTransitioning}
             />
 
             {/* Desktop Action Buttons */}
@@ -453,7 +435,6 @@ function PdfViewerModal() {
     handleClose,
     isMobile,
     activeTab,
-    isTransitioning,
     handleTabChange,
     handleOpenChange,
   } = usePdfViewerModalController();
@@ -495,7 +476,6 @@ function PdfViewerModal() {
               onTabChange={handleTabChange}
               onClose={handleClose}
               isMobile={isMobile}
-              isTransitioning={isTransitioning}
               prefersReducedMotion={!!prefersReducedMotion}
             >
               {modalBody}

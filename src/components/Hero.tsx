@@ -37,7 +37,7 @@ const SLOT_TEXT_OPTIONS = {
 
 const REDUCED_MOTION_SLOT_TEXT_OPTIONS = {
   ...SLOT_TEXT_OPTIONS,
-  duration: 0,
+  duration: 200,
 };
 
 interface RotatingSpecializationProps {
@@ -351,7 +351,7 @@ function Hero() {
         {/* Name */}
         <motion.h1
           variants={nameVariants}
-          className="font-display text-text-primary mb-6 pb-2 text-[clamp(3.5rem,8vw,6.0rem)] leading-[1.1] text-balance italic"
+          className="font-display text-text-primary mb-6 pb-2 text-[clamp(3.5rem,8vw,6.0rem)] leading-[1.1] tracking-[-0.025em] text-balance italic"
         >
           Ondrej Michal Očkaj
         </motion.h1>
