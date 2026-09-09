@@ -43,7 +43,7 @@ const BACKDROP_ANIMATION = (
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0, transition: SPRING.exit }}
-    className="bg-bg/80 pointer-events-auto fixed inset-0 backdrop-blur-md"
+    className="bg-bg/80 pointer-events-auto fixed inset-0 backdrop-blur-none md:backdrop-blur-md"
   />
 );
 
@@ -408,7 +408,7 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
             animate="visible"
             exit="hidden"
             variants={modalVariants}
-            className="bg-surface/85 pointer-events-auto relative z-10 flex h-full w-full flex-col overflow-hidden rounded-none border-0 backdrop-blur-2xl md:h-[85vh] md:max-w-5xl md:rounded-3xl md:border md:border-white/10"
+            className="bg-surface md:bg-surface/90 pointer-events-auto relative z-10 flex h-full w-full flex-col overflow-hidden rounded-none border-0 md:h-[85vh] md:max-w-5xl md:rounded-3xl md:border md:border-white/10 md:backdrop-blur-2xl"
             style={MODAL_CONTAINER_STYLE}
           />
         }
