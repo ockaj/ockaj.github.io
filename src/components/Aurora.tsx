@@ -165,14 +165,19 @@ function useAuroraCanvas(
     );
 
     // W3C Standard Hardware GPU Check: reject software rasterizers (SwiftShader / llvmpipe)
+    const contextAttributes: WebGLContextAttributes = {
+      alpha: true,
+      depth: false,
+      stencil: false,
+      antialias: false,
+      premultipliedAlpha: true,
+      failIfMajorPerformanceCaveat: true,
+    };
+
     const testCanvas = document.createElement("canvas");
     const testGl =
-      testCanvas.getContext("webgl2", {
-        failIfMajorPerformanceCaveat: true,
-      }) ||
-      testCanvas.getContext("webgl", {
-        failIfMajorPerformanceCaveat: true,
-      });
+      testCanvas.getContext("webgl2", contextAttributes) ||
+      testCanvas.getContext("webgl", contextAttributes);
 
     if (!testGl) {
       console.warn(
@@ -190,8 +195,10 @@ function useAuroraCanvas(
       renderer = new Renderer({
         canvas: testCanvas,
         alpha: true,
+        depth: false,
+        stencil: false,
+        antialias: false,
         premultipliedAlpha: true,
-        antialias: true,
         dpr: dpr,
       });
       gl = renderer.gl;
@@ -254,6 +261,9 @@ function useAuroraCanvas(
           uResolution: { value: [renderer.width, renderer.height] },
           uBlend: { value: blend },
         },
+        depthTest: false,
+        depthWrite: false,
+        cullFace: false,
       });
 
     const program = createAuroraProgram();
