@@ -296,6 +296,13 @@ function useAuroraCanvas(
       resize(entry);
     };
 
+    let prevStops: string[] | null = null;
+    let animateId = 0;
+    let previousWallTime = 0;
+    let virtualTime = 0;
+    let frameAccumulator = 0;
+    let needsReanchor = true;
+
     const handleContextLost = (e: Event) => {
       e.preventDefault();
       isContextLostRef.current = true;
@@ -304,6 +311,7 @@ function useAuroraCanvas(
         cancelAnimationFrame(animateId);
         animateId = 0;
       }
+      needsReanchor = true;
       canvasEl.style.opacity = "0";
     };
 
@@ -325,6 +333,7 @@ function useAuroraCanvas(
       } catch (err) {
         console.warn("WebGL resource restoration failed:", err);
       }
+      needsReanchor = true;
       if (!animateId && !prefersReducedMotionRef.current) {
         animateId = requestAnimationFrame(update);
       }
@@ -355,10 +364,6 @@ function useAuroraCanvas(
       };
     }
 
-    let prevStops: string[] | null = null;
-    let animateId = 0;
-    let lastFrame = 0;
-
     const areStopsEqual = (a: string[] | null, b: string[] | null) => {
       if (a === b) return true;
       if (!a || !b || a.length !== b.length) return false;
@@ -372,15 +377,44 @@ function useAuroraCanvas(
       }
       if (prefersReducedMotionRef.current || propsRef.current.paused) {
         animateId = 0;
-      } else {
-        animateId = requestAnimationFrame(update);
+        needsReanchor = true;
+        return;
       }
-      const frameInterval = isMobileRef.current ? 33 : 0;
-      if (frameInterval && t - lastFrame < frameInterval) return;
-      lastFrame = t;
-      const time = propsRef.current.time ?? t * 0.01;
+      animateId = requestAnimationFrame(update);
+
+      let clampedDelta = 0;
+      if (needsReanchor || previousWallTime === 0) {
+        previousWallTime = t;
+        needsReanchor = false;
+        frameAccumulator = 0;
+      } else {
+        const rawDeltaSeconds = (t - previousWallTime) * 0.001;
+        previousWallTime = t;
+        // Clamp to 0.1s (100ms) to prevent animation leaps after main-thread or GC stalls
+        clampedDelta = Math.min(Math.max(rawDeltaSeconds, 0), 0.1);
+      }
+
       const speed = propsRef.current.speed ?? 1.0;
-      mesh.program.uniforms.uTime.value = time * speed * 0.1;
+      const targetFps = isMobileRef.current ? 30 : 0;
+
+      if (targetFps > 0) {
+        const targetInterval = 1.0 / targetFps;
+        frameAccumulator += clampedDelta;
+        if (frameAccumulator < targetInterval && virtualTime > 0) {
+          return;
+        }
+        const steps = Math.floor(frameAccumulator / targetInterval);
+        virtualTime += steps * targetInterval * speed;
+        frameAccumulator = frameAccumulator % targetInterval;
+      } else {
+        virtualTime += clampedDelta * speed;
+      }
+
+      const time =
+        propsRef.current.time !== undefined
+          ? propsRef.current.time * speed * 0.1
+          : virtualTime;
+      mesh.program.uniforms.uTime.value = time;
       mesh.program.uniforms.uAmplitude.value =
         propsRef.current.amplitude ?? 1.0;
       mesh.program.uniforms.uBlend.value = propsRef.current.blend ?? blend;
@@ -396,6 +430,7 @@ function useAuroraCanvas(
     animateId = requestAnimationFrame(update);
 
     triggerRef.current = () => {
+      needsReanchor = true;
       if (!animateId && !isContextLostRef.current && !propsRef.current.paused) {
         animateId = requestAnimationFrame(update);
       }
@@ -407,7 +442,9 @@ function useAuroraCanvas(
           cancelAnimationFrame(animateId);
           animateId = 0;
         }
+        needsReanchor = true;
       } else {
+        needsReanchor = true;
         if (
           !animateId &&
           !prefersReducedMotionRef.current &&
