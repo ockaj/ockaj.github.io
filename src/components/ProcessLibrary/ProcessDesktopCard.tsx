@@ -5,9 +5,40 @@ import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
 import { type ProcessTopic } from "../../data/processItems";
 import ProcessVariantStage from "./ProcessVariantStage";
 
+import { SPRING } from "../../utils/springConfig";
+
 const DESKTOP_HIGHLIGHT_STYLE: CSSProperties = {
   "--base-radius": "8px",
 } as CSSProperties;
+
+interface CustomAnimationProps {
+  prefersReducedMotion?: boolean | null;
+  direction?: number;
+}
+
+const defaultTabContentVariants: Variants = {
+  hidden: (props: CustomAnimationProps = {}) => ({
+    opacity: 0,
+    x: 0,
+    y: props.prefersReducedMotion ? 0 : 10 * (props.direction ?? 1),
+    scale: props.prefersReducedMotion ? 1 : 0.99,
+    transition: SPRING.exit,
+  }),
+  visible: {
+    opacity: 1,
+    x: 0,
+    y: 0,
+    scale: 1,
+    transition: SPRING.modal,
+  },
+  exit: (props: CustomAnimationProps = {}) => ({
+    opacity: 0,
+    x: 0,
+    y: props.prefersReducedMotion ? 0 : -10 * (props.direction ?? 1),
+    scale: props.prefersReducedMotion ? 1 : 0.99,
+    transition: SPRING.exit,
+  }),
+};
 
 interface ProcessDesktopCardProps {
   activeTopic: ProcessTopic;
@@ -22,9 +53,8 @@ interface ProcessDesktopCardProps {
   }) => void;
   prefersReducedMotion: boolean | null;
   direction: number;
-  isMobile: boolean;
   cardVariants: Variants;
-  tabContentVariants: Variants;
+  tabContentVariants?: Variants;
 }
 
 function ProcessDesktopCard({
@@ -34,9 +64,8 @@ function ProcessDesktopCard({
   setLightboxItem,
   prefersReducedMotion,
   direction,
-  isMobile,
   cardVariants,
-  tabContentVariants,
+  tabContentVariants = defaultTabContentVariants,
 }: Readonly<ProcessDesktopCardProps>) {
   return (
     <motion.div
@@ -47,14 +76,14 @@ function ProcessDesktopCard({
       <AnimatePresence
         mode="wait"
         initial={false}
-        custom={{ prefersReducedMotion, direction, isMobile }}
+        custom={{ prefersReducedMotion, direction }}
       >
         <motion.div
           key={activeTopic.id}
           id={`tabpanel-${activeTopic.id}`}
           role="tabpanel"
           aria-labelledby={`tab-${activeTopic.id}`}
-          custom={{ prefersReducedMotion, direction, isMobile }}
+          custom={{ prefersReducedMotion, direction }}
           initial="hidden"
           animate="visible"
           exit="exit"

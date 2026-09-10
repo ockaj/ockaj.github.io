@@ -21,6 +21,7 @@ import {
   SECTION_TRANSITION,
 } from "../utils/motionVariants";
 import { getConnectionRootMargin } from "../utils/connection";
+import { resolveSectionFromHash } from "../utils/sectionResolution";
 
 interface LazySectionProps {
   id: string;
@@ -40,12 +41,11 @@ function isInitialTarget(id: string): boolean {
   if (typeof window === "undefined") return false;
   if (typeof IntersectionObserver === "undefined") return true;
   try {
-    if (window.location.hash === `#${id}`) return true;
-    if (useAppStore.getState().activeSection === id) return true;
+    const target = resolveSectionFromHash(window.location.hash);
+    return target === id;
   } catch {
     return false;
   }
-  return false;
 }
 
 function LazySection({

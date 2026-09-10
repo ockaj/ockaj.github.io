@@ -81,6 +81,21 @@ export default function Navbar() {
 
   const isScrollingRef = useRef(false);
 
+  // Synchronize modal state with store when mobile menu opens or closes
+  useEffect(() => {
+    if (isMobile && isOpen) {
+      useAppStore.getState().openModal("nav");
+      return () => {
+        if (useAppStore.getState().activeModal === "nav") {
+          useAppStore.getState().closeModal();
+        }
+      };
+    }
+    if (!isMobile && isOpen) {
+      dispatch({ type: "SET_IS_OPEN", isOpen: false });
+    }
+  }, [isMobile, isOpen]);
+
   // Lock background scroll and integrate with browser history when mobile menu is open
   useOverlay(
     isMobile && isOpen,

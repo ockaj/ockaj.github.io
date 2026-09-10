@@ -26,7 +26,8 @@ export const FaqItem = memo(function FaqItem({
   const handleAction = useCallback((action?: string) => {
     if (!action) return;
     if (action === "cv") {
-      useAppStore.getState().setCvOpen(true);
+      useAppStore.getState().mountCv();
+      useAppStore.getState().openModal("cv");
     } else if (
       action === "work" ||
       action === "processes" ||

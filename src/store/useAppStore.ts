@@ -1,5 +1,11 @@
 import { create } from "zustand";
 import { isBoneyardBuild } from "../utils/boneyard";
+import {
+  resolveSectionFromHash,
+  isValidModalHash,
+  isTransientModalHash,
+  normalizeHash,
+} from "../utils/sectionResolution";
 
 export const LABEL_MAP: Record<string, string> = {
   home: "Home",
@@ -13,18 +19,20 @@ export const LABEL_MAP: Record<string, string> = {
 
 export interface AppState {
   isLoading: boolean;
-  isCvOpen: boolean;
   hasCvMounted: boolean;
-  isBpmnOpen: boolean;
-  cvLang: "en" | "sk";
   activeSection: string;
+  activeModal: string | null;
+  cvLang: "en" | "sk";
   completeLoading: () => void;
   mountCv: () => void;
-  setCvOpen: (isOpen: boolean) => void;
-  setBpmnOpen: (isOpen: boolean) => void;
+  openModal: (id: string) => void;
+  closeModal: () => void;
   setCvLang: (lang: "en" | "sk") => void;
   setActiveSection: (section: string) => void;
 }
+
+export const selectIsAnyModalOpen = (state: AppState): boolean =>
+  state.activeModal !== null;
 
 const getInitialLoading = (): boolean => {
   if (isBoneyardBuild()) {
@@ -48,19 +56,34 @@ const getInitialActiveSection = (): string => {
     return "home";
   }
   try {
-    const hash = window.location.hash.substring(1);
-    return hash in LABEL_MAP ? hash : "home";
+    return resolveSectionFromHash(window.location.hash);
   } catch {
     return "home";
   }
 };
 
+const getInitialActiveModal = (): string | null => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  try {
+    const raw = window.location.hash;
+    if (!raw || !isValidModalHash(raw) || isTransientModalHash(raw)) {
+      return null;
+    }
+    return normalizeHash(raw);
+  } catch {
+    return null;
+  }
+};
+
 export const useAppStore = create<AppState>((set) => ({
   isLoading: getInitialLoading(),
-  isCvOpen: false,
-  hasCvMounted: typeof window !== "undefined" && window.location.hash === "#cv",
-  isBpmnOpen: false,
+  hasCvMounted:
+    typeof window !== "undefined" &&
+    window.location.hash.toLowerCase().startsWith("#cv"),
   activeSection: getInitialActiveSection(),
+  activeModal: getInitialActiveModal(),
   cvLang: "en",
   completeLoading: () => {
     try {
@@ -72,12 +95,15 @@ export const useAppStore = create<AppState>((set) => ({
   },
   mountCv: () =>
     set((state) => (state.hasCvMounted ? state : { hasCvMounted: true })),
-  setCvOpen: (isOpen: boolean) =>
+  openModal: (id: string) =>
     set((state) => ({
-      isCvOpen: isOpen,
-      hasCvMounted: isOpen || state.hasCvMounted,
+      activeModal: id,
+      hasCvMounted: id === "cv" ? true : state.hasCvMounted,
     })),
-  setBpmnOpen: (isOpen: boolean) => set({ isBpmnOpen: isOpen }),
+  closeModal: () =>
+    set((state) =>
+      state.activeModal === null ? state : { activeModal: null },
+    ),
   setCvLang: (lang: "en" | "sk") =>
     set((state) => (state.cvLang === lang ? state : { cvLang: lang })),
   setActiveSection: (section: string) =>

@@ -1,6 +1,7 @@
-import { useState, memo, useCallback } from "react";
+import { memo, useMemo, useCallback, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { ARTICLES, type Article } from "../../data/articles";
+import { useAppStore } from "../../store/useAppStore";
 import JournalEntry from "./JournalEntry";
 import JournalDrawer from "./JournalDrawer";
 
@@ -17,10 +18,31 @@ const cardVariants = cardStaggerVariants;
 
 function Journal() {
   const prefersReducedMotion = useReducedMotion();
-  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  const activeArticleId = useAppStore((state) =>
+    state.activeModal?.startsWith("article-")
+      ? state.activeModal.slice("article-".length)
+      : null,
+  );
+
+  const selectedArticle = useMemo(() => {
+    if (!activeArticleId) return null;
+    return ARTICLES.find((article) => article.id === activeArticleId) ?? null;
+  }, [activeArticleId]);
+
+  // Dismiss non-existent journal article deep links (e.g. #article-invalid)
+  useEffect(() => {
+    if (activeArticleId && !selectedArticle) {
+      useAppStore.getState().closeModal();
+      window.history.replaceState(window.history.state, "", "#journal");
+    }
+  }, [activeArticleId, selectedArticle]);
+
+  const handleOpenArticle = useCallback((article: Article) => {
+    useAppStore.getState().openModal(`article-${article.id}`);
+  }, []);
 
   const handleCloseArticle = useCallback(() => {
-    setSelectedArticle(null);
+    useAppStore.getState().closeModal();
   }, []);
 
   return (
@@ -40,7 +62,7 @@ function Journal() {
               variants={cardVariants}
               custom={prefersReducedMotion}
             >
-              <JournalEntry article={article} onOpen={setSelectedArticle} />
+              <JournalEntry article={article} onOpen={handleOpenArticle} />
             </motion.div>
           ))}
         </motion.div>

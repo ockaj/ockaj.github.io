@@ -1,17 +1,28 @@
-import { useEffect, useLayoutEffect, useRef, startTransition } from "react";
-import { useAppStore, LABEL_MAP } from "../store/useAppStore";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useCallback,
+  startTransition,
+} from "react";
+import {
+  useAppStore,
+  selectIsAnyModalOpen,
+  LABEL_MAP,
+} from "../store/useAppStore";
+import {
+  resolveSectionFromHash,
+  isValidModalHash,
+  isTransientModalHash,
+  normalizeHash,
+} from "../utils/sectionResolution";
+import { useIsMobile } from "./useMediaQuery";
 const SECTIONS = Object.keys(LABEL_MAP);
 const SECTIONS_SET = new Set(SECTIONS);
 
 function resolveSection(target: string): string | null {
-  if (!target) return null;
-  const clean = (target.startsWith("#") ? target.slice(1) : target)
-    .trim()
-    .toLowerCase();
-  if (clean in LABEL_MAP) {
-    return clean;
-  }
-  return null;
+  const clean = normalizeHash(target);
+  return clean in LABEL_MAP ? clean : null;
 }
 
 let isNavigating = false;
@@ -129,7 +140,9 @@ function useScrollSpy(
 
           const newHash = `#${targetId}`;
           const currentHash = window.location.hash.substring(1);
-          const isModalActive = !!currentHash && !SECTIONS_SET.has(currentHash);
+          const isModalActive =
+            (!!currentHash && !SECTIONS_SET.has(currentHash)) ||
+            selectIsAnyModalOpen(useAppStore.getState());
 
           if (window.location.hash !== newHash && !isModalActive) {
             window.history.replaceState(window.history.state, "", newHash);
@@ -150,33 +163,54 @@ function useScrollSpy(
 
 export function useNavigation() {
   const isLoading = useAppStore((state) => state.isLoading);
+  const isMobile = useIsMobile();
   const visibleSectionsRef = useRef(new Set<string>());
 
   useEffect(() => {
     if (isLoading) return;
-    const hash = window.location.hash;
-    if (!hash) return;
+    const clean = normalizeHash(window.location.hash);
+    if (!clean) return;
 
-    if (hash === "#cv") {
-      useAppStore.getState().setCvOpen(true);
+    const resolvedId = resolveSection(clean);
+    if (resolvedId) {
+      navigateTo(resolvedId, { behavior: "auto", replace: true });
       return;
     }
 
-    if (hash === "#bpmn") {
-      const isMobile = window.matchMedia("(max-width: 767px)").matches;
+    if (isTransientModalHash(clean)) {
+      useAppStore.getState().closeModal();
+      window.history.replaceState(window.history.state, "", "#home");
+      return;
+    }
+
+    if (clean === "bpmn") {
       if (!isMobile) {
-        useAppStore.getState().setBpmnOpen(true);
+        useAppStore.getState().openModal("bpmn");
       } else {
+        useAppStore.getState().closeModal();
         window.history.replaceState(window.history.state, "", "#home");
       }
       return;
     }
 
-    const resolvedId = resolveSection(hash);
-    if (resolvedId) {
-      navigateTo(resolvedId, { behavior: "auto", replace: true });
+    if (isValidModalHash(clean)) {
+      useAppStore.getState().openModal(clean);
+      const parentSection = resolveSectionFromHash(clean);
+      if (parentSection && parentSection !== "home") {
+        const alignScroll = () => {
+          const element = document.getElementById(parentSection);
+          if (element) {
+            element.scrollIntoView({ behavior: "auto" });
+          }
+        };
+        alignScroll();
+        requestAnimationFrame(alignScroll);
+      }
+      return;
     }
-  }, [isLoading]);
+
+    window.history.replaceState(window.history.state, "", "#home");
+  }, [isLoading, isMobile]);
 
   useScrollSpy(isLoading, visibleSectionsRef);
 
@@ -186,8 +220,8 @@ export function useNavigation() {
 type OverlayCallback = () => void;
 
 /**
- * Synchronizes SPA modal visibility with URL hash fragments (`#cv`, `#bpmn`, `#lightbox-1`).
- * Integrated into unified navigation system in useAppNavigation.ts.
+ * Synchronize SPA modal visibility with URL hash fragments.
+ * Return user to parent section when closed.
  */
 export function useOverlay(
   isOpen: boolean,
@@ -223,9 +257,46 @@ export function useOverlay(
       window.removeEventListener("popstate", handleHashSync);
 
       if (window.location.hash === targetHash) {
-        const fallbackHash = previousHashRef.current || "#home";
+        const parentSection = resolveSectionFromHash(hashId);
+        const previousSection = previousHashRef.current
+          ? resolveSection(previousHashRef.current)
+          : null;
+        const fallbackHash = previousSection
+          ? `#${previousSection}`
+          : `#${parentSection}`;
         window.history.replaceState(window.history.state, "", fallbackHash);
       }
     };
   }, [isOpen, hashId]);
+}
+
+export interface ModalController {
+  isOpen: boolean;
+  open: () => void;
+  close: () => void;
+}
+
+/**
+ * Universal hook to control any modal or overlay in the application.
+ * Selects derived boolean open state from useAppStore and synchronizes
+ * with browser URL hash history and device Back button via useOverlay.
+ */
+export function useModal(id: string): ModalController {
+  const isOpen = useAppStore((state) => state.activeModal === id);
+
+  const open = useCallback(() => {
+    useAppStore.getState().openModal(id);
+  }, [id]);
+
+  const close = useCallback(() => {
+    useAppStore.getState().closeModal();
+  }, []);
+
+  useOverlay(isOpen, close, id);
+
+  return {
+    isOpen,
+    open,
+    close,
+  };
 }

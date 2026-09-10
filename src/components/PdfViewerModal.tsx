@@ -4,7 +4,6 @@ import {
   useCallback,
   memo,
   useReducer,
-  useMemo,
   type ReactNode,
 } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
@@ -21,7 +20,7 @@ import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
 import { SPRING } from "../utils/springConfig";
 import { useIsMobile } from "../hooks/useMediaQuery";
-import { useOverlay } from "../hooks/useAppNavigation";
+import { useModal } from "../hooks/useAppNavigation";
 import { prefetchAsset } from "../utils/quicklink";
 import { requestIdle, cancelIdle } from "../utils/idleCallback";
 import { cn } from "../utils/cn";
@@ -52,13 +51,7 @@ const MODAL_SHEEN_OVERLAY = (
 );
 
 function usePdfModalDialog() {
-  const isOpen = useAppStore((state) => state.isCvOpen);
-
-  const handleClose = useCallback(() => {
-    useAppStore.getState().setCvOpen(false);
-  }, []);
-
-  useOverlay(isOpen, handleClose, "cv");
+  const { isOpen, close } = useModal("cv");
 
   useEffect(() => {
     if (isOpen) {
@@ -69,15 +62,15 @@ function usePdfModalDialog() {
   const handleOpenChange = useCallback(
     (open: boolean) => {
       if (!open) {
-        handleClose();
+        close();
       }
     },
-    [handleClose],
+    [close],
   );
 
   return {
     isOpen,
-    handleClose,
+    handleClose: close,
     handleOpenChange,
   };
 }
@@ -429,6 +422,32 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
   );
 });
 
+interface PdfModalBodyProps {
+  activeTab: "pdf" | "interactive";
+}
+
+const PdfModalBody = memo(function PdfModalBody({
+  activeTab,
+}: PdfModalBodyProps) {
+  return (
+    <>
+      <PdfDocumentPanel isActive={activeTab === "pdf"} />
+      <div
+        role="tabpanel"
+        id="tabpanel-interactive"
+        aria-labelledby="tab-interactive"
+        className={
+          activeTab === "interactive"
+            ? "custom-cv-scrollbar absolute inset-0 overflow-y-auto p-6 md:p-8 lg:p-12"
+            : "hidden"
+        }
+      >
+        <InteractiveCvContent />
+      </div>
+    </>
+  );
+});
+
 function PdfViewerModal() {
   const {
     isOpen,
@@ -439,27 +458,6 @@ function PdfViewerModal() {
     handleOpenChange,
   } = usePdfViewerModalController();
   const prefersReducedMotion = useReducedMotion();
-
-  const modalBody = useMemo(
-    () => (
-      <>
-        <PdfDocumentPanel isActive={activeTab === "pdf"} />
-        <div
-          role="tabpanel"
-          id="tabpanel-interactive"
-          aria-labelledby="tab-interactive"
-          className={
-            activeTab === "interactive"
-              ? "custom-cv-scrollbar absolute inset-0 overflow-y-auto p-6 md:p-8 lg:p-12"
-              : "hidden"
-          }
-        >
-          <InteractiveCvContent />
-        </div>
-      </>
-    ),
-    [activeTab],
-  );
 
   return (
     <Dialog.Root
@@ -478,7 +476,7 @@ function PdfViewerModal() {
               isMobile={isMobile}
               prefersReducedMotion={!!prefersReducedMotion}
             >
-              {modalBody}
+              <PdfModalBody activeTab={activeTab} />
             </PdfModalPopupContent>
           ) : null}
         </AnimatePresence>

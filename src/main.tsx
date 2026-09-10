@@ -25,6 +25,11 @@ if (import.meta.env.DEV) {
   import("./utils/performanceLogger").then(({ initPerformanceLogging }) => {
     initPerformanceLogging();
   });
+  import("./store/useAppStore").then(({ useAppStore }) => {
+    (
+      window as Window & typeof globalThis & { __store: typeof useAppStore }
+    ).__store = useAppStore;
+  });
 }
 
 createRoot(document.getElementById("root")!).render(

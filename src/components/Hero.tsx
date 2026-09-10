@@ -322,7 +322,7 @@ function Hero() {
   const handleViewCv = useCallback(() => {
     useAppStore.getState().mountCv();
     void loadPdfViewerModal();
-    useAppStore.getState().setCvOpen(true);
+    useAppStore.getState().openModal("cv");
   }, []);
 
   const handleViewWork = useCallback((e: MouseEvent<HTMLElement>) => {

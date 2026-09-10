@@ -80,6 +80,7 @@ const JournalDrawer = memo(function JournalDrawer({
       icon={<BookOpen size={14} className="text-accent" />}
       onClose={onClose}
       maxWidthClass="max-w-3xl"
+      hashId={`article-${article.id}`}
     >
       <motion.div
         variants={drawerContentVariants}

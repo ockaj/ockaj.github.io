@@ -6,8 +6,7 @@ import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import BpmnNodeBadge from "./BpmnNodeBadge";
 import BpmnDiagram from "./BpmnDiagram";
 import { useIsMobile } from "../hooks/useMediaQuery";
-import { useOverlay, navigateTo } from "../hooks/useAppNavigation";
-import { useAppStore } from "../store/useAppStore";
+import { navigateTo, useModal } from "../hooks/useAppNavigation";
 import { SPRING } from "../utils/springConfig";
 import { createModalVariants } from "../utils/motionVariants";
 
@@ -18,7 +17,7 @@ const BPMN_KEYS = new Set(["b", "p", "m", "n"]);
 export default function BpmnOverlay() {
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
-  const isOpen = useAppStore((state) => state.isBpmnOpen);
+  const { isOpen, open, close } = useModal("bpmn");
   const typedBufferRef = useRef<string[]>([]);
   const [showHotkeyTip, setShowHotkeyTip] = useState(false);
   const [hasDismissedTip, setHasDismissedTip] = useState(() => {
@@ -27,12 +26,6 @@ export default function BpmnOverlay() {
       sessionStorage.getItem("bpmn_tip_dismissed") === "true"
     );
   });
-
-  const handleClose = useCallback(() => {
-    useAppStore.getState().setBpmnOpen(false);
-  }, []);
-
-  useOverlay(isOpen, handleClose, "bpmn");
 
   // Keyboard shortcut listener for 'B-P-M-N'
   useEffect(() => {
@@ -54,7 +47,7 @@ export default function BpmnOverlay() {
       if (BPMN_KEYS.has(key)) {
         typedBufferRef.current = [...typedBufferRef.current, key].slice(-4);
         if (typedBufferRef.current.join("") === "bpmn") {
-          useAppStore.getState().setBpmnOpen(true);
+          open();
           typedBufferRef.current = [];
         }
       } else {
@@ -64,7 +57,7 @@ export default function BpmnOverlay() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isMobile]);
+  }, [isMobile, open]);
 
   // Show a brief toast notification on how to trigger if user spends time on the site (once per session)
   useEffect(() => {
@@ -88,10 +81,13 @@ export default function BpmnOverlay() {
     };
   }, [isMobile, hasDismissedTip]);
 
-  const handleTaskClick = useCallback((sectionId: string) => {
-    useAppStore.getState().setBpmnOpen(false);
-    navigateTo(sectionId);
-  }, []);
+  const handleTaskClick = useCallback(
+    (sectionId: string) => {
+      close();
+      navigateTo(sectionId);
+    },
+    [close],
+  );
 
   return (
     <>
@@ -156,7 +152,7 @@ export default function BpmnOverlay() {
             disablePointerDismissal
             onOpenChange={(open) => {
               if (!open) {
-                handleClose();
+                close();
               }
             }}
           >
@@ -164,7 +160,7 @@ export default function BpmnOverlay() {
               <div className="fixed inset-0 z-[120] flex items-center justify-center p-0 md:p-6 lg:p-8">
                 {/* Backdrop */}
                 <Dialog.Backdrop
-                  onClick={handleClose}
+                  onClick={close}
                   render={
                     <motion.div
                       initial={{ opacity: 0 }}
@@ -220,7 +216,7 @@ export default function BpmnOverlay() {
                       <Dialog.Close
                         render={
                           <LiquidGlassButton
-                            onClick={handleClose}
+                            onClick={close}
                             ariaLabel="Close model overlay"
                             className="size-10 flex-shrink-0 p-0 md:size-11"
                           >
