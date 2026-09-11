@@ -94,7 +94,8 @@ export function navigateTo(target: string, options?: NavigateToOptions): void {
   const isReduced = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
-  const scrollBehavior = options?.behavior ?? (isReduced ? "auto" : "smooth");
+  const scrollBehavior =
+    options?.behavior ?? (isReduced ? "instant" : "smooth");
 
   document
     .getElementById(sectionId)
@@ -173,7 +174,7 @@ export function useNavigation() {
 
     const resolvedId = resolveSection(clean);
     if (resolvedId) {
-      navigateTo(resolvedId, { behavior: "auto", replace: true });
+      navigateTo(resolvedId, { behavior: "instant", replace: true });
       return;
     }
 
@@ -200,7 +201,7 @@ export function useNavigation() {
         const alignScroll = () => {
           const element = document.getElementById(parentSection);
           if (element) {
-            element.scrollIntoView({ behavior: "auto" });
+            element.scrollIntoView({ behavior: "instant" });
           }
         };
         alignScroll();
