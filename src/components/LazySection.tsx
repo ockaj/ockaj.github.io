@@ -106,11 +106,12 @@ function LazySection({
   }, [id, hasLoaded]);
 
   const containerStyle = useMemo<CSSProperties>(() => {
-    const { mob, tab, desk } = getSkeletonHeights(bonesName);
+    const { mob, tab, desk, wide } = getSkeletonHeights(bonesName);
     return {
       "--skeleton-min-h-mob": mob > 0 ? `${mob}px` : undefined,
       "--skeleton-min-h-tab": tab > 0 ? `${tab}px` : undefined,
       "--skeleton-min-h-desk": desk > 0 ? `${desk}px` : undefined,
+      "--skeleton-min-h-wide": wide > 0 ? `${wide}px` : undefined,
     } as CSSProperties;
   }, [bonesName]);
 
@@ -139,7 +140,7 @@ function LazySection({
           viewport={SECTION_VIEWPORT}
           transition={SECTION_TRANSITION}
           style={containerStyle}
-          className="min-h-[var(--skeleton-min-h-mob)] md:min-h-[var(--skeleton-min-h-tab)] lg:min-h-[var(--skeleton-min-h-desk)]"
+          className="min-h-[var(--skeleton-min-h-mob)] md:min-h-[var(--skeleton-min-h-tab)] lg:min-h-[var(--skeleton-min-h-desk)] xl:min-h-[var(--skeleton-min-h-wide)]"
         >
           {hasLoaded ? (
             <BoneSuspense

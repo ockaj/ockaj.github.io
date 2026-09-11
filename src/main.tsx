@@ -6,6 +6,10 @@ import "./bones/registry";
 import { configureBoneyard } from "boneyard-js/react";
 import { applyDomTranslatePatch } from "./utils/domTranslatePatch";
 
+if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
+  window.history.scrollRestoration = "manual";
+}
+
 applyDomTranslatePatch();
 
 configureBoneyard({

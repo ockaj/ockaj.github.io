@@ -9,6 +9,7 @@ export interface SkeletonHeights {
   mob: number;
   tab: number;
   desk: number;
+  wide: number;
 }
 
 type BonesDoc = {
@@ -30,6 +31,7 @@ export function getSkeletonHeights(name: string): SkeletonHeights {
   const bp = BONES_MAP[name]?.breakpoints;
   const mob = bp?.["375"]?.height ?? 0;
   const tab = bp?.["768"]?.height ?? mob;
-  const desk = bp?.["1024"]?.height ?? bp?.["1280"]?.height ?? tab;
-  return { mob, tab, desk };
+  const desk = bp?.["1024"]?.height ?? tab;
+  const wide = bp?.["1280"]?.height ?? desk;
+  return { mob, tab, desk, wide };
 }

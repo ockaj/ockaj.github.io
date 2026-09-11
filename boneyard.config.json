@@ -1,5 +1,5 @@
 {
-  "breakpoints": [375, 768, 1024],
+  "breakpoints": [375, 768, 1024, 1280],
   "out": "./src/bones",
   "wait": 2800,
   "color": "rgba(255, 255, 255, 0.015)",

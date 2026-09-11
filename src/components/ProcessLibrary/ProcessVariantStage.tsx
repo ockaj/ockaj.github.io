@@ -79,7 +79,8 @@ const DiagramCanvasItem = memo(function DiagramCanvasItem({
           alt={variant.title}
           width={800}
           height={500}
-          className="h-full w-full rounded-lg object-contain transition-transform duration-300 ease-out group-hover/canvas:scale-[1.015]"
+          className="notranslate h-full w-full rounded-lg object-contain transition-transform duration-300 ease-out group-hover/canvas:scale-[1.015]"
+          translate="no"
           loading={isFirstSlide && isSelected ? "eager" : "lazy"}
           fetchPriority={isFirstSlide && isSelected ? "high" : "low"}
           decoding={isFirstSlide && isSelected ? "sync" : "async"}
@@ -150,9 +151,9 @@ function ProcessVariantStage({
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <div className="flex w-full flex-1 flex-col justify-between">
+    <div className="flex w-full flex-1 flex-col justify-start">
       {/* Permanent Solid Blueprint Stage Canvas (Zero Ghosting & Zero Frame Pop) */}
-      <div className="group/canvas relative mb-4 flex aspect-[16/10] w-full [transform:translateZ(0)] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white transition-colors duration-300 select-none hover:border-white/25 sm:mb-6">
+      <div className="group/canvas relative mb-4 flex aspect-[16/9] min-h-0 w-full min-w-0 [transform:translateZ(0)] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white transition-colors duration-300 contain-paint select-none hover:border-white/25 sm:mb-6">
         <div className="relative grid h-full w-full grid-cols-1 grid-rows-1">
           {MODES.map((mode) => (
             <DiagramCanvasItem
@@ -178,7 +179,7 @@ function ProcessVariantStage({
       </div>
 
       {/* Footer Details Stack with 40ms Hierarchical Stagger */}
-      <div className="relative mt-auto grid w-full grid-cols-1 grid-rows-1">
+      <div className="relative grid w-full grid-cols-1 grid-rows-1">
         {MODES.map((mode) => (
           <FooterDetailsItem
             key={mode}
