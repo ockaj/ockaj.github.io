@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { cn } from "../utils/cn";
+import { cn } from "../../utils/cn";
 
 interface BpmnDiagramProps {
   onTaskClick: (sectionId: string) => void;

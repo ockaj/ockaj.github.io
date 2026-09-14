@@ -16,19 +16,19 @@ import {
   Loader2,
   Sparkles,
 } from "lucide-react";
-import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
-import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
-import { SPRING } from "../utils/springConfig";
-import { useIsMobile } from "../hooks/useMediaQuery";
-import { useModal } from "../hooks/useAppNavigation";
-import { prefetchAsset } from "../utils/quicklink";
-import { requestIdle, cancelIdle } from "../utils/idleCallback";
-import { cn } from "../utils/cn";
-import { createModalVariants } from "../utils/motionVariants";
-import { CV_DATA } from "../data/cvData";
-import { InteractiveCvView } from "./PdfViewerModal/InteractiveCvView";
-import { pdfReducer } from "./PdfViewerModal/pdfState";
-import { useAppStore } from "../store/useAppStore";
+import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
+import { SPRING } from "../../utils/springConfig";
+import { useIsMobile } from "../../hooks/useMediaQuery";
+import { useModal } from "../../hooks/useAppNavigation";
+import { prefetchAsset } from "../../utils/quicklink";
+import { requestIdle, cancelIdle } from "../../utils/idleCallback";
+import { cn } from "../../utils/cn";
+import { createModalVariants } from "../../utils/motionVariants";
+import { CV_DATA } from "../../data/cvData";
+import { InteractiveCvView } from "./InteractiveCvView";
+import { pdfReducer } from "./pdfState";
+import { useAppStore } from "../../store/useAppStore";
 
 const modalVariants = createModalVariants(-10);
 const MODAL_CONTAINER_STYLE: React.CSSProperties = {

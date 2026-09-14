@@ -6,10 +6,10 @@ import {
   memo,
   type RefObject,
 } from "react";
-import { ErrorBoundary } from "./ErrorBoundary";
+import { ErrorBoundary } from "../ErrorBoundary";
 import AuroraFallback from "./AuroraFallback";
-import { useIsMobile, useMediaQuery } from "../hooks/useMediaQuery";
-import { useResizeObserver } from "../hooks/useResizeObserver";
+import { useIsMobile, useMediaQuery } from "../../hooks/useMediaQuery";
+import { useResizeObserver } from "../../hooks/useResizeObserver";
 import {
   Renderer,
   Program,

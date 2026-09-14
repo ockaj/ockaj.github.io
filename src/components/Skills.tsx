@@ -9,7 +9,7 @@ import {
   FileText,
 } from "lucide-react";
 import { InteractiveGlass } from "./LiquidGlass/LiquidGlass";
-import BpmnNodeBadge from "./BpmnNodeBadge";
+import BpmnNodeBadge from "./Bpmn/BpmnNodeBadge";
 import { isBoneyardBuild } from "../utils/boneyard";
 import { cn } from "../utils/cn";
 import { SPRING } from "../utils/springConfig";

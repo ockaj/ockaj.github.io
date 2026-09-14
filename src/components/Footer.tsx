@@ -1,7 +1,13 @@
 import { memo } from "react";
 import { ArrowUp } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
-import { scrollToTop } from "../utils/scroll";
+
+function scrollToTop(): void {
+  const isMotionReduced =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({ top: 0, behavior: isMotionReduced ? "auto" : "smooth" });
+}
 
 const CURRENT_YEAR = new Date().getFullYear();
 

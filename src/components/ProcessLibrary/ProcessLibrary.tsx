@@ -12,26 +12,26 @@ import {
   PROCESS_TOPICS,
   PROCESS_ITEMS,
   PROCESS_ITEMS_BY_ID,
-} from "../data/processItems";
-import { useAppStore } from "../store/useAppStore";
-import ProcessLightbox from "./ProcessLightbox/ProcessLightbox";
-import { prefetchAsset } from "../utils/quicklink";
-import { requestIdle, cancelIdle } from "../utils/idleCallback";
-import { isConnectionConstrained } from "../utils/connection";
-import { isBoneyardBuild } from "../utils/boneyard";
+} from "../../data/processItems";
+import { useAppStore } from "../../store/useAppStore";
+import ProcessLightbox from "../ProcessLightbox/ProcessLightbox";
+import { prefetchAsset } from "../../utils/quicklink";
+import { requestIdle, cancelIdle } from "../../utils/idleCallback";
+import { isConnectionConstrained } from "../../utils/connection";
+import { isBoneyardBuild } from "../../utils/boneyard";
 import {
   containerStaggerVariants,
   cardStaggerVariants,
   SECTION_VIEWPORT,
-} from "../utils/motionVariants";
-import ProcessDesktopCard from "./ProcessLibrary/ProcessDesktopCard";
-import ProcessMobileCarousel from "./ProcessLibrary/ProcessMobileCarousel";
-import ProcessTopicMenu from "./ProcessLibrary/ProcessTopicMenu";
-import ProcessMobileControls from "./ProcessLibrary/ProcessMobileControls";
+} from "../../utils/motionVariants";
+import ProcessDesktopCard from "./ProcessDesktopCard";
+import ProcessMobileCarousel from "./ProcessMobileCarousel";
+import ProcessTopicMenu from "./ProcessTopicMenu";
+import ProcessMobileControls from "./ProcessMobileControls";
 import {
   ProcessLibraryContext,
   type ProcessLibraryContextValue,
-} from "./ProcessLibrary/ProcessLibraryContext";
+} from "./ProcessLibraryContext";
 
 const isBuildMode = isBoneyardBuild();
 const containerVariants = containerStaggerVariants();

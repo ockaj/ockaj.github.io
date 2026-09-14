@@ -1,12 +1,12 @@
 import { memo, useEffect, useMemo } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
-import { cn } from "../utils/cn";
+import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
+import { cn } from "../../utils/cn";
 import {
   mobileMenuBackdropVariants,
   mobileMenuPanelVariants,
   mobileMenuItemVariants,
-} from "../utils/motionVariants";
+} from "../../utils/motionVariants";
 
 const HIGHLIGHT_STYLE = {
   boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.15)",

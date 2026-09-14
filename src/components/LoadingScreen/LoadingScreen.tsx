@@ -1,17 +1,15 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, memo } from "react";
 import {
   motion,
   useReducedMotion,
   useMotionValue,
   useTransform,
 } from "motion/react";
-import { useIsMobile } from "../hooks/useMediaQuery";
-import LoadingBpmnDiagram, {
-  type LoadingNodeId,
-} from "./LoadingScreen/LoadingBpmnDiagram";
-import LoadingMethodologyChecklist from "./LoadingScreen/LoadingMethodologyChecklist";
-import { BPMN_STEPS } from "./LoadingScreen/loadingData";
-import { SECTION_ANIMATE } from "../utils/motionVariants";
+import { useIsMobile } from "../../hooks/useMediaQuery";
+import LoadingBpmnDiagram, { type LoadingNodeId } from "./LoadingBpmnDiagram";
+import LoadingMethodologyChecklist from "./LoadingMethodologyChecklist";
+import { BPMN_STEPS } from "./loadingData";
+import { SECTION_ANIMATE } from "../../utils/motionVariants";
 
 const HEADER_INITIAL = { opacity: 0, y: -10 };
 const HEADER_TRANSITION = { duration: 0.6 };
@@ -93,9 +91,7 @@ function StaticLoadingBackground() {
   );
 }
 
-export default function LoadingScreen({
-  onComplete,
-}: Readonly<LoadingScreenProps>) {
+function LoadingScreen({ onComplete }: Readonly<LoadingScreenProps>) {
   const prefersReducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
   const initialVal = prefersReducedMotion === true ? 100 : 0;
@@ -275,3 +271,5 @@ export default function LoadingScreen({
     </motion.output>
   );
 }
+
+export default memo(LoadingScreen);

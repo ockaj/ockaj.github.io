@@ -1,10 +1,10 @@
 import { memo } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
-import BpmnNodeBadge from "./BpmnNodeBadge";
+import BpmnNodeBadge from "./Bpmn/BpmnNodeBadge";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import Footer from "./Footer";
-import { CONTACT_EMAIL } from "../utils/contact";
+import { CONTACT_EMAIL } from "../data/cvData";
 
 import {
   SECTION_ANIMATE,

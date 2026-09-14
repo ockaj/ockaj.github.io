@@ -1,13 +1,13 @@
 import { useEffect, useCallback, useReducer, useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Menu, X } from "lucide-react";
-import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
-import { Tabs, Tab } from "./LiquidGlass/LiquidGlassTabs";
-import { useIsMobile } from "../hooks/useMediaQuery";
-import { useOverlay, navigateTo } from "../hooks/useAppNavigation";
-import { useAppStore } from "../store/useAppStore";
-import { cn } from "../utils/cn";
-import { SPRING } from "../utils/springConfig";
+import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
+import { useIsMobile } from "../../hooks/useMediaQuery";
+import { useOverlay, navigateTo } from "../../hooks/useAppNavigation";
+import { useAppStore } from "../../store/useAppStore";
+import { cn } from "../../utils/cn";
+import { SPRING } from "../../utils/springConfig";
 import MobileMenu from "./MobileMenu";
 
 const NAV_LINKS = [

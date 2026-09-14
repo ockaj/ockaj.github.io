@@ -10,7 +10,7 @@ import {
 import "slot-text/style.css";
 import { SlotText } from "slot-text/react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
-import BpmnNodeBadge from "./BpmnNodeBadge";
+import BpmnNodeBadge from "./Bpmn/BpmnNodeBadge";
 import { useIsMobile } from "../hooks/useMediaQuery";
 import { useAppStore } from "../store/useAppStore";
 import { navigateTo } from "../hooks/useAppNavigation";

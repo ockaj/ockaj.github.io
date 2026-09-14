@@ -2,12 +2,12 @@ import { Suspense, useCallback, memo, type ComponentProps } from "react";
 import { AnimatePresence } from "motion/react";
 import { Tooltip as BaseTooltip } from "@base-ui/react/tooltip";
 
-import LoadingScreen from "./components/LoadingScreen";
-import Navbar from "./components/Navbar";
+import LoadingScreen from "./components/LoadingScreen/LoadingScreen";
+import Navbar from "./components/Navigation/Navbar";
 import Hero from "./components/Hero";
-import BpmnNodeBadge from "./components/BpmnNodeBadge";
+import BpmnNodeBadge from "./components/Bpmn/BpmnNodeBadge";
 import LazySection from "./components/LazySection";
-import Aurora from "./components/Aurora";
+import Aurora from "./components/Aurora/Aurora";
 import ContactSection from "./components/ContactSection";
 
 import { useIsMobile } from "./hooks/useMediaQuery";

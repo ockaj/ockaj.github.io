@@ -2,13 +2,16 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Dialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
-import { InteractiveGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
+import {
+  InteractiveGlass,
+  LiquidGlassButton,
+} from "../LiquidGlass/LiquidGlass";
 import BpmnNodeBadge from "./BpmnNodeBadge";
 import BpmnDiagram from "./BpmnDiagram";
-import { useIsMobile } from "../hooks/useMediaQuery";
-import { navigateTo, useModal } from "../hooks/useAppNavigation";
-import { SPRING } from "../utils/springConfig";
-import { createModalVariants } from "../utils/motionVariants";
+import { useIsMobile } from "../../hooks/useMediaQuery";
+import { navigateTo, useModal } from "../../hooks/useAppNavigation";
+import { SPRING } from "../../utils/springConfig";
+import { createModalVariants } from "../../utils/motionVariants";
 
 const bpmnModalVariants = createModalVariants(15);
 

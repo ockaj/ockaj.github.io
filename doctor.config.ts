@@ -9,7 +9,7 @@ export default defineConfig({
     overrides: [
       {
         files: [
-          "src/components/BpmnDiagram.tsx",
+          "src/components/Bpmn/BpmnDiagram.tsx",
           "src/components/LoadingScreen/LoadingBpmnDiagram.tsx",
           "src/components/PdfViewerModal/InteractiveCvView.tsx",
         ],

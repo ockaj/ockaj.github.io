@@ -11,7 +11,7 @@ import {
   drawerContentVariants,
   drawerItemVariants,
 } from "../../utils/motionVariants";
-import { CONTACT_EMAIL } from "../../utils/contact";
+import { CONTACT_EMAIL } from "../../data/cvData";
 
 interface DrawerProps {
   article: Article;

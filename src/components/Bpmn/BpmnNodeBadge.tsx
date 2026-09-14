@@ -1,7 +1,7 @@
 import { memo } from "react";
-import Tooltip from "./Tooltip";
-import { cn } from "../utils/cn";
-import "../styles/bpmn-icons.css";
+import Tooltip from "../Tooltip";
+import { cn } from "../../utils/cn";
+import "../../styles/bpmn-icons.css";
 
 type BpmnType =
   | "trash"
