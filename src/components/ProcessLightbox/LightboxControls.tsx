@@ -25,7 +25,7 @@ const LightboxControls = memo(function LightboxControls({
 
   const canZoomIn = useSyncExternalStore(
     libraryContext.onChange,
-    () => libraryContext.state.scale < 7.99,
+    () => libraryContext.state.scale < 9.99,
     () => true,
   );
 

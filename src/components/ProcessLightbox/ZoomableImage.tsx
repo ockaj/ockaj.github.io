@@ -32,7 +32,7 @@ const ZoomableImage = memo(function ZoomableImage({
     <button
       type="button"
       aria-label="Toggle Zoom"
-      className="focus-visible:ring-accent m-0 flex h-full w-full cursor-zoom-in items-center justify-center border-0 bg-transparent p-0 group-data-[zoomed=true]:cursor-grab focus-visible:ring-2 focus-visible:outline-none group-data-[zoomed=true]:active:cursor-grabbing"
+      className="focus-visible:ring-accent m-0 flex h-full w-full cursor-zoom-in items-center justify-center border-0 bg-transparent px-4 py-16 group-data-[zoomed=true]:cursor-grab focus-visible:ring-2 focus-visible:outline-none group-data-[zoomed=true]:active:cursor-grabbing md:px-16 md:py-20"
       onClick={(e) => {
         e.stopPropagation();
         if (wasPanningRef.current) return;
@@ -48,7 +48,7 @@ const ZoomableImage = memo(function ZoomableImage({
       <img
         src={src}
         alt={alt}
-        className="pointer-events-auto max-h-full max-w-full cursor-zoom-in touch-none rounded-lg border border-white/5 bg-white object-contain p-2 shadow-2xl outline outline-1 -outline-offset-1 outline-white/[0.08] select-none group-data-[zoomed=true]:cursor-grab group-data-[zoomed=true]:active:cursor-grabbing md:rounded-xl md:p-6"
+        className="pointer-events-auto max-h-full max-w-full cursor-zoom-in touch-none rounded-lg border border-white/5 bg-white object-contain p-3 shadow-2xl outline outline-1 -outline-offset-1 outline-white/[0.08] select-none group-data-[zoomed=true]:cursor-grab group-data-[zoomed=true]:active:cursor-grabbing md:rounded-xl md:p-8"
         draggable={false}
       />
     </button>
