@@ -61,3 +61,7 @@ export const ARTICLES: Article[] = Object.entries(markdownModules)
   })
   .sort((a, b) => b.timestamp - a.timestamp)
   .map((item) => item.article);
+
+export const ARTICLES_BY_ID = new Map<string, Article>(
+  ARTICLES.map((article) => [article.id, article]),
+);

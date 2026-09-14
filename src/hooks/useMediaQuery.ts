@@ -25,7 +25,9 @@ function getOrCreateStore(query: string): MediaQueryStore | null {
     const mql = window.matchMedia(query);
     const subscribers = new Set<() => void>();
     const listener = () => {
-      Array.from(subscribers).forEach((cb) => cb());
+      for (const cb of subscribers) {
+        cb();
+      }
     };
 
     store = { mql, subscribers, listener };

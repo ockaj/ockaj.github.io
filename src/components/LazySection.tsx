@@ -1,17 +1,9 @@
-import {
-  memo,
-  useMemo,
-  useState,
-  useEffect,
-  useRef,
-  type ReactNode,
-  type CSSProperties,
-} from "react";
+import { memo, useState, useEffect, useRef, type ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Skeleton, BoneSuspense } from "boneyard-js/react";
 import type { SnapshotConfig } from "boneyard-js";
 import { cn } from "../utils/cn";
-import { getSkeletonHeights } from "../utils/bonesHelper";
+import { getSkeletonStyle } from "../utils/bonesHelper";
 import { isBoneyardBuild } from "../utils/boneyard";
 import { requestIdle, cancelIdle } from "../utils/idleCallback";
 import { useAppStore } from "../store/useAppStore";
@@ -105,15 +97,7 @@ function LazySection({
     };
   }, [id, hasLoaded]);
 
-  const containerStyle = useMemo<CSSProperties>(() => {
-    const { mob, tab, desk, wide } = getSkeletonHeights(bonesName);
-    return {
-      "--skeleton-min-h-mob": mob > 0 ? `${mob}px` : undefined,
-      "--skeleton-min-h-tab": tab > 0 ? `${tab}px` : undefined,
-      "--skeleton-min-h-desk": desk > 0 ? `${desk}px` : undefined,
-      "--skeleton-min-h-wide": wide > 0 ? `${wide}px` : undefined,
-    } as CSSProperties;
-  }, [bonesName]);
+  const containerStyle = getSkeletonStyle(bonesName);
 
   return (
     <section

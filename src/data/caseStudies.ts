@@ -96,3 +96,7 @@ export const CASE_STUDIES: CaseStudyDetail[] = Object.entries(
     deliverables: (fm.deliverables as string[]) || [],
   };
 });
+
+export const CASE_STUDIES_BY_ID = new Map<string, CaseStudyDetail>(
+  CASE_STUDIES.map((study) => [String(study.id), study]),
+);

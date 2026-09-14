@@ -1,6 +1,6 @@
-import { memo, useMemo, useCallback, useEffect } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { ARTICLES, type Article } from "../../data/articles";
+import { ARTICLES, ARTICLES_BY_ID, type Article } from "../../data/articles";
 import { useAppStore } from "../../store/useAppStore";
 import JournalEntry from "./JournalEntry";
 import JournalDrawer from "./JournalDrawer";
@@ -24,10 +24,9 @@ function Journal() {
       : null,
   );
 
-  const selectedArticle = useMemo(() => {
-    if (!activeArticleId) return null;
-    return ARTICLES.find((article) => article.id === activeArticleId) ?? null;
-  }, [activeArticleId]);
+  const selectedArticle = activeArticleId
+    ? (ARTICLES_BY_ID.get(activeArticleId) ?? null)
+    : null;
 
   // Dismiss non-existent journal article deep links (e.g. #article-invalid)
   useEffect(() => {

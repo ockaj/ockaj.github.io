@@ -1,6 +1,10 @@
-import { memo, useMemo, useCallback, useEffect } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { CASE_STUDIES, type CaseStudyDetail } from "../../data/caseStudies";
+import {
+  CASE_STUDIES,
+  CASE_STUDIES_BY_ID,
+  type CaseStudyDetail,
+} from "../../data/caseStudies";
 import { useAppStore } from "../../store/useAppStore";
 import CaseStudyCard from "./CaseStudyCard";
 import CaseStudyDrawer from "./CaseStudyDrawer";
@@ -23,12 +27,9 @@ function CaseStudies() {
       : null,
   );
 
-  const selectedStudy = useMemo(() => {
-    if (!activeStudyId) return null;
-    return (
-      CASE_STUDIES.find((study) => String(study.id) === activeStudyId) ?? null
-    );
-  }, [activeStudyId]);
+  const selectedStudy = activeStudyId
+    ? (CASE_STUDIES_BY_ID.get(activeStudyId) ?? null)
+    : null;
 
   // Dismiss non-existent case study deep links (e.g. #case-study-999)
   useEffect(() => {

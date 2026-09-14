@@ -17,7 +17,17 @@ import { navigateTo } from "../hooks/useAppNavigation";
 
 import { requestIdle, cancelIdle } from "../utils/idleCallback";
 import { loadPdfViewerModal } from "../lazyComponents";
+import { prefetchAsset } from "../utils/quicklink";
 import { SPRING } from "../utils/springConfig";
+
+const CV_BUTTON_ICON = (
+  <FileText
+    size={16}
+    className="transition-transform duration-200 group-hover:scale-105"
+  />
+);
+
+const EYEBROW_BADGE = <BpmnNodeBadge type="start-event-none" />;
 
 const SPECIALIZATIONS = [
   "Process Analyst",
@@ -50,8 +60,8 @@ function RotatingSpecialization({
   prefersReducedMotion,
 }: Readonly<RotatingSpecializationProps>) {
   const [roleIndex, setRoleIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(
-    () => typeof document !== "undefined" && document.hidden,
+  const [isPaused, setIsPaused] = useState(() =>
+    typeof document !== "undefined" ? document.hidden : false,
   );
 
   useEffect(() => {
@@ -319,6 +329,12 @@ function Hero() {
     };
   }, []);
 
+  const handleCvPreload = useCallback(() => {
+    useAppStore.getState().mountCv();
+    void loadPdfViewerModal();
+    prefetchAsset("/cv/Ondrej_Michal_Ockaj_CV.pdf");
+  }, []);
+
   const handleViewCv = useCallback(() => {
     useAppStore.getState().mountCv();
     void loadPdfViewerModal();
@@ -344,7 +360,7 @@ function Hero() {
           variants={itemVariants}
           className="text-muted mb-8 flex items-center gap-1.5 text-xs font-semibold text-pretty uppercase"
         >
-          <BpmnNodeBadge type="start-event-none" />
+          {EYEBROW_BADGE}
           Business Analyst Portfolio
         </motion.p>
 
@@ -399,6 +415,8 @@ function Hero() {
           <span className="inline-flex">
             <LiquidGlassButton
               onClick={handleViewCv}
+              onPointerEnter={handleCvPreload}
+              onFocus={handleCvPreload}
               className="px-8 py-4"
               ariaLabel="View CV"
               magnetic
@@ -407,10 +425,7 @@ function Hero() {
               specularGlow
             >
               View CV
-              <FileText
-                size={16}
-                className="transition-transform duration-200 group-hover:scale-105"
-              />
+              {CV_BUTTON_ICON}
             </LiquidGlassButton>
           </span>
           <LiquidGlassButton

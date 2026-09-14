@@ -3,12 +3,15 @@ import {
   useEffect,
   useLayoutEffect,
   useCallback,
-  useMemo,
   useRef,
   memo,
 } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { PROCESS_TOPICS, PROCESS_ITEMS } from "../data/processItems";
+import {
+  PROCESS_TOPICS,
+  PROCESS_ITEMS,
+  PROCESS_ITEMS_BY_ID,
+} from "../data/processItems";
 import { useAppStore } from "../store/useAppStore";
 import ProcessLightbox from "./ProcessLightbox/ProcessLightbox";
 import { prefetchAsset } from "../utils/quicklink";
@@ -90,12 +93,9 @@ function ProcessLibrary() {
     [],
   );
 
-  const lightboxItem = useMemo(() => {
-    if (!activeLightboxId) return null;
-    const id = Number(activeLightboxId);
-    if (Number.isNaN(id)) return null;
-    return PROCESS_ITEMS.find((item) => item.id === id) ?? null;
-  }, [activeLightboxId]);
+  const lightboxItem = activeLightboxId
+    ? (PROCESS_ITEMS_BY_ID.get(Number(activeLightboxId)) ?? null)
+    : null;
 
   // Dismiss non-existent process lightbox deep links (e.g. #lightbox-999)
   useEffect(() => {

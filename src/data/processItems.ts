@@ -141,3 +141,8 @@ export const PROCESS_ITEMS = PROCESS_TOPICS.flatMap((t) => [
     rotation: t.rotation,
   },
 ]);
+
+export const PROCESS_ITEMS_BY_ID = new Map<
+  number,
+  (typeof PROCESS_ITEMS)[number]
+>(PROCESS_ITEMS.map((item) => [item.id, item]));
