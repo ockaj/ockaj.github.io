@@ -111,7 +111,6 @@ export const PROCESS_TOPICS: ProcessTopic[] = [
       specTags: [
         "Resource Allocation",
         "Validation Loop",
-        "Constraint Logic",
         "Swimlane Realignment",
       ],
     },

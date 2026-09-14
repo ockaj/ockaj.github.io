@@ -18,6 +18,7 @@ interface ProcessVariantStageProps {
     type: string;
   }) => void;
   isFirstSlide?: boolean;
+  badges?: boolean;
 }
 
 const MODES = ["asis", "tobe"] as const;
@@ -95,6 +96,7 @@ interface FooterDetailsItemProps {
   mode: "asis" | "tobe";
   isSelected: boolean;
   prefersReducedMotion: boolean | null;
+  badges?: boolean;
 }
 
 const FooterDetailsItem = memo(function FooterDetailsItem({
@@ -102,6 +104,7 @@ const FooterDetailsItem = memo(function FooterDetailsItem({
   mode,
   isSelected,
   prefersReducedMotion,
+  badges = true,
 }: Readonly<FooterDetailsItemProps>) {
   const offsetDirection = mode === "tobe" ? 1 : -1;
   const xOffset = prefersReducedMotion ? 0 : 10 * offsetDirection;
@@ -125,19 +128,26 @@ const FooterDetailsItem = memo(function FooterDetailsItem({
           Operational Insight
         </span>
       </div>
-      <p className="text-text-primary/90 line-clamp-3 min-h-[4.25rem] text-sm leading-relaxed text-pretty">
+      <p
+        className={cn(
+          "text-text-primary/90 line-clamp-3 text-sm leading-relaxed text-pretty",
+          badges ? "min-h-[4.25rem]" : "min-h-0",
+        )}
+      >
         {variant.description}
       </p>
-      <div className="flex min-h-[2rem] flex-wrap gap-2 pt-1">
-        {variant.specTags?.map((tag: string) => (
-          <span
-            key={tag}
-            className="text-muted hover:text-text-primary rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs transition-colors select-none hover:border-white/20"
-          >
-            {tag}
-          </span>
-        ))}
-      </div>
+      {badges && variant.specTags && variant.specTags.length > 0 ? (
+        <div className="flex min-h-[2rem] flex-wrap gap-2 pt-1">
+          {variant.specTags.map((tag: string) => (
+            <span
+              key={tag}
+              className="text-muted hover:text-text-primary rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs transition-colors select-none hover:border-white/20"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      ) : null}
     </motion.div>
   );
 });
@@ -147,13 +157,14 @@ function ProcessVariantStage({
   activeViewMode,
   setLightboxItem,
   isFirstSlide = false,
+  badges = true,
 }: Readonly<ProcessVariantStageProps>) {
   const prefersReducedMotion = useReducedMotion();
 
   return (
     <div className="flex w-full flex-1 flex-col justify-start">
       {/* Permanent Solid Blueprint Stage Canvas (Zero Ghosting & Zero Frame Pop) */}
-      <div className="group/canvas relative mb-4 flex aspect-[16/9] min-h-0 w-full min-w-0 [transform:translateZ(0)] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white transition-colors duration-300 contain-paint select-none hover:border-white/25 sm:mb-6">
+      <div className="group/canvas relative mb-3 flex aspect-[16/9] min-h-0 w-full min-w-0 [transform:translateZ(0)] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white transition-colors duration-300 contain-paint select-none hover:border-white/25 sm:mb-5">
         <div className="relative grid h-full w-full grid-cols-1 grid-rows-1">
           {MODES.map((mode) => (
             <DiagramCanvasItem
@@ -187,6 +198,7 @@ function ProcessVariantStage({
             mode={mode}
             isSelected={activeViewMode === mode}
             prefersReducedMotion={prefersReducedMotion}
+            badges={badges}
           />
         ))}
       </div>

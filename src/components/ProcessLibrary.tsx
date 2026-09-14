@@ -14,7 +14,6 @@ import ProcessLightbox from "./ProcessLightbox/ProcessLightbox";
 import { prefetchAsset } from "../utils/quicklink";
 import { requestIdle, cancelIdle } from "../utils/idleCallback";
 import { isConnectionConstrained } from "../utils/connection";
-import { useMediaQuery } from "../hooks/useMediaQuery";
 import { isBoneyardBuild } from "../utils/boneyard";
 import {
   containerStaggerVariants,
@@ -123,8 +122,6 @@ function ProcessLibrary() {
     useAppStore.getState().closeModal();
   }, []);
 
-  const isMobile = !useMediaQuery("(min-width: 1024px)");
-
   const [direction, setDirection] = useState(1);
 
   const activeTopic = PROCESS_TOPIC_MAP.get(activeTopicId) ?? PROCESS_TOPICS[0];
@@ -196,7 +193,7 @@ function ProcessLibrary() {
           initial={isBuildMode ? "visible" : "hidden"}
           whileInView={isBuildMode ? undefined : "visible"}
           viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
-          className="relative z-20 grid grid-cols-1 items-stretch gap-8 md:gap-12 lg:grid-cols-12"
+          className="relative z-20 grid grid-cols-1 items-stretch gap-5 sm:gap-6 md:gap-8 lg:grid-cols-12 lg:gap-12"
         >
           {/* Left Column: Index Menu Selector */}
           <ProcessTopicMenu
@@ -207,29 +204,25 @@ function ProcessLibrary() {
           />
 
           {/* Mobile Column: CSS Scroll Snap Carousel */}
-          {isMobile ? (
-            <ProcessMobileCarousel
-              activeTopicId={activeTopicId}
-              onTopicChange={handleTopicChange}
-              viewModes={viewModes}
-              handleTopicViewModeChange={handleTopicViewModeChange}
-              setLightboxItem={handleOpenLightbox}
-              prefersReducedMotion={prefersReducedMotion}
-            />
-          ) : null}
+          <ProcessMobileCarousel
+            activeTopicId={activeTopicId}
+            onTopicChange={handleTopicChange}
+            viewModes={viewModes}
+            handleTopicViewModeChange={handleTopicViewModeChange}
+            setLightboxItem={handleOpenLightbox}
+            prefersReducedMotion={prefersReducedMotion}
+          />
 
           {/* Desktop Right Column: Display Stage */}
-          {!isMobile ? (
-            <ProcessDesktopCard
-              activeTopic={activeTopic}
-              activeViewMode={activeViewMode}
-              handleTopicViewModeChange={handleTopicViewModeChange}
-              setLightboxItem={handleOpenLightbox}
-              prefersReducedMotion={prefersReducedMotion}
-              direction={direction}
-              cardVariants={cardVariants}
-            />
-          ) : null}
+          <ProcessDesktopCard
+            activeTopic={activeTopic}
+            activeViewMode={activeViewMode}
+            handleTopicViewModeChange={handleTopicViewModeChange}
+            setLightboxItem={handleOpenLightbox}
+            prefersReducedMotion={prefersReducedMotion}
+            direction={direction}
+            cardVariants={cardVariants}
+          />
 
           {/* Mobile Topic Selector Dock */}
           <ProcessMobileControls
