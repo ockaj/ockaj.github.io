@@ -1,8 +1,14 @@
-import { memo, useCallback, type CSSProperties } from "react";
-import { motion } from "motion/react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  type CSSProperties,
+} from "react";
 import { LiquidGlass } from "../LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
 import { PROCESS_TOPICS, type ProcessTopic } from "../../data/processItems";
+import { cn } from "../../utils/cn";
 import ProcessVariantStage from "./ProcessVariantStage";
 
 const MOBILE_HIGHLIGHT_STYLE: CSSProperties = {
@@ -12,6 +18,8 @@ const MOBILE_HIGHLIGHT_STYLE: CSSProperties = {
 interface ProcessMobileSlideProps {
   topic: ProcessTopic;
   idx: number;
+  isActive: boolean;
+  prefersReducedMotion: boolean | null;
   cardViewMode: "tobe" | "asis";
   onViewModeChange: (topicId: number, mode: "tobe" | "asis") => void;
   setLightboxItem: (item: {
@@ -26,6 +34,8 @@ interface ProcessMobileSlideProps {
 const ProcessMobileSlide = memo(function ProcessMobileSlide({
   topic,
   idx,
+  isActive,
+  prefersReducedMotion,
   cardViewMode,
   onViewModeChange,
   setLightboxItem,
@@ -37,10 +47,25 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
     [onViewModeChange, topic.id],
   );
 
+  let motionClass = "opacity-100 [transform:scale(1)]";
+  if (!isActive) {
+    motionClass = "opacity-65";
+    if (!prefersReducedMotion) {
+      motionClass = "opacity-65 [transform:scale(0.96)]";
+    }
+  }
+
   return (
     <div
+      data-topic-id={topic.id}
       data-no-skeleton={idx > 0 ? "" : undefined}
-      className="min-w-0 flex-[0_0_96%] sm:flex-[0_0_92%]"
+      className={cn(
+        "w-full min-w-0 flex-[0_0_100%] origin-center snap-center [scroll-snap-stop:always]",
+        prefersReducedMotion
+          ? "transition-opacity duration-200 ease-out"
+          : "transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-[transform,opacity]",
+        motionClass,
+      )}
     >
       <LiquidGlass
         as="div"
@@ -95,7 +120,8 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
 });
 
 interface ProcessMobileCarouselProps {
-  emblaRef: (node: HTMLElement | null) => void;
+  activeTopicId: number;
+  onTopicChange: (topicId: number) => void;
   viewModes: Record<number, "tobe" | "asis">;
   handleTopicViewModeChange: (topicId: number, mode: "tobe" | "asis") => void;
   setLightboxItem: (item: {
@@ -109,38 +135,199 @@ interface ProcessMobileCarouselProps {
 }
 
 function ProcessMobileCarousel({
-  emblaRef,
+  activeTopicId,
+  onTopicChange,
   viewModes,
   handleTopicViewModeChange,
   setLightboxItem,
   prefersReducedMotion,
 }: Readonly<ProcessMobileCarouselProps>) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const isProgrammaticScrollRef = useRef(false);
+  const scrollEndTimeoutRef = useRef<number | null>(null);
+  const isInitialMountRef = useRef(true);
+  const lastReportedTopicIdRef = useRef<number>(activeTopicId);
+
+  // Smoothly scroll the snap container when activeTopicId changes externally
+  useEffect(() => {
+    const isInitial = isInitialMountRef.current;
+    isInitialMountRef.current = false;
+
+    // Ignore topic changes that were reported internally by carousel scrolling
+    if (!isInitial && lastReportedTopicIdRef.current === activeTopicId) {
+      return;
+    }
+    lastReportedTopicIdRef.current = activeTopicId;
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    const targetSlide = container.querySelector<HTMLElement>(
+      `[data-topic-id="${activeTopicId}"]`,
+    );
+    if (!targetSlide) return;
+
+    const targetOffset = Math.max(
+      0,
+      targetSlide.offsetLeft -
+        (container.clientWidth - targetSlide.offsetWidth) / 2,
+    );
+
+    if (Math.abs(container.scrollLeft - targetOffset) <= 2) {
+      return;
+    }
+
+    isProgrammaticScrollRef.current = true;
+    container.scrollTo({
+      left: targetOffset,
+      behavior: isInitial || prefersReducedMotion ? "instant" : "smooth",
+    });
+
+    if (scrollEndTimeoutRef.current !== null) {
+      window.clearTimeout(scrollEndTimeoutRef.current);
+    }
+    scrollEndTimeoutRef.current = window.setTimeout(
+      () => {
+        isProgrammaticScrollRef.current = false;
+        scrollEndTimeoutRef.current = null;
+      },
+      isInitial ? 50 : 500,
+    );
+  }, [activeTopicId, prefersReducedMotion]);
+
+  // Handle user interaction and scrollend events to release scroll lock and sync centered slide
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const resetScrollLock = () => {
+      isProgrammaticScrollRef.current = false;
+      if (scrollEndTimeoutRef.current !== null) {
+        window.clearTimeout(scrollEndTimeoutRef.current);
+        scrollEndTimeoutRef.current = null;
+      }
+    };
+
+    const handleScrollEnd = () => {
+      resetScrollLock();
+
+      // Ensure active slide is in sync after momentum scroll settles
+      const containerRect = container.getBoundingClientRect();
+      if (containerRect.width === 0) return;
+      const containerCenter = containerRect.left + containerRect.width / 2;
+
+      let closestTopicId = -1;
+      let minDistance = Infinity;
+      const slides = container.querySelectorAll<HTMLElement>("[data-topic-id]");
+      slides.forEach((slide) => {
+        const slideRect = slide.getBoundingClientRect();
+        const slideCenter = slideRect.left + slideRect.width / 2;
+        const dist = Math.abs(slideCenter - containerCenter);
+        if (dist < minDistance) {
+          minDistance = dist;
+          const id = Number(slide.dataset.topicId);
+          if (!Number.isNaN(id)) closestTopicId = id;
+        }
+      });
+
+      if (
+        closestTopicId !== -1 &&
+        closestTopicId !== lastReportedTopicIdRef.current
+      ) {
+        lastReportedTopicIdRef.current = closestTopicId;
+        onTopicChange(closestTopicId);
+      }
+    };
+
+    container.addEventListener("scrollend", handleScrollEnd, { passive: true });
+    container.addEventListener("touchstart", resetScrollLock, {
+      passive: true,
+    });
+    container.addEventListener("pointerdown", resetScrollLock, {
+      passive: true,
+    });
+
+    return () => {
+      container.removeEventListener("scrollend", handleScrollEnd);
+      container.removeEventListener("touchstart", resetScrollLock);
+      container.removeEventListener("pointerdown", resetScrollLock);
+      if (scrollEndTimeoutRef.current !== null) {
+        window.clearTimeout(scrollEndTimeoutRef.current);
+        scrollEndTimeoutRef.current = null;
+      }
+    };
+  }, [onTopicChange]);
+
+  // Detect when a slide snaps into center view and notify parent
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isProgrammaticScrollRef.current) return;
+
+        let bestEntry: IntersectionObserverEntry | null = null;
+        for (const entry of entries) {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+            if (
+              !bestEntry ||
+              entry.intersectionRatio > bestEntry.intersectionRatio
+            ) {
+              bestEntry = entry;
+            }
+          }
+        }
+
+        if (bestEntry) {
+          const topicIdStr = (bestEntry.target as HTMLElement).dataset.topicId;
+          if (topicIdStr) {
+            const topicId = Number(topicIdStr);
+            if (
+              !Number.isNaN(topicId) &&
+              topicId !== lastReportedTopicIdRef.current
+            ) {
+              lastReportedTopicIdRef.current = topicId;
+              onTopicChange(topicId);
+            }
+          }
+        }
+      },
+      {
+        root: container,
+        threshold: [0.5, 0.65, 0.75],
+      },
+    );
+
+    const slides = container.querySelectorAll<HTMLElement>("[data-topic-id]");
+    slides.forEach((slide) => observer.observe(slide));
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [onTopicChange]);
+
   return (
     <div className="col-span-1 flex w-full min-w-0 flex-col justify-center lg:hidden">
-      <motion.div
-        whileInView={prefersReducedMotion ? undefined : { x: [0, -24, 0] }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
-        className="flex w-full flex-col"
-      >
+      <div className="flex w-full flex-col">
         <div
-          className="-mx-6 overflow-hidden px-6 py-2 sm:-mx-10 sm:px-10"
-          ref={emblaRef}
+          ref={containerRef}
+          className="-webkit-overflow-scrolling-touch relative -mx-6 flex [touch-action:pan-x_pan-y] snap-x snap-mandatory [scrollbar-width:none] gap-4 overflow-x-auto px-9 py-2 sm:-mx-10 sm:gap-6 sm:px-14 [&::-webkit-scrollbar]:hidden"
         >
-          <div className="flex touch-pan-y gap-4 sm:gap-6">
-            {PROCESS_TOPICS.map((topic, idx) => (
-              <ProcessMobileSlide
-                key={topic.id}
-                topic={topic}
-                idx={idx}
-                cardViewMode={viewModes[topic.id] || "asis"}
-                onViewModeChange={handleTopicViewModeChange}
-                setLightboxItem={setLightboxItem}
-              />
-            ))}
-          </div>
+          {PROCESS_TOPICS.map((topic, idx) => (
+            <ProcessMobileSlide
+              key={topic.id}
+              topic={topic}
+              idx={idx}
+              isActive={topic.id === activeTopicId}
+              cardViewMode={viewModes[topic.id] || "asis"}
+              onViewModeChange={handleTopicViewModeChange}
+              setLightboxItem={setLightboxItem}
+              prefersReducedMotion={prefersReducedMotion}
+            />
+          ))}
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

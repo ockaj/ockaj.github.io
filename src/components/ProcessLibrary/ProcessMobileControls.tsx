@@ -5,16 +5,18 @@ import { PROCESS_TOPICS, type ProcessTopic } from "../../data/processItems";
 
 interface ProcessMobileControlsProps {
   activeTopic: ProcessTopic;
-  activeTopicId: number;
   onPrevTopic: () => void;
   onNextTopic: () => void;
+  prevDisabled: boolean;
+  nextDisabled: boolean;
 }
 
 function ProcessMobileControls({
   activeTopic,
-  activeTopicId,
   onPrevTopic,
   onNextTopic,
+  prevDisabled,
+  nextDisabled,
 }: Readonly<ProcessMobileControlsProps>) {
   return (
     <div className="flex w-full justify-center lg:hidden">
@@ -27,7 +29,7 @@ function ProcessMobileControls({
       >
         <LiquidGlassButton
           onClick={onPrevTopic}
-          disabled={activeTopicId === PROCESS_TOPICS[0].id}
+          disabled={prevDisabled}
           roundedClass="rounded-full"
           className="text-text-primary flex size-[44px] min-h-[44px] min-w-[44px] flex-shrink-0 cursor-pointer items-center justify-center transition-opacity disabled:pointer-events-none disabled:opacity-30"
           aria-label="Previous process topic"
@@ -47,9 +49,7 @@ function ProcessMobileControls({
 
         <LiquidGlassButton
           onClick={onNextTopic}
-          disabled={
-            activeTopicId === PROCESS_TOPICS[PROCESS_TOPICS.length - 1].id
-          }
+          disabled={nextDisabled}
           roundedClass="rounded-full"
           className="text-text-primary flex size-[44px] min-h-[44px] min-w-[44px] flex-shrink-0 cursor-pointer items-center justify-center transition-opacity disabled:pointer-events-none disabled:opacity-30"
           aria-label="Next process topic"

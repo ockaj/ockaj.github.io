@@ -11,7 +11,6 @@ import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { PROCESS_TOPICS, PROCESS_ITEMS } from "../data/processItems";
 import { useAppStore } from "../store/useAppStore";
 import ProcessLightbox from "./ProcessLightbox/ProcessLightbox";
-import useEmblaCarousel from "embla-carousel-react";
 import { prefetchAsset } from "../utils/quicklink";
 import { requestIdle, cancelIdle } from "../utils/idleCallback";
 import { isConnectionConstrained } from "../utils/connection";
@@ -126,12 +125,6 @@ function ProcessLibrary() {
 
   const isMobile = !useMediaQuery("(min-width: 1024px)");
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    loop: false,
-    align: "center",
-    containScroll: false,
-  });
-
   const [direction, setDirection] = useState(1);
 
   const activeTopic = PROCESS_TOPIC_MAP.get(activeTopicId) ?? PROCESS_TOPICS[0];
@@ -156,49 +149,19 @@ function ProcessLibrary() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!emblaApi) return;
+  const handleTopicChange = useCallback((id: number) => {
+    const newIdx = PROCESS_TOPIC_INDEX_MAP.get(id) ?? -1;
+    if (newIdx === -1) return;
 
-    const onSelect = () => {
-      const selectedIdx = emblaApi.selectedScrollSnap();
-      const targetTopic = PROCESS_TOPICS[selectedIdx];
-      if (targetTopic) {
-        setActiveTopicId((prevId) =>
-          prevId === targetTopic.id ? prevId : targetTopic.id,
-        );
-      }
-    };
-
-    emblaApi.on("select", onSelect);
-    return () => {
-      emblaApi.off("select", onSelect);
-    };
-  }, [emblaApi]);
-
-  const handleTopicChange = useCallback(
-    (id: number) => {
-      const newIdx = PROCESS_TOPIC_INDEX_MAP.get(id) ?? -1;
-      if (newIdx === -1) return;
-
-      const oldIdx =
-        PROCESS_TOPIC_INDEX_MAP.get(activeTopicIdRef.current) ?? -1;
-      if (oldIdx !== -1 && newIdx !== oldIdx) {
-        setDirection(newIdx > oldIdx ? 1 : -1);
-        if (emblaApi && isMobile) {
-          emblaApi.scrollTo(newIdx);
-        }
-      }
-      activeTopicIdRef.current = id;
-      setActiveTopicId((prevId) => (prevId === id ? prevId : id));
-    },
-    [emblaApi, isMobile],
-  );
+    const oldIdx = PROCESS_TOPIC_INDEX_MAP.get(activeTopicIdRef.current) ?? -1;
+    if (oldIdx !== -1 && newIdx !== oldIdx) {
+      setDirection(newIdx > oldIdx ? 1 : -1);
+    }
+    activeTopicIdRef.current = id;
+    setActiveTopicId((prevId) => (prevId === id ? prevId : id));
+  }, []);
 
   const handlePrevTopic = useCallback(() => {
-    if (isMobile && emblaApi) {
-      emblaApi.scrollPrev();
-      return;
-    }
     setDirection(-1);
     setActiveTopicId((prevId) => {
       const currentIndex = PROCESS_TOPIC_INDEX_MAP.get(prevId) ?? -1;
@@ -207,13 +170,9 @@ function ProcessLibrary() {
       }
       return prevId;
     });
-  }, [isMobile, emblaApi]);
+  }, []);
 
   const handleNextTopic = useCallback(() => {
-    if (isMobile && emblaApi) {
-      emblaApi.scrollNext();
-      return;
-    }
     setDirection(1);
     setActiveTopicId((prevId) => {
       const currentIndex = PROCESS_TOPIC_INDEX_MAP.get(prevId) ?? -1;
@@ -222,7 +181,11 @@ function ProcessLibrary() {
       }
       return prevId;
     });
-  }, [isMobile, emblaApi]);
+  }, []);
+
+  const prevDisabled = activeTopicId === PROCESS_TOPICS[0].id;
+  const nextDisabled =
+    activeTopicId === PROCESS_TOPICS[PROCESS_TOPICS.length - 1].id;
 
   return (
     <>
@@ -243,10 +206,11 @@ function ProcessLibrary() {
             prefersReducedMotion={prefersReducedMotion}
           />
 
-          {/* Mobile Column: Embla Carousel */}
+          {/* Mobile Column: CSS Scroll Snap Carousel */}
           {isMobile ? (
             <ProcessMobileCarousel
-              emblaRef={emblaRef}
+              activeTopicId={activeTopicId}
+              onTopicChange={handleTopicChange}
               viewModes={viewModes}
               handleTopicViewModeChange={handleTopicViewModeChange}
               setLightboxItem={handleOpenLightbox}
@@ -255,22 +219,25 @@ function ProcessLibrary() {
           ) : null}
 
           {/* Desktop Right Column: Display Stage */}
-          <ProcessDesktopCard
-            activeTopic={activeTopic}
-            activeViewMode={activeViewMode}
-            handleTopicViewModeChange={handleTopicViewModeChange}
-            setLightboxItem={handleOpenLightbox}
-            prefersReducedMotion={prefersReducedMotion}
-            direction={direction}
-            cardVariants={cardVariants}
-          />
+          {!isMobile ? (
+            <ProcessDesktopCard
+              activeTopic={activeTopic}
+              activeViewMode={activeViewMode}
+              handleTopicViewModeChange={handleTopicViewModeChange}
+              setLightboxItem={handleOpenLightbox}
+              prefersReducedMotion={prefersReducedMotion}
+              direction={direction}
+              cardVariants={cardVariants}
+            />
+          ) : null}
 
           {/* Mobile Topic Selector Dock */}
           <ProcessMobileControls
             activeTopic={activeTopic}
-            activeTopicId={activeTopicId}
             onPrevTopic={handlePrevTopic}
             onNextTopic={handleNextTopic}
+            prevDisabled={prevDisabled}
+            nextDisabled={nextDisabled}
           />
         </motion.div>
       </div>
