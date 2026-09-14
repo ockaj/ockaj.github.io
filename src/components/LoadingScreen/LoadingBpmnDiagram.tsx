@@ -163,32 +163,25 @@ function StaticBpmnNodeBases() {
   );
 }
 
+export type LoadingNodeId =
+  "start" | "task1" | "gateway" | "task2" | "task3" | "mergeGateway" | "end";
+
 interface LoadingBpmnDiagramProps {
-  nodes: {
-    start?: boolean;
-    task1?: boolean;
-    gateway?: boolean;
-    task2?: boolean;
-    task3?: boolean;
-    mergeGateway?: boolean;
-    end?: boolean;
-  };
+  activeNodes: ReadonlySet<LoadingNodeId>;
   count: MotionValue<number>;
 }
 
 export default function LoadingBpmnDiagram({
-  nodes,
+  activeNodes,
   count,
 }: Readonly<LoadingBpmnDiagramProps>) {
-  const {
-    start: nodeStart = false,
-    task1: nodeTask1 = false,
-    gateway: nodeGateway = false,
-    task2: nodeTask2 = false,
-    task3: nodeTask3 = false,
-    mergeGateway: nodeMergeGateway = false,
-    end: nodeEnd = false,
-  } = nodes;
+  const nodeStart = activeNodes.has("start");
+  const nodeTask1 = activeNodes.has("task1");
+  const nodeGateway = activeNodes.has("gateway");
+  const nodeTask2 = activeNodes.has("task2");
+  const nodeTask3 = activeNodes.has("task3");
+  const nodeMergeGateway = activeNodes.has("mergeGateway");
+  const nodeEnd = activeNodes.has("end");
 
   const path1 = useTransform(count, [10, 25], [0, 1]);
   const path2 = useTransform(count, [35, 50], [0, 1]);

@@ -6,7 +6,9 @@ import {
   useTransform,
 } from "motion/react";
 import { useIsMobile } from "../hooks/useMediaQuery";
-import LoadingBpmnDiagram from "./LoadingScreen/LoadingBpmnDiagram";
+import LoadingBpmnDiagram, {
+  type LoadingNodeId,
+} from "./LoadingScreen/LoadingBpmnDiagram";
 import LoadingMethodologyChecklist from "./LoadingScreen/LoadingMethodologyChecklist";
 import { BPMN_STEPS } from "./LoadingScreen/loadingData";
 import { SECTION_ANIMATE } from "../utils/motionVariants";
@@ -18,65 +20,39 @@ interface LoadingScreenProps {
   onComplete: () => void;
 }
 
-interface LoadingNodes {
-  start?: boolean;
-  task1?: boolean;
-  gateway?: boolean;
-  task2?: boolean;
-  task3?: boolean;
-  mergeGateway?: boolean;
-  end?: boolean;
-}
+const NODE_THRESHOLDS: readonly {
+  readonly id: LoadingNodeId;
+  readonly threshold: number;
+}[] = [
+  { id: "start", threshold: 5 },
+  { id: "task1", threshold: 25 },
+  { id: "gateway", threshold: 50 },
+  { id: "task2", threshold: 75 },
+  { id: "task3", threshold: 75 },
+  { id: "mergeGateway", threshold: 90 },
+  { id: "end", threshold: 95 },
+];
 
-function checkNodeThresholds(
+const ALL_LOADING_NODES: ReadonlySet<LoadingNodeId> = new Set<LoadingNodeId>([
+  "start",
+  "task1",
+  "gateway",
+  "task2",
+  "task3",
+  "mergeGateway",
+  "end",
+]);
+
+function getActiveNodesForProgress(
   current: number,
-  refs: {
-    start: { current: boolean };
-    task1: { current: boolean };
-    gateway: { current: boolean };
-    task2: { current: boolean };
-    task3: { current: boolean };
-    mergeGateway: { current: boolean };
-    end: { current: boolean };
-  },
-) {
-  const updatedNodes: LoadingNodes = {};
-  let nodesUpdated = false;
-
-  if (current >= 5 && !refs.start.current) {
-    refs.start.current = true;
-    updatedNodes.start = true;
-    nodesUpdated = true;
+): ReadonlySet<LoadingNodeId> {
+  const set = new Set<LoadingNodeId>();
+  for (const node of NODE_THRESHOLDS) {
+    if (current >= node.threshold) {
+      set.add(node.id);
+    }
   }
-  if (current >= 25 && !refs.task1.current) {
-    refs.task1.current = true;
-    updatedNodes.task1 = true;
-    nodesUpdated = true;
-  }
-  if (current >= 50 && !refs.gateway.current) {
-    refs.gateway.current = true;
-    updatedNodes.gateway = true;
-    nodesUpdated = true;
-  }
-  if (current >= 75 && !refs.task2.current) {
-    refs.task2.current = true;
-    refs.task3.current = true;
-    updatedNodes.task2 = true;
-    updatedNodes.task3 = true;
-    nodesUpdated = true;
-  }
-  if (current >= 90 && !refs.mergeGateway.current) {
-    refs.mergeGateway.current = true;
-    updatedNodes.mergeGateway = true;
-    nodesUpdated = true;
-  }
-  if (current >= 95 && !refs.end.current) {
-    refs.end.current = true;
-    updatedNodes.end = true;
-    nodesUpdated = true;
-  }
-
-  return { nodesUpdated, updatedNodes };
+  return set;
 }
 
 interface StepSnapshot {
@@ -130,28 +106,13 @@ export default function LoadingScreen({
 
   // Threshold-triggered React states (only re-render when crossed, not every frame)
   const [loadingState, setLoadingState] = useState(() => ({
-    nodes: {
-      start: initialVal >= 5,
-      task1: initialVal >= 25,
-      gateway: initialVal >= 50,
-      task2: initialVal >= 75,
-      task3: initialVal >= 75,
-      mergeGateway: initialVal >= 90,
-      end: initialVal >= 95,
-    },
+    activeNodes: getActiveNodesForProgress(initialVal),
     activeStepIdx: -1,
     completedSteps: BPMN_STEPS.map(() => initialVal >= 100),
   }));
-  const { nodes, activeStepIdx, completedSteps } = loadingState;
+  const { activeNodes, activeStepIdx, completedSteps } = loadingState;
 
-  // Refs to avoid stale closures in RAF
-  const nodeStartRef = useRef(initialVal >= 5);
-  const nodeTask1Ref = useRef(initialVal >= 25);
-  const nodeGatewayRef = useRef(initialVal >= 50);
-  const nodeTask2Ref = useRef(initialVal >= 75);
-  const nodeTask3Ref = useRef(initialVal >= 75);
-  const nodeMergeGatewayRef = useRef(initialVal >= 90);
-  const nodeEndRef = useRef(initialVal >= 95);
+  const activeNodeCountRef = useRef(activeNodes.size);
 
   const handleSkip = () => {
     if (rafRef.current) {
@@ -161,15 +122,7 @@ export default function LoadingScreen({
     if (!doneRef.current) {
       doneRef.current = true;
       setLoadingState({
-        nodes: {
-          start: true,
-          task1: true,
-          gateway: true,
-          task2: true,
-          task3: true,
-          mergeGateway: true,
-          end: true,
-        },
+        activeNodes: ALL_LOADING_NODES,
         activeStepIdx: BPMN_STEPS.length - 1,
         completedSteps: BPMN_STEPS.map(() => true),
       });
@@ -199,16 +152,6 @@ export default function LoadingScreen({
     const DURATION = 1800;
     startTimeRef.current = null;
 
-    const nodeRefs = {
-      start: nodeStartRef,
-      task1: nodeTask1Ref,
-      gateway: nodeGatewayRef,
-      task2: nodeTask2Ref,
-      task3: nodeTask3Ref,
-      mergeGateway: nodeMergeGatewayRef,
-      end: nodeEndRef,
-    };
-
     const tick = (timestamp: number) => {
       if (!startTimeRef.current) startTimeRef.current = timestamp;
       const elapsed = timestamp - startTimeRef.current;
@@ -218,10 +161,12 @@ export default function LoadingScreen({
 
       count.set(eased * 100);
 
-      const { nodesUpdated, updatedNodes } = checkNodeThresholds(
-        current,
-        nodeRefs,
-      );
+      const currentActiveNodes = getActiveNodesForProgress(current);
+      const nodesUpdated =
+        currentActiveNodes.size !== activeNodeCountRef.current;
+      if (nodesUpdated) {
+        activeNodeCountRef.current = currentActiveNodes.size;
+      }
 
       const { stepsDirty, stepIdx, completed } = checkStepThresholds(
         current,
@@ -232,20 +177,11 @@ export default function LoadingScreen({
       }
 
       if (nodesUpdated || stepsDirty) {
-        setLoadingState((prev) => {
-          const nextNodes = nodesUpdated
-            ? { ...prev.nodes, ...updatedNodes }
-            : prev.nodes;
-          const nextActiveStepIdx = stepsDirty ? stepIdx : prev.activeStepIdx;
-          const nextCompletedSteps = stepsDirty
-            ? completed
-            : prev.completedSteps;
-          return {
-            nodes: nextNodes,
-            activeStepIdx: nextActiveStepIdx,
-            completedSteps: nextCompletedSteps,
-          };
-        });
+        setLoadingState((prev) => ({
+          activeNodes: nodesUpdated ? currentActiveNodes : prev.activeNodes,
+          activeStepIdx: stepsDirty ? stepIdx : prev.activeStepIdx,
+          completedSteps: stepsDirty ? completed : prev.completedSteps,
+        }));
       }
 
       if (progress < 1) {
@@ -305,7 +241,9 @@ export default function LoadingScreen({
 
       {/* Center: BPMN Diagram Area */}
       <div className="relative z-10 flex w-full flex-1 items-center justify-center py-6">
-        {!isMobile ? <LoadingBpmnDiagram nodes={nodes} count={count} /> : null}
+        {!isMobile ? (
+          <LoadingBpmnDiagram activeNodes={activeNodes} count={count} />
+        ) : null}
         {isMobile ? <div className="flex-1" /> : null}
       </div>
 

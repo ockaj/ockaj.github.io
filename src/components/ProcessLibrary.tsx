@@ -4,6 +4,7 @@ import {
   useLayoutEffect,
   useCallback,
   useRef,
+  useMemo,
   memo,
 } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
@@ -27,6 +28,10 @@ import ProcessDesktopCard from "./ProcessLibrary/ProcessDesktopCard";
 import ProcessMobileCarousel from "./ProcessLibrary/ProcessMobileCarousel";
 import ProcessTopicMenu from "./ProcessLibrary/ProcessTopicMenu";
 import ProcessMobileControls from "./ProcessLibrary/ProcessMobileControls";
+import {
+  ProcessLibraryContext,
+  type ProcessLibraryContextValue,
+} from "./ProcessLibrary/ProcessLibraryContext";
 
 const isBuildMode = isBoneyardBuild();
 const containerVariants = containerStaggerVariants();
@@ -184,8 +189,46 @@ function ProcessLibrary() {
   const nextDisabled =
     activeTopicId === PROCESS_TOPICS[PROCESS_TOPICS.length - 1].id;
 
+  const contextValue = useMemo<ProcessLibraryContextValue>(
+    () => ({
+      state: {
+        activeTopicId,
+        activeTopic,
+        activeViewMode,
+        viewModes,
+        direction,
+        prevDisabled,
+        nextDisabled,
+        prefersReducedMotion,
+        cardVariants,
+      },
+      actions: {
+        onTopicChange: handleTopicChange,
+        onPrevTopic: handlePrevTopic,
+        onNextTopic: handleNextTopic,
+        handleTopicViewModeChange,
+        setLightboxItem: handleOpenLightbox,
+      },
+    }),
+    [
+      activeTopicId,
+      activeTopic,
+      activeViewMode,
+      viewModes,
+      direction,
+      prevDisabled,
+      nextDisabled,
+      prefersReducedMotion,
+      handleTopicChange,
+      handlePrevTopic,
+      handleNextTopic,
+      handleTopicViewModeChange,
+      handleOpenLightbox,
+    ],
+  );
+
   return (
-    <>
+    <ProcessLibraryContext value={contextValue}>
       <div className="px-6 md:px-10 lg:px-16">
         <motion.div
           custom={prefersReducedMotion}
@@ -196,42 +239,16 @@ function ProcessLibrary() {
           className="relative z-20 grid grid-cols-1 items-stretch gap-5 sm:gap-6 md:gap-8 lg:grid-cols-12 lg:gap-12"
         >
           {/* Left Column: Index Menu Selector */}
-          <ProcessTopicMenu
-            activeTopicId={activeTopicId}
-            onTopicChange={handleTopicChange}
-            cardVariants={cardVariants}
-            prefersReducedMotion={prefersReducedMotion}
-          />
+          <ProcessTopicMenu />
 
           {/* Mobile Column: CSS Scroll Snap Carousel */}
-          <ProcessMobileCarousel
-            activeTopicId={activeTopicId}
-            onTopicChange={handleTopicChange}
-            viewModes={viewModes}
-            handleTopicViewModeChange={handleTopicViewModeChange}
-            setLightboxItem={handleOpenLightbox}
-            prefersReducedMotion={prefersReducedMotion}
-          />
+          <ProcessMobileCarousel />
 
           {/* Desktop Right Column: Display Stage */}
-          <ProcessDesktopCard
-            activeTopic={activeTopic}
-            activeViewMode={activeViewMode}
-            handleTopicViewModeChange={handleTopicViewModeChange}
-            setLightboxItem={handleOpenLightbox}
-            prefersReducedMotion={prefersReducedMotion}
-            direction={direction}
-            cardVariants={cardVariants}
-          />
+          <ProcessDesktopCard />
 
           {/* Mobile Topic Selector Dock */}
-          <ProcessMobileControls
-            activeTopic={activeTopic}
-            onPrevTopic={handlePrevTopic}
-            onNextTopic={handleNextTopic}
-            prevDisabled={prevDisabled}
-            nextDisabled={nextDisabled}
-          />
+          <ProcessMobileControls />
         </motion.div>
       </div>
 
@@ -244,7 +261,7 @@ function ProcessLibrary() {
           />
         ) : null}
       </AnimatePresence>
-    </>
+    </ProcessLibraryContext>
   );
 }
 

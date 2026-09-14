@@ -2,9 +2,8 @@ import { memo, type CSSProperties } from "react";
 import { motion, AnimatePresence, type Variants } from "motion/react";
 import { LiquidGlass } from "../LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
-import { type ProcessTopic } from "../../data/processItems";
 import ProcessVariantStage from "./ProcessVariantStage";
-
+import { useProcessLibraryContext } from "./ProcessLibraryContext";
 import { SPRING } from "../../utils/springConfig";
 
 const DESKTOP_HIGHLIGHT_STYLE: CSSProperties = {
@@ -41,32 +40,21 @@ const defaultTabContentVariants: Variants = {
 };
 
 interface ProcessDesktopCardProps {
-  activeTopic: ProcessTopic;
-  activeViewMode: "tobe" | "asis";
-  handleTopicViewModeChange: (topicId: number, mode: "tobe" | "asis") => void;
-  setLightboxItem: (item: {
-    id: number;
-    title: string;
-    description: string;
-    image: string;
-    type: string;
-  }) => void;
-  prefersReducedMotion: boolean | null;
-  direction: number;
-  cardVariants: Variants;
   tabContentVariants?: Variants;
 }
 
 function ProcessDesktopCard({
-  activeTopic,
-  activeViewMode,
-  handleTopicViewModeChange,
-  setLightboxItem,
-  prefersReducedMotion,
-  direction,
-  cardVariants,
   tabContentVariants = defaultTabContentVariants,
-}: Readonly<ProcessDesktopCardProps>) {
+}: Readonly<ProcessDesktopCardProps> = {}) {
+  const { state, actions } = useProcessLibraryContext();
+  const {
+    activeTopic,
+    activeViewMode,
+    prefersReducedMotion,
+    direction,
+    cardVariants,
+  } = state;
+  const { handleTopicViewModeChange, setLightboxItem } = actions;
   return (
     <motion.div
       variants={cardVariants}

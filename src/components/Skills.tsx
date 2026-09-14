@@ -133,7 +133,11 @@ function Skills() {
             custom={prefersReducedMotion}
             className={cn(category.gridSpan, "h-full")}
           >
-            <SkillCard category={category} />
+            {category.isWide ? (
+              <WideSkillCard category={category} />
+            ) : (
+              <CompactSkillCard category={category} />
+            )}
           </motion.div>
         ))}
       </motion.div>
@@ -187,11 +191,24 @@ interface Category {
   isWide: boolean;
 }
 
-const SkillCard = memo(function SkillCard({
-  category,
-}: {
+const SkillItem = memo(function SkillItem({ skill }: { skill: string }) {
+  return (
+    <p className="text-muted/80 skill-item-hover group/item flex cursor-default items-start gap-1 text-sm text-pretty">
+      <span className="flex h-5 w-4 flex-shrink-0 items-center justify-start">
+        <span className="bg-accent/60 group-hover/item:bg-accent h-1.5 w-3.5 rounded-full transition-[clip-path,background-color] duration-200 ease-out [clip-path:inset(0_57.14%_0_0_round_9999px)] group-hover/item:[clip-path:inset(0_0_0_0_round_9999px)]" />
+      </span>
+      <span className="skill-item-text flex-1">{skill}</span>
+    </p>
+  );
+});
+
+interface SkillCardVariantProps {
   category: Category;
-}) {
+}
+
+const WideSkillCard = memo(function WideSkillCard({
+  category,
+}: SkillCardVariantProps) {
   const Icon = category.icon;
 
   return (
@@ -201,21 +218,8 @@ const SkillCard = memo(function SkillCard({
       className="h-full w-full flex-col items-stretch justify-start p-6 text-left md:p-8"
       tilt
     >
-      <div
-        className={cn(
-          "flex h-full w-full flex-col",
-          category.isWide && "md:flex-row md:justify-between md:gap-8",
-        )}
-      >
-        {/* Left content block */}
-        <div
-          className={
-            category.isWide
-              ? "mb-5 flex-shrink-0 md:mb-0 md:max-w-[40%]"
-              : "mb-5"
-          }
-        >
-          {/* Icon & Title */}
+      <div className="flex h-full w-full flex-col md:flex-row md:justify-between md:gap-8">
+        <div className="mb-5 flex-shrink-0 md:mb-0 md:max-w-[40%]">
           <div className="flex items-center gap-3">
             <Icon
               size={20}
@@ -227,23 +231,44 @@ const SkillCard = memo(function SkillCard({
           </div>
         </div>
 
-        <div
-          className={cn(
-            "space-y-2.5",
-            category.isWide &&
-              "md:grid md:flex-1 md:grid-cols-2 md:space-y-0 md:gap-x-6 md:gap-y-2.5 md:self-center",
-          )}
-        >
+        <div className="space-y-2.5 md:grid md:flex-1 md:grid-cols-2 md:space-y-0 md:gap-x-6 md:gap-y-2.5 md:self-center">
           {category.skills.map((skill) => (
-            <p
-              key={skill}
-              className="text-muted/80 skill-item-hover group/item flex cursor-default items-start gap-1 text-sm text-pretty"
-            >
-              <span className="flex h-5 w-4 flex-shrink-0 items-center justify-start">
-                <span className="bg-accent/60 group-hover/item:bg-accent h-1.5 w-3.5 rounded-full transition-[clip-path,background-color] duration-200 ease-out [clip-path:inset(0_57.14%_0_0_round_9999px)] group-hover/item:[clip-path:inset(0_0_0_0_round_9999px)]" />
-              </span>
-              <span className="skill-item-text flex-1">{skill}</span>
-            </p>
+            <SkillItem key={skill} skill={skill} />
+          ))}
+        </div>
+      </div>
+    </LiquidGlass>
+  );
+});
+
+const CompactSkillCard = memo(function CompactSkillCard({
+  category,
+}: SkillCardVariantProps) {
+  const Icon = category.icon;
+
+  return (
+    <LiquidGlass
+      as="div"
+      roundedClass="rounded-2xl"
+      className="h-full w-full flex-col items-stretch justify-start p-6 text-left md:p-8"
+      tilt
+    >
+      <div className="flex h-full w-full flex-col">
+        <div className="mb-5">
+          <div className="flex items-center gap-3">
+            <Icon
+              size={20}
+              className="text-muted group-hover:text-accent flex-shrink-0 transition-colors duration-300"
+            />
+            <h3 className="text-text-primary text-base font-semibold text-balance">
+              {category.title}
+            </h3>
+          </div>
+        </div>
+
+        <div className="space-y-2.5">
+          {category.skills.map((skill) => (
+            <SkillItem key={skill} skill={skill} />
           ))}
         </div>
       </div>

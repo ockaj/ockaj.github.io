@@ -11,6 +11,7 @@ import { PROCESS_TOPICS, type ProcessTopic } from "../../data/processItems";
 import { cn } from "../../utils/cn";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 import ProcessVariantStage from "./ProcessVariantStage";
+import { useProcessLibraryContext } from "./ProcessLibraryContext";
 
 const MOBILE_HIGHLIGHT_STYLE: CSSProperties = {
   "--base-radius": "10px",
@@ -121,29 +122,10 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
   );
 });
 
-interface ProcessMobileCarouselProps {
-  activeTopicId: number;
-  onTopicChange: (topicId: number) => void;
-  viewModes: Record<number, "tobe" | "asis">;
-  handleTopicViewModeChange: (topicId: number, mode: "tobe" | "asis") => void;
-  setLightboxItem: (item: {
-    id: number;
-    title: string;
-    description: string;
-    image: string;
-    type: string;
-  }) => void;
-  prefersReducedMotion: boolean | null;
-}
-
-function ProcessMobileCarousel({
-  activeTopicId,
-  onTopicChange,
-  viewModes,
-  handleTopicViewModeChange,
-  setLightboxItem,
-  prefersReducedMotion,
-}: Readonly<ProcessMobileCarouselProps>) {
+function ProcessMobileCarousel() {
+  const { state, actions } = useProcessLibraryContext();
+  const { activeTopicId, viewModes, prefersReducedMotion } = state;
+  const { onTopicChange, handleTopicViewModeChange, setLightboxItem } = actions;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const isProgrammaticScrollRef = useRef(false);
   const scrollEndTimeoutRef = useRef<number | null>(null);

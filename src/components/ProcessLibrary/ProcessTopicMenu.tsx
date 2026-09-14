@@ -1,22 +1,14 @@
 import { memo } from "react";
-import { motion, type Variants } from "motion/react";
+import { motion } from "motion/react";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
 import { PROCESS_TOPICS } from "../../data/processItems";
 import { cn } from "../../utils/cn";
+import { useProcessLibraryContext } from "./ProcessLibraryContext";
 
-interface ProcessTopicMenuProps {
-  activeTopicId: number;
-  onTopicChange: (id: number) => void;
-  cardVariants: Variants;
-  prefersReducedMotion?: boolean | null;
-}
-
-function ProcessTopicMenu({
-  activeTopicId,
-  onTopicChange,
-  cardVariants,
-  prefersReducedMotion,
-}: Readonly<ProcessTopicMenuProps>) {
+function ProcessTopicMenu() {
+  const { state, actions } = useProcessLibraryContext();
+  const { activeTopicId, cardVariants, prefersReducedMotion } = state;
+  const { onTopicChange } = actions;
   return (
     <motion.div
       variants={cardVariants}

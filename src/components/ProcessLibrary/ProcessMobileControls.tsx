@@ -1,23 +1,13 @@
 import { memo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { LiquidGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
-import { PROCESS_TOPICS, type ProcessTopic } from "../../data/processItems";
+import { PROCESS_TOPICS } from "../../data/processItems";
+import { useProcessLibraryContext } from "./ProcessLibraryContext";
 
-interface ProcessMobileControlsProps {
-  activeTopic: ProcessTopic;
-  onPrevTopic: () => void;
-  onNextTopic: () => void;
-  prevDisabled: boolean;
-  nextDisabled: boolean;
-}
-
-function ProcessMobileControls({
-  activeTopic,
-  onPrevTopic,
-  onNextTopic,
-  prevDisabled,
-  nextDisabled,
-}: Readonly<ProcessMobileControlsProps>) {
+function ProcessMobileControls() {
+  const { state, actions } = useProcessLibraryContext();
+  const { activeTopic, prevDisabled, nextDisabled } = state;
+  const { onPrevTopic, onNextTopic } = actions;
   return (
     <div className="flex w-full justify-center lg:hidden">
       <LiquidGlass
