@@ -11,7 +11,7 @@ import { motion, type MotionStyle } from "motion/react";
 import { cn } from "../../utils/cn";
 import { springs } from "./config";
 import {
-  type LiquidGlassProps,
+  type StaticGlassProps,
   type LiquidGlassTagProps,
   type LiquidGlassAnimationProps,
   type LiquidGlassDomProps,
@@ -32,7 +32,7 @@ export function assignRef<T>(ref: Ref<T> | undefined, node: T | null): void {
 }
 
 export function getContentTagAndClasses(
-  as: LiquidGlassProps["as"],
+  as: StaticGlassProps["as"],
   innerClassName?: string,
 ) {
   const isInline = as === "a" || as === "button" || as === "span";

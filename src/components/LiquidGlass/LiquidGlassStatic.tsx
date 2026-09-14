@@ -1,9 +1,12 @@
 import { useMemo, type CSSProperties, type Ref, type ElementType } from "react";
-import { type LiquidGlassPropsWithRef, WHITESPACE_REGEX } from "./types";
+import { type StaticGlassPropsWithRef, WHITESPACE_REGEX } from "./types";
 import { getInnerGlassStyle } from "./config";
 import { cn } from "../../utils/cn";
 
-export default function LiquidGlassStatic({
+/**
+ * Static glass surface with layout and styling properties.
+ */
+export function StaticGlass({
   children,
   as = "div",
   href,
@@ -18,17 +21,9 @@ export default function LiquidGlassStatic({
   roundedClass = "rounded-full",
   variant = "flat",
   active = false,
-  interactive: _interactive,
-  springScale: _springScale,
-  magnetic: _magnetic,
-  tilt: _tilt,
-  magneticStrength: _magneticStrength,
-  tiltStrength: _tiltStrength,
-  ripple: _ripple,
-  specularGlow: _specularGlow,
   ref,
   ...domProps
-}: Readonly<LiquidGlassPropsWithRef>) {
+}: Readonly<StaticGlassPropsWithRef>) {
   const borderActiveClasses = active
     ? "border-white/[0.15] bg-white/[0.04]"
     : "border-white/[0.04] bg-white/[0.015]";
@@ -55,15 +50,18 @@ export default function LiquidGlassStatic({
     };
   }, [style]);
 
+  const resolvedAs = href ? "a" : as;
   const ContentTag =
-    as === "a" || as === "button" || as === "span" ? "span" : "div";
+    resolvedAs === "a" || resolvedAs === "button" || resolvedAs === "span"
+      ? "span"
+      : "div";
   const contentClasses = `relative z-30 w-full h-full ${
-    as === "a" || as === "button" || as === "span"
+    resolvedAs === "a" || resolvedAs === "button" || resolvedAs === "span"
       ? "flex items-center justify-center gap-2 font-semibold"
       : ""
   } ${innerClassName}`.trim();
 
-  const Tag = as as ElementType;
+  const Tag = resolvedAs as ElementType;
 
   return (
     <Tag
@@ -91,4 +89,10 @@ export default function LiquidGlassStatic({
   );
 }
 
-LiquidGlassStatic.displayName = "LiquidGlassStatic";
+StaticGlass.displayName = "StaticGlass";
+
+/**
+ * Default export of the static glass component.
+ * @alias
+ */
+export default StaticGlass;

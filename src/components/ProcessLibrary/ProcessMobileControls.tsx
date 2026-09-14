@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { LiquidGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import { StaticGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import { PROCESS_TOPICS } from "../../data/processItems";
 import { useProcessLibraryContext } from "./ProcessLibraryContext";
 
@@ -10,9 +10,8 @@ function ProcessMobileControls() {
   const { onPrevTopic, onNextTopic } = actions;
   return (
     <div className="flex w-full justify-center lg:hidden">
-      <LiquidGlass
+      <StaticGlass
         as="div"
-        interactive={false}
         roundedClass="rounded-full"
         className="px-2.5 py-2 shadow-lg"
         innerClassName="flex items-center gap-3.5"
@@ -46,7 +45,7 @@ function ProcessMobileControls() {
         >
           <ChevronRight size={18} />
         </LiquidGlassButton>
-      </LiquidGlass>
+      </StaticGlass>
     </div>
   );
 }

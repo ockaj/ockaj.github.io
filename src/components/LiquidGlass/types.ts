@@ -10,7 +10,11 @@ import { type MotionStyle } from "motion/react";
 export const DEFAULT_STYLE: CSSProperties = {};
 export const WHITESPACE_REGEX = /\s+/g;
 
-export interface LiquidGlassProps extends AllHTMLAttributes<HTMLElement> {
+/**
+ * Pure layout and glass styling properties.
+ * Does not include physics or motion properties.
+ */
+export interface StaticGlassProps extends AllHTMLAttributes<HTMLElement> {
   children?: ReactNode;
   as?: "div" | "button" | "a" | "article" | "section" | "span";
   href?: string;
@@ -22,23 +26,50 @@ export interface LiquidGlassProps extends AllHTMLAttributes<HTMLElement> {
   className?: string;
   innerClassName?: string;
   style?: CSSProperties;
-  interactive?: boolean;
-  springScale?: boolean;
   roundedClass?: string;
+  variant?: "flat" | "sunken" | "beveled";
+  active?: boolean;
+}
+
+/**
+ * Interactive glass properties with physics and motion settings.
+ */
+export interface InteractiveGlassProps extends StaticGlassProps {
+  springScale?: boolean;
   magnetic?: boolean;
   tilt?: boolean;
   magneticStrength?: number;
   tiltStrength?: number;
   ripple?: boolean;
-  variant?: "flat" | "sunken" | "beveled";
-  active?: boolean;
   specularGlow?: boolean;
 }
 
-export type LiquidGlassButtonProps = Omit<
-  LiquidGlassProps,
+/**
+ * Specialized interactive button and anchor properties.
+ */
+export type GlassButtonProps = Omit<
+  InteractiveGlassProps,
   "as" | "springScale"
 >;
+
+/**
+ * Composite properties for the backwards-compatible adaptive facade.
+ */
+export interface LiquidGlassProps extends InteractiveGlassProps {
+  interactive?: boolean;
+}
+
+export interface StaticGlassPropsWithRef extends StaticGlassProps {
+  ref?: Ref<HTMLElement | null>;
+}
+
+export interface InteractiveGlassPropsWithRef extends InteractiveGlassProps {
+  ref?: Ref<HTMLElement | null>;
+}
+
+export interface GlassButtonPropsWithRef extends GlassButtonProps {
+  ref?: Ref<HTMLElement | null>;
+}
 
 export interface LiquidGlassPropsWithRef extends LiquidGlassProps {
   ref?: Ref<HTMLElement | null>;

@@ -1,31 +1,65 @@
 "use client";
 
-import { memo, type Ref } from "react";
+import { memo } from "react";
 import { useIsMobile } from "../../hooks/useMediaQuery";
-import LiquidGlassStatic from "./LiquidGlassStatic";
+import { StaticGlass } from "./LiquidGlassStatic";
 import LiquidGlassMobile from "./LiquidGlassMobile";
 import LiquidGlassDesktop from "./LiquidGlassDesktop";
-import { type LiquidGlassProps, type LiquidGlassButtonProps } from "./types";
+import {
+  type LiquidGlassPropsWithRef,
+  type InteractiveGlassPropsWithRef,
+  type GlassButtonPropsWithRef,
+} from "./types";
 
-interface LiquidGlassButtonPropsWithRef extends LiquidGlassButtonProps {
-  ref?: Ref<HTMLElement | null>;
-}
-
-const LiquidGlass = memo(function LiquidGlass({
+/**
+ * Dynamic glass surface with desktop physics and mobile touch support.
+ */
+export const InteractiveGlass = memo(function InteractiveGlass({
   ref,
   ...props
-}: LiquidGlassProps & { ref?: Ref<HTMLElement | null> }) {
+}: Readonly<InteractiveGlassPropsWithRef>) {
   const isMobile = useIsMobile();
-  const isInteractive = props.interactive ?? true;
-
-  if (!isInteractive) {
-    return <LiquidGlassStatic ref={ref} {...props} />;
-  }
 
   if (isMobile) {
     return <LiquidGlassMobile ref={ref} {...props} />;
   }
   return <LiquidGlassDesktop ref={ref} {...props} />;
+});
+
+InteractiveGlass.displayName = "InteractiveGlass";
+
+/**
+ * Backwards-compatible adaptive facade that delegates to StaticGlass or InteractiveGlass.
+ */
+export const LiquidGlass = memo(function LiquidGlass({
+  ref,
+  interactive = true,
+  springScale,
+  magnetic,
+  tilt,
+  magneticStrength,
+  tiltStrength,
+  ripple,
+  specularGlow,
+  ...staticProps
+}: Readonly<LiquidGlassPropsWithRef>) {
+  if (!interactive) {
+    return <StaticGlass ref={ref} {...staticProps} />;
+  }
+
+  return (
+    <InteractiveGlass
+      ref={ref}
+      springScale={springScale}
+      magnetic={magnetic}
+      tilt={tilt}
+      magneticStrength={magneticStrength}
+      tiltStrength={tiltStrength}
+      ripple={ripple}
+      specularGlow={specularGlow}
+      {...staticProps}
+    />
+  );
 });
 
 LiquidGlass.displayName = "LiquidGlass";
@@ -45,9 +79,9 @@ function LiquidGlassButtonComponent({
   tiltStrength,
   ref,
   ...rest
-}: Readonly<LiquidGlassButtonPropsWithRef>) {
+}: Readonly<GlassButtonPropsWithRef>) {
   return (
-    <LiquidGlass
+    <InteractiveGlass
       ref={ref}
       as={href ? "a" : "button"}
       href={href}
@@ -65,13 +99,13 @@ function LiquidGlassButtonComponent({
       {...rest}
     >
       {children}
-    </LiquidGlass>
+    </InteractiveGlass>
   );
 }
 
 LiquidGlassButtonComponent.displayName = "LiquidGlassButtonComponent";
 
-const LiquidGlassButton = memo(LiquidGlassButtonComponent);
+export const LiquidGlassButton = memo(LiquidGlassButtonComponent);
 LiquidGlassButton.displayName = "LiquidGlassButton";
 
-export { LiquidGlass, LiquidGlassButton };
+export { StaticGlass } from "./LiquidGlassStatic";

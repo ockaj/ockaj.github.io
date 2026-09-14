@@ -12,8 +12,8 @@ import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
 import { useLiquidGlassPhysics } from "./useLiquidGlassPhysics";
 import {
-  type LiquidGlassPropsWithRef,
-  type LiquidGlassProps,
+  type InteractiveGlassPropsWithRef,
+  type InteractiveGlassProps,
   DEFAULT_STYLE,
 } from "./types";
 import {
@@ -58,7 +58,7 @@ function getEffectiveMotionFlags(
 }
 
 function computeInnerGlassStyle(
-  variant: LiquidGlassProps["variant"],
+  variant: InteractiveGlassProps["variant"],
   isActive: boolean,
   specularGlow: boolean,
 ): CSSProperties {
@@ -141,7 +141,6 @@ export default function LiquidGlassDesktop({
   className = "",
   innerClassName = "",
   style = DEFAULT_STYLE,
-  interactive = true,
   springScale = false,
   roundedClass = "rounded-full",
   magnetic = false,
@@ -154,7 +153,7 @@ export default function LiquidGlassDesktop({
   specularGlow = false,
   ref,
   ...domProps
-}: Readonly<LiquidGlassPropsWithRef>) {
+}: Readonly<InteractiveGlassPropsWithRef>) {
   const prefersReducedMotion = useReducedMotion();
   const {
     isMotionReduced,
@@ -170,7 +169,7 @@ export default function LiquidGlassDesktop({
   });
 
   const physics = useLiquidGlassPhysics({
-    interactive,
+    interactive: true,
     effectiveMagnetic,
     effectiveTilt,
     magneticStrength,
@@ -187,7 +186,7 @@ export default function LiquidGlassDesktop({
     [ref, setElementRef],
   );
 
-  const rendersRipple = interactive && effectiveSpringScale && effectiveRipple;
+  const rendersRipple = effectiveSpringScale && effectiveRipple;
   const {
     rippleX,
     rippleY,
@@ -270,7 +269,7 @@ export default function LiquidGlassDesktop({
   );
   const ContentTag = isInline ? "span" : "div";
 
-  const rendersFullEffects = interactive && !isMotionReduced;
+  const rendersFullEffects = !isMotionReduced;
   const Tag = href ? motion.a : (TAG_MAP[as] ?? motion.div);
   const tagProps = setupTagProps(
     href,

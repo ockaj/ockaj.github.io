@@ -13,7 +13,7 @@ import { useResizeObserver } from "../../hooks/useResizeObserver";
 
 import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
-import { type LiquidGlassPropsWithRef, DEFAULT_STYLE } from "./types";
+import { type InteractiveGlassPropsWithRef, DEFAULT_STYLE } from "./types";
 import { scaleDeltas, scaleVertical, getInnerGlassStyle } from "./config";
 import {
   SCALE_TRANSITION,
@@ -28,7 +28,7 @@ import {
 import { InnerBorderOverlay } from "./LiquidGlassOverlays";
 
 export default function LiquidGlassMobile(
-  props: Readonly<LiquidGlassPropsWithRef>,
+  props: Readonly<InteractiveGlassPropsWithRef>,
 ) {
   const {
     children,
@@ -42,7 +42,6 @@ export default function LiquidGlassMobile(
     className = "",
     innerClassName = "",
     style = DEFAULT_STYLE,
-    interactive = true,
     springScale = false,
     roundedClass = "rounded-full",
     ripple = true,
@@ -86,7 +85,7 @@ export default function LiquidGlassMobile(
     rippleRadius,
     rippleOpacity,
     onPointerDown: handlePointerDown,
-  } = useRipple(interactive && effectiveSpringScale && effectiveRipple);
+  } = useRipple(effectiveSpringScale && effectiveRipple);
 
   const handleKeyDown = useKeyboardClick(onClick);
 
@@ -152,7 +151,7 @@ export default function LiquidGlassMobile(
   );
   const ContentTag = isInline ? "span" : "div";
 
-  const rendersRipple = interactive && effectiveSpringScale && effectiveRipple;
+  const rendersRipple = effectiveSpringScale && effectiveRipple;
 
   const innerElements = (
     <>
