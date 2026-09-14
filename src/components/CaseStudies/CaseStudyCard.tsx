@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { AlertCircle, CheckCircle, ArrowUpRight } from "lucide-react";
 import type { CaseStudyDetail } from "../../data/caseStudies";
-import { LiquidGlass } from "../LiquidGlass/LiquidGlass";
+import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
 import MetricCountUp from "./MetricCountUp";
 
 interface CardProps {
@@ -14,7 +14,7 @@ const CaseStudyCard = memo(function CaseStudyCard({
   onOpen,
 }: CardProps) {
   return (
-    <LiquidGlass
+    <InteractiveGlass
       as="article"
       roundedClass="rounded-2xl"
       className="w-full cursor-pointer items-stretch justify-start text-left"
@@ -142,7 +142,7 @@ const CaseStudyCard = memo(function CaseStudyCard({
           </div>
         </div>
       </div>
-    </LiquidGlass>
+    </InteractiveGlass>
   );
 });
 

@@ -8,7 +8,7 @@ import {
   Palette,
   FileText,
 } from "lucide-react";
-import { LiquidGlass } from "./LiquidGlass/LiquidGlass";
+import { InteractiveGlass } from "./LiquidGlass/LiquidGlass";
 import BpmnNodeBadge from "./BpmnNodeBadge";
 import { isBoneyardBuild } from "../utils/boneyard";
 import { cn } from "../utils/cn";
@@ -163,7 +163,7 @@ function Skills() {
         </div>
         <div className="flex flex-wrap gap-4">
           {LANGUAGES.map((lang) => (
-            <LiquidGlass
+            <InteractiveGlass
               key={lang.language}
               as="div"
               className="px-4 py-2"
@@ -175,7 +175,7 @@ function Skills() {
                 {lang.language}
               </span>
               <span className="text-muted text-xs">{lang.level}</span>
-            </LiquidGlass>
+            </InteractiveGlass>
           ))}
         </div>
       </motion.div>
@@ -212,7 +212,7 @@ const WideSkillCard = memo(function WideSkillCard({
   const Icon = category.icon;
 
   return (
-    <LiquidGlass
+    <InteractiveGlass
       as="div"
       roundedClass="rounded-2xl"
       className="h-full w-full flex-col items-stretch justify-start p-6 text-left md:p-8"
@@ -237,7 +237,7 @@ const WideSkillCard = memo(function WideSkillCard({
           ))}
         </div>
       </div>
-    </LiquidGlass>
+    </InteractiveGlass>
   );
 });
 
@@ -247,7 +247,7 @@ const CompactSkillCard = memo(function CompactSkillCard({
   const Icon = category.icon;
 
   return (
-    <LiquidGlass
+    <InteractiveGlass
       as="div"
       roundedClass="rounded-2xl"
       className="h-full w-full flex-col items-stretch justify-start p-6 text-left md:p-8"
@@ -272,7 +272,7 @@ const CompactSkillCard = memo(function CompactSkillCard({
           ))}
         </div>
       </div>
-    </LiquidGlass>
+    </InteractiveGlass>
   );
 });
 

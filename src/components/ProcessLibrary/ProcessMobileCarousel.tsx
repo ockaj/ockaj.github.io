@@ -5,7 +5,7 @@ import {
   useRef,
   type CSSProperties,
 } from "react";
-import { LiquidGlass } from "../LiquidGlass/LiquidGlass";
+import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
 import { PROCESS_TOPICS, type ProcessTopic } from "../../data/processItems";
 import { cn } from "../../utils/cn";
@@ -69,7 +69,7 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
         motionClass,
       )}
     >
-      <LiquidGlass
+      <InteractiveGlass
         as="div"
         roundedClass="rounded-2xl"
         className="h-full w-full flex-col items-stretch justify-start p-5 text-left sm:p-7 md:p-8"
@@ -117,7 +117,7 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
           isFirstSlide={idx === 0}
           badges={false}
         />
-      </LiquidGlass>
+      </InteractiveGlass>
     </div>
   );
 });

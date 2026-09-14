@@ -1,6 +1,6 @@
 import { memo, type CSSProperties } from "react";
 import { motion, AnimatePresence, type Variants } from "motion/react";
-import { LiquidGlass } from "../LiquidGlass/LiquidGlass";
+import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
 import ProcessVariantStage from "./ProcessVariantStage";
 import { useProcessLibraryContext } from "./ProcessLibraryContext";
@@ -78,7 +78,7 @@ function ProcessDesktopCard({
           variants={tabContentVariants}
           className="flex h-full w-full flex-col"
         >
-          <LiquidGlass
+          <InteractiveGlass
             as="div"
             roundedClass="rounded-2xl"
             className="h-full w-full touch-pan-y flex-col items-stretch justify-start p-5 text-left sm:p-7 md:p-8"
@@ -130,7 +130,7 @@ function ProcessDesktopCard({
               activeViewMode={activeViewMode}
               setLightboxItem={setLightboxItem}
             />
-          </LiquidGlass>
+          </InteractiveGlass>
         </motion.div>
       </AnimatePresence>
     </motion.div>

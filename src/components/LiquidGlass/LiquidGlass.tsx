@@ -2,11 +2,9 @@
 
 import { memo } from "react";
 import { useIsMobile } from "../../hooks/useMediaQuery";
-import { StaticGlass } from "./LiquidGlassStatic";
 import LiquidGlassMobile from "./LiquidGlassMobile";
 import LiquidGlassDesktop from "./LiquidGlassDesktop";
 import {
-  type LiquidGlassPropsWithRef,
   type InteractiveGlassPropsWithRef,
   type GlassButtonPropsWithRef,
 } from "./types";
@@ -27,42 +25,6 @@ export const InteractiveGlass = memo(function InteractiveGlass({
 });
 
 InteractiveGlass.displayName = "InteractiveGlass";
-
-/**
- * Backwards-compatible adaptive facade that delegates to StaticGlass or InteractiveGlass.
- */
-export const LiquidGlass = memo(function LiquidGlass({
-  ref,
-  interactive = true,
-  springScale,
-  magnetic,
-  tilt,
-  magneticStrength,
-  tiltStrength,
-  ripple,
-  specularGlow,
-  ...staticProps
-}: Readonly<LiquidGlassPropsWithRef>) {
-  if (!interactive) {
-    return <StaticGlass ref={ref} {...staticProps} />;
-  }
-
-  return (
-    <InteractiveGlass
-      ref={ref}
-      springScale={springScale}
-      magnetic={magnetic}
-      tilt={tilt}
-      magneticStrength={magneticStrength}
-      tiltStrength={tiltStrength}
-      ripple={ripple}
-      specularGlow={specularGlow}
-      {...staticProps}
-    />
-  );
-});
-
-LiquidGlass.displayName = "LiquidGlass";
 
 function LiquidGlassButtonComponent({
   children,

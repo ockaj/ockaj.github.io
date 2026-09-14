@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Dialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
-import { LiquidGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
+import { InteractiveGlass, LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import BpmnNodeBadge from "./BpmnNodeBadge";
 import BpmnDiagram from "./BpmnDiagram";
 import { useIsMobile } from "../hooks/useMediaQuery";
@@ -108,7 +108,7 @@ export default function BpmnOverlay() {
             }}
             className="pointer-events-auto fixed right-6 bottom-6 z-40 hidden max-w-sm text-xs md:block"
           >
-            <LiquidGlass
+            <InteractiveGlass
               as="div"
               roundedClass="rounded-xl"
               className="bg-surface/90 p-3"
@@ -138,7 +138,7 @@ export default function BpmnOverlay() {
               >
                 <X size={14} />
               </LiquidGlassButton>
-            </LiquidGlass>
+            </InteractiveGlass>
           </motion.div>
         ) : null}
       </AnimatePresence>

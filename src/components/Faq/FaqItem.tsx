@@ -1,7 +1,10 @@
 import { memo, useCallback, useId } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ChevronDown, ArrowUpRight } from "lucide-react";
-import { LiquidGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import {
+  InteractiveGlass,
+  LiquidGlassButton,
+} from "../LiquidGlass/LiquidGlass";
 import { useAppStore } from "../../store/useAppStore";
 import { navigateTo } from "../../hooks/useAppNavigation";
 import { cn } from "../../utils/cn";
@@ -38,11 +41,10 @@ export const FaqItem = memo(function FaqItem({
   }, []);
 
   return (
-    <LiquidGlass
+    <InteractiveGlass
       as="div"
       roundedClass="rounded-2xl"
       className="w-full text-left"
-      interactive
       tilt={false}
       specularGlow
     >
@@ -67,7 +69,7 @@ export const FaqItem = memo(function FaqItem({
             </h3>
           </div>
 
-          <LiquidGlass
+          <InteractiveGlass
             as="span"
             roundedClass="rounded-full"
             className="text-text-primary flex size-[44px] min-h-[44px] min-w-[44px] flex-shrink-0 cursor-pointer items-center justify-center p-0 shadow-sm transition-colors"
@@ -85,7 +87,7 @@ export const FaqItem = memo(function FaqItem({
             >
               <ChevronDown size={18} aria-hidden="true" />
             </motion.span>
-          </LiquidGlass>
+          </InteractiveGlass>
         </div>
 
         <div
@@ -139,6 +141,6 @@ export const FaqItem = memo(function FaqItem({
           </div>
         </div>
       </div>
-    </LiquidGlass>
+    </InteractiveGlass>
   );
 });

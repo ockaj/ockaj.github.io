@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { Clock, ArrowUpRight } from "lucide-react";
 import type { Article } from "../../data/articles";
-import { LiquidGlass } from "../LiquidGlass/LiquidGlass";
+import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
 
 interface EntryProps {
   article: Article;
@@ -13,7 +13,7 @@ const JournalEntry = memo(function JournalEntry({
   onOpen,
 }: EntryProps) {
   return (
-    <LiquidGlass
+    <InteractiveGlass
       as="article"
       onClick={() => onOpen(article)}
       roundedClass="rounded-[28px]"
@@ -69,7 +69,7 @@ const JournalEntry = memo(function JournalEntry({
           </button>
         </div>
       </div>
-    </LiquidGlass>
+    </InteractiveGlass>
   );
 });
 

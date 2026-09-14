@@ -6,7 +6,10 @@ import {
   useTransformEffect,
 } from "react-zoom-pan-pinch";
 import { Plus, Minus, X } from "lucide-react";
-import { LiquidGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import {
+  InteractiveGlass,
+  LiquidGlassButton,
+} from "../LiquidGlass/LiquidGlass";
 
 interface LightboxControlsProps {
   isMobile: boolean;
@@ -72,11 +75,10 @@ const LightboxControls = memo(function LightboxControls({
             updateText();
           }}
         >
-          <LiquidGlass
+          <InteractiveGlass
             as="button"
             disabled={!canZoomOut}
             roundedClass="rounded-full"
-            interactive={canZoomOut}
             springScale={canZoomOut}
             className="text-text-primary notranslate flex h-10 w-16 items-center justify-center text-xs font-bold tracking-wider uppercase transition-opacity select-none disabled:pointer-events-none disabled:cursor-default disabled:opacity-40"
             onClick={() => {
@@ -90,7 +92,7 @@ const LightboxControls = memo(function LightboxControls({
             <span ref={scaleTextRef} className="notranslate" translate="no">
               100%
             </span>
-          </LiquidGlass>
+          </InteractiveGlass>
         </span>
 
         {/* Zoom In */}

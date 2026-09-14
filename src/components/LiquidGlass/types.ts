@@ -47,17 +47,7 @@ export interface InteractiveGlassProps extends StaticGlassProps {
 /**
  * Specialized interactive button and anchor properties.
  */
-export type GlassButtonProps = Omit<
-  InteractiveGlassProps,
-  "as" | "springScale"
->;
-
-/**
- * Composite properties for the backwards-compatible adaptive facade.
- */
-export interface LiquidGlassProps extends InteractiveGlassProps {
-  interactive?: boolean;
-}
+type GlassButtonProps = Omit<InteractiveGlassProps, "as" | "springScale">;
 
 export interface StaticGlassPropsWithRef extends StaticGlassProps {
   ref?: Ref<HTMLElement | null>;
@@ -68,10 +58,6 @@ export interface InteractiveGlassPropsWithRef extends InteractiveGlassProps {
 }
 
 export interface GlassButtonPropsWithRef extends GlassButtonProps {
-  ref?: Ref<HTMLElement | null>;
-}
-
-export interface LiquidGlassPropsWithRef extends LiquidGlassProps {
   ref?: Ref<HTMLElement | null>;
 }
 

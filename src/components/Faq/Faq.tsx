@@ -1,7 +1,10 @@
 import { memo, useState, useCallback } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowDown } from "lucide-react";
-import { LiquidGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import {
+  InteractiveGlass,
+  LiquidGlassButton,
+} from "../LiquidGlass/LiquidGlass";
 import { FaqItem } from "./FaqItem";
 import { FAQ_ITEMS } from "../../data/faqData";
 import { isBoneyardBuild } from "../../utils/boneyard";
@@ -64,7 +67,7 @@ function Faq() {
 
         {/* Editorial Transition Card */}
         <motion.div variants={cardVariants} custom={prefersReducedMotion}>
-          <LiquidGlass
+          <InteractiveGlass
             as="div"
             roundedClass="rounded-2xl"
             className="w-full text-left"
@@ -106,7 +109,7 @@ function Faq() {
                 </LiquidGlassButton>
               </div>
             </div>
-          </LiquidGlass>
+          </InteractiveGlass>
         </motion.div>
       </motion.div>
     </div>
