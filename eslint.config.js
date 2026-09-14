@@ -9,6 +9,65 @@ import tseslint from "typescript-eslint";
 import eslintConfigPrettier from "eslint-config-prettier";
 import sonarjs from "eslint-plugin-sonarjs";
 
+const featureBoundaryPatterns = [
+  {
+    regex: "(?:^|[./])CaseStudies/(?!CaseStudies(?:\\.tsx?)?$)",
+    message:
+      "Private child components of CaseStudies cannot be imported from outside. Import only from CaseStudies/CaseStudies.",
+  },
+  {
+    regex: "(?:^|[./])Journal/(?!Journal(?:\\.tsx?)?$)",
+    message:
+      "Private child components of Journal cannot be imported from outside. Import only from Journal/Journal.",
+  },
+  {
+    regex: "(?:^|[./])ProcessLibrary/(?!ProcessLibrary(?:\\.tsx?)?$)",
+    message:
+      "Private child components of ProcessLibrary cannot be imported from outside. Import only from ProcessLibrary/ProcessLibrary.",
+  },
+  {
+    regex: "(?:^|[./])ProcessLightbox/(?!ProcessLightbox(?:\\.tsx?)?$)",
+    message:
+      "Private child components of ProcessLightbox cannot be imported from outside. Import only from ProcessLightbox/ProcessLightbox.",
+  },
+  {
+    regex: "(?:^|[./])Faq/(?!Faq(?:\\.tsx?)?$)",
+    message:
+      "Private child components of Faq cannot be imported from outside. Import only from Faq/Faq.",
+  },
+  {
+    regex: "(?:^|[./])Aurora/(?!Aurora(?:\\.tsx?)?$)",
+    message:
+      "Private child components of Aurora cannot be imported from outside. Import only from Aurora/Aurora.",
+  },
+  {
+    regex: "(?:^|[./])LoadingScreen/(?!LoadingScreen(?:\\.tsx?)?$)",
+    message:
+      "Private child components of LoadingScreen cannot be imported from outside. Import only from LoadingScreen/LoadingScreen.",
+  },
+  {
+    regex: "(?:^|[./])Navigation/(?!Navbar(?:\\.tsx?)?$)",
+    message:
+      "Private child components of Navigation cannot be imported from outside. Import only from Navigation/Navbar.",
+  },
+  {
+    regex: "(?:^|[./])PdfViewerModal/(?!PdfViewerModal(?:\\.tsx?)?$)",
+    message:
+      "Private child components of PdfViewerModal cannot be imported from outside. Import only from PdfViewerModal/PdfViewerModal.",
+  },
+  {
+    regex: "(?:^|[./])Bpmn/(?!(?:BpmnOverlay|BpmnNodeBadge)(?:\\.tsx?)?$)",
+    message:
+      "Private child components of Bpmn cannot be imported from outside. Import only from Bpmn/BpmnOverlay or Bpmn/BpmnNodeBadge.",
+  },
+  {
+    regex:
+      "(?:^|[./])LiquidGlass/(?!(?:LiquidGlass|LiquidGlassTabs|types)(?:\\.tsx?)?$)",
+    message:
+      "Private child components of LiquidGlass cannot be imported from outside. Import only from LiquidGlass/LiquidGlass, LiquidGlass/LiquidGlassTabs, or LiquidGlass/types.",
+  },
+];
+
 export default tseslint.config(
   { ignores: ["dist", ".agents"] },
   {
@@ -42,6 +101,14 @@ export default tseslint.config(
       ],
       "react-compiler/react-compiler": "error",
 
+      // Architectural feature boundary enforcement
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: featureBoundaryPatterns,
+        },
+      ],
+
       // Custom React rule overrides
       "@eslint-react/no-missing-key": "error",
       "@eslint-react/no-array-index-key": "warn",
@@ -62,6 +129,42 @@ export default tseslint.config(
       react: {
         version: "detect",
       },
+    },
+  },
+  {
+    files: ["src/utils/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            ...featureBoundaryPatterns,
+            {
+              regex: "(?:^|[./])(?:hooks|store|components)/",
+              message:
+                "Tier 2 (utils) cannot import from Tier 3 (store, hooks) or Tier 4/5 (components).",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ["src/store/**/*.{ts,tsx}", "src/hooks/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            ...featureBoundaryPatterns,
+            {
+              regex: "(?:^|[./])components/",
+              message:
+                "Tier 3 (store, hooks) cannot import from Tier 4/5 (components).",
+            },
+          ],
+        },
+      ],
     },
   },
   {
