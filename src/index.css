@@ -328,6 +328,12 @@ p {
       background-color 200ms ease,
       border-color 200ms ease !important;
   }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }
 
 @property --scale-x {

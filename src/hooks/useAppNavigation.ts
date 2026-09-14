@@ -184,23 +184,31 @@ export function useNavigation() {
     }
 
     if (isTransientModalHash(clean)) {
-      useAppStore.getState().closeModal();
+      startTransition(() => {
+        useAppStore.getState().closeModal();
+      });
       window.history.replaceState(window.history.state, "", "#home");
       return;
     }
 
     if (clean === "bpmn") {
       if (!isMobile) {
-        useAppStore.getState().openModal("bpmn");
+        startTransition(() => {
+          useAppStore.getState().openModal("bpmn");
+        });
       } else {
-        useAppStore.getState().closeModal();
+        startTransition(() => {
+          useAppStore.getState().closeModal();
+        });
         window.history.replaceState(window.history.state, "", "#home");
       }
       return;
     }
 
     if (isValidModalHash(clean)) {
-      useAppStore.getState().openModal(clean);
+      startTransition(() => {
+        useAppStore.getState().openModal(clean);
+      });
       const parentSection = resolveSectionFromHash(clean);
       if (parentSection && parentSection !== "home") {
         const alignScroll = () => {
@@ -291,11 +299,15 @@ export function useModal(id: string): ModalController {
   const isOpen = useAppStore((state) => state.activeModal === id);
 
   const open = useCallback(() => {
-    useAppStore.getState().openModal(id);
+    startTransition(() => {
+      useAppStore.getState().openModal(id);
+    });
   }, [id]);
 
   const close = useCallback(() => {
-    useAppStore.getState().closeModal();
+    startTransition(() => {
+      useAppStore.getState().closeModal();
+    });
   }, []);
 
   useOverlay(isOpen, close, id);

@@ -230,6 +230,7 @@ function useAuroraCanvas(
       width: "100%",
       height: "100%",
       backgroundColor: "transparent",
+      viewTransitionName: "none",
     });
 
     const geometry = new Triangle(gl);
@@ -504,7 +505,11 @@ function AuroraCanvas(props: Readonly<AuroraProps>) {
   const { isContextLost } = useAuroraCanvas(props, containerRef);
 
   return (
-    <div ref={containerRef} className="relative h-full w-full">
+    <div
+      ref={containerRef}
+      className="relative h-full w-full"
+      style={{ viewTransitionName: "none" }}
+    >
       {isContextLost ? <AuroraFallback /> : null}
     </div>
   );
@@ -512,7 +517,11 @@ function AuroraCanvas(props: Readonly<AuroraProps>) {
 
 function Aurora(props: Readonly<AuroraProps>) {
   return (
-    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0">
+    <div
+      aria-hidden="true"
+      className="pointer-events-none fixed inset-0 z-0"
+      style={{ viewTransitionName: "none" }}
+    >
       <div className="relative h-full w-full">
         <ErrorBoundary fallback={<AuroraFallback />}>
           <AuroraCanvas
