@@ -13,58 +13,58 @@ const featureBoundaryPatterns = [
   {
     regex: "(?:^|[./])CaseStudies/(?!CaseStudies(?:\\.tsx?)?$)",
     message:
-      "Private child components of CaseStudies cannot be imported from outside. Import only from CaseStudies/CaseStudies.",
+      "Deep Module Violation: Private child components of CaseStudies cannot be imported from outside. Import only from CaseStudies/CaseStudies. See .agents/rules/component-imports.md.",
   },
   {
     regex: "(?:^|[./])Journal/(?!Journal(?:\\.tsx?)?$)",
     message:
-      "Private child components of Journal cannot be imported from outside. Import only from Journal/Journal.",
+      "Deep Module Violation: Private child components of Journal cannot be imported from outside. Import only from Journal/Journal. See .agents/rules/component-imports.md.",
   },
   {
     regex: "(?:^|[./])ProcessLibrary/(?!ProcessLibrary(?:\\.tsx?)?$)",
     message:
-      "Private child components of ProcessLibrary cannot be imported from outside. Import only from ProcessLibrary/ProcessLibrary.",
+      "Deep Module Violation: Private child components of ProcessLibrary cannot be imported from outside. Import only from ProcessLibrary/ProcessLibrary. See .agents/rules/component-imports.md.",
   },
   {
     regex: "(?:^|[./])ProcessLightbox/(?!ProcessLightbox(?:\\.tsx?)?$)",
     message:
-      "Private child components of ProcessLightbox cannot be imported from outside. Import only from ProcessLightbox/ProcessLightbox.",
+      "Deep Module Violation: Private child components of ProcessLightbox cannot be imported from outside. Import only from ProcessLightbox/ProcessLightbox. See .agents/rules/component-imports.md.",
   },
   {
     regex: "(?:^|[./])Faq/(?!Faq(?:\\.tsx?)?$)",
     message:
-      "Private child components of Faq cannot be imported from outside. Import only from Faq/Faq.",
+      "Deep Module Violation: Private child components of Faq cannot be imported from outside. Import only from Faq/Faq. See .agents/rules/component-imports.md.",
   },
   {
     regex: "(?:^|[./])Aurora/(?!Aurora(?:\\.tsx?)?$)",
     message:
-      "Private child components of Aurora cannot be imported from outside. Import only from Aurora/Aurora.",
+      "Deep Module Violation: Private child components of Aurora cannot be imported from outside. Import only from Aurora/Aurora. See .agents/rules/component-imports.md.",
   },
   {
     regex: "(?:^|[./])LoadingScreen/(?!LoadingScreen(?:\\.tsx?)?$)",
     message:
-      "Private child components of LoadingScreen cannot be imported from outside. Import only from LoadingScreen/LoadingScreen.",
+      "Deep Module Violation: Private child components of LoadingScreen cannot be imported from outside. Import only from LoadingScreen/LoadingScreen. See .agents/rules/component-imports.md.",
   },
   {
     regex: "(?:^|[./])Navigation/(?!Navbar(?:\\.tsx?)?$)",
     message:
-      "Private child components of Navigation cannot be imported from outside. Import only from Navigation/Navbar.",
+      "Deep Module Violation: Private child components of Navigation cannot be imported from outside. Import only from Navigation/Navbar. See .agents/rules/component-imports.md.",
   },
   {
     regex: "(?:^|[./])PdfViewerModal/(?!PdfViewerModal(?:\\.tsx?)?$)",
     message:
-      "Private child components of PdfViewerModal cannot be imported from outside. Import only from PdfViewerModal/PdfViewerModal.",
+      "Deep Module Violation: Private child components of PdfViewerModal cannot be imported from outside. Import only from PdfViewerModal/PdfViewerModal. See .agents/rules/component-imports.md.",
   },
   {
     regex: "(?:^|[./])Bpmn/(?!(?:BpmnOverlay|BpmnNodeBadge)(?:\\.tsx?)?$)",
     message:
-      "Private child components of Bpmn cannot be imported from outside. Import only from Bpmn/BpmnOverlay or Bpmn/BpmnNodeBadge.",
+      "Deep Module Violation: Private child components of Bpmn cannot be imported from outside. Import only from Bpmn/BpmnOverlay or Bpmn/BpmnNodeBadge. See .agents/rules/component-imports.md.",
   },
   {
     regex:
       "(?:^|[./])LiquidGlass/(?!(?:LiquidGlass|LiquidGlassTabs|types)(?:\\.tsx?)?$)",
     message:
-      "Private child components of LiquidGlass cannot be imported from outside. Import only from LiquidGlass/LiquidGlass, LiquidGlass/LiquidGlassTabs, or LiquidGlass/types.",
+      "Deep Module Violation: Private child components of LiquidGlass cannot be imported from outside. Import only from LiquidGlass/LiquidGlass, LiquidGlass/LiquidGlassTabs, or LiquidGlass/types. See .agents/rules/component-imports.md.",
   },
 ];
 
