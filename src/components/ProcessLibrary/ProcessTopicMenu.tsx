@@ -54,7 +54,7 @@ function ProcessTopicMenu() {
                     <span className="font-body line-clamp-1 block text-base font-semibold whitespace-nowrap transition-transform duration-300 group-hover:translate-x-0.5 lg:text-balance lg:whitespace-normal">
                       {topic.title}
                     </span>
-                    <p className="text-muted/70 mt-0.5 text-xs tracking-wider uppercase transition-transform duration-300 group-hover:translate-x-0.5">
+                    <p className="text-muted/90 mt-0.5 text-sm tabular-nums transition-transform duration-300 group-hover:translate-x-0.5">
                       {topic.metrics ?? topic.category}
                     </p>
                   </div>

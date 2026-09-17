@@ -28,7 +28,7 @@ export default function LoadingMethodologyChecklist({
 }: Readonly<LoadingMethodologyChecklistProps>) {
   return (
     <div className="flex flex-col items-start gap-3 md:col-span-6">
-      <span className="text-muted/70 font-sans text-xs font-semibold uppercase">
+      <span className="text-muted/80 font-sans text-sm font-semibold">
         Process Modeling Methodology
       </span>
       {/* Methodology checklist — Desktop Only */}
@@ -42,7 +42,7 @@ export default function LoadingMethodologyChecklist({
               <div
                 key={step.label}
                 className={cn(
-                  "flex items-center gap-3 font-sans text-xs",
+                  "flex items-center gap-3 font-sans text-sm",
                   getStepColorClass(isActive, isCompleted),
                 )}
               >
@@ -54,7 +54,7 @@ export default function LoadingMethodologyChecklist({
                       opacity: isCompleted ? 1 : 0,
                     }}
                     transition={{ ease: EASE.out, duration: 0.4 }}
-                    className="absolute inset-0 flex items-center justify-center text-xs font-bold text-[hsl(var(--accent))]"
+                    className="absolute inset-0 flex items-center justify-center text-sm font-bold text-[hsl(var(--accent))]"
                   >
                     ✓
                   </motion.span>
@@ -125,10 +125,10 @@ export default function LoadingMethodologyChecklist({
                         key={step.label}
                         className="flex h-[50px] flex-col justify-center pr-2"
                       >
-                        <span className="text-accent/80 mb-0.5 text-xs font-bold tracking-wider uppercase">
+                        <span className="text-accent/80 mb-0.5 text-sm font-bold tracking-wider uppercase">
                           Phase {idx + 1} of 7
                         </span>
-                        <span className="text-text-primary block text-xs leading-snug font-semibold text-pretty">
+                        <span className="text-text-primary block text-sm leading-snug font-semibold text-pretty">
                           {step.label}
                         </span>
                       </div>

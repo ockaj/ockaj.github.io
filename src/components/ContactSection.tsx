@@ -42,14 +42,14 @@ function ContactSection() {
           transition={SECTION_TRANSITION}
           className="mx-auto max-w-[1200px] px-6 pb-2 text-center md:px-10 lg:px-16"
         >
-          <p className="text-muted mb-5 flex items-center justify-center gap-1.5 text-xs font-semibold text-pretty uppercase">
+          <p className="text-muted/95 mb-5 flex items-center justify-center gap-2 text-sm font-medium text-pretty">
             <BpmnNodeBadge type="end-event-none" />
             Get in touch
           </p>
           <h2 className="font-display text-text-primary mb-6 pb-2 text-[clamp(3.5rem,8vw,6rem)] leading-[1.1] text-balance">
             Let's work together
           </h2>
-          <p className="text-muted mx-auto mb-10 max-w-md text-sm text-pretty md:text-base">
+          <p className="text-muted mx-auto mb-10 max-w-xl text-base leading-relaxed text-pretty md:text-lg">
             Looking to analyze, map, and optimize your business processes,
             design digital transformation solutions, or fill an analyst role?
             Let's connect.
@@ -93,7 +93,7 @@ function ContactSection() {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group/social-btn max-w-[145px] flex-1 px-4 py-3.5 text-xs whitespace-nowrap sm:max-w-none sm:flex-initial sm:px-8 sm:py-4 sm:text-sm"
+                    className="group/social-btn max-w-[145px] flex-1 px-4 py-3.5 text-sm whitespace-nowrap sm:max-w-none sm:flex-initial sm:px-8 sm:py-4 sm:text-sm"
                     ariaLabel={`Visit ${social.label}`}
                     magnetic
                     tilt

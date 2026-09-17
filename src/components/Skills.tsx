@@ -174,7 +174,9 @@ function Skills() {
               <span className="text-text-primary text-sm font-semibold">
                 {lang.language}
               </span>
-              <span className="text-muted text-xs">{lang.level}</span>
+              <span className="text-muted text-sm tabular-nums">
+                {lang.level}
+              </span>
             </InteractiveGlass>
           ))}
         </div>

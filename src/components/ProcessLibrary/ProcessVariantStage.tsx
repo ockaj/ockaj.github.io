@@ -123,15 +123,15 @@ const FooterDetailsItem = memo(function FooterDetailsItem({
       )}
     >
       <div className="flex items-center gap-2">
-        <Sparkles size={14} className="text-accent" />
-        <span className="text-accent font-body text-xs font-bold tracking-wider uppercase">
+        <Sparkles size={16} className="text-accent" />
+        <span className="text-accent font-body text-sm font-bold tracking-wider uppercase">
           Operational Insight
         </span>
       </div>
       <p
         className={cn(
-          "text-text-primary/90 line-clamp-3 text-sm leading-relaxed text-pretty",
-          badges ? "min-h-[4.25rem]" : "min-h-0",
+          "text-text-primary/90 line-clamp-3 text-base leading-relaxed text-pretty",
+          badges ? "min-h-[4.5rem]" : "min-h-0",
         )}
       >
         {variant.description}
@@ -141,7 +141,7 @@ const FooterDetailsItem = memo(function FooterDetailsItem({
           {variant.specTags.map((tag: string) => (
             <span
               key={tag}
-              className="text-muted hover:text-text-primary rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs transition-colors select-none hover:border-white/20"
+              className="text-muted hover:text-text-primary rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm transition-colors select-none hover:border-white/20"
             >
               {tag}
             </span>

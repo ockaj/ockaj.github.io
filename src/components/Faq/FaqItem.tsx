@@ -109,7 +109,7 @@ export const FaqItem = memo(function FaqItem({
                 isOpen ? "translate-y-0" : "-translate-y-2",
               )}
             >
-              <p className="text-muted text-sm leading-relaxed text-pretty whitespace-pre-line select-text md:text-base">
+              <p className="text-muted text-base leading-relaxed text-pretty whitespace-pre-line select-text">
                 {item.answer}
               </p>
 
@@ -119,7 +119,7 @@ export const FaqItem = memo(function FaqItem({
                     type="button"
                     onClick={() => handleAction(item.actionLink?.action)}
                     roundedClass="rounded-full"
-                    className="group/action-btn text-text-primary flex min-h-[44px] cursor-pointer items-center justify-center px-6 py-2.5 text-xs font-semibold shadow-sm transition-colors md:text-sm"
+                    className="group/action-btn text-text-primary flex min-h-[44px] cursor-pointer items-center justify-center px-6 py-2.5 text-sm font-semibold shadow-sm transition-colors"
                     ariaLabel={item.actionLink.label}
                     magnetic
                     tilt

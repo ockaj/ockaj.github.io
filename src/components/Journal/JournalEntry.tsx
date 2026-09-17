@@ -40,14 +40,14 @@ const JournalEntry = memo(function JournalEntry({
           </div>
         </div>
 
-        <p className="text-text-primary/80 group-hover:text-text-primary line-clamp-3 text-sm leading-relaxed text-pretty transition-colors duration-200 md:text-base">
+        <p className="text-text-primary/80 group-hover:text-text-primary line-clamp-3 text-base leading-relaxed text-pretty transition-colors duration-200">
           {article.excerpt}
         </p>
 
         <div className="flex items-center justify-between pt-2">
-          <div className="text-muted group-hover:text-text-primary/70 flex items-center gap-4 text-xs tabular-nums transition-colors duration-200">
+          <div className="text-muted group-hover:text-text-primary/70 flex items-center gap-4 text-sm tabular-nums transition-colors duration-200">
             <span className="flex items-center gap-1.5">
-              <Clock size={11} />
+              <Clock size={14} />
               {article.readTime}
             </span>
             <span>{article.date}</span>

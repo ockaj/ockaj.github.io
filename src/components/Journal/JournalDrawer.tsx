@@ -37,13 +37,13 @@ const JOURNAL_MARKDOWN_COMPONENTS = {
     <ul className="text-muted my-4 list-disc space-y-2 pl-5">{children}</ul>
   ),
   li: ({ children }: { children?: React.ReactNode }) => (
-    <li className="text-xs leading-relaxed text-pretty md:text-sm">
+    <li className="text-sm leading-relaxed text-pretty md:text-base">
       {children}
     </li>
   ),
   table: ({ children }: { children?: React.ReactNode }) => (
     <div className="my-6 scrollbar-thin overflow-x-auto rounded-xl border border-white/10 bg-white/5">
-      <table className="w-full min-w-[720px] table-auto border-collapse text-left text-xs md:min-w-0">
+      <table className="w-full min-w-[720px] table-auto border-collapse text-left text-sm md:min-w-0">
         {children}
       </table>
     </div>
@@ -54,7 +54,7 @@ const JOURNAL_MARKDOWN_COMPONENTS = {
     </thead>
   ),
   th: ({ children }: { children?: React.ReactNode }) => (
-    <th className="text-accent/90 px-2 py-2.5 text-xs font-semibold tracking-wider uppercase">
+    <th className="text-accent/90 px-3 py-2.5 text-sm font-semibold tracking-wider uppercase">
       {children}
     </th>
   ),
@@ -94,7 +94,7 @@ const JournalDrawer = memo(function JournalDrawer({
           custom={prefersReducedMotion}
           className="space-y-3"
         >
-          <div className="text-muted flex items-center gap-2 font-mono text-xs">
+          <div className="text-muted flex items-center gap-2 font-mono text-sm">
             <span>{article.date}</span>
             <span>•</span>
             <span className="text-accent">{article.subtitle}</span>
@@ -104,7 +104,7 @@ const JournalDrawer = memo(function JournalDrawer({
             {article.title}
           </h2>
 
-          <div className="text-muted flex items-center gap-2 border-t border-white/5 pt-1 text-xs">
+          <div className="text-muted flex items-center gap-2 border-t border-white/5 pt-1 text-sm">
             <span>By Ondrej Michal Očkaj</span>
             <span>•</span>
             <span className="text-accent/80 font-mono">{article.readTime}</span>
@@ -114,7 +114,7 @@ const JournalDrawer = memo(function JournalDrawer({
         <motion.div
           variants={drawerItemVariants}
           custom={prefersReducedMotion}
-          className="text-text-primary/90 max-w-[70ch] text-sm leading-relaxed md:text-base"
+          className="text-text-primary/90 max-w-[70ch] text-base leading-relaxed"
         >
           <ReactMarkdown
             remarkPlugins={REMARK_PLUGINS}
@@ -131,7 +131,7 @@ const JournalDrawer = memo(function JournalDrawer({
         >
           <LiquidGlassButton
             href={`mailto:${CONTACT_EMAIL}?subject=Regarding Article: ${encodeURIComponent(article.title)}`}
-            className="px-5 py-2.5 text-xs"
+            className="px-6 py-3.5 text-sm"
             magnetic
             tilt
             magneticStrength={0.02}

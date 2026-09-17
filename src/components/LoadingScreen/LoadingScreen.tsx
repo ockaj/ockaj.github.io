@@ -217,16 +217,16 @@ function LoadingScreen({ onComplete }: Readonly<LoadingScreenProps>) {
       {/* Top Header Row */}
       <div className="relative z-10 flex w-full items-center justify-between">
         <motion.div
-          className="text-muted font-sans text-xs font-semibold uppercase"
+          className="text-muted font-sans text-sm font-semibold"
           initial={HEADER_INITIAL}
           animate={SECTION_ANIMATE}
           transition={HEADER_TRANSITION}
         >
-          ONDREJ MICHAL OČKAJ
+          Ondrej Michal Očkaj
         </motion.div>
         <motion.button
           onClick={handleSkip}
-          className="text-muted hover:text-text-primary pointer-events-auto z-20 cursor-pointer rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs transition-colors duration-200 hover:border-white/20 hover:bg-white/[0.08] active:scale-95"
+          className="text-muted hover:text-text-primary pointer-events-auto z-20 cursor-pointer rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm transition-colors duration-200 hover:border-white/20 hover:bg-white/[0.08] active:scale-95"
           initial={HEADER_INITIAL}
           animate={SECTION_ANIMATE}
           transition={HEADER_TRANSITION}

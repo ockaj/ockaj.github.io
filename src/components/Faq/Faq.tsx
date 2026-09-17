@@ -78,7 +78,7 @@ function Faq() {
                 <h3 className="font-display text-text-primary text-xl font-semibold text-balance md:text-2xl">
                   Have an open analyst role or transformation project?
                 </h3>
-                <p className="text-muted max-w-xl text-xs leading-relaxed text-pretty md:text-sm">
+                <p className="text-muted max-w-xl text-base leading-relaxed text-pretty">
                   I am open to part-time analyst roles during my master's
                   studies, hybrid projects, and post-graduation full-time
                   discussions (graduating 2027). Let's discuss how my process
@@ -91,7 +91,7 @@ function Faq() {
                   type="button"
                   onClick={handleScrollToContact}
                   roundedClass="rounded-full"
-                  className="group/contact-btn text-text-primary flex min-h-[44px] cursor-pointer items-center justify-center px-7 py-3 text-xs font-semibold whitespace-nowrap shadow-sm transition-colors md:text-sm"
+                  className="group/contact-btn text-text-primary flex min-h-[44px] cursor-pointer items-center justify-center px-7 py-3 text-sm font-semibold whitespace-nowrap shadow-sm transition-colors"
                   ariaLabel="Scroll down to contact section"
                   magnetic
                   tilt

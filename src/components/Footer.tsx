@@ -21,7 +21,7 @@ function Footer() {
         {/* Copyright */}
         <div className="flex items-center gap-4 select-none">
           <p
-            className="text-muted text-xs text-pretty"
+            className="text-muted text-sm text-pretty"
             suppressHydrationWarning
           >
             © {currentYear} Ondrej Michal Očkaj
@@ -31,7 +31,7 @@ function Footer() {
         {/* Scroll to Top Styled as LiquidGlassButton */}
         <LiquidGlassButton
           onClick={scrollToTop}
-          className="group/top-btn px-4 py-3 text-xs"
+          className="group/top-btn px-4 py-3 text-sm"
           ariaLabel="Scroll back to top"
           magnetic
           tilt
@@ -40,7 +40,7 @@ function Footer() {
           <span className="flex items-center gap-1.5">
             Back to Top
             <ArrowUp
-              size={12}
+              size={14}
               className="transition-transform duration-300 group-hover/top-btn:-translate-y-0.5"
             />
           </span>

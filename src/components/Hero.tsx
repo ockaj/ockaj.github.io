@@ -254,7 +254,7 @@ function HeroScrollIndicatorDesktop({
         navigateTo("work");
       }}
     >
-      <span className="text-muted/90 group-hover:text-accent text-xs font-semibold tracking-[0.25em] uppercase transition-colors duration-300">
+      <span className="text-muted/90 group-hover:text-accent text-sm font-semibold tracking-[0.25em] uppercase transition-colors duration-300">
         Flow
       </span>
       <svg
@@ -358,7 +358,7 @@ function Hero() {
         {/* Eyebrow */}
         <motion.p
           variants={itemVariants}
-          className="text-muted mb-8 flex items-center gap-1.5 text-xs font-semibold text-pretty uppercase"
+          className="text-muted/95 mb-8 flex items-center gap-2 text-sm font-medium text-pretty"
         >
           {EYEBROW_BADGE}
           Business Analyst Portfolio
@@ -376,7 +376,7 @@ function Hero() {
         <motion.p
           data-nosnippet
           variants={itemVariants}
-          className="text-muted mb-4 max-w-xl text-sm text-pretty md:text-base"
+          className="text-muted mb-4 max-w-full text-base leading-relaxed text-pretty md:text-lg"
         >
           <span className="sr-only">
             Based in Slovakia, working as a Business Analyst &amp; Process
@@ -401,7 +401,7 @@ function Hero() {
         {/* Description */}
         <motion.p
           variants={itemVariants}
-          className="text-muted mb-12 max-w-md text-sm text-pretty md:text-base"
+          className="text-muted mb-12 max-w-xl text-base leading-relaxed text-pretty md:text-lg"
         >
           Specializing in process analysis, BPMN modeling, and digital
           transformation solutions for enterprises.

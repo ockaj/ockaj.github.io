@@ -109,7 +109,7 @@ export default function BpmnOverlay() {
               y: prefersReducedMotion ? 0 : 20,
               scale: prefersReducedMotion ? 1 : 0.95,
             }}
-            className="pointer-events-auto fixed right-6 bottom-6 z-40 hidden max-w-sm text-xs md:block"
+            className="pointer-events-auto fixed right-6 bottom-6 z-40 hidden max-w-sm text-sm md:block"
           >
             <InteractiveGlass
               as="div"
@@ -120,10 +120,10 @@ export default function BpmnOverlay() {
             >
               <BpmnNodeBadge type="script-task" className="flex-shrink-0" />
               <div className="flex-1 text-left">
-                <p className="text-text-primary text-xs font-semibold text-pretty">
+                <p className="text-text-primary text-sm font-semibold text-pretty">
                   Process Analyst Easter Egg
                 </p>
-                <p className="text-muted mt-0.5 text-xs leading-normal text-pretty">
+                <p className="text-muted mt-0.5 text-sm leading-normal text-pretty">
                   Type{" "}
                   <span className="text-accent font-mono font-bold">
                     B-P-M-N
@@ -207,10 +207,10 @@ export default function BpmnOverlay() {
                         <Dialog.Title className="font-display text-text-primary text-lg md:text-2xl">
                           Portfolio System Operation Blueprint
                         </Dialog.Title>
-                        <p className="text-muted mt-1 max-w-xl text-xs leading-relaxed text-pretty">
+                        <p className="text-muted mt-1 max-w-xl text-sm leading-relaxed text-pretty">
                           Click any user task box in the upper lane to navigate
                           directly to that section. Press{" "}
-                          <span className="text-accent rounded-xl border border-white/10 bg-white/5 px-2 py-0.5 font-mono font-bold">
+                          <span className="text-accent rounded-xl border border-white/10 bg-white/5 px-2.5 py-0.5 font-mono font-bold">
                             ESC
                           </span>{" "}
                           or click close to dismiss.

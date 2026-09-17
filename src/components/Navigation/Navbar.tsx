@@ -180,7 +180,7 @@ export default function Navbar() {
               value="home"
               tabIndex={0}
               highlightClassName="hidden md:block"
-              className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 flex items-center gap-2 rounded-full py-1.5 pr-3 pl-1.5 text-xs transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset sm:text-sm md:py-[9px] md:pr-[15px] md:pl-[9px]"
+              className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 flex items-center gap-2 rounded-full py-1.5 pr-3 pl-1.5 text-sm transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset md:py-[9px] md:pr-[15px] md:pl-[9px]"
               activeClassName="text-text-primary"
               aria-label="Home"
             >
@@ -193,7 +193,7 @@ export default function Navbar() {
                       dispatch({ type: "SET_AVATAR_ERROR", error: false });
                     }}
                     title="Click to retry loading avatar"
-                    className="text-accent cursor-pointer font-mono text-xs leading-none font-bold tracking-normal transition-transform duration-200 ease-out select-none hover:scale-105 focus-visible:outline-none"
+                    className="text-accent cursor-pointer font-mono text-sm leading-none font-bold tracking-normal transition-transform duration-200 ease-out select-none hover:scale-105 focus-visible:outline-none"
                   >
                     OMO
                   </button>
@@ -211,7 +211,7 @@ export default function Navbar() {
                 )}
               </span>
 
-              <span className="text-xs leading-none font-semibold whitespace-nowrap">
+              <span className="text-sm leading-none font-semibold whitespace-nowrap">
                 Ondrej Michal Očkaj
               </span>
             </Tab>
