@@ -50,9 +50,8 @@ function ContactSection() {
             Let's work together
           </h2>
           <p className="text-muted mx-auto mb-10 max-w-xl text-base leading-relaxed text-pretty md:text-lg">
-            Looking to analyze, map, and optimize your business processes,
-            design digital transformation solutions, or fill an analyst role?
-            Let's connect.
+            Let's collaborate on process optimization, digital transformation,
+            and business analysis.
           </p>
         </motion.div>
         <motion.div
@@ -62,12 +61,12 @@ function ContactSection() {
           transition={SECTION_TRANSITION}
         >
           <div className="mx-auto mb-16 max-w-[1200px] px-6 text-center md:mb-20 md:px-10 lg:px-16">
-            <div className="mx-auto flex flex-col items-center justify-center gap-4 sm:flex-row sm:flex-wrap sm:gap-6">
+            <div className="mx-auto flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap sm:gap-6">
               {/* Email button wrapper */}
-              <div className="flex w-full justify-center sm:w-auto">
+              <div className="flex w-full max-w-sm justify-center sm:w-auto sm:max-w-none">
                 <LiquidGlassButton
                   href={`mailto:${CONTACT_EMAIL}`}
-                  className="group/email-btn w-fit px-6 py-3.5 whitespace-nowrap sm:px-8 sm:py-4"
+                  className="group/email-btn w-full justify-center px-6 py-3.5 whitespace-nowrap sm:w-auto sm:px-8 sm:py-4"
                   ariaLabel="Send email"
                   magnetic
                   tilt
@@ -86,26 +85,26 @@ function ContactSection() {
               </div>
 
               {/* Social buttons wrapper */}
-              <div className="flex w-full flex-row justify-center gap-3 sm:w-auto sm:gap-6">
+              <div className="flex w-full max-w-sm flex-row justify-center gap-3 sm:w-auto sm:max-w-none sm:gap-6">
                 {SOCIALS.map((social) => (
                   <LiquidGlassButton
                     key={social.label}
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group/social-btn max-w-[145px] flex-1 px-4 py-3.5 text-sm whitespace-nowrap sm:max-w-none sm:flex-initial sm:px-8 sm:py-4 sm:text-sm"
+                    className="group/social-btn flex-1 px-4 py-3.5 text-sm whitespace-nowrap sm:flex-initial sm:px-8 sm:py-4 sm:text-sm"
                     ariaLabel={`Visit ${social.label}`}
                     magnetic
                     tilt
                     magneticStrength={0.02}
                     specularGlow
                   >
-                    <span className="flex w-full items-center justify-center gap-1.5 sm:gap-2">
+                    <span className="flex w-full items-center justify-center gap-2">
                       <svg
                         aria-hidden="true"
                         viewBox="0 0 24 24"
                         fill="currentColor"
-                        className="h-[13px] w-[13px] shrink-0 sm:h-4 sm:w-4"
+                        className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4"
                         xmlns="http://www.w3.org/2000/svg"
                       >
                         <path d={social.path} />
@@ -113,7 +112,7 @@ function ContactSection() {
                       <span>{social.label}</span>
                       <ArrowUpRight
                         aria-hidden="true"
-                        className="h-[13px] w-[13px] shrink-0 transition-transform duration-300 group-hover/social-btn:translate-x-0.5 group-hover/social-btn:-translate-y-0.5 sm:h-4 sm:w-4"
+                        className="h-3.5 w-3.5 shrink-0 transition-transform duration-300 group-hover/social-btn:translate-x-0.5 group-hover/social-btn:-translate-y-0.5 sm:h-4 sm:w-4"
                       />
                     </span>
                   </LiquidGlassButton>
