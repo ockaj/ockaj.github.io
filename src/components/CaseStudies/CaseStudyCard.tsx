@@ -22,7 +22,7 @@ const CaseStudyCard = memo(function CaseStudyCard({
       tilt
     >
       {/* Content grid */}
-      <div className="relative z-10 grid h-full w-full gap-4 p-6 md:grid-cols-12 md:gap-8 md:p-8">
+      <div className="relative z-10 grid h-full w-full gap-6 p-6 md:grid-cols-12 md:gap-8 md:p-8">
         {/* Left column: Title, subtitle, solution narrative, tools */}
         <div className="flex flex-col justify-between gap-4 md:col-span-7 md:gap-6">
           <div className="space-y-4">
@@ -75,7 +75,7 @@ const CaseStudyCard = memo(function CaseStudyCard({
                   key={result.metric}
                   className="case-study-metric-hover flex items-baseline gap-3"
                 >
-                  <span className="font-display text-accent case-study-metric-hover-val text-2xl tracking-tight tabular-nums md:text-3xl">
+                  <span className="font-display text-accent case-study-metric-hover-val text-xl tracking-tight tabular-nums md:text-3xl">
                     <MetricCountUp value={result.metric} />
                   </span>
                   <span className="text-muted case-study-metric-hover-desc text-sm leading-relaxed text-pretty md:text-base">

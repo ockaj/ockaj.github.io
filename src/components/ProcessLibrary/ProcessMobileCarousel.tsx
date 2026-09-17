@@ -88,22 +88,22 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
               layoutId={`process-view-mode-pill-mobile-${topic.id}`}
               roundedClass="rounded-xl"
               highlightStyle={MOBILE_HIGHLIGHT_STYLE}
-              className="bg-surface/80 isolate inline-flex h-10 w-full [transform:translateZ(0)] items-center rounded-xl border border-white/10 p-1 shadow-md backdrop-blur-md select-none sm:w-auto"
+              className="bg-surface/80 isolate inline-flex h-9 w-full [transform:translateZ(0)] items-center rounded-xl border border-white/10 p-1 shadow-md backdrop-blur-md select-none sm:w-auto"
               highlightClassName="bg-white/15 border border-white/20 shadow-sm"
             >
               <Tab
                 value="asis"
-                className="focus-visible:ring-accent flex h-8 flex-1 cursor-pointer items-center justify-center rounded-lg px-3.5 text-sm font-semibold tracking-wider text-white/85 uppercase transition-colors duration-200 select-none hover:text-white focus-visible:ring-2 focus-visible:outline-none sm:flex-initial"
-                activeClassName="font-bold text-white"
+                className="focus-visible:ring-accent flex h-7 flex-1 cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none hover:text-white focus-visible:ring-2 focus-visible:outline-none sm:flex-initial"
+                activeClassName="font-semibold text-white"
               >
-                <span>SOURCE</span>
+                <span>Source</span>
               </Tab>
               <Tab
                 value="tobe"
-                className="focus-visible:ring-accent flex h-8 flex-1 cursor-pointer items-center justify-center rounded-lg px-3.5 text-sm font-semibold tracking-wider text-white/85 uppercase transition-colors duration-200 select-none hover:text-white focus-visible:ring-2 focus-visible:outline-none sm:flex-initial"
-                activeClassName="font-bold text-white"
+                className="focus-visible:ring-accent flex h-7 flex-1 cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none hover:text-white focus-visible:ring-2 focus-visible:outline-none sm:flex-initial"
+                activeClassName="font-semibold text-white"
               >
-                <span>OPTIMIZED</span>
+                <span>Optimized</span>
               </Tab>
             </Tabs>
           </div>
