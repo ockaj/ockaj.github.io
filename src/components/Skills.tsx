@@ -227,7 +227,7 @@ const WideSkillCard = memo(function WideSkillCard({
               size={20}
               className="text-muted group-hover:text-accent flex-shrink-0 transition-colors duration-300"
             />
-            <h3 className="text-text-primary text-base font-semibold text-balance">
+            <h3 className="text-text-primary text-lg font-semibold text-balance md:text-xl">
               {category.title}
             </h3>
           </div>
@@ -262,7 +262,7 @@ const CompactSkillCard = memo(function CompactSkillCard({
               size={20}
               className="text-muted group-hover:text-accent flex-shrink-0 transition-colors duration-300"
             />
-            <h3 className="text-text-primary text-base font-semibold text-balance">
+            <h3 className="text-text-primary text-lg font-semibold text-balance md:text-xl">
               {category.title}
             </h3>
           </div>

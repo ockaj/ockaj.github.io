@@ -347,7 +347,7 @@ function Hero() {
   }, []);
 
   return (
-    <section className="relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden pt-24 pb-28 md:py-0">
+    <section className="relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden pt-20 pb-12 md:py-0">
       <motion.div
         custom={prefersReducedMotion}
         variants={containerVariants}
@@ -358,7 +358,7 @@ function Hero() {
         {/* Eyebrow */}
         <motion.p
           variants={itemVariants}
-          className="text-muted/95 mb-8 flex items-center gap-2 text-sm font-medium text-pretty"
+          className="text-muted/95 mb-4 flex items-center gap-2 text-base font-medium text-pretty md:mb-6"
         >
           {EYEBROW_BADGE}
           Business Analyst Portfolio
@@ -367,7 +367,7 @@ function Hero() {
         {/* Name */}
         <motion.h1
           variants={nameVariants}
-          className="font-display text-text-primary mb-6 pb-2 text-[clamp(3.5rem,8vw,6.0rem)] leading-[1.1] tracking-[-0.025em] text-balance italic"
+          className="font-display text-text-primary mb-5 pb-1 text-[clamp(3.5rem,8vw,6.0rem)] leading-[1.1] tracking-[-0.025em] text-balance italic sm:mb-6 sm:pb-2"
         >
           Ondrej Michal Očkaj
         </motion.h1>
@@ -376,7 +376,7 @@ function Hero() {
         <motion.p
           data-nosnippet
           variants={itemVariants}
-          className="text-muted mb-4 max-w-full text-base leading-relaxed text-pretty md:text-lg"
+          className="text-muted mb-4 max-w-full text-base leading-relaxed text-balance md:text-lg"
         >
           <span className="sr-only">
             Based in Slovakia, working as a Business Analyst &amp; Process
@@ -386,11 +386,8 @@ function Hero() {
             <span className="block sm:inline">
               Based in Slovakia, working as a{" "}
             </span>
-            <span className="text-text-primary inline-block font-semibold whitespace-nowrap">
-              Business Analyst
-            </span>
-            <span className="text-text-primary ml-1 inline-block font-semibold whitespace-nowrap">
-              &amp;{" "}
+            <span className="text-text-primary font-semibold">
+              Business Analyst &amp;{" "}
               <RotatingSpecialization
                 prefersReducedMotion={prefersReducedMotion}
               />
@@ -401,7 +398,7 @@ function Hero() {
         {/* Description */}
         <motion.p
           variants={itemVariants}
-          className="text-muted mb-12 max-w-xl text-base leading-relaxed text-pretty md:text-lg"
+          className="text-muted mb-10 max-w-md text-base leading-relaxed text-balance md:mb-12 md:max-w-xl md:text-lg"
         >
           Specializing in process analysis, BPMN modeling, and digital
           transformation solutions for enterprises.
@@ -410,14 +407,14 @@ function Hero() {
         {/* CTA Buttons */}
         <motion.div
           variants={itemVariants}
-          className="inline-flex flex-wrap justify-center gap-4 md:justify-start"
+          className="inline-flex flex-wrap justify-center gap-3 sm:gap-4 md:justify-start"
         >
           <span className="inline-flex">
             <LiquidGlassButton
               onClick={handleViewCv}
               onPointerEnter={handleCvPreload}
               onFocus={handleCvPreload}
-              className="px-8 py-4"
+              className="px-6 py-3.5 sm:px-8 sm:py-4"
               ariaLabel="View CV"
               magnetic
               tilt
@@ -430,7 +427,7 @@ function Hero() {
           </span>
           <LiquidGlassButton
             href="#work"
-            className="px-8 py-4"
+            className="px-6 py-3.5 sm:px-8 sm:py-4"
             ariaLabel="View Case Studies"
             magnetic
             tilt

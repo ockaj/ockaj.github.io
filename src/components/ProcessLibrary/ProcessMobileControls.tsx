@@ -26,7 +26,7 @@ function ProcessMobileControls() {
           <ChevronLeft size={18} />
         </LiquidGlassButton>
 
-        <span className="font-body flex items-center gap-1 px-1.5 text-xs leading-none tabular-nums select-none">
+        <span className="font-body flex items-center gap-1 px-1.5 text-sm leading-none tabular-nums select-none">
           <span className="text-accent font-bold">
             {String(activeTopic.id).padStart(2, "0")}
           </span>

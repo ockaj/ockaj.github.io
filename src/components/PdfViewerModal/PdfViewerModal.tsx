@@ -135,7 +135,7 @@ const PdfModalTitle = memo(function PdfModalTitle() {
         >
           Ondrej Michal Očkaj
         </Dialog.Title>
-        <p className="text-muted flex items-center gap-1 text-xs text-pretty">
+        <p className="text-muted flex items-center gap-1 text-sm text-pretty">
           <FileText size={10} className="text-accent" />
           Curriculum Vitae
         </p>
@@ -239,7 +239,7 @@ const PdfModalTabs = memo(function PdfModalTabs({
         value="pdf"
         aria-controls="tabpanel-pdf"
         className={cn(
-          "focus-visible:ring-accent/60 relative z-10 rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
+          "focus-visible:ring-accent/60 relative z-10 rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
           activeTab === "pdf"
             ? "text-text-primary"
             : "text-muted hover:text-text-primary",
@@ -251,7 +251,7 @@ const PdfModalTabs = memo(function PdfModalTabs({
         value="interactive"
         aria-controls="tabpanel-interactive"
         className={cn(
-          "focus-visible:ring-accent/60 relative z-10 rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
+          "focus-visible:ring-accent/60 relative z-10 rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
           activeTab === "interactive"
             ? "text-text-primary"
             : "text-muted hover:text-text-primary",
@@ -311,7 +311,7 @@ const PdfDocumentPanel = memo(function PdfDocumentPanel({
           <div className="animate-spin">
             <Loader2 className="text-accent" size={32} />
           </div>
-          <p className="text-muted text-xs">Loading PDF Document…</p>
+          <p className="text-muted text-sm">Loading PDF Document…</p>
         </div>
       ) : null}
       {shouldMountPdf ? (
@@ -329,7 +329,7 @@ const PdfDocumentPanel = memo(function PdfDocumentPanel({
             <a
               href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
               download
-              className="bg-accent text-bg hover:bg-accent-hover rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-200"
+              className="bg-accent text-bg hover:bg-accent-hover rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200"
             >
               Download CV PDF
             </a>

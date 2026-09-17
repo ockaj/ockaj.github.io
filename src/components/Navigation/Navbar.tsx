@@ -223,7 +223,7 @@ export default function Navbar() {
                   key={link.id}
                   value={link.id}
                   tabIndex={0}
-                  className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 rounded-full px-3 py-1.5 text-xs transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px] md:text-sm"
+                  className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 rounded-full px-3 py-1.5 text-sm transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px]"
                   activeClassName="text-text-primary"
                 >
                   <span>{link.label}</span>
@@ -234,7 +234,7 @@ export default function Navbar() {
               <Tab
                 value="contact"
                 tabIndex={0}
-                className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 rounded-full px-3 py-1.5 text-xs transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px] md:text-sm"
+                className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 rounded-full px-3 py-1.5 text-sm transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px]"
                 activeClassName="text-text-primary"
               >
                 <span>Contact</span>

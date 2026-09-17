@@ -41,7 +41,7 @@ function ProcessTopicMenu() {
                 >
                   <span
                     className={cn(
-                      "font-body relative z-10 min-w-[20px] text-xs tabular-nums transition-colors duration-300",
+                      "font-body relative z-10 min-w-[20px] text-sm tabular-nums transition-colors duration-300",
                       isActive
                         ? "text-accent font-bold"
                         : "text-muted/60 group-hover:text-muted font-medium",

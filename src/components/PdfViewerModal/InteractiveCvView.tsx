@@ -28,7 +28,7 @@ function BulletList({
       {bullets.map((bullet) => (
         <li
           key={bullet}
-          className="text-muted flex items-start gap-1.5 text-xs text-pretty"
+          className="text-muted flex items-start gap-1.5 text-sm text-pretty"
         >
           <span className="text-accent mt-0.5 flex-shrink-0">•</span>
           <span>{bullet}</span>
@@ -104,7 +104,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
           <LiquidGlassButton
             onClick={() => useAppStore.getState().setCvLang("en")}
             className={cn(
-              "flex items-center gap-1 px-3 py-1.5 text-xs font-semibold",
+              "flex items-center gap-1 px-3 py-1.5 text-sm font-semibold",
               lang === "en" ? "text-accent" : "text-muted",
             )}
           >
@@ -114,7 +114,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
           <LiquidGlassButton
             onClick={() => useAppStore.getState().setCvLang("sk")}
             className={cn(
-              "flex items-center gap-1 px-3 py-1.5 text-xs font-semibold",
+              "flex items-center gap-1 px-3 py-1.5 text-sm font-semibold",
               lang === "sk" ? "text-accent" : "text-muted",
             )}
           >
@@ -325,7 +325,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
 
           {/* Mobile Warning Notice */}
           <div className="border-accent/20 bg-accent/5 space-y-2 rounded-lg border p-4 text-center md:hidden">
-            <p className="text-muted text-xs text-pretty">
+            <p className="text-muted text-sm text-pretty">
               PDF view is optimized for desktop viewports. To read the official
               document, you can open or download the PDF below.
             </p>
@@ -333,7 +333,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
               href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-accent hover:text-text-primary inline-flex items-center gap-1.5 text-xs font-semibold transition-colors"
+              className="text-accent hover:text-text-primary inline-flex items-center gap-1.5 text-sm font-semibold transition-colors"
             >
               <ExternalLink size={12} />
               Open PDF Document

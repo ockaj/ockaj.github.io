@@ -81,7 +81,7 @@ export default function LoadingMethodologyChecklist({
                       opacity: !isCompleted && !isActive ? 0.4 : 0,
                     }}
                     transition={{ ease: EASE.out, duration: 0.4 }}
-                    className="text-muted absolute inset-0 flex items-center justify-center font-mono text-xs"
+                    className="text-muted absolute inset-0 flex items-center justify-center font-mono text-sm"
                   >
                     •
                   </motion.span>
@@ -110,7 +110,7 @@ export default function LoadingMethodologyChecklist({
             );
 
             return (
-              <div className="text-text-primary flex h-full items-center gap-3 font-sans text-xs">
+              <div className="text-text-primary flex h-full items-center gap-3 font-sans text-sm">
                 <span className="flex size-6 flex-shrink-0 items-center justify-center rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/10">
                   <span className="size-2 animate-pulse rounded-full bg-[hsl(var(--accent))] shadow-[0_0_10px_hsla(var(--accent),0.8)]" />
                 </span>

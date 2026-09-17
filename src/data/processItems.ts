@@ -74,12 +74,7 @@ export const PROCESS_TOPICS: ProcessTopic[] = [
       description:
         "Optimized BPMN process model for project coordination, corrected and logically validated using target business analyst methodology.",
       image: "/BPMN_models/koordinacia_projektu/projekt_v2.svg",
-      specTags: [
-        "Handoff Streamlining",
-        "Parallel Gateways",
-        "Error Boundary",
-        "Role Clarity",
-      ],
+      specTags: ["Handoff Streamlining", "Parallel Gateways", "Error Boundary"],
     },
   },
   {

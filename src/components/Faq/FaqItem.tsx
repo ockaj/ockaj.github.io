@@ -64,7 +64,7 @@ export const FaqItem = memo(function FaqItem({
           className="focus-visible:ring-accent/60 flex w-full cursor-pointer items-center justify-between gap-4 rounded-lg text-left select-none focus-visible:ring-2 focus-visible:outline-none"
         >
           <div className="flex flex-col">
-            <h3 className="font-display text-text-primary text-base font-semibold text-balance transition-colors duration-200 md:text-lg">
+            <h3 className="font-display text-text-primary text-lg font-semibold text-balance transition-colors duration-200 md:text-xl">
               {item.question}
             </h3>
           </div>

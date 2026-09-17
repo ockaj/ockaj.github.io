@@ -86,11 +86,11 @@ const LightboxFooter = memo(function LightboxFooter({
     <div className="pointer-events-none absolute right-0 bottom-0 left-0 z-20 bg-gradient-to-t from-black/95 via-black/40 to-transparent p-5">
       <Dialog.Title
         id="lightbox-title"
-        className="mb-1 text-sm font-semibold text-balance text-white"
+        className="mb-1 text-base font-semibold text-balance text-white"
       >
         {title}
       </Dialog.Title>
-      <p className="text-xs text-pretty text-white/80">{description}</p>
+      <p className="text-sm text-pretty text-white/80">{description}</p>
     </div>
   );
 });

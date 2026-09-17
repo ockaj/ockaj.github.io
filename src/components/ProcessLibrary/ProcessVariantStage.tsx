@@ -182,7 +182,7 @@ function ProcessVariantStage({
 
         {/* Permanent Expand Badge */}
         <div className="pointer-events-none absolute right-2.5 bottom-2.5 z-10 sm:right-3 sm:bottom-3">
-          <span className="bg-surface/80 text-text-primary group-hover/canvas:border-accent/60 group-hover/canvas:text-accent inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-3 py-1.5 text-xs font-semibold shadow-xl backdrop-blur-md transition duration-200 group-hover/canvas:scale-105 sm:px-3.5">
+          <span className="bg-surface/80 text-text-primary group-hover/canvas:border-accent/60 group-hover/canvas:text-accent inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-3 py-1.5 text-sm font-semibold shadow-xl backdrop-blur-md transition duration-200 group-hover/canvas:scale-105 sm:px-3.5">
             <Maximize2 size={12} className="text-accent" />
             <span>Expand Diagram</span>
           </span>

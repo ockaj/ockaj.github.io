@@ -42,7 +42,7 @@ function ContactSection() {
           transition={SECTION_TRANSITION}
           className="mx-auto max-w-[1200px] px-6 pb-2 text-center md:px-10 lg:px-16"
         >
-          <p className="text-muted/95 mb-5 flex items-center justify-center gap-2 text-sm font-medium text-pretty">
+          <p className="text-muted/95 mb-5 flex items-center justify-center gap-2 text-base font-medium text-pretty">
             <BpmnNodeBadge type="end-event-none" />
             Get in touch
           </p>

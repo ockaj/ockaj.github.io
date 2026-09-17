@@ -80,7 +80,7 @@ const LightboxControls = memo(function LightboxControls({
             disabled={!canZoomOut}
             roundedClass="rounded-full"
             springScale={canZoomOut}
-            className="text-text-primary notranslate flex h-10 w-16 items-center justify-center text-xs font-bold tracking-wider uppercase transition-opacity select-none disabled:pointer-events-none disabled:cursor-default disabled:opacity-40"
+            className="text-text-primary notranslate flex h-10 w-16 items-center justify-center text-sm font-bold tracking-wider uppercase transition-opacity select-none disabled:pointer-events-none disabled:cursor-default disabled:opacity-40"
             onClick={() => {
               if (currentScaleRef.current > 1.01) {
                 resetTransform();

@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { AlertCircle, CheckCircle, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import type { CaseStudyDetail } from "../../data/caseStudies";
 import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
 import MetricCountUp from "./MetricCountUp";
@@ -23,64 +23,35 @@ const CaseStudyCard = memo(function CaseStudyCard({
     >
       {/* Content grid */}
       <div className="relative z-10 grid h-full w-full gap-4 p-6 md:grid-cols-12 md:gap-8 md:p-8">
-        {/* Left column: Title, challenge, solution */}
-        <div className="flex flex-col gap-4 md:col-span-7 md:gap-6">
-          {/* Category kicker */}
-          <div className="flex items-center gap-2">
-            <span className="bg-accent size-1.5 rounded-full" />
-            <span className="text-accent text-sm font-bold tracking-wider uppercase">
-              {study.category}
-            </span>
-          </div>
+        {/* Left column: Title, subtitle, solution narrative, tools */}
+        <div className="flex flex-col justify-between gap-4 md:col-span-7 md:gap-6">
+          <div className="space-y-4">
+            {/* Category kicker */}
+            <div className="flex items-center gap-2">
+              <span className="bg-accent size-1.5 rounded-full" />
+              <span className="text-accent text-sm font-bold tracking-wider uppercase">
+                {study.category}
+              </span>
+            </div>
 
-          {/* Title */}
-          <div>
-            <span className="font-display text-text-primary mb-1 line-clamp-2 block text-2xl text-balance md:text-3xl">
-              {study.title}
-            </span>
-            <p className="text-muted text-base leading-relaxed text-pretty">
-              {study.subtitle}
+            {/* Title */}
+            <div>
+              <span className="font-display text-text-primary mb-1 line-clamp-2 block text-xl text-balance md:text-2xl">
+                {study.title}
+              </span>
+              <p className="text-muted text-base leading-relaxed text-pretty">
+                {study.subtitle}
+              </p>
+            </div>
+
+            {/* Solution overview narrative */}
+            <p className="text-text-primary/80 line-clamp-2 hidden text-base leading-relaxed text-pretty md:block">
+              {study.solution}
             </p>
           </div>
 
-          {/* Challenge */}
-          <div className="hidden md:block">
-            <div className="mb-2 flex items-start gap-3">
-              <AlertCircle
-                size={18}
-                className="text-muted mt-0.5 flex-shrink-0"
-              />
-              <div>
-                <p className="text-muted mb-1 text-sm font-semibold tracking-wider uppercase">
-                  Challenge
-                </p>
-                <p className="text-text-primary/85 text-base leading-relaxed text-pretty">
-                  {study.challenge}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Solution */}
-          <div className="hidden md:block">
-            <div className="flex items-start gap-3">
-              <CheckCircle
-                size={18}
-                className="text-accent mt-0.5 flex-shrink-0"
-              />
-              <div>
-                <p className="text-muted mb-1 text-sm font-semibold tracking-wider uppercase">
-                  Solution
-                </p>
-                <p className="text-text-primary/85 text-base leading-relaxed text-pretty">
-                  {study.solution}
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* Tools */}
-          <div className="flex flex-wrap gap-2 pt-1 md:pt-2">
+          <div className="hidden flex-wrap gap-2 pt-1 md:flex md:pt-2">
             {study.tools.map((tool) => (
               <span
                 key={tool}
