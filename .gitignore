@@ -40,8 +40,11 @@ dist-ssr/
 stats.html
 
 # Agent-specific files and directories
+.impeccable
 .impeccable/
+.agents
 .agents/
+cache
 cache/
 PRODUCT.md
 skills-lock.json

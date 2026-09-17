@@ -1,0 +1,3 @@
+[submodule "portfolio-agent-configs"]
+	path = portfolio-agent-configs
+	url = https://github.com/ockaj/portfolio-agent-configs.git

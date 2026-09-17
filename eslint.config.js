@@ -69,7 +69,7 @@ const featureBoundaryPatterns = [
 ];
 
 export default tseslint.config(
-  { ignores: ["dist", ".agents"] },
+  { ignores: ["dist", ".agents", "portfolio-agent-configs"] },
   {
     extends: [
       js.configs.recommended,

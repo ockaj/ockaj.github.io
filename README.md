@@ -16,11 +16,14 @@ A high-end, premium interactive portfolio showcasing Ondrej Michal Očkaj's skil
 
 ## Technology Stack
 
-- **Framework**: React 19, TypeScript, Vite 8
-- **Styling**: Tailwind CSS v4, custom theme configurations
-- **Asset Processing**: `lightningcss` (CSS transformer), SVGO (SVG optimizer)
-- **Animations**: `motion/react` (v12+) for hardware-accelerated motion layers
-- **Integrations**: `react-markdown` + `remark-gfm` for fast, lightweight article rendering
+- **Framework & Core**: React 19, TypeScript, Vite 8
+- **UI Components & Materials**: Base UI (`@base-ui/react`), LiquidGlass tactile primitives
+- **Styling**: Tailwind CSS v4, custom theme tokens
+- **Graphics & Motion**: WebGL Aurora (`ogl`), `motion/react` (v13+), NumberFlow (`@number-flow/react`)
+- **State Management**: Zustand 5 with URL hash synchronization
+- **Asset Processing**: `lightningcss` (CSS transformer), SVGO (SVG optimizer), `boneyard-js` (build-time skeleton generation)
+- **Content**: `react-markdown` + `remark-gfm` for fast, lightweight article rendering
+- **Quality & Testing**: Vitest, React Doctor, Knip, ESLint flat config (React Compiler, SonarJS)
 
 ---
 
@@ -31,10 +34,33 @@ A high-end, premium interactive portfolio showcasing Ondrej Michal Očkaj's skil
 | `npm run dev` | Launch local Vite development server |
 | `npm run build` | Compile production bundle (targets ES2023, splits manual vendor chunks) |
 | `npm run preview` | Run local web server serving production build in `/dist` |
+| `npm test` | Run Vitest test suite once |
+| `npm run test:watch` | Run Vitest in interactive watch mode |
 | `npm run typecheck` | Perform TypeScript compilability checks |
-| `npm run lint` | Run ESLint flat configuration (enforces React Compiler rules) |
+| `npm run lint` | Run ESLint flat configuration (enforces React Compiler & SonarJS rules) |
+| `npm run doctor` | Run React Doctor diagnostics for anti-patterns and performance risks |
+| `npm run knip` | Scan codebase for unused files, exports, and dependencies |
 | `npm run optimize-svgs` | Run SVGO on all BPMN diagrams in `public/BPMN_models/` |
 | `npm run analyze` | Build production bundle and open Rollup visualizer map |
+
+---
+
+## Verification Pipeline
+
+Before committing changes or cutting a release, run the complete verification sequence:
+
+```bash
+npm test && npm run typecheck && npm run lint && npm run doctor && npm run knip && npm run build
+```
+
+Or execute them step by step:
+
+1. `npm test` — Run unit and store tests.
+2. `npm run typecheck` — Verify TypeScript types without emitting code.
+3. `npm run lint` — Lint code against architectural boundaries and React rules.
+4. `npm run doctor` — Check React component health and diagnostics.
+5. `npm run knip` — Identify unused files, exports, and dependencies.
+6. `npm run build` — Build production bundle to verify compilation.
 
 ---
 
@@ -71,5 +97,5 @@ Open `http://localhost:5173` in your browser to view the application.
 The portfolio is set up for automated continuous deployment using GitHub Actions:
 
 1. **Continuous Integration**: Pushing commits to `main`/`master` triggers the deployment workflow.
-2. **Build and Assets**: The environment runs `npm ci` followed by `npm run build` to generate the static files under `./dist/`.
-3. **Target Pages**: The static directory is pushed directly to the `gh-pages` branch.
+2. **Build and Assets**: The environment runs `npm ci` followed by `npm run build` to generate static files under `./dist/`.
+3. **Pages Deployment**: Static artifacts are uploaded and deployed directly to GitHub Pages via official GitHub Actions (`actions/deploy-pages`).
