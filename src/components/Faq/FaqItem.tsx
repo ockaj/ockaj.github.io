@@ -23,6 +23,7 @@ export const FaqItem = memo(function FaqItem({
   onToggle,
 }: FaqItemProps) {
   const contentId = useId();
+  const triggerId = useId();
   const prefersReducedMotion = useReducedMotion();
   const isReduced = !!prefersReducedMotion;
 
@@ -50,6 +51,7 @@ export const FaqItem = memo(function FaqItem({
     >
       <div className="p-6 md:p-7">
         <div
+          id={triggerId}
           role="button"
           tabIndex={0}
           onClick={() => onToggle(item.id)}
@@ -64,7 +66,7 @@ export const FaqItem = memo(function FaqItem({
           className="focus-visible:ring-accent/60 flex w-full cursor-pointer items-center justify-between gap-4 rounded-lg text-left select-none focus-visible:ring-2 focus-visible:outline-none"
         >
           <div className="flex flex-col">
-            <h3 className="font-display text-text-primary text-lg font-semibold text-balance transition-colors duration-200 md:text-xl">
+            <h3 className="font-display text-text-primary text-lg font-normal text-balance transition-colors duration-200 md:text-xl">
               {item.question}
             </h3>
           </div>
@@ -93,6 +95,7 @@ export const FaqItem = memo(function FaqItem({
         <div
           id={contentId}
           role="region"
+          aria-labelledby={triggerId}
           aria-hidden={!isOpen}
           data-no-skeleton={!isOpen ? "" : undefined}
           className={cn(

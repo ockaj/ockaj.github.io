@@ -47,6 +47,18 @@ typography:
     fontWeight: 500
     lineHeight: 1.2
     letterSpacing: "0.05em"
+  footnote:
+    fontFamily: "Outfit, sans-serif"
+    fontSize: "0.75rem to 0.8125rem"
+    fontWeight: 600
+    lineHeight: 1.35
+    letterSpacing: "0.05em"
+  caption:
+    fontFamily: "Outfit, sans-serif"
+    fontSize: "0.6875rem to 0.75rem"
+    fontWeight: 500
+    lineHeight: 1.3
+    letterSpacing: "0.02em"
   mono:
     fontFamily: "bpmn, monospace"
     fontSize: "0.875rem"
@@ -169,9 +181,10 @@ The palette pairs deep neutral obsidian layers with a singular, luminous periwin
 - **Metrics / Highlight Numbers** (weight: 400 or 600, size: `text-xl md:text-3xl`, line-height: 1, `tabular-nums`): Case study metrics and diagram KPIs. Scaled to `text-xl` on mobile to preserve card balance without overpowering titles.
 - **Body** (weight: 400, size: `text-sm md:text-base`, line-height: 1.5): Standard narrative text, case study analysis, and article paragraphs with a 70ch line limit. Uses `text-pretty` to prevent orphans.
 - **Label** (weight: 500/600, size: `text-sm` / `0.875rem`, line-height: 1.2, letter-spacing: 0.05em to 0.15em): Navigation tabs, buttons, category kickers, and badge indicators. Metric values use `tabular-nums`.
+- **Footnote / Caption** (weight: 500/600, size: `text-xs` to `text-[13px]` / 10pt–13pt, line-height: 1.3 to 1.35, letter-spacing: 0.02em to 0.05em): Secondary metadata, technology tags, timestamps, diagram status chips, and footnote disclosures matching compact native typography scales.
 
 ### Named Rules
-- **The 14px Floor Rule.** The absolute minimum font size anywhere in the application is 14px (`text-sm`). `text-xs` (12px) and sub-14px arbitrary values (`text-[10px]`, `text-[11px]`, etc.) are strictly prohibited across all surfaces, ensuring legibility and meeting touch-device accessibility standards.
+- **The Native Typography Scale Rule.** The typography system supports compact native type scales down to 10pt–13pt (`text-[10px]`, `text-[11px]`, `text-xs`/12px, `text-[13px]`) for footnotes, captions, technology tags, and compact diagram metadata, combined with appropriate letter tracking and contrast. Primary reading copy and interactive controls maintain comfortable touch baselines (`text-sm` to `text-base`).
 - **The Balanced Heading Rule.** All headings use `text-wrap: balance` and tight negative tracking (`-0.015em` to `-0.025em`) to prevent typographic orphans.
 - **The Tabular Precision Rule.** All numerical indicators, cycle time metrics, and quantitative percentages use `tabular-nums` to maintain vertical column alignment.
 

@@ -75,7 +75,7 @@ function Faq() {
           >
             <div className="flex flex-col items-start justify-between gap-6 p-7 sm:p-8 md:flex-row md:items-center md:gap-8">
               <div className="flex flex-col gap-1.5">
-                <h3 className="font-display text-text-primary text-xl font-semibold text-balance md:text-2xl">
+                <h3 className="font-display text-text-primary text-xl font-normal text-balance md:text-2xl">
                   Have an open analyst role or transformation project?
                 </h3>
                 <p className="text-muted max-w-xl text-base leading-relaxed text-pretty">

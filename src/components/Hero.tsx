@@ -254,7 +254,7 @@ function HeroScrollIndicatorDesktop({
         navigateTo("work");
       }}
     >
-      <span className="text-muted/90 group-hover:text-accent text-sm font-semibold tracking-[0.25em] uppercase transition-colors duration-300">
+      <span className="text-muted/90 group-hover:text-accent text-sm font-semibold tracking-widest uppercase transition-colors duration-300">
         Flow
       </span>
       <svg

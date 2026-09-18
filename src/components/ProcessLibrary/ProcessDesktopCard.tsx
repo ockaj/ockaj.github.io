@@ -108,17 +108,17 @@ function ProcessDesktopCard({
                 >
                   <Tab
                     value="asis"
-                    className="focus-visible:ring-accent relative flex h-8 cursor-pointer items-center justify-center rounded-lg px-3.5 text-sm font-semibold tracking-wider text-white/85 uppercase transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 hover:text-white focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none sm:h-9 sm:px-4"
-                    activeClassName="font-bold text-white"
+                    className="focus-visible:ring-accent relative flex h-8 cursor-pointer items-center justify-center rounded-lg px-3.5 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 hover:text-white focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none sm:h-9 sm:px-4"
+                    activeClassName="font-semibold text-white"
                   >
-                    <span>SOURCE</span>
+                    <span>Source</span>
                   </Tab>
                   <Tab
                     value="tobe"
-                    className="focus-visible:ring-accent relative flex h-8 cursor-pointer items-center justify-center rounded-lg px-3.5 text-sm font-semibold tracking-wider text-white/85 uppercase transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 hover:text-white focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none sm:h-9 sm:px-4"
-                    activeClassName="font-bold text-white"
+                    className="focus-visible:ring-accent relative flex h-8 cursor-pointer items-center justify-center rounded-lg px-3.5 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 hover:text-white focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none sm:h-9 sm:px-4"
+                    activeClassName="font-semibold text-white"
                   >
-                    <span>OPTIMIZED</span>
+                    <span>Optimized</span>
                   </Tab>
                 </Tabs>
               </div>

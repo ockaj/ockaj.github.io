@@ -49,7 +49,7 @@ const JOURNAL_MARKDOWN_COMPONENTS = {
     </div>
   ),
   thead: ({ children }: { children?: React.ReactNode }) => (
-    <thead className="font-display text-text-primary border-b border-white/10 bg-white/5">
+    <thead className="font-body text-text-primary border-b border-white/10 bg-white/5">
       {children}
     </thead>
   ),
@@ -100,7 +100,7 @@ const JournalDrawer = memo(function JournalDrawer({
             <span className="text-accent">{article.subtitle}</span>
           </div>
 
-          <h2 className="font-heading text-text-primary text-xl font-bold text-balance md:text-2xl">
+          <h2 className="font-display text-text-primary text-2xl text-balance md:text-3xl">
             {article.title}
           </h2>
 

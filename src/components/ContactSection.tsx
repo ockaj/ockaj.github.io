@@ -46,7 +46,7 @@ function ContactSection() {
             <BpmnNodeBadge type="end-event-none" />
             Get in touch
           </p>
-          <h2 className="font-display text-text-primary mb-6 pb-2 text-[clamp(3.5rem,8vw,6rem)] leading-[1.1] text-balance">
+          <h2 className="font-display text-text-primary mb-6 pb-2 text-[clamp(3.5rem,8vw,6rem)] leading-[1.1] tracking-[-0.025em] text-balance italic">
             Let's work together
           </h2>
           <p className="text-muted mx-auto mb-10 max-w-xl text-base leading-relaxed text-pretty md:text-lg">

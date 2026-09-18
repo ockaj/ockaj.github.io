@@ -130,7 +130,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
         <div className="space-y-10 lg:col-span-2">
           {/* Profile Section */}
           <section className="space-y-3">
-            <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-extrabold text-balance">
+            <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance">
               <Sparkles size={16} className="text-accent" />
               {activeCv.profile.title}
             </h2>
@@ -141,7 +141,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
 
           {/* Experience Section */}
           <section className="space-y-4">
-            <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-extrabold text-balance">
+            <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance">
               <Briefcase size={16} className="text-accent" />
               {activeCv.experience.title}
             </h2>
@@ -162,7 +162,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
                         {job.company}
                       </p>
                     </div>
-                    <span className="text-accent bg-accent/5 border-accent/15 rounded-xl border px-2.5 py-0.5 text-sm font-semibold uppercase tabular-nums">
+                    <span className="text-accent bg-accent/5 border-accent/15 rounded-xl border px-2.5 py-0.5 text-xs font-semibold uppercase tabular-nums">
                       {job.period}
                     </span>
                   </div>
@@ -184,7 +184,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
 
           {/* Education Section */}
           <section className="space-y-4">
-            <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-extrabold text-balance">
+            <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance">
               <GraduationCap size={16} className="text-accent" />
               {activeCv.education.title}
             </h2>
@@ -205,7 +205,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
                         {edu.school}
                       </p>
                     </div>
-                    <span className="text-muted rounded-xl bg-white/5 px-2.5 py-0.5 font-mono text-sm tabular-nums">
+                    <span className="text-muted rounded-xl bg-white/5 px-2.5 py-0.5 font-mono text-xs tabular-nums">
                       {edu.period}
                     </span>
                   </div>
@@ -230,7 +230,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
           {/* Certificates Section */}
           {activeCv.certificates ? (
             <section className="space-y-4">
-              <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-extrabold text-balance">
+              <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance">
                 <Award size={16} className="text-accent" />
                 {activeCv.certificates.title}
               </h2>
@@ -251,7 +251,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
                           {cert.issuer}
                         </p>
                       </div>
-                      <span className="text-muted rounded-xl bg-white/5 px-2.5 py-0.5 font-mono text-sm tabular-nums">
+                      <span className="text-muted rounded-xl bg-white/5 px-2.5 py-0.5 font-mono text-xs tabular-nums">
                         {cert.date}
                       </span>
                     </div>
@@ -273,7 +273,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
         <div className="space-y-8">
           {/* Skills Block */}
           <div className="space-y-6 rounded-2xl border border-white/5 bg-white/5 p-5">
-            <h2 className="text-text-primary/90 flex items-center gap-2 border-b border-white/10 pb-2 text-base font-extrabold text-balance">
+            <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance">
               <Globe size={16} className="text-accent" />
               {activeCv.skills.title}
             </h2>
@@ -301,7 +301,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
 
           {/* Languages Block */}
           <div className="space-y-4 rounded-2xl border border-white/5 bg-white/5 p-5">
-            <h2 className="text-text-primary/90 flex items-center gap-2 border-b border-white/10 pb-2 text-base font-extrabold text-balance">
+            <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance">
               <Languages size={16} className="text-accent" />
               {activeCv.languages.title}
             </h2>
@@ -315,7 +315,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
                   <span className="text-text-primary font-normal">
                     {langItem.name}
                   </span>
-                  <span className="text-accent bg-accent/10 border-accent/10 rounded-xl border px-2.5 py-0.5 font-mono text-sm font-semibold">
+                  <span className="text-accent bg-accent/10 border-accent/10 rounded-xl border px-2.5 py-0.5 font-mono text-xs font-semibold">
                     {langItem.level}
                   </span>
                 </div>

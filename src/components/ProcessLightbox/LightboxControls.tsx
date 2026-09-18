@@ -89,7 +89,11 @@ const LightboxControls = memo(function LightboxControls({
             magnetic={canZoomOut}
             magneticStrength={0.04}
           >
-            <span ref={scaleTextRef} className="notranslate" translate="no">
+            <span
+              ref={scaleTextRef}
+              className="notranslate tabular-nums"
+              translate="no"
+            >
               100%
             </span>
           </InteractiveGlass>

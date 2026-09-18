@@ -76,7 +76,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
 
         {/* Core Info */}
         <motion.div variants={drawerItemVariants} className="space-y-4">
-          <h3 className="text-text-primary/90 border-b border-white/10 pb-1.5 text-base font-semibold text-balance">
+          <h3 className="text-text-primary/90 border-b border-white/10 pb-1.5 text-lg font-semibold text-balance">
             Client profile
           </h3>
           <ReactMarkdown components={CLIENT_MARKDOWN_COMPONENTS}>
@@ -89,7 +89,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
 
         {/* Results Grid */}
         <motion.div variants={drawerItemVariants} className="space-y-4">
-          <h3 className="text-text-primary/90 border-b border-white/10 pb-1.5 text-base font-semibold text-balance">
+          <h3 className="text-text-primary/90 border-b border-white/10 pb-1.5 text-lg font-semibold text-balance">
             Proven operations impact
           </h3>
           <div className="grid grid-cols-3 gap-3">
@@ -98,7 +98,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
                 key={res.metric}
                 className="rounded-xl border border-white/5 bg-white/[0.02] p-3 text-center"
               >
-                <p className="font-body text-accent text-xl font-bold tracking-tight tabular-nums md:text-2xl">
+                <p className="font-display text-accent text-xl tracking-tight tabular-nums md:text-2xl">
                   <MetricCountUp value={res.metric} />
                 </p>
                 <p className="text-muted mt-1 text-sm leading-relaxed text-pretty">
@@ -111,7 +111,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
 
         {/* AS-IS vs TO-BE comparison */}
         <motion.div variants={drawerItemVariants} className="space-y-4">
-          <h3 className="text-text-primary/90 border-b border-white/10 pb-1.5 text-base font-semibold text-balance">
+          <h3 className="text-text-primary/90 border-b border-white/10 pb-1.5 text-lg font-semibold text-balance">
             Process modeling & auditing
           </h3>
           <div className="grid gap-6 md:grid-cols-2">

@@ -236,6 +236,7 @@ const PdfModalTabs = memo(function PdfModalTabs({
       className="isolate flex [transform:translateZ(0)] items-center gap-0.5 overflow-hidden rounded-full border border-white/5 bg-white/[0.03] p-2"
     >
       <Tab
+        id="tab-pdf"
         value="pdf"
         aria-controls="tabpanel-pdf"
         className={cn(
@@ -248,6 +249,7 @@ const PdfModalTabs = memo(function PdfModalTabs({
         <span>{isMobile ? "PDF File ↗" : "PDF Document"}</span>
       </Tab>
       <Tab
+        id="tab-interactive"
         value="interactive"
         aria-controls="tabpanel-interactive"
         className={cn(
