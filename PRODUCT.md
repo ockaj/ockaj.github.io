@@ -38,6 +38,8 @@ Junior Business & Process Analyst bridging rigorous formal notation (BPMN 2.0, A
 - Dual-language interactive CV viewer (`InteractiveCvView.tsx`) rendering structured English and Slovak data, alongside direct PDF download.
 - Markdown technical journal articles parsed via `react-markdown` and `remark-gfm` with frontmatter metadata.
 - Static architecture: Hosted on GitHub Pages with zero backend services and zero dynamic databases.
+- Typography floor constraint: Absolute 14px (`text-sm`) minimum size across all mobile and desktop components; `text-xs` (12px) and sub-14px sizes are strictly forbidden.
+- Mobile interaction ergonomics: Compact circular glass overlay badge (`size-7 rounded-full`) for diagram expansion on phones, and balanced stacked contact actions sharing a unified `max-w-sm` container width.
 
 ## Brand Commitments
 
@@ -77,3 +79,4 @@ Junior Business & Process Analyst bridging rigorous formal notation (BPMN 2.0, A
 - Reduced transparency support (`@media (prefers-reduced-transparency: reduce)`) reverting glass blurs to solid opaque surfaces.
 - High contrast support (`@media (prefers-contrast: more)`).
 - Native HTML landmark structure, full keyboard navigability (`Tab` navigation, `Escape` key handlers), and visible focus rings.
+- Strict 14px (`text-sm`) minimum font size floor across all mobile and desktop surfaces for optimal legibility and touch ergonomics.

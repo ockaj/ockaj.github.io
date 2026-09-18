@@ -3,6 +3,8 @@ name: Ondrej Michal Očkaj — Portfolio
 description: Business analysis and process optimization portfolio showcasing BPMN 2.0 architectures and enterprise modeling.
 colors:
   primary: "#9b9cf2"
+  primary-glow: "rgba(122, 123, 191, 0.2)"
+  selection: "rgba(102, 103, 171, 0.3)"
   neutral-bg: "#0a0a0a"
   neutral-surface: "#141414"
   neutral-text: "#f5f5f5"
@@ -45,12 +47,22 @@ typography:
     fontWeight: 500
     lineHeight: 1.2
     letterSpacing: "0.05em"
+  mono:
+    fontFamily: "bpmn, monospace"
+    fontSize: "0.875rem"
+    fontWeight: 400
+    lineHeight: 1.0
+    letterSpacing: "normal"
 rounded:
+  xs: "2px"
+  scrollbar: "3px"
   sm: "4px"
   md: "8px"
+  panel-inner: "10px"
   lg: "12px"
   xl: "16px"
-  2xl: "24px"
+  "2xl": "24px"
+  journal: "28px"
   full: "9999px"
 spacing:
   xs: "4px"
