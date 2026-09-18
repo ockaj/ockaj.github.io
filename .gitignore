@@ -39,14 +39,10 @@ dist/
 dist-ssr/
 stats.html
 
-# Agent-specific files and directories
-.impeccable
-.impeccable/
-.agents
-.agents/
-cache
-cache/
-PRODUCT.md
+# Local agent skills, critique, and cache directories
+.agents/skills/
 skills-lock.json
-DESIGN.md
-AGENTS.md
+.impeccable/
+cache/
+
+.agents/rules/karpathy-guidelines.md
