@@ -2,11 +2,8 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Dialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
-import {
-  InteractiveGlass,
-  LiquidGlassButton,
-} from "../LiquidGlass/LiquidGlass";
-import BpmnNodeBadge from "./BpmnNodeBadge";
+import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import BpmnHotkeyToast from "./BpmnHotkeyToast";
 import BpmnDiagram from "./BpmnDiagram";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { navigateTo, useModal } from "../../hooks/useAppNavigation";
@@ -52,6 +49,11 @@ export default function BpmnOverlay() {
         if (typedBufferRef.current.join("") === "bpmn") {
           open();
           typedBufferRef.current = [];
+          setShowHotkeyTip(false);
+          setHasDismissedTip(true);
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("bpmn_tip_dismissed", "true");
+          }
         }
       } else {
         typedBufferRef.current = [];
@@ -64,7 +66,7 @@ export default function BpmnOverlay() {
 
   // Show a brief toast notification on how to trigger if user spends time on the site (once per session)
   useEffect(() => {
-    if (isMobile || hasDismissedTip) return;
+    if (isMobile || hasDismissedTip || isOpen) return;
 
     const showTipTimer = setTimeout(() => {
       setShowHotkeyTip(true);
@@ -74,15 +76,14 @@ export default function BpmnOverlay() {
       setHasDismissedTip(true);
     }, 12000);
 
-    const hideTipTimer = setTimeout(() => {
-      setShowHotkeyTip(false);
-    }, 18000);
-
     return () => {
       clearTimeout(showTipTimer);
-      clearTimeout(hideTipTimer);
     };
-  }, [isMobile, hasDismissedTip]);
+  }, [isMobile, hasDismissedTip, isOpen]);
+
+  const handleDismissToast = useCallback(() => {
+    setShowHotkeyTip(false);
+  }, []);
 
   const handleTaskClick = useCallback(
     (sectionId: string) => {
@@ -97,52 +98,7 @@ export default function BpmnOverlay() {
       {/* Subtle Toast Tip */}
       <AnimatePresence>
         {showHotkeyTip && !isOpen ? (
-          <motion.div
-            initial={{
-              opacity: 0,
-              y: prefersReducedMotion ? 0 : 30,
-              scale: prefersReducedMotion ? 1 : 0.95,
-            }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{
-              opacity: 0,
-              y: prefersReducedMotion ? 0 : 20,
-              scale: prefersReducedMotion ? 1 : 0.95,
-            }}
-            className="pointer-events-auto fixed right-6 bottom-6 z-40 hidden max-w-sm text-sm md:block"
-          >
-            <InteractiveGlass
-              as="div"
-              roundedClass="rounded-xl"
-              className="bg-surface/90 p-3"
-              innerClassName="flex items-center gap-3 w-full"
-              specularGlow
-            >
-              <BpmnNodeBadge type="script-task" className="flex-shrink-0" />
-              <div className="flex-1 text-left">
-                <p className="text-text-primary text-sm font-semibold text-pretty">
-                  Process Analyst Easter Egg
-                </p>
-                <p className="text-muted mt-0.5 text-sm leading-normal text-pretty">
-                  Type{" "}
-                  <span className="text-accent font-mono font-bold">
-                    B-P-M-N
-                  </span>{" "}
-                  on your keyboard to reveal the portfolio's meta-diagram.
-                </p>
-              </div>
-              <LiquidGlassButton
-                onClick={() => setShowHotkeyTip(false)}
-                className="text-muted hover:text-text-primary flex size-10 items-center justify-center"
-                roundedClass="rounded-full"
-                ariaLabel="Dismiss tip"
-                magnetic
-                magneticStrength={0.03}
-              >
-                <X size={14} />
-              </LiquidGlassButton>
-            </InteractiveGlass>
-          </motion.div>
+          <BpmnHotkeyToast onDismiss={handleDismissToast} />
         ) : null}
       </AnimatePresence>
 
