@@ -16,14 +16,14 @@ function ProcessTopicMenu() {
       className="hidden w-full flex-col justify-center lg:col-span-5 lg:flex"
     >
       <div className="relative w-full">
-        <div className="no-scrollbar process-tabs-mask -mx-6 touch-pan-y overflow-x-auto overscroll-contain px-6 py-2 md:-mx-10 md:px-10 lg:-mx-4 lg:max-h-[360px] lg:overflow-x-hidden lg:overflow-y-auto lg:px-4 lg:py-6">
+        <div className="no-scrollbar process-tabs-mask -mx-4 max-h-[360px] overflow-y-auto px-4 py-6">
           <Tabs
             value={activeTopicId}
             onChange={onTopicChange}
             layoutId="active-process-highlight"
             squircle
             roundedClass="rounded-2xl"
-            className="flex w-max flex-row justify-start gap-2.5 lg:w-full lg:flex-col lg:justify-center"
+            className="flex w-full flex-col justify-center gap-2.5"
           >
             {PROCESS_TOPICS.map((topic, idx) => {
               const isActive = activeTopicId === topic.id;
@@ -33,7 +33,7 @@ function ProcessTopicMenu() {
                   value={topic.id}
                   aria-controls={`tabpanel-${topic.id}`}
                   className={cn(
-                    "group focus-visible:ring-accent/60 relative flex w-auto flex-shrink-0 cursor-pointer items-center gap-3.5 rounded-2xl px-5 py-3.5 text-left transition-colors duration-300 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset lg:w-full lg:px-7 lg:py-4.5",
+                    "group focus-visible:ring-accent/60 relative flex w-full cursor-pointer items-center gap-3.5 rounded-2xl px-7 py-4.5 text-left transition-colors duration-300 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
                     isActive
                       ? "text-text-primary font-medium"
                       : "text-muted hover:text-text-primary",
@@ -51,7 +51,7 @@ function ProcessTopicMenu() {
                   </span>
 
                   <div className="relative z-10">
-                    <span className="font-body line-clamp-1 block text-base font-semibold whitespace-nowrap transition-transform duration-300 group-hover:translate-x-0.5 lg:text-balance lg:whitespace-normal">
+                    <span className="font-body block text-base font-semibold text-balance whitespace-normal transition-transform duration-300 group-hover:translate-x-0.5">
                       {topic.title}
                     </span>
                     <p className="text-muted/90 mt-0.5 text-sm tabular-nums transition-transform duration-300 group-hover:translate-x-0.5">

@@ -114,7 +114,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
           <h3 className="text-text-primary/90 border-b border-white/10 pb-1.5 text-lg font-semibold text-balance">
             Process modeling & auditing
           </h3>
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* AS-IS */}
             <div className="rounded-2xl border border-red-500/10 bg-red-500/[0.02] p-4">
               <div className="mb-3 flex items-center gap-2 text-sm font-bold tracking-wider text-red-400 uppercase">
@@ -158,7 +158,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
         {/* Methodology & Timeline */}
         <motion.div
           variants={drawerItemVariants}
-          className="grid gap-6 md:grid-cols-2"
+          className="grid grid-cols-1 gap-6 md:grid-cols-2"
         >
           <div className="space-y-3">
             <h4 className="text-text-primary/90 border-b border-white/10 pb-1.5 text-base font-semibold text-balance">

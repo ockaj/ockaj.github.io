@@ -22,7 +22,7 @@ const CaseStudyCard = memo(function CaseStudyCard({
       tilt
     >
       {/* Content grid */}
-      <div className="relative z-10 grid h-full w-full gap-6 p-6 md:grid-cols-12 md:gap-8 md:p-8">
+      <div className="relative z-10 grid h-full w-full grid-cols-1 gap-6 p-6 md:grid-cols-12 md:gap-8 md:p-8">
         {/* Left column: Title, subtitle, solution narrative, tools */}
         <div className="flex flex-col justify-between gap-4 md:col-span-7 md:gap-6">
           <div className="space-y-4">

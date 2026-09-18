@@ -92,7 +92,7 @@ function ContactSection() {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group/social-btn flex-1 px-4 py-3.5 text-sm whitespace-nowrap sm:flex-initial sm:px-8 sm:py-4 sm:text-sm"
+                    className="group/social-btn flex-1 px-4 py-3.5 text-sm whitespace-nowrap sm:flex-initial sm:px-8 sm:py-4"
                     ariaLabel={`Visit ${social.label}`}
                     magnetic
                     tilt
