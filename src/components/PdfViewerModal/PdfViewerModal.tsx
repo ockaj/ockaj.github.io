@@ -440,7 +440,7 @@ const PdfModalBody = memo(function PdfModalBody({
         aria-labelledby="tab-interactive"
         className={
           activeTab === "interactive"
-            ? "custom-cv-scrollbar absolute inset-0 overflow-y-auto p-6 md:p-8 lg:p-12"
+            ? "custom-cv-scrollbar absolute inset-0 overscroll-contain overflow-y-auto p-6 md:p-8 lg:p-12"
             : "hidden"
         }
       >

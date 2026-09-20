@@ -226,7 +226,7 @@ function LoadingScreen({ onComplete }: Readonly<LoadingScreenProps>) {
         </motion.div>
         <motion.button
           onClick={handleSkip}
-          className="pointer-events-auto z-20 cursor-pointer rounded-full border border-white/10 bg-white/3 px-4 py-2 text-sm text-muted transition-colors duration-200 hover:border-white/20 hover:bg-white/8 hover:text-text-primary active:scale-95"
+          className="pointer-events-auto z-20 flex min-h-11 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/3 px-4 py-2 text-sm text-muted transition-colors duration-200 hover:border-white/20 hover:bg-white/8 hover:text-text-primary active:scale-95"
           initial={HEADER_INITIAL}
           animate={SECTION_ANIMATE}
           transition={HEADER_TRANSITION}

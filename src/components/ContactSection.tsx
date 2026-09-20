@@ -32,7 +32,7 @@ function ContactSection() {
   return (
     <section
       id="contact"
-      className="relative flex min-h-lvh w-full items-center justify-center"
+      className="relative flex min-h-svh w-full items-center justify-center"
     >
       <div className="relative z-10">
         <motion.div

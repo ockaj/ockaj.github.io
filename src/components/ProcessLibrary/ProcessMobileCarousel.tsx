@@ -93,14 +93,14 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
             >
               <Tab
                 value="asis"
-                className="flex h-7 flex-1 cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none sm:flex-initial"
+                className="relative flex h-7 flex-1 cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:-inset-y-2 before:inset-x-0 hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none sm:flex-initial"
                 activeClassName="font-semibold text-white"
               >
                 <span>Source</span>
               </Tab>
               <Tab
                 value="tobe"
-                className="flex h-7 flex-1 cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none sm:flex-initial"
+                className="relative flex h-7 flex-1 cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:-inset-y-2 before:inset-x-0 hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none sm:flex-initial"
                 activeClassName="font-semibold text-white"
               >
                 <span>Optimized</span>
