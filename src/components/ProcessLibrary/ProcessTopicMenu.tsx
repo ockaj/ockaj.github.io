@@ -16,7 +16,7 @@ function ProcessTopicMenu() {
       className="hidden w-full flex-col justify-center lg:col-span-5 lg:flex"
     >
       <div className="relative w-full">
-        <div className="no-scrollbar process-tabs-mask -mx-4 max-h-[360px] overflow-y-auto px-4 py-6">
+        <div className="no-scrollbar process-tabs-mask -mx-4 max-h-90 overflow-y-auto px-4 py-6">
           <Tabs
             value={activeTopicId}
             onChange={onTopicChange}
@@ -33,28 +33,28 @@ function ProcessTopicMenu() {
                   value={topic.id}
                   aria-controls={`tabpanel-${topic.id}`}
                   className={cn(
-                    "group focus-visible:ring-accent/60 relative flex w-full cursor-pointer items-center gap-3.5 rounded-2xl px-7 py-4.5 text-left transition-colors duration-300 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
+                    "group relative flex w-full cursor-pointer items-center gap-3.5 rounded-2xl px-7 py-4.5 text-left transition-colors duration-300 select-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset",
                     isActive
-                      ? "text-text-primary font-medium"
+                      ? "font-medium text-text-primary"
                       : "text-muted hover:text-text-primary",
                   )}
                 >
                   <span
                     className={cn(
-                      "font-body relative z-10 min-w-[20px] text-sm tabular-nums transition-colors duration-300",
+                      "relative z-10 min-w-5 font-body text-sm tabular-nums transition-colors duration-300",
                       isActive
-                        ? "text-accent font-bold"
-                        : "text-muted/60 group-hover:text-muted font-medium",
+                        ? "font-bold text-accent"
+                        : "font-medium text-muted/60 group-hover:text-muted",
                     )}
                   >
                     {String(idx + 1).padStart(2, "0")}
                   </span>
 
                   <div className="relative z-10">
-                    <span className="font-body block text-base font-semibold text-balance whitespace-normal transition-transform duration-300 group-hover:translate-x-0.5">
+                    <span className="block font-body text-base font-semibold text-balance whitespace-normal transition-transform duration-300 group-hover:translate-x-0.5">
                       {topic.title}
                     </span>
-                    <p className="text-muted/90 mt-0.5 text-sm tabular-nums transition-transform duration-300 group-hover:translate-x-0.5">
+                    <p className="mt-0.5 text-sm text-muted/90 tabular-nums transition-transform duration-300 group-hover:translate-x-0.5">
                       {topic.metrics ?? topic.category}
                     </p>
                   </div>

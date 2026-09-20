@@ -102,7 +102,7 @@ const BaseDrawer = memo(function BaseDrawer({
                 opacity: 0,
                 transition: SPRING.exit,
               }}
-              className="fixed inset-0 z-[90] overscroll-contain bg-black/70 backdrop-blur-none md:backdrop-blur-sm"
+              className="fixed inset-0 z-90 overscroll-contain bg-black/70 backdrop-blur-none md:backdrop-blur-sm"
             />
           }
         />
@@ -132,20 +132,20 @@ const BaseDrawer = memo(function BaseDrawer({
                 }
               }}
               className={cn(
-                "bg-surface md:bg-surface/90 fixed top-0 right-0 z-[100] flex h-full w-full flex-col overflow-hidden overscroll-contain border-l border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:backdrop-blur-2xl",
+                "fixed top-0 right-0 z-100 flex size-full flex-col overflow-hidden overscroll-contain border-l border-white/10 bg-surface shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:bg-surface/90 md:backdrop-blur-2xl",
                 maxWidthClass || "max-w-2xl",
                 canDrag && "touch-pan-y will-change-transform select-none",
               )}
             />
           }
         >
-          <div className="relative flex h-full w-full flex-col">
+          <div className="relative flex size-full flex-col">
             {/* Specular sheen header overlay matching CV modal */}
-            <div className="pointer-events-none absolute top-0 right-0 left-0 z-20 h-28 bg-gradient-to-b from-white/5 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-28 bg-linear-to-b from-white/5 to-transparent" />
 
             {/* Top bar */}
             <div className="relative z-30 flex items-center justify-between border-b border-white/10 p-6">
-              <Dialog.Title className="text-text-primary/90 flex items-center gap-2 text-sm font-semibold">
+              <Dialog.Title className="flex items-center gap-2 text-sm font-semibold text-text-primary/90">
                 {icon ? icon : null}
                 <span>{title}</span>
               </Dialog.Title>

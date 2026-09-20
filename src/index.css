@@ -90,7 +90,7 @@ html[data-base-ui-scroll-locked] {
 }
 
 body {
-  @apply bg-bg text-text-primary font-body leading-normal;
+  @apply bg-bg font-body leading-normal text-text-primary;
   letter-spacing: 0em;
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;

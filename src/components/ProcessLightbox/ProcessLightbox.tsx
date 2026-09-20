@@ -93,7 +93,7 @@ const LightboxFooter = memo(function LightboxFooter({
   description,
 }: LightboxFooterProps) {
   return (
-    <div className="pointer-events-none absolute right-0 bottom-0 left-0 z-20 bg-gradient-to-t from-black/95 via-black/40 to-transparent p-5">
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-linear-to-t from-black/95 via-black/40 to-transparent p-5">
       <Dialog.Title
         id="lightbox-title"
         className="mb-1 text-base font-semibold text-balance text-white"
@@ -127,7 +127,7 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
       }}
     >
       <Dialog.Portal keepMounted>
-        <div className="fixed inset-0 z-[100] flex touch-none items-center justify-center p-0 md:p-6">
+        <div className="fixed inset-0 z-100 flex touch-none items-center justify-center p-0 md:p-6">
           {/* Backdrop */}
           <Dialog.Backdrop
             onClick={onClose}
@@ -147,7 +147,7 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
           <Dialog.Popup
             render={
               <motion.div
-                className="bg-surface relative z-10 flex h-[100dvh] max-h-[100dvh] w-full max-w-7xl flex-col overflow-hidden rounded-none border-0 border-white/10 shadow-2xl md:aspect-[16/10] md:h-auto md:max-h-[85vh] md:rounded-3xl md:border"
+                className="relative z-10 flex h-dvh max-h-dvh w-full max-w-7xl flex-col overflow-hidden rounded-none border-0 border-white/10 bg-surface shadow-2xl md:aspect-16/10 md:h-auto md:max-h-[85vh] md:rounded-3xl md:border"
                 custom={{ prefersReducedMotion, isMobile }}
                 variants={dialogVariants}
                 initial="hidden"
@@ -158,12 +158,12 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
             }
           >
             {/* Specular sheen header overlay matching CV modal */}
-            <div className="pointer-events-none absolute top-0 right-0 left-0 z-20 h-28 bg-gradient-to-b from-white/5 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-28 bg-linear-to-b from-white/5 to-transparent" />
             {/* Full Viewport for Diagram (Responsive flex) */}
             <div
               ref={containerRef}
               data-zoomed="false"
-              className="bg-surface group relative flex w-full flex-1 cursor-default touch-none items-center justify-center overflow-hidden p-0 data-[zoomed=true]:cursor-grab data-[zoomed=true]:active:cursor-grabbing md:h-full"
+              className="group relative flex w-full flex-1 cursor-default touch-none items-center justify-center overflow-hidden bg-surface p-0 data-[zoomed=true]:cursor-grab data-[zoomed=true]:active:cursor-grabbing md:h-full"
             >
               <TransformWrapper
                 initialScale={1}

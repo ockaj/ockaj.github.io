@@ -507,7 +507,7 @@ function AuroraCanvas(props: Readonly<AuroraProps>) {
   return (
     <div
       ref={containerRef}
-      className="relative h-full w-full"
+      className="relative size-full"
       style={{ viewTransitionName: "none" }}
     >
       {isContextLost ? <AuroraFallback /> : null}
@@ -522,7 +522,7 @@ function Aurora(props: Readonly<AuroraProps>) {
       className="pointer-events-none fixed inset-0 z-0"
       style={{ viewTransitionName: "none" }}
     >
-      <div className="relative h-full w-full">
+      <div className="relative size-full">
         <ErrorBoundary fallback={<AuroraFallback />}>
           <AuroraCanvas
             colorStops={DEFAULT_COLOR_STOPS}

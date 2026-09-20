@@ -46,7 +46,7 @@ function SpecularGlowOverlay({
       )}
     >
       <motion.span
-        className="pointer-events-none absolute -mt-24 -ml-24 size-48 rounded-full bg-gradient-to-r from-[#7A7BBF]/6 to-[#6667AB]/6 mix-blend-screen blur-2xl"
+        className="pointer-events-none absolute -mt-24 -ml-24 size-48 rounded-full bg-linear-to-r from-[#7A7BBF]/6 to-[#6667AB]/6 mix-blend-screen blur-2xl"
         style={{
           x: springX,
           y: springY,
@@ -56,7 +56,7 @@ function SpecularGlowOverlay({
         }}
       />
       <motion.span
-        className="pointer-events-none absolute -mt-16 -ml-16 size-32 rounded-full bg-gradient-to-r from-[#F26B5B]/3 to-[#926AA6]/3 mix-blend-screen blur-xl"
+        className="pointer-events-none absolute -mt-16 -ml-16 size-32 rounded-full bg-linear-to-r from-[#F26B5B]/3 to-[#926AA6]/3 mix-blend-screen blur-xl"
         style={{
           x: lagX,
           y: lagY,

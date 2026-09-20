@@ -23,29 +23,29 @@ const JournalEntry = memo(function JournalEntry({
       <div className="space-y-4 p-5 md:p-6">
         {/* Thumbnail + title */}
         <div className="flex items-center gap-4">
-          <div className="group-hover:border-accent/30 size-11 flex-shrink-0 overflow-hidden rounded-full border border-white/10 transition-colors duration-300">
+          <div className="size-11 shrink-0 overflow-hidden rounded-full border border-white/10 transition-colors duration-300 group-hover:border-accent/30">
             <img
               src={article.image}
               alt=""
               width={44}
               height={44}
-              className="h-full w-full object-cover outline outline-1 -outline-offset-1 outline-white/[0.08]"
+              className="size-full object-cover outline-1 -outline-offset-1 outline-white/8"
               loading="lazy"
             />
           </div>
           <div className="min-w-0 flex-1">
-            <span className="font-display text-text-primary block text-xl leading-tight text-balance md:text-2xl">
+            <span className="block font-display text-xl leading-tight text-balance text-text-primary md:text-2xl">
               {article.title}
             </span>
           </div>
         </div>
 
-        <p className="text-text-primary/80 group-hover:text-text-primary line-clamp-3 text-base leading-relaxed text-pretty transition-colors duration-200">
+        <p className="line-clamp-3 text-base leading-relaxed text-pretty text-text-primary/80 transition-colors duration-200 group-hover:text-text-primary">
           {article.excerpt}
         </p>
 
         <div className="flex items-center justify-between pt-2">
-          <div className="text-muted group-hover:text-text-primary/70 flex items-center gap-4 text-sm tabular-nums transition-colors duration-200">
+          <div className="flex items-center gap-4 text-sm text-muted tabular-nums transition-colors duration-200 group-hover:text-text-primary/70">
             <span className="flex items-center gap-1.5">
               <Clock size={14} />
               {article.readTime}
@@ -59,7 +59,7 @@ const JournalEntry = memo(function JournalEntry({
               onOpen(article);
             }}
             aria-label={`Read article: ${article.title}`}
-            className="text-accent group-hover:text-accent/80 inline-flex cursor-pointer items-center gap-1.5 text-sm font-semibold transition-colors duration-200 focus-visible:underline focus-visible:outline-none"
+            className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-accent transition-colors duration-200 group-hover:text-accent/80 focus-visible:underline focus-visible:outline-none"
           >
             <span>Read</span>
             <ArrowUpRight

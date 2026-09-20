@@ -42,12 +42,12 @@ const BACKDROP_ANIMATION = (
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0, transition: SPRING.exit }}
-    className="bg-bg/80 pointer-events-auto fixed inset-0 backdrop-blur-none md:backdrop-blur-md"
+    className="pointer-events-auto fixed inset-0 bg-bg/80 backdrop-blur-none md:backdrop-blur-md"
   />
 );
 
 const MODAL_SHEEN_OVERLAY = (
-  <div className="pointer-events-none absolute top-0 right-0 left-0 z-20 h-1/2 bg-gradient-to-b from-white/5 to-transparent" />
+  <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-1/2 bg-linear-to-b from-white/5 to-transparent" />
 );
 
 function usePdfModalDialog() {
@@ -119,23 +119,23 @@ function usePdfViewerModalController() {
 const PdfModalTitle = memo(function PdfModalTitle() {
   return (
     <div className="flex items-center gap-3">
-      <div className="bg-bg size-8 flex-shrink-0 overflow-hidden rounded-full border border-white/10">
+      <div className="size-8 shrink-0 overflow-hidden rounded-full border border-white/10 bg-bg">
         <img
           src="https://avatars.githubusercontent.com/u/36997301?v=4&s=32"
           alt="Ondrej Michal Očkaj"
           width="32"
           height="32"
-          className="h-full w-full object-cover outline outline-1 -outline-offset-1 outline-white/[0.08]"
+          className="size-full object-cover outline-1 -outline-offset-1 outline-white/8"
         />
       </div>
       <div>
         <Dialog.Title
           id="modal-title"
-          className="text-text-primary text-sm leading-tight font-semibold text-balance"
+          className="text-sm leading-tight font-semibold text-balance text-text-primary"
         >
           Ondrej Michal Očkaj
         </Dialog.Title>
-        <p className="text-muted flex items-center gap-1 text-sm text-pretty">
+        <p className="flex items-center gap-1 text-sm text-pretty text-muted">
           <FileText size={10} className="text-accent" />
           Curriculum Vitae
         </p>
@@ -233,14 +233,14 @@ const PdfModalTabs = memo(function PdfModalTabs({
       onChange={onTabChange}
       layoutId="active-viewer-tab"
       highlightClassName="navbar-highlight-flat"
-      className="isolate flex [transform:translateZ(0)] items-center gap-0.5 overflow-hidden rounded-full border border-white/5 bg-white/[0.03] p-2"
+      className="isolate flex transform-[translateZ(0)] items-center gap-0.5 overflow-hidden rounded-full border border-white/5 bg-white/3 p-2"
     >
       <Tab
         id="tab-pdf"
         value="pdf"
         aria-controls="tabpanel-pdf"
         className={cn(
-          "focus-visible:ring-accent/60 relative z-10 rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
+          "relative z-10 rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset",
           activeTab === "pdf"
             ? "text-text-primary"
             : "text-muted hover:text-text-primary",
@@ -253,7 +253,7 @@ const PdfModalTabs = memo(function PdfModalTabs({
         value="interactive"
         aria-controls="tabpanel-interactive"
         className={cn(
-          "focus-visible:ring-accent/60 relative z-10 rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
+          "relative z-10 rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset",
           activeTab === "interactive"
             ? "text-text-primary"
             : "text-muted hover:text-text-primary",
@@ -309,29 +309,29 @@ const PdfDocumentPanel = memo(function PdfDocumentPanel({
       className={isActive ? "absolute inset-0 flex flex-col" : "hidden"}
     >
       {pdfLoading ? (
-        <div className="bg-bg/80 absolute inset-0 z-20 flex flex-col items-center justify-center gap-3">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-bg/80">
           <div className="animate-spin">
             <Loader2 className="text-accent" size={32} />
           </div>
-          <p className="text-muted text-sm">Loading PDF Document…</p>
+          <p className="text-sm text-muted">Loading PDF Document…</p>
         </div>
       ) : null}
       {shouldMountPdf ? (
         <object
           data="/cv/Ondrej_Michal_Ockaj_CV.pdf#toolbar=0&navpanes=0&scrollbar=1"
           type="application/pdf"
-          className="relative z-10 h-full w-full border-0"
+          className="relative z-10 size-full border-0"
           title="Ondrej Michal Ockaj CV"
           onLoad={handlePdfLoaded}
         >
-          <div className="bg-bg/85 absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 p-4 text-center">
-            <p className="text-muted text-sm">
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-bg/85 p-4 text-center">
+            <p className="text-sm text-muted">
               Your browser does not support PDF viewing in-page.
             </p>
             <a
               href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
               download
-              className="bg-accent text-bg hover:bg-accent-hover rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200"
+              className="hover:bg-accent-hover rounded-full bg-accent px-4 py-2 text-sm font-semibold text-bg transition-colors duration-200"
             >
               Download CV PDF
             </a>
@@ -373,7 +373,7 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
   children,
 }: PdfModalPopupContentProps) {
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-6 lg:p-8">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-0 md:p-6 lg:p-8">
       {/* Backdrop Blur overlay */}
       <Dialog.Backdrop onClick={onClose} render={BACKDROP_ANIMATION} />
 
@@ -386,12 +386,12 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
             animate="visible"
             exit="hidden"
             variants={modalVariants}
-            className="bg-surface md:bg-surface/90 pointer-events-auto relative z-10 flex h-full w-full flex-col overflow-hidden rounded-none border-0 md:h-[85vh] md:max-w-5xl md:rounded-3xl md:border md:border-white/10 md:backdrop-blur-2xl"
+            className="pointer-events-auto relative z-10 flex size-full flex-col overflow-hidden rounded-none border-0 bg-surface md:h-[85vh] md:max-w-5xl md:rounded-3xl md:border md:border-white/10 md:bg-surface/90 md:backdrop-blur-2xl"
             style={MODAL_CONTAINER_STYLE}
           />
         }
       >
-        <div className="flex h-full w-full flex-col">
+        <div className="flex size-full flex-col">
           {/* Specular sheen header overlay */}
           {MODAL_SHEEN_OVERLAY}
 
@@ -415,7 +415,7 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
           </div>
 
           {/* Viewer Body Content */}
-          <div className="bg-bg/40 relative flex-1 overflow-hidden">
+          <div className="relative flex-1 overflow-hidden bg-bg/40">
             {children}
           </div>
         </div>

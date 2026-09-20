@@ -242,7 +242,7 @@ function HeroScrollIndicatorDesktop({
     <motion.a
       href="#work"
       aria-label="Scroll process flow"
-      className="group focus-visible:ring-accent/60 hidden cursor-pointer flex-col items-center gap-2.5 rounded-xl select-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none md:absolute md:bottom-8 md:left-1/2 md:z-20 md:flex md:-translate-x-1/2"
+      className="group hidden cursor-pointer flex-col items-center gap-2.5 rounded-xl select-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none md:absolute md:bottom-8 md:left-1/2 md:z-20 md:flex md:-translate-x-1/2"
       style={{ opacity: scrollOpacity, y: scrollYOffset }}
       variants={scrollIndicatorVariants}
       initial="initial"
@@ -254,7 +254,7 @@ function HeroScrollIndicatorDesktop({
         navigateTo("work");
       }}
     >
-      <span className="text-muted/90 group-hover:text-accent text-sm font-semibold tracking-widest uppercase transition-colors duration-300">
+      <span className="text-sm font-semibold tracking-widest text-muted/90 uppercase transition-colors duration-300 group-hover:text-accent">
         Flow
       </span>
       <svg
@@ -262,7 +262,7 @@ function HeroScrollIndicatorDesktop({
         height="50"
         viewBox="0 0 24 50"
         fill="none"
-        className="text-muted/70 group-hover:text-accent/60 transition-colors duration-300"
+        className="text-muted/70 transition-colors duration-300 group-hover:text-accent/60"
         aria-hidden="true"
       >
         {/* Top Open Circle (BPMN Message Flow Start) */}
@@ -347,18 +347,18 @@ function Hero() {
   }, []);
 
   return (
-    <section className="relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden pt-20 pb-12 md:py-0">
+    <section className="relative flex min-h-svh w-full items-center justify-center overflow-hidden pt-20 pb-12 md:py-0">
       <motion.div
         custom={prefersReducedMotion}
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 mx-auto flex w-full max-w-[1400px] flex-col items-center px-6 text-center md:items-start md:px-16 md:text-left lg:px-24"
+        className="relative z-10 mx-auto flex w-full max-w-350 flex-col items-center px-6 text-center md:items-start md:px-16 md:text-left lg:px-24"
       >
         {/* Eyebrow */}
         <motion.p
           variants={itemVariants}
-          className="text-muted/95 mb-4 flex items-center gap-2 text-base font-medium text-pretty md:mb-6"
+          className="mb-4 flex items-center gap-2 text-base font-medium text-pretty text-muted/95 md:mb-6"
         >
           {EYEBROW_BADGE}
           Business Analyst Portfolio
@@ -367,7 +367,7 @@ function Hero() {
         {/* Name */}
         <motion.h1
           variants={nameVariants}
-          className="font-display text-text-primary mb-5 pb-1 text-[clamp(3.5rem,8vw,6.0rem)] leading-[1.1] tracking-tight text-balance italic sm:mb-6 sm:pb-2"
+          className="leading-1.1 mb-5 pb-1 font-display text-[clamp(3.5rem,8vw,6.0rem)] tracking-tight text-balance text-text-primary italic sm:mb-6 sm:pb-2"
         >
           Ondrej Michal Očkaj
         </motion.h1>
@@ -376,7 +376,7 @@ function Hero() {
         <motion.p
           data-nosnippet
           variants={itemVariants}
-          className="text-muted mb-4 max-w-full text-base leading-relaxed text-balance md:text-lg"
+          className="mb-4 max-w-full text-base leading-relaxed text-balance text-muted md:text-lg"
         >
           <span className="sr-only">
             Based in Slovakia, working as a Business Analyst &amp; Process
@@ -386,7 +386,7 @@ function Hero() {
             <span className="block sm:inline">
               Based in Slovakia, working as a{" "}
             </span>
-            <span className="text-text-primary font-semibold">
+            <span className="font-semibold text-text-primary">
               Business Analyst &amp;{" "}
               <RotatingSpecialization
                 prefersReducedMotion={prefersReducedMotion}
@@ -398,7 +398,7 @@ function Hero() {
         {/* Description */}
         <motion.p
           variants={itemVariants}
-          className="text-muted mb-10 max-w-md text-base leading-relaxed text-balance md:mb-12 md:max-w-xl md:text-lg"
+          className="mb-10 max-w-md text-base leading-relaxed text-balance text-muted md:mb-12 md:max-w-xl md:text-lg"
         >
           Specializing in process analysis, BPMN modeling, and digital
           transformation solutions for enterprises.

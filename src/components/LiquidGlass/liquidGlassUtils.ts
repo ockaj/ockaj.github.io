@@ -37,7 +37,7 @@ export function getContentTagAndClasses(
 ) {
   const isInline = as === "a" || as === "button" || as === "span";
   const contentClasses = cn(
-    "relative z-30 w-full h-full",
+    "relative z-30 size-full",
     isInline && "flex items-center justify-center gap-2 font-semibold",
     innerClassName,
   );

@@ -75,10 +75,10 @@ function Faq() {
           >
             <div className="flex flex-col items-start justify-between gap-6 p-7 sm:p-8 md:flex-row md:items-center md:gap-8">
               <div className="flex flex-col gap-1.5">
-                <h3 className="font-display text-text-primary text-xl font-normal text-balance md:text-2xl">
+                <h3 className="font-display text-xl font-normal text-balance text-text-primary md:text-2xl">
                   Have an open analyst role or transformation project?
                 </h3>
-                <p className="text-muted max-w-xl text-base leading-relaxed text-pretty">
+                <p className="max-w-xl text-base leading-relaxed text-pretty text-muted">
                   I am open to part-time analyst roles during my master's
                   studies, hybrid projects, and post-graduation full-time
                   discussions (graduating 2027). Let's discuss how my process
@@ -91,7 +91,7 @@ function Faq() {
                   type="button"
                   onClick={handleScrollToContact}
                   roundedClass="rounded-full"
-                  className="group/contact-btn text-text-primary flex min-h-[44px] cursor-pointer items-center justify-center px-7 py-3 text-sm font-semibold whitespace-nowrap shadow-sm transition-colors"
+                  className="group/contact-btn flex min-h-11 cursor-pointer items-center justify-center px-7 py-3 text-sm font-semibold whitespace-nowrap text-text-primary shadow-sm transition-colors"
                   ariaLabel="Scroll down to contact section"
                   magnetic
                   tilt

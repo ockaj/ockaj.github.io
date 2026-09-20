@@ -76,17 +76,17 @@ function ProcessDesktopCard({
           animate="visible"
           exit="exit"
           variants={tabContentVariants}
-          className="flex h-full w-full flex-col"
+          className="flex size-full flex-col"
         >
           <InteractiveGlass
             as="div"
             roundedClass="rounded-2xl"
-            className="h-full w-full touch-pan-y flex-col items-stretch justify-start p-8 text-left"
+            className="size-full touch-pan-y flex-col items-stretch justify-start p-8 text-left"
             tilt
           >
             {/* Canvas Header */}
             <div className="relative z-10 mb-6 flex w-full flex-row items-center justify-between">
-              <h3 className="font-display text-text-primary text-3xl leading-tight tracking-tight text-balance">
+              <h3 className="font-display text-3xl leading-tight tracking-tight text-balance text-text-primary">
                 {activeTopic.asis.title}
               </h3>
 
@@ -103,19 +103,19 @@ function ProcessDesktopCard({
                   layoutId={`process-view-mode-pill-${activeTopic.id}`}
                   roundedClass="rounded-xl"
                   highlightStyle={DESKTOP_HIGHLIGHT_STYLE}
-                  className="bg-surface/90 isolate inline-flex [transform:translateZ(0)] items-center rounded-xl border border-white/10 p-[4px] shadow-lg backdrop-blur-md select-none"
+                  className="isolate inline-flex transform-[translateZ(0)] items-center rounded-xl border border-white/10 bg-surface/90 p-1 shadow-lg backdrop-blur-md select-none"
                   highlightClassName="bg-white/15 border border-white/20 shadow-md"
                 >
                   <Tab
                     value="asis"
-                    className="focus-visible:ring-accent relative flex h-9 cursor-pointer items-center justify-center rounded-lg px-4 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 hover:text-white focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none"
+                    className="relative flex h-9 cursor-pointer items-center justify-center rounded-lg px-4 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none"
                     activeClassName="font-semibold text-white"
                   >
                     <span>Source</span>
                   </Tab>
                   <Tab
                     value="tobe"
-                    className="focus-visible:ring-accent relative flex h-9 cursor-pointer items-center justify-center rounded-lg px-4 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 hover:text-white focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none"
+                    className="relative flex h-9 cursor-pointer items-center justify-center rounded-lg px-4 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none"
                     activeClassName="font-semibold text-white"
                   >
                     <span>Optimized</span>

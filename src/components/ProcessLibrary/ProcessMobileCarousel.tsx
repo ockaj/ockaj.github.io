@@ -62,7 +62,7 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
       data-topic-id={topic.id}
       data-no-skeleton={idx > 0 ? "" : undefined}
       className={cn(
-        "w-full min-w-0 flex-[0_0_100%] origin-center snap-center [scroll-snap-stop:always]",
+        "w-full min-w-0 flex-[0_0_100%] origin-center snap-center snap-always",
         prefersReducedMotion
           ? "transition-opacity duration-200 ease-out"
           : "transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-[transform,opacity]",
@@ -72,12 +72,12 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
       <InteractiveGlass
         as="div"
         roundedClass="rounded-2xl"
-        className="h-full w-full flex-col items-stretch justify-start p-5 text-left sm:p-7 md:p-8"
+        className="size-full flex-col items-stretch justify-start p-5 text-left sm:p-7 md:p-8"
         innerClassName="flex flex-col flex-1 min-h-0"
       >
         {/* Card Header */}
         <div className="relative z-10 mb-3 flex w-full flex-col gap-2.5 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
-          <h3 className="font-display text-text-primary flex min-h-0 items-center text-xl leading-snug tracking-tight text-balance sm:min-h-[3.25rem] sm:text-2xl md:text-3xl">
+          <h3 className="flex min-h-0 items-center font-display text-xl leading-snug tracking-tight text-balance text-text-primary sm:min-h-13 sm:text-2xl md:text-3xl">
             {topic.asis.title}
           </h3>
 
@@ -88,19 +88,19 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
               layoutId={`process-view-mode-pill-mobile-${topic.id}`}
               roundedClass="rounded-xl"
               highlightStyle={MOBILE_HIGHLIGHT_STYLE}
-              className="bg-surface/80 isolate inline-flex h-9 w-full [transform:translateZ(0)] items-center rounded-xl border border-white/10 p-1 shadow-md backdrop-blur-md select-none sm:w-auto"
+              className="isolate inline-flex h-9 w-full transform-[translateZ(0)] items-center rounded-xl border border-white/10 bg-surface/80 p-1 shadow-md backdrop-blur-md select-none sm:w-auto"
               highlightClassName="bg-white/15 border border-white/20 shadow-sm"
             >
               <Tab
                 value="asis"
-                className="focus-visible:ring-accent flex h-7 flex-1 cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none hover:text-white focus-visible:ring-2 focus-visible:outline-none sm:flex-initial"
+                className="flex h-7 flex-1 cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none sm:flex-initial"
                 activeClassName="font-semibold text-white"
               >
                 <span>Source</span>
               </Tab>
               <Tab
                 value="tobe"
-                className="focus-visible:ring-accent flex h-7 flex-1 cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none hover:text-white focus-visible:ring-2 focus-visible:outline-none sm:flex-initial"
+                className="flex h-7 flex-1 cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none sm:flex-initial"
                 activeClassName="font-semibold text-white"
               >
                 <span>Optimized</span>
@@ -321,7 +321,7 @@ function ProcessMobileCarousel() {
       <div className="flex w-full flex-col">
         <div
           ref={containerRef}
-          className="-webkit-overflow-scrolling-touch relative -mx-6 flex [touch-action:pan-x_pan-y] snap-x snap-mandatory [scrollbar-width:none] gap-4 overflow-x-auto px-9 py-2 sm:-mx-10 sm:gap-6 sm:px-14 [&::-webkit-scrollbar]:hidden"
+          className="-webkit-overflow-scrolling-touch relative -mx-6 flex [touch-action:pan-x_pan-y] snap-x snap-mandatory scrollbar-none gap-4 overflow-x-auto px-9 py-2 sm:-mx-10 sm:gap-6 sm:px-14 [&::-webkit-scrollbar]:hidden"
         >
           {PROCESS_TOPICS.map((topic, idx) => (
             <ProcessMobileSlide

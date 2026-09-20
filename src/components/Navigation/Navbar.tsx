@@ -154,17 +154,17 @@ export default function Navbar() {
     <>
       <div
         ref={localSentinelRef}
-        className="pointer-events-none absolute top-[100px] left-0 h-px w-px opacity-0"
+        className="pointer-events-none absolute top-25 left-0 size-px opacity-0"
       />
       <nav
         aria-label="Main Navigation"
-        className="pointer-events-none fixed top-0 right-0 left-0 z-50 flex flex-col items-center px-4 pt-4 md:pt-6"
+        className="pointer-events-none fixed inset-x-0 top-0 z-50 flex flex-col items-center px-4 pt-4 md:pt-6"
       >
         <div
           ref={capsuleRef}
           className={cn(
-            "bg-surface/40 navbar-capsule pointer-events-auto relative isolate z-50 flex w-full max-w-[85vw] [transform:translateZ(0)] items-center justify-between gap-1 overflow-hidden rounded-full border border-white/10 p-[7px] backdrop-blur-md backdrop-saturate-[150%] max-md:data-[scrolling=true]:backdrop-blur-[3px] md:w-auto md:max-w-[95vw] md:justify-start md:gap-1.5",
-            scrolled && "bg-surface/60 border-white/20",
+            "navbar-capsule pointer-events-auto relative isolate z-50 flex w-full max-w-[85vw] transform-[translateZ(0)] items-center justify-between gap-1 overflow-hidden rounded-full border border-white/10 bg-surface/40 p-[7px] backdrop-blur-md backdrop-saturate-150 max-md:data-[scrolling=true]:backdrop-blur-[3px] md:w-auto md:max-w-[95vw] md:justify-start md:gap-1.5",
+            scrolled && "border-white/20 bg-surface/60",
           )}
         >
           <Tabs
@@ -180,11 +180,11 @@ export default function Navbar() {
               value="home"
               tabIndex={0}
               highlightClassName="hidden md:block"
-              className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 flex items-center gap-2 rounded-full py-1.5 pr-3 pl-1.5 text-sm transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset md:py-[9px] md:pr-[15px] md:pl-[9px]"
+              className="relative z-10 flex items-center gap-2 rounded-full py-1.5 pr-3 pl-1.5 text-sm text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset md:py-[9px] md:pr-[15px] md:pl-[9px]"
               activeClassName="text-text-primary"
               aria-label="Home"
             >
-              <span className="bg-bg relative z-10 flex size-6 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/5">
+              <span className="relative z-10 flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/5 bg-bg">
                 {avatarError ? (
                   <button
                     type="button"
@@ -193,7 +193,7 @@ export default function Navbar() {
                       dispatch({ type: "SET_AVATAR_ERROR", error: false });
                     }}
                     title="Click to retry loading avatar"
-                    className="text-accent cursor-pointer font-mono text-sm leading-none font-bold tracking-normal transition-transform duration-200 ease-out select-none hover:scale-105 focus-visible:outline-none"
+                    className="cursor-pointer font-mono text-sm leading-none font-bold tracking-normal text-accent transition-transform duration-200 ease-out select-none hover:scale-105 focus-visible:outline-none"
                   >
                     OMO
                   </button>
@@ -206,7 +206,7 @@ export default function Navbar() {
                     alt="Ondrej Michal Ockaj"
                     width="24"
                     height="24"
-                    className="h-full w-full object-cover outline outline-1 -outline-offset-1 outline-white/[0.08]"
+                    className="size-full object-cover outline-1 -outline-offset-1 outline-white/8"
                   />
                 )}
               </span>
@@ -223,7 +223,7 @@ export default function Navbar() {
                   key={link.id}
                   value={link.id}
                   tabIndex={0}
-                  className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 rounded-full px-3 py-1.5 text-sm transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px]"
+                  className="relative z-10 rounded-full px-3 py-1.5 text-sm text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px]"
                   activeClassName="text-text-primary"
                 >
                   <span>{link.label}</span>
@@ -234,7 +234,7 @@ export default function Navbar() {
               <Tab
                 value="contact"
                 tabIndex={0}
-                className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 rounded-full px-3 py-1.5 text-sm transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px]"
+                className="relative z-10 rounded-full px-3 py-1.5 text-sm text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px]"
                 activeClassName="text-text-primary"
               >
                 <span>Contact</span>

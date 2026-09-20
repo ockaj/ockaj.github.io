@@ -112,7 +112,7 @@ function BpmnTaskNode({
 }: Readonly<BpmnTaskNodeProps>) {
   return (
     <g
-      className="group/node focus-visible:outline-accent cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-solid"
+      className="group/node cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent focus-visible:outline-solid"
       tabIndex={0}
       aria-label={ariaLabel}
       onClick={() => onTaskClick(sectionId)}
@@ -156,7 +156,7 @@ function BpmnTaskNode({
         fill="#0A0E1A"
         fontSize="14"
         aria-hidden="true"
-        className="font-body pointer-events-none"
+        className="pointer-events-none font-body"
       >
         {label}
       </text>
@@ -168,7 +168,7 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
   return (
     <svg
       viewBox="0 0 1420 600"
-      className="text-accent notranslate h-auto w-full min-w-[950px]"
+      className="notranslate h-auto w-full min-w-[950px] text-accent"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-label="BPMN 2.0 Interactive Portfolio Navigation Diagram"

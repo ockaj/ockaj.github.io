@@ -55,14 +55,14 @@ const DiagramCanvasItem = memo(function DiagramCanvasItem({
       animate={isSelected ? { opacity: 1, x: 0 } : { opacity: 0, x: xOffset }}
       transition={isSelected ? SPRING.stage : SPRING.stageExit}
       className={cn(
-        "col-start-1 row-start-1 flex h-full w-full items-center justify-center",
+        "col-start-1 row-start-1 flex size-full items-center justify-center",
         isSelected ? "pointer-events-auto" : "pointer-events-none",
       )}
     >
       <button
         type="button"
         tabIndex={isSelected ? 0 : -1}
-        className="focus-visible:ring-accent flex h-full min-h-[44px] w-full cursor-zoom-in items-center justify-center p-3 transition-transform duration-100 ease-out focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none active:scale-[0.97] sm:p-5 md:p-6"
+        className="active:scale-0.97 flex size-full min-h-11 cursor-zoom-in items-center justify-center p-3 transition-transform duration-100 ease-out focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none sm:p-5 md:p-6"
         onClick={() => {
           const itemId = mode === "tobe" ? topicId * 2 : topicId * 2 - 1;
           setLightboxItem({
@@ -80,7 +80,7 @@ const DiagramCanvasItem = memo(function DiagramCanvasItem({
           alt={variant.title}
           width={800}
           height={500}
-          className="notranslate h-full w-full rounded-lg object-contain transition-transform duration-300 ease-out group-hover/canvas:scale-[1.015]"
+          className="notranslate group-hover/canvas:scale-1.015 size-full rounded-lg object-contain transition-transform duration-300 ease-out"
           translate="no"
           loading={isFirstSlide && isSelected ? "eager" : "lazy"}
           fetchPriority={isFirstSlide && isSelected ? "high" : "low"}
@@ -124,24 +124,24 @@ const FooterDetailsItem = memo(function FooterDetailsItem({
     >
       <div className="flex items-center gap-2">
         <Sparkles size={16} className="text-accent" />
-        <span className="text-accent font-body text-sm font-bold tracking-wider uppercase">
+        <span className="font-body text-sm font-bold tracking-wider text-accent uppercase">
           Operational Insight
         </span>
       </div>
       <p
         className={cn(
-          "text-text-primary/90 line-clamp-3 text-base leading-relaxed text-pretty",
-          badges ? "min-h-[4.5rem]" : "min-h-0",
+          "line-clamp-3 text-base leading-relaxed text-pretty text-text-primary/90",
+          badges ? "min-h-18" : "min-h-0",
         )}
       >
         {variant.description}
       </p>
       {badges && variant.specTags && variant.specTags.length > 0 ? (
-        <div className="flex min-h-[2rem] flex-wrap gap-2 pt-1">
+        <div className="flex min-h-8 flex-wrap gap-2 pt-1">
           {variant.specTags.map((tag: string) => (
             <span
               key={tag}
-              className="text-muted hover:text-text-primary rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm transition-colors select-none hover:border-white/20"
+              className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm text-muted transition-colors select-none hover:border-white/20 hover:text-text-primary"
             >
               {tag}
             </span>
@@ -164,8 +164,8 @@ function ProcessVariantStage({
   return (
     <div className="flex w-full flex-1 flex-col justify-start">
       {/* Permanent Solid Blueprint Stage Canvas (Zero Ghosting & Zero Frame Pop) */}
-      <div className="group/canvas relative mb-3 flex aspect-[16/9] min-h-0 w-full min-w-0 [transform:translateZ(0)] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white transition-colors duration-300 contain-paint select-none hover:border-white/25 sm:mb-5">
-        <div className="relative grid h-full w-full grid-cols-1 grid-rows-1">
+      <div className="group/canvas relative mb-3 flex aspect-video min-h-0 w-full min-w-0 transform-[translateZ(0)] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white transition-colors duration-300 contain-paint select-none hover:border-white/25 sm:mb-5">
+        <div className="relative grid size-full grid-cols-1 grid-rows-1">
           {MODES.map((mode) => (
             <DiagramCanvasItem
               key={mode}
@@ -182,7 +182,7 @@ function ProcessVariantStage({
 
         {/* Permanent Expand Badge */}
         <div className="pointer-events-none absolute right-2.5 bottom-2.5 z-10 sm:right-3 sm:bottom-3">
-          <span className="bg-surface/80 text-text-primary group-hover/canvas:border-accent/60 group-hover/canvas:text-accent inline-flex size-7 items-center justify-center rounded-full border border-white/15 text-sm font-semibold shadow-xl backdrop-blur-md transition duration-200 group-hover/canvas:scale-105 sm:size-auto sm:gap-1.5 sm:rounded-xl sm:px-3.5 sm:py-1.5">
+          <span className="inline-flex size-7 items-center justify-center rounded-full border border-white/15 bg-surface/80 text-sm font-semibold text-text-primary shadow-xl backdrop-blur-md transition duration-200 group-hover/canvas:scale-105 group-hover/canvas:border-accent/60 group-hover/canvas:text-accent sm:size-auto sm:gap-1.5 sm:rounded-xl sm:px-3.5 sm:py-1.5">
             <Maximize2 size={13} className="text-accent" />
             <span className="hidden sm:inline">Expand Diagram</span>
           </span>

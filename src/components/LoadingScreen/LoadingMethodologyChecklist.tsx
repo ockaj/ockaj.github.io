@@ -28,7 +28,7 @@ export default function LoadingMethodologyChecklist({
 }: Readonly<LoadingMethodologyChecklistProps>) {
   return (
     <div className="flex flex-col items-start gap-3 md:col-span-6">
-      <span className="text-muted/80 font-sans text-sm font-semibold">
+      <span className="font-sans text-sm font-semibold text-muted/80">
         Process Modeling Methodology
       </span>
       {/* Methodology checklist — Desktop Only */}
@@ -46,7 +46,7 @@ export default function LoadingMethodologyChecklist({
                   getStepColorClass(isActive, isCompleted),
                 )}
               >
-                <span className="relative size-4 flex-shrink-0">
+                <span className="relative size-4 shrink-0">
                   <motion.span
                     initial={false}
                     animate={{
@@ -54,7 +54,7 @@ export default function LoadingMethodologyChecklist({
                       opacity: isCompleted ? 1 : 0,
                     }}
                     transition={{ ease: EASE.out, duration: 0.4 }}
-                    className="absolute inset-0 flex items-center justify-center text-sm font-bold text-[hsl(var(--accent))]"
+                    className="absolute inset-0 flex items-center justify-center text-sm font-bold text-accent"
                   >
                     ✓
                   </motion.span>
@@ -69,9 +69,9 @@ export default function LoadingMethodologyChecklist({
                   >
                     <span className="relative flex size-1.5">
                       {isActive ? (
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[hsl(var(--accent))] opacity-75" />
+                        <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-75" />
                       ) : null}
-                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent))]" />
+                      <span className="relative inline-flex size-1.5 rounded-full bg-accent" />
                     </span>
                   </motion.span>
                   <motion.span
@@ -81,7 +81,7 @@ export default function LoadingMethodologyChecklist({
                       opacity: !isCompleted && !isActive ? 0.4 : 0,
                     }}
                     transition={{ ease: EASE.out, duration: 0.4 }}
-                    className="text-muted absolute inset-0 flex items-center justify-center font-mono text-sm"
+                    className="absolute inset-0 flex items-center justify-center font-mono text-sm text-muted"
                   >
                     •
                   </motion.span>
@@ -102,7 +102,7 @@ export default function LoadingMethodologyChecklist({
 
       {/* Compact Active Phase Badge — Mobile Only */}
       {isMobile ? (
-        <div className="flex h-[64px] w-full flex-col justify-center gap-1 text-left select-none">
+        <div className="flex h-16 w-full flex-col justify-center gap-1 text-left select-none">
           {(() => {
             const displayIdx = getMobileDisplayIdx(
               activeStepIdx,
@@ -110,9 +110,9 @@ export default function LoadingMethodologyChecklist({
             );
 
             return (
-              <div className="text-text-primary flex h-full items-center gap-3 font-sans text-sm">
-                <span className="flex size-6 flex-shrink-0 items-center justify-center rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/10">
-                  <span className="size-2 animate-pulse rounded-full bg-[hsl(var(--accent))] shadow-[0_0_10px_hsla(var(--accent),0.8)]" />
+              <div className="flex h-full items-center gap-3 font-sans text-sm text-text-primary">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/10">
+                  <span className="size-2 animate-pulse rounded-full bg-accent shadow-[0_0_10px_hsla(var(--accent),0.8)]" />
                 </span>
                 <div className="relative h-[50px] min-w-0 flex-1 overflow-hidden">
                   <motion.div
@@ -125,10 +125,10 @@ export default function LoadingMethodologyChecklist({
                         key={step.label}
                         className="flex h-[50px] flex-col justify-center pr-2"
                       >
-                        <span className="text-accent/80 mb-0.5 text-sm font-bold tracking-wider uppercase">
+                        <span className="mb-0.5 text-sm font-bold tracking-wider text-accent/80 uppercase">
                           Phase {idx + 1} of 7
                         </span>
-                        <span className="text-text-primary block text-sm leading-snug font-semibold text-pretty">
+                        <span className="block text-sm leading-snug font-semibold text-pretty text-text-primary">
                           {step.label}
                         </span>
                       </div>

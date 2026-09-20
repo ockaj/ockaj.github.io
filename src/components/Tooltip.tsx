@@ -22,14 +22,14 @@ export default function Tooltip({ content, children }: Readonly<TooltipProps>) {
         {children}
       </BaseTooltip.Trigger>
       <BaseTooltip.Portal>
-        <BaseTooltip.Positioner side="top" sideOffset={8} className="z-[9999]">
+        <BaseTooltip.Positioner side="top" sideOffset={8} className="z-9999">
           <BaseTooltip.Popup
             className={cn(
-              "bg-surface/95 text-text-primary pointer-events-none z-[9999] max-w-xs rounded-xl border border-white/15 px-3.5 py-2 text-center text-sm leading-relaxed font-normal tracking-normal shadow-2xl",
+              "pointer-events-none z-9999 max-w-xs rounded-xl border border-white/15 bg-surface/95 px-3.5 py-2 text-center text-sm leading-relaxed font-normal tracking-normal text-text-primary shadow-2xl",
               "transition-all duration-150 ease-out",
-              "[&[data-starting-style]]:translate-y-1 [&[data-starting-style]]:scale-95 [&[data-starting-style]]:opacity-0",
-              "[&[data-ending-style]]:translate-y-1 [&[data-ending-style]]:scale-95 [&[data-ending-style]]:opacity-0",
-              "motion-reduce:transition-none [&[data-instant]]:transition-none",
+              "data-starting-style:translate-y-1 data-starting-style:scale-95 data-starting-style:opacity-0",
+              "data-ending-style:translate-y-1 data-ending-style:scale-95 data-ending-style:opacity-0",
+              "data-instant:transition-none motion-reduce:transition-none",
             )}
           >
             {content}

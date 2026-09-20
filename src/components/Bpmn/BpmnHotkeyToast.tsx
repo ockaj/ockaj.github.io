@@ -107,20 +107,20 @@ export default function BpmnHotkeyToast({
         innerClassName="flex items-center gap-3 w-full"
         specularGlow
       >
-        <BpmnNodeBadge type="script-task" className="flex-shrink-0" />
+        <BpmnNodeBadge type="script-task" className="shrink-0" />
         <div className="flex-1 text-left">
-          <p className="text-text-primary text-sm font-semibold text-pretty">
+          <p className="text-sm font-semibold text-pretty text-text-primary">
             Process Analyst Easter Egg
           </p>
-          <p className="text-muted mt-0.5 text-sm leading-normal text-pretty">
+          <p className="mt-0.5 text-sm leading-normal text-pretty text-muted">
             Type{" "}
-            <span className="text-accent font-mono font-bold">B-P-M-N</span> on
+            <span className="font-mono font-bold text-accent">B-P-M-N</span> on
             your keyboard to reveal the portfolio's meta-diagram.
           </p>
         </div>
         <LiquidGlassButton
           onClick={handleDismissClick}
-          className="text-muted hover:text-text-primary flex size-10 items-center justify-center"
+          className="flex size-10 items-center justify-center text-muted hover:text-text-primary"
           roundedClass="rounded-full"
           ariaLabel="Dismiss tip"
           magnetic

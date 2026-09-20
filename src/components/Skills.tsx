@@ -155,11 +155,8 @@ function Skills() {
         className="relative z-30 pt-10 md:pt-14"
       >
         <div className="mb-6 flex items-center gap-3">
-          <BpmnNodeBadge
-            type="gateway-parallel"
-            className="translate-y-[1px]"
-          />
-          <h3 className="text-text-primary text-lg font-semibold">Languages</h3>
+          <BpmnNodeBadge type="gateway-parallel" className="translate-y-px" />
+          <h3 className="text-lg font-semibold text-text-primary">Languages</h3>
         </div>
         <div className="flex flex-wrap gap-4">
           {LANGUAGES.map((lang) => (
@@ -171,10 +168,10 @@ function Skills() {
               magnetic={false}
               tilt
             >
-              <span className="text-text-primary text-sm font-semibold">
+              <span className="text-sm font-semibold text-text-primary">
                 {lang.language}
               </span>
-              <span className="text-muted text-sm tabular-nums">
+              <span className="text-sm text-muted tabular-nums">
                 {lang.level}
               </span>
             </InteractiveGlass>
@@ -195,9 +192,9 @@ interface Category {
 
 const SkillItem = memo(function SkillItem({ skill }: { skill: string }) {
   return (
-    <p className="text-muted/80 skill-item-hover group/item flex cursor-default items-start gap-1 text-sm text-pretty">
-      <span className="flex h-5 w-4 flex-shrink-0 items-center justify-start">
-        <span className="bg-accent/60 group-hover/item:bg-accent h-1.5 w-3.5 rounded-full transition-[clip-path,background-color] duration-200 ease-out [clip-path:inset(0_57.14%_0_0_round_9999px)] group-hover/item:[clip-path:inset(0_0_0_0_round_9999px)]" />
+    <p className="skill-item-hover group/item flex cursor-default items-start gap-1 text-sm text-pretty text-muted/80">
+      <span className="flex h-5 w-4 shrink-0 items-center justify-start">
+        <span className="h-1.5 w-3.5 rounded-full bg-accent/60 transition-[clip-path,background-color] duration-200 ease-out [clip-path:inset(0_57.14%_0_0_round_9999px)] group-hover/item:bg-accent group-hover/item:[clip-path:inset(0_0_0_0_round_9999px)]" />
       </span>
       <span className="skill-item-text flex-1">{skill}</span>
     </p>
@@ -217,17 +214,17 @@ const WideSkillCard = memo(function WideSkillCard({
     <InteractiveGlass
       as="div"
       roundedClass="rounded-2xl"
-      className="h-full w-full flex-col items-stretch justify-start p-6 text-left md:p-8"
+      className="size-full flex-col items-stretch justify-start p-6 text-left md:p-8"
       tilt
     >
-      <div className="flex h-full w-full flex-col md:flex-row md:justify-between md:gap-8">
-        <div className="mb-5 flex-shrink-0 md:mb-0 md:max-w-[40%]">
+      <div className="flex size-full flex-col md:flex-row md:justify-between md:gap-8">
+        <div className="mb-5 shrink-0 md:mb-0 md:max-w-[40%]">
           <div className="flex items-center gap-3">
             <Icon
               size={20}
-              className="text-muted group-hover:text-accent flex-shrink-0 transition-colors duration-300"
+              className="shrink-0 text-muted transition-colors duration-300 group-hover:text-accent"
             />
-            <h3 className="text-text-primary text-lg font-semibold text-balance md:text-xl">
+            <h3 className="text-lg font-semibold text-balance text-text-primary md:text-xl">
               {category.title}
             </h3>
           </div>
@@ -252,17 +249,17 @@ const CompactSkillCard = memo(function CompactSkillCard({
     <InteractiveGlass
       as="div"
       roundedClass="rounded-2xl"
-      className="h-full w-full flex-col items-stretch justify-start p-6 text-left md:p-8"
+      className="size-full flex-col items-stretch justify-start p-6 text-left md:p-8"
       tilt
     >
-      <div className="flex h-full w-full flex-col">
+      <div className="flex size-full flex-col">
         <div className="mb-5">
           <div className="flex items-center gap-3">
             <Icon
               size={20}
-              className="text-muted group-hover:text-accent flex-shrink-0 transition-colors duration-300"
+              className="shrink-0 text-muted transition-colors duration-300 group-hover:text-accent"
             />
-            <h3 className="text-text-primary text-lg font-semibold text-balance md:text-xl">
+            <h3 className="text-lg font-semibold text-balance text-text-primary md:text-xl">
               {category.title}
             </h3>
           </div>

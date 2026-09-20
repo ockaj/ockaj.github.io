@@ -58,10 +58,10 @@ const LightboxControls = memo(function LightboxControls({
 
   return (
     <div
-      className="notranslate absolute top-4 left-1/2 z-[60] -translate-x-1/2 md:right-4 md:left-auto md:translate-x-0"
+      className="notranslate absolute top-4 left-1/2 z-60 -translate-x-1/2 md:right-4 md:left-auto md:translate-x-0"
       translate="no"
     >
-      <div className="bg-surface/80 inline-flex items-center gap-1.5 rounded-full border border-white/10 p-[6px] shadow-2xl backdrop-blur-md select-none">
+      <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/80 p-[6px] shadow-2xl backdrop-blur-md select-none">
         {/* Scale / Reset */}
         <span
           className="notranslate inline-flex"
@@ -80,7 +80,7 @@ const LightboxControls = memo(function LightboxControls({
             disabled={!canZoomOut}
             roundedClass="rounded-full"
             springScale={canZoomOut}
-            className="text-text-primary notranslate flex h-10 w-16 items-center justify-center text-sm font-bold tracking-wider uppercase transition-opacity select-none disabled:pointer-events-none disabled:cursor-default disabled:opacity-40"
+            className="notranslate flex h-10 w-16 items-center justify-center text-sm font-bold tracking-wider text-text-primary uppercase transition-opacity select-none disabled:pointer-events-none disabled:cursor-default disabled:opacity-40"
             onClick={() => {
               if (currentScaleRef.current > 1.01) {
                 resetTransform(200);
@@ -106,7 +106,7 @@ const LightboxControls = memo(function LightboxControls({
           magnetic={canZoomIn}
           magneticStrength={0.04}
           roundedClass="rounded-full"
-          className="text-text-primary flex size-11 items-center justify-center p-0 transition-opacity disabled:pointer-events-none disabled:opacity-40"
+          className="flex size-11 items-center justify-center p-0 text-text-primary transition-opacity disabled:pointer-events-none disabled:opacity-40"
           ariaLabel="Zoom In"
         >
           <Plus size={14} />
@@ -119,7 +119,7 @@ const LightboxControls = memo(function LightboxControls({
           magnetic={canZoomOut}
           magneticStrength={0.04}
           roundedClass="rounded-full"
-          className="text-text-primary flex size-11 items-center justify-center p-0 transition-opacity disabled:pointer-events-none disabled:opacity-40"
+          className="flex size-11 items-center justify-center p-0 text-text-primary transition-opacity disabled:pointer-events-none disabled:opacity-40"
           ariaLabel="Zoom Out"
         >
           <Minus size={14} />
@@ -137,7 +137,7 @@ const LightboxControls = memo(function LightboxControls({
               magnetic
               magneticStrength={0.04}
               roundedClass="rounded-full"
-              className="text-text-primary flex size-11 items-center justify-center p-0"
+              className="flex size-11 items-center justify-center p-0 text-text-primary"
             >
               <X size={14} />
             </LiquidGlassButton>

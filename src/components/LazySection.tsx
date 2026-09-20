@@ -105,7 +105,7 @@ function LazySection({
       ref={sectionRef}
       className="overflow-x-clip bg-transparent pt-16 md:pt-24"
     >
-      <div className="mx-auto max-w-[1200px]">
+      <div className="mx-auto max-w-300">
         <motion.div
           initial={initialStyle}
           whileInView={SECTION_ANIMATE}
@@ -124,7 +124,7 @@ function LazySection({
           viewport={SECTION_VIEWPORT}
           transition={SECTION_TRANSITION}
           style={containerStyle}
-          className="min-h-[var(--skeleton-min-h-mob)] md:min-h-[var(--skeleton-min-h-tab)] lg:min-h-[var(--skeleton-min-h-desk)] xl:min-h-[var(--skeleton-min-h-wide)]"
+          className="min-h-(--skeleton-min-h-mob) md:min-h-(--skeleton-min-h-tab) lg:min-h-(--skeleton-min-h-desk) xl:min-h-(--skeleton-min-h-wide)"
         >
           {hasLoaded ? (
             <BoneSuspense

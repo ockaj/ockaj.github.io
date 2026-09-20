@@ -32,7 +32,7 @@ function ContactSection() {
   return (
     <section
       id="contact"
-      className="relative flex min-h-[100lvh] w-full items-center justify-center"
+      className="relative flex min-h-lvh w-full items-center justify-center"
     >
       <div className="relative z-10">
         <motion.div
@@ -40,16 +40,16 @@ function ContactSection() {
           whileInView={SECTION_ANIMATE}
           viewport={SECTION_VIEWPORT}
           transition={SECTION_TRANSITION}
-          className="mx-auto max-w-[1200px] px-6 pb-2 text-center md:px-10 lg:px-16"
+          className="mx-auto max-w-300 px-6 pb-2 text-center md:px-10 lg:px-16"
         >
-          <p className="text-muted/95 mb-5 flex items-center justify-center gap-2 text-base font-medium text-pretty">
+          <p className="mb-5 flex items-center justify-center gap-2 text-base font-medium text-pretty text-muted/95">
             <BpmnNodeBadge type="end-event-none" />
             Get in touch
           </p>
-          <h2 className="font-display text-text-primary mb-6 pb-2 text-[clamp(3.5rem,8vw,6rem)] leading-[1.1] tracking-tight text-balance italic">
+          <h2 className="leading-1.1 mb-6 pb-2 font-display text-[clamp(3.5rem,8vw,6rem)] tracking-tight text-balance text-text-primary italic">
             Let's work together
           </h2>
-          <p className="text-muted mx-auto mb-10 max-w-xl text-base leading-relaxed text-pretty md:text-lg">
+          <p className="mx-auto mb-10 max-w-xl text-base leading-relaxed text-pretty text-muted md:text-lg">
             Let's collaborate on process optimization, digital transformation,
             and business analysis.
           </p>
@@ -60,7 +60,7 @@ function ContactSection() {
           viewport={SECTION_VIEWPORT}
           transition={SECTION_TRANSITION}
         >
-          <div className="mx-auto mb-16 max-w-[1200px] px-6 text-center md:mb-20 md:px-10 lg:px-16">
+          <div className="mx-auto mb-16 max-w-300 px-6 text-center md:mb-20 md:px-10 lg:px-16">
             <div className="mx-auto flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap sm:gap-6">
               {/* Email button wrapper */}
               <div className="flex w-full max-w-sm justify-center sm:w-auto sm:max-w-none">
@@ -104,7 +104,7 @@ function ContactSection() {
                         aria-hidden="true"
                         viewBox="0 0 24 24"
                         fill="currentColor"
-                        className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4"
+                        className="size-3.5 shrink-0 sm:size-4"
                         xmlns="http://www.w3.org/2000/svg"
                       >
                         <path d={social.path} />
@@ -112,7 +112,7 @@ function ContactSection() {
                       <span>{social.label}</span>
                       <ArrowUpRight
                         aria-hidden="true"
-                        className="h-3.5 w-3.5 shrink-0 transition-transform duration-300 group-hover/social-btn:translate-x-0.5 group-hover/social-btn:-translate-y-0.5 sm:h-4 sm:w-4"
+                        className="size-3.5 shrink-0 transition-transform duration-300 group-hover/social-btn:translate-x-0.5 group-hover/social-btn:-translate-y-0.5 sm:size-4"
                       />
                     </span>
                   </LiquidGlassButton>

@@ -86,7 +86,7 @@ function MobileMenu({
             variants={mobileMenuBackdropVariants}
             custom={isMotionReduced}
             aria-hidden="true"
-            className="fixed top-0 right-0 bottom-[-20vh] left-0 z-40 touch-none bg-black/50 backdrop-blur-sm md:hidden"
+            className="fixed inset-x-0 top-0 bottom-[-20vh] z-40 touch-none bg-black/50 backdrop-blur-sm md:hidden"
             onClick={onClose}
           />
         ) : null}
@@ -130,7 +130,7 @@ function MobileMenu({
                 variants={mobileMenuItemVariants}
                 custom={isMotionReduced}
                 tabIndex={isOpen ? 0 : -1}
-                className="focus-visible:ring-accent/60 text-muted hover:text-text-primary relative z-10 flex w-full items-center justify-center rounded-full px-4 py-3.5 text-center text-sm font-semibold tracking-[0.01em] transition-colors duration-300 select-none focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
+                className="relative z-10 flex w-full items-center justify-center rounded-full px-4 py-3.5 text-center text-sm font-semibold tracking-[0.01em] text-muted transition-colors duration-300 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset"
                 activeClassName="text-text-primary"
               >
                 <span>{link.label}</span>

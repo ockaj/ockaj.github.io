@@ -21,7 +21,7 @@ interface DrawerProps {
 const CLIENT_MARKDOWN_COMPONENTS = {
   ...COMMON_MARKDOWN_COMPONENTS,
   p: ({ children }: { children?: React.ReactNode }) => (
-    <p className="text-text-primary/95 text-base leading-relaxed font-normal text-pretty">
+    <p className="text-base leading-relaxed font-normal text-pretty text-text-primary/95">
       {children}
     </p>
   ),
@@ -30,7 +30,7 @@ const CLIENT_MARKDOWN_COMPONENTS = {
 const DESCRIPTION_MARKDOWN_COMPONENTS = {
   ...COMMON_MARKDOWN_COMPONENTS,
   p: ({ children }: { children?: React.ReactNode }) => (
-    <p className="text-muted text-base leading-relaxed text-pretty">
+    <p className="text-base leading-relaxed text-pretty text-muted">
       {children}
     </p>
   ),
@@ -61,22 +61,22 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
         {/* Header */}
         <motion.div variants={drawerItemVariants}>
           <div className="mb-2 flex items-center gap-2">
-            <span className="bg-accent size-1.5 rounded-full" />
-            <span className="text-accent text-sm font-bold tracking-wider uppercase">
+            <span className="size-1.5 rounded-full bg-accent" />
+            <span className="text-sm font-bold tracking-wider text-accent uppercase">
               {study.category}
             </span>
           </div>
-          <h3 className="font-display text-text-primary text-2xl text-balance md:text-3xl">
+          <h3 className="font-display text-2xl text-balance text-text-primary md:text-3xl">
             {study.title}
           </h3>
-          <p className="text-muted mt-0.5 text-sm leading-relaxed text-pretty md:text-base">
+          <p className="mt-0.5 text-sm leading-relaxed text-pretty text-muted md:text-base">
             {study.subtitle}
           </p>
         </motion.div>
 
         {/* Core Info */}
         <motion.div variants={drawerItemVariants} className="space-y-4">
-          <h3 className="text-text-primary/90 border-b border-white/10 pb-1.5 text-lg font-semibold text-balance">
+          <h3 className="border-b border-white/10 pb-1.5 text-lg font-semibold text-balance text-text-primary/90">
             Client profile
           </h3>
           <ReactMarkdown components={CLIENT_MARKDOWN_COMPONENTS}>
@@ -89,19 +89,19 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
 
         {/* Results Grid */}
         <motion.div variants={drawerItemVariants} className="space-y-4">
-          <h3 className="text-text-primary/90 border-b border-white/10 pb-1.5 text-lg font-semibold text-balance">
+          <h3 className="border-b border-white/10 pb-1.5 text-lg font-semibold text-balance text-text-primary/90">
             Proven operations impact
           </h3>
           <div className="grid grid-cols-3 gap-3">
             {study.results.map((res) => (
               <div
                 key={res.metric}
-                className="rounded-xl border border-white/5 bg-white/[0.02] p-3 text-center"
+                className="rounded-xl border border-white/5 bg-white/2 p-3 text-center"
               >
-                <p className="font-display text-accent text-xl tracking-tight tabular-nums md:text-2xl">
+                <p className="font-display text-xl tracking-tight text-accent tabular-nums md:text-2xl">
                   <MetricCountUp value={res.metric} />
                 </p>
-                <p className="text-muted mt-1 text-sm leading-relaxed text-pretty">
+                <p className="mt-1 text-sm leading-relaxed text-pretty text-muted">
                   {res.description}
                 </p>
               </div>
@@ -111,12 +111,12 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
 
         {/* AS-IS vs TO-BE comparison */}
         <motion.div variants={drawerItemVariants} className="space-y-4">
-          <h3 className="text-text-primary/90 border-b border-white/10 pb-1.5 text-lg font-semibold text-balance">
+          <h3 className="border-b border-white/10 pb-1.5 text-lg font-semibold text-balance text-text-primary/90">
             Process modeling & auditing
           </h3>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* AS-IS */}
-            <div className="rounded-2xl border border-red-500/10 bg-red-500/[0.02] p-4">
+            <div className="rounded-2xl border border-red-500/10 bg-red-500/2 p-4">
               <div className="mb-3 flex items-center gap-2 text-sm font-bold tracking-wider text-red-400 uppercase">
                 <div className="size-1.5 rounded-full bg-red-400" />
                 <span>Legacy Source Materials</span>
@@ -125,9 +125,9 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
                 {study.asIsFlow.map((step) => (
                   <li
                     key={step}
-                    className="text-muted flex gap-2 text-sm leading-relaxed"
+                    className="flex gap-2 text-sm leading-relaxed text-muted"
                   >
-                    <span className="flex-shrink-0 text-red-400/80">✕</span>
+                    <span className="shrink-0 text-red-400/80">✕</span>
                     <span className="text-pretty">{step}</span>
                   </li>
                 ))}
@@ -135,7 +135,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
             </div>
 
             {/* TO-BE */}
-            <div className="rounded-2xl border border-emerald-500/10 bg-emerald-500/[0.02] p-4">
+            <div className="rounded-2xl border border-emerald-500/10 bg-emerald-500/2 p-4">
               <div className="mb-3 flex items-center gap-2 text-sm font-bold tracking-wider text-emerald-400 uppercase">
                 <div className="size-1.5 rounded-full bg-emerald-400" />
                 <span>BPMN Process Modeling</span>
@@ -144,9 +144,9 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
                 {study.toBeFlow.map((step) => (
                   <li
                     key={step}
-                    className="text-text-primary/95 flex gap-2 text-sm leading-relaxed"
+                    className="flex gap-2 text-sm leading-relaxed text-text-primary/95"
                   >
-                    <span className="flex-shrink-0 text-emerald-400">✓</span>
+                    <span className="shrink-0 text-emerald-400">✓</span>
                     <span className="text-pretty">{step}</span>
                   </li>
                 ))}
@@ -161,16 +161,16 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
           className="grid grid-cols-1 gap-6 md:grid-cols-2"
         >
           <div className="space-y-3">
-            <h4 className="text-text-primary/90 border-b border-white/10 pb-1.5 text-base font-semibold text-balance">
+            <h4 className="border-b border-white/10 pb-1.5 text-base font-semibold text-balance text-text-primary/90">
               Methodology
             </h4>
             <ul className="space-y-2">
               {study.methodology.map((meth) => (
                 <li
                   key={meth}
-                  className="text-muted flex items-center gap-2 text-sm leading-relaxed"
+                  className="flex items-center gap-2 text-sm leading-relaxed text-muted"
                 >
-                  <span className="bg-accent/60 size-1 rounded-full" />
+                  <span className="size-1 rounded-full bg-accent/60" />
                   <span className="text-pretty">{meth}</span>
                 </li>
               ))}
@@ -178,16 +178,16 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
           </div>
 
           <div className="space-y-3">
-            <h4 className="text-text-primary/90 border-b border-white/10 pb-1.5 text-base font-semibold text-balance">
+            <h4 className="border-b border-white/10 pb-1.5 text-base font-semibold text-balance text-text-primary/90">
               Key deliverables
             </h4>
             <ul className="space-y-2">
               {study.deliverables.map((del) => (
                 <li
                   key={del}
-                  className="text-text-primary/80 flex items-center gap-2 text-sm leading-relaxed"
+                  className="flex items-center gap-2 text-sm leading-relaxed text-text-primary/80"
                 >
-                  <FileText size={13} className="text-accent flex-shrink-0" />
+                  <FileText size={13} className="shrink-0 text-accent" />
                   <span className="text-pretty">{del}</span>
                 </li>
               ))}

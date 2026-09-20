@@ -28,9 +28,9 @@ function BulletList({
       {bullets.map((bullet) => (
         <li
           key={bullet}
-          className="text-muted flex items-start gap-1.5 text-sm text-pretty"
+          className="flex items-start gap-1.5 text-sm text-pretty text-muted"
         >
-          <span className="text-accent mt-0.5 flex-shrink-0">•</span>
+          <span className="mt-0.5 shrink-0 text-accent">•</span>
           <span>{bullet}</span>
         </li>
       ))}
@@ -51,23 +51,23 @@ export const InteractiveCvView = memo(function InteractiveCvView({
     <div className="mx-auto max-w-4xl space-y-10 pb-12">
       {/* CV Heading Card */}
       <div className="relative flex flex-col items-start justify-between gap-6 overflow-hidden rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur-md md:flex-row md:items-center md:p-8">
-        <div className="from-accent/5 pointer-events-none absolute inset-0 z-0 bg-gradient-to-tr to-transparent" />
+        <div className="pointer-events-none absolute inset-0 z-0 bg-linear-to-tr from-accent/5 to-transparent" />
 
         <div className="relative z-10">
           <div className="mb-2 flex items-center gap-2">
-            <span className="text-accent bg-accent/10 rounded-xl px-2.5 py-0.5 text-sm font-semibold tracking-wider uppercase">
+            <span className="rounded-xl bg-accent/10 px-2.5 py-0.5 text-sm font-semibold tracking-wider text-accent uppercase">
               {lang === "en" ? "Active Resume" : "Aktívny Životopis"}
             </span>
           </div>
-          <h1 className="font-display text-text-primary mb-1 text-3xl text-balance md:text-4xl">
+          <h1 className="mb-1 font-display text-3xl text-balance text-text-primary md:text-4xl">
             {activeCv.title}
           </h1>
-          <p className="text-text-primary/95 font-body text-base font-normal text-pretty">
+          <p className="font-body text-base font-normal text-pretty text-text-primary/95">
             {activeCv.role}
           </p>
 
           {/* Contacts */}
-          <div className="text-muted mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm tabular-nums">
+          <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted tabular-nums">
             <span className="flex items-center gap-1.5">
               <MapPin size={14} className="text-accent/65" />
               {activeCv.location}
@@ -76,7 +76,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
               <Mail size={12} className="text-accent/65" />
               <a
                 href={`mailto:${activeCv.email}`}
-                className="hover:text-text-primary transition-colors"
+                className="transition-colors hover:text-text-primary"
               >
                 {activeCv.email}
               </a>
@@ -87,7 +87,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
                 {PHONE_PREFIX_REGEX.test(activeCv.phone) ? (
                   <a
                     href={`tel:${activeCv.phone.replace(WHITESPACE_REGEX, "")}`}
-                    className="hover:text-text-primary transition-colors"
+                    className="transition-colors hover:text-text-primary"
                   >
                     {activeCv.phone}
                   </a>
@@ -130,18 +130,18 @@ export const InteractiveCvView = memo(function InteractiveCvView({
         <div className="space-y-10 lg:col-span-2">
           {/* Profile Section */}
           <section className="space-y-3">
-            <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance">
+            <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
               <Sparkles size={16} className="text-accent" />
               {activeCv.profile.title}
             </h2>
-            <p className="text-muted font-body text-sm leading-relaxed text-pretty">
+            <p className="font-body text-sm leading-relaxed text-pretty text-muted">
               {activeCv.profile.text}
             </p>
           </section>
 
           {/* Experience Section */}
           <section className="space-y-4">
-            <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance">
+            <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
               <Briefcase size={16} className="text-accent" />
               {activeCv.experience.title}
             </h2>
@@ -149,20 +149,20 @@ export const InteractiveCvView = memo(function InteractiveCvView({
               {activeCv.experience.items.map((job) => (
                 <div
                   key={`${job.company}-${job.role}`}
-                  className="before:bg-stroke/60 relative pl-6 before:absolute before:top-1.5 before:bottom-0 before:left-1.5 before:w-px"
+                  className="relative pl-6 before:absolute before:top-1.5 before:bottom-0 before:left-1.5 before:w-px before:bg-stroke/60"
                 >
-                  <div className="border-accent bg-bg absolute top-1 left-0 z-10 size-3.5 rounded-full border-2 shadow-sm" />
+                  <div className="absolute top-1 left-0 z-10 size-3.5 rounded-full border-2 border-accent bg-bg shadow-sm" />
 
                   <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
                     <div>
-                      <h3 className="text-text-primary text-base leading-tight font-semibold text-balance">
+                      <h3 className="text-base leading-tight font-semibold text-balance text-text-primary">
                         {job.role}
                       </h3>
-                      <p className="text-muted text-sm text-pretty">
+                      <p className="text-sm text-pretty text-muted">
                         {job.company}
                       </p>
                     </div>
-                    <span className="text-accent bg-accent/5 border-accent/15 rounded-xl border px-2.5 py-0.5 text-xs font-semibold uppercase tabular-nums">
+                    <span className="rounded-xl border border-accent/15 bg-accent/5 px-2.5 py-0.5 text-xs font-semibold text-accent uppercase tabular-nums">
                       {job.period}
                     </span>
                   </div>
@@ -170,9 +170,9 @@ export const InteractiveCvView = memo(function InteractiveCvView({
                     {job.bullets.map((bullet) => (
                       <li
                         key={bullet}
-                        className="text-muted/90 flex items-start gap-2 text-sm leading-relaxed text-pretty"
+                        className="flex items-start gap-2 text-sm leading-relaxed text-pretty text-muted/90"
                       >
-                        <span className="bg-accent/60 mt-1.5 size-1.5 flex-shrink-0 rounded-full" />
+                        <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-accent/60" />
                         <span>{bullet}</span>
                       </li>
                     ))}
@@ -184,7 +184,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
 
           {/* Education Section */}
           <section className="space-y-4">
-            <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance">
+            <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
               <GraduationCap size={16} className="text-accent" />
               {activeCv.education.title}
             </h2>
@@ -192,28 +192,28 @@ export const InteractiveCvView = memo(function InteractiveCvView({
               {activeCv.education.items.map((edu) => (
                 <div
                   key={`${edu.school}-${edu.degree}`}
-                  className="before:bg-stroke/60 relative pl-6 before:absolute before:top-1.5 before:bottom-0 before:left-1.5 before:w-px last:before:hidden"
+                  className="relative pl-6 before:absolute before:top-1.5 before:bottom-0 before:left-1.5 before:w-px before:bg-stroke/60 last:before:hidden"
                 >
-                  <div className="border-accent bg-bg absolute top-1 left-0 z-10 size-3.5 rounded-full border-2" />
+                  <div className="absolute top-1 left-0 z-10 size-3.5 rounded-full border-2 border-accent bg-bg" />
 
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
-                      <h3 className="text-text-primary text-base leading-tight font-semibold text-balance">
+                      <h3 className="text-base leading-tight font-semibold text-balance text-text-primary">
                         {edu.degree}
                       </h3>
-                      <p className="text-muted text-sm text-pretty">
+                      <p className="text-sm text-pretty text-muted">
                         {edu.school}
                       </p>
                     </div>
-                    <span className="text-muted rounded-xl bg-white/5 px-2.5 py-0.5 font-mono text-xs tabular-nums">
+                    <span className="rounded-xl bg-white/5 px-2.5 py-0.5 font-mono text-xs text-muted tabular-nums">
                       {edu.period}
                     </span>
                   </div>
 
                   {edu.details ? (
                     <div className="mt-3 rounded-lg border border-white/5 bg-white/5 p-3.5">
-                      <p className="text-text-primary mb-2 flex items-center gap-1.5 text-sm font-semibold text-balance">
-                        <span className="bg-accent h-3 w-1 rounded" />
+                      <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-balance text-text-primary">
+                        <span className="h-3 w-1 rounded bg-accent" />
                         {edu.details.thesisTitle}
                       </p>
                       <BulletList
@@ -230,7 +230,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
           {/* Certificates Section */}
           {activeCv.certificates ? (
             <section className="space-y-4">
-              <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance">
+              <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
                 <Award size={16} className="text-accent" />
                 {activeCv.certificates.title}
               </h2>
@@ -238,20 +238,20 @@ export const InteractiveCvView = memo(function InteractiveCvView({
                 {activeCv.certificates.items.map((cert) => (
                   <div
                     key={`${cert.issuer}-${cert.name}`}
-                    className="before:bg-stroke/60 relative pl-6 before:absolute before:top-1.5 before:bottom-0 before:left-1.5 before:w-px last:before:hidden"
+                    className="relative pl-6 before:absolute before:top-1.5 before:bottom-0 before:left-1.5 before:w-px before:bg-stroke/60 last:before:hidden"
                   >
-                    <div className="border-accent bg-bg absolute top-1 left-0 z-10 size-3.5 rounded-full border-2" />
+                    <div className="absolute top-1 left-0 z-10 size-3.5 rounded-full border-2 border-accent bg-bg" />
 
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
-                        <h3 className="text-text-primary text-base leading-tight font-semibold text-balance">
+                        <h3 className="text-base leading-tight font-semibold text-balance text-text-primary">
                           {cert.name}
                         </h3>
-                        <p className="text-muted text-sm text-pretty">
+                        <p className="text-sm text-pretty text-muted">
                           {cert.issuer}
                         </p>
                       </div>
-                      <span className="text-muted rounded-xl bg-white/5 px-2.5 py-0.5 font-mono text-xs tabular-nums">
+                      <span className="rounded-xl bg-white/5 px-2.5 py-0.5 font-mono text-xs text-muted tabular-nums">
                         {cert.date}
                       </span>
                     </div>
@@ -273,7 +273,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
         <div className="space-y-8">
           {/* Skills Block */}
           <div className="space-y-6 rounded-2xl border border-white/5 bg-white/5 p-5">
-            <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance">
+            <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
               <Globe size={16} className="text-accent" />
               {activeCv.skills.title}
             </h2>
@@ -281,14 +281,14 @@ export const InteractiveCvView = memo(function InteractiveCvView({
             <div className="space-y-4">
               {activeCv.skills.categories.map((cat) => (
                 <div key={cat.name} className="space-y-2">
-                  <h3 className="text-accent text-sm font-semibold text-balance">
+                  <h3 className="text-sm font-semibold text-balance text-accent">
                     {cat.name}
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {cat.items.map((skill) => (
                       <span
                         key={skill}
-                        className="text-muted/95 hover:text-text-primary rounded-xl border border-white/5 bg-white/5 px-3 py-1 text-sm transition-[background-color,color] select-none hover:bg-white/[0.08]"
+                        className="rounded-xl border border-white/5 bg-white/5 px-3 py-1 text-sm text-muted/95 transition-[background-color,color] select-none hover:bg-white/8 hover:text-text-primary"
                       >
                         {skill}
                       </span>
@@ -301,7 +301,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
 
           {/* Languages Block */}
           <div className="space-y-4 rounded-2xl border border-white/5 bg-white/5 p-5">
-            <h2 className="text-text-primary flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance">
+            <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
               <Languages size={16} className="text-accent" />
               {activeCv.languages.title}
             </h2>
@@ -312,10 +312,10 @@ export const InteractiveCvView = memo(function InteractiveCvView({
                   key={langItem.name}
                   className="flex items-center justify-between text-sm"
                 >
-                  <span className="text-text-primary font-normal">
+                  <span className="font-normal text-text-primary">
                     {langItem.name}
                   </span>
-                  <span className="text-accent bg-accent/10 border-accent/10 rounded-xl border px-2.5 py-0.5 font-mono text-xs font-semibold">
+                  <span className="rounded-xl border border-accent/10 bg-accent/10 px-2.5 py-0.5 font-mono text-xs font-semibold text-accent">
                     {langItem.level}
                   </span>
                 </div>
@@ -324,8 +324,8 @@ export const InteractiveCvView = memo(function InteractiveCvView({
           </div>
 
           {/* Mobile Warning Notice */}
-          <div className="border-accent/20 bg-accent/5 space-y-2 rounded-lg border p-4 text-center md:hidden">
-            <p className="text-muted text-sm text-pretty">
+          <div className="space-y-2 rounded-lg border border-accent/20 bg-accent/5 p-4 text-center md:hidden">
+            <p className="text-sm text-pretty text-muted">
               PDF view is optimized for desktop viewports. To read the official
               document, you can open or download the PDF below.
             </p>
@@ -333,7 +333,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
               href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-accent hover:text-text-primary inline-flex items-center gap-1.5 text-sm font-semibold transition-colors"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent transition-colors hover:text-text-primary"
             >
               <ExternalLink size={12} />
               Open PDF Document

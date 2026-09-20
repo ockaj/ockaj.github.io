@@ -36,11 +36,11 @@ function AppSectionHeader({
 }: Readonly<AppSectionHeaderProps>) {
   return (
     <>
-      <h2 className="font-display text-text-primary mb-3 flex items-center gap-3 text-[clamp(1.625rem,4.5vw,3rem)] leading-tight tracking-tight text-balance md:leading-none">
+      <h2 className="mb-3 flex items-center gap-3 font-display text-[clamp(1.625rem,4.5vw,3rem)] leading-tight tracking-tight text-balance text-text-primary md:leading-none">
         <BpmnNodeBadge type={badgeType} className="translate-y-[2px]" />
         {title}
       </h2>
-      <p className="text-muted max-w-xl text-sm leading-relaxed text-pretty md:text-base">
+      <p className="max-w-xl text-sm leading-relaxed text-pretty text-muted md:text-base">
         {subtitle}
       </p>
     </>
@@ -81,7 +81,7 @@ function App() {
         <main
           id="main-content"
           inert={isLoading}
-          className="text-text-primary font-body relative z-10"
+          className="relative z-10 font-body text-text-primary"
         >
           <Navbar />
 

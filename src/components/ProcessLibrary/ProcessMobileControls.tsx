@@ -20,18 +20,18 @@ function ProcessMobileControls() {
           onClick={onPrevTopic}
           disabled={prevDisabled}
           roundedClass="rounded-full"
-          className="text-text-primary flex size-[44px] min-h-[44px] min-w-[44px] flex-shrink-0 cursor-pointer items-center justify-center transition-opacity disabled:pointer-events-none disabled:opacity-30"
+          className="flex size-[44px] min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center text-text-primary transition-opacity disabled:pointer-events-none disabled:opacity-30"
           aria-label="Previous process topic"
         >
           <ChevronLeft size={18} />
         </LiquidGlassButton>
 
-        <span className="font-body flex items-center gap-1 px-1.5 text-sm leading-none tabular-nums select-none">
-          <span className="text-accent font-bold">
+        <span className="flex items-center gap-1 px-1.5 font-body text-sm leading-none tabular-nums select-none">
+          <span className="font-bold text-accent">
             {String(activeTopic.id).padStart(2, "0")}
           </span>
-          <span className="text-muted/40 font-medium">/</span>
-          <span className="text-muted/60 font-medium">
+          <span className="font-medium text-muted/40">/</span>
+          <span className="font-medium text-muted/60">
             {String(PROCESS_TOPICS.length).padStart(2, "0")}
           </span>
         </span>
@@ -40,7 +40,7 @@ function ProcessMobileControls() {
           onClick={onNextTopic}
           disabled={nextDisabled}
           roundedClass="rounded-full"
-          className="text-text-primary flex size-[44px] min-h-[44px] min-w-[44px] flex-shrink-0 cursor-pointer items-center justify-center transition-opacity disabled:pointer-events-none disabled:opacity-30"
+          className="flex size-[44px] min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center text-text-primary transition-opacity disabled:pointer-events-none disabled:opacity-30"
           aria-label="Next process topic"
         >
           <ChevronRight size={18} />

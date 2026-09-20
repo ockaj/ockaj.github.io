@@ -116,7 +116,7 @@ export default function BpmnOverlay() {
             }}
           >
             <Dialog.Portal keepMounted>
-              <div className="fixed inset-0 z-[120] flex items-center justify-center p-0 md:p-6 lg:p-8">
+              <div className="fixed inset-0 z-120 flex items-center justify-center p-0 md:p-6 lg:p-8">
                 {/* Backdrop */}
                 <Dialog.Backdrop
                   onClick={close}
@@ -145,7 +145,7 @@ export default function BpmnOverlay() {
                       animate="visible"
                       exit="hidden"
                       variants={bpmnModalVariants}
-                      className="bg-surface/95 pointer-events-auto relative z-10 flex h-full w-full flex-col overflow-hidden rounded-none border-0 shadow-2xl backdrop-blur-2xl md:h-[90vh] md:max-w-[85vw] md:rounded-3xl md:border md:border-white/10 2xl:max-w-[1360px]"
+                      className="pointer-events-auto relative z-10 flex size-full flex-col overflow-hidden rounded-none border-0 bg-surface/95 shadow-2xl backdrop-blur-2xl md:h-[90vh] md:max-w-[85vw] md:rounded-3xl md:border md:border-white/10 2xl:max-w-340"
                       style={{
                         boxShadow:
                           "inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 20px rgba(0, 0, 0, 0.6)",
@@ -153,20 +153,20 @@ export default function BpmnOverlay() {
                     />
                   }
                 >
-                  <div className="relative flex h-full w-full flex-col">
+                  <div className="relative flex size-full flex-col">
                     {/* Specular sheen header overlay matching CV modal */}
-                    <div className="pointer-events-none absolute top-0 right-0 left-0 z-20 h-32 bg-gradient-to-b from-white/5 to-transparent" />
+                    <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-32 bg-linear-to-b from-white/5 to-transparent" />
 
                     {/* Part 1: Gridless Header Area */}
-                    <div className="relative z-30 flex w-full flex-shrink-0 items-center justify-between border-b border-white/10 p-5 md:px-8 md:py-5">
+                    <div className="relative z-30 flex w-full shrink-0 items-center justify-between border-b border-white/10 p-5 md:px-8 md:py-5">
                       <div>
-                        <Dialog.Title className="font-display text-text-primary text-lg md:text-2xl">
+                        <Dialog.Title className="font-display text-lg text-text-primary md:text-2xl">
                           Portfolio System Operation Blueprint
                         </Dialog.Title>
-                        <p className="text-muted mt-1 max-w-xl text-sm leading-relaxed text-pretty">
+                        <p className="mt-1 max-w-xl text-sm leading-relaxed text-pretty text-muted">
                           Click any user task box in the upper lane to navigate
                           directly to that section. Press{" "}
-                          <span className="text-accent rounded-xl border border-white/10 bg-white/5 px-2.5 py-0.5 font-mono font-bold">
+                          <span className="rounded-xl border border-white/10 bg-white/5 px-2.5 py-0.5 font-mono font-bold text-accent">
                             ESC
                           </span>{" "}
                           or click close to dismiss.
@@ -177,7 +177,7 @@ export default function BpmnOverlay() {
                           <LiquidGlassButton
                             onClick={close}
                             ariaLabel="Close model overlay"
-                            className="size-10 flex-shrink-0 p-0 md:size-11"
+                            className="size-10 shrink-0 p-0 md:size-11"
                           >
                             <X size={18} />
                           </LiquidGlassButton>
@@ -198,7 +198,7 @@ export default function BpmnOverlay() {
                       }}
                     >
                       <div
-                        className="notranslate mx-auto flex w-full max-w-[1280px] items-center justify-center"
+                        className="notranslate mx-auto flex w-full max-w-7xl items-center justify-center"
                         translate="no"
                       >
                         <BpmnDiagram onTaskClick={handleTaskClick} />

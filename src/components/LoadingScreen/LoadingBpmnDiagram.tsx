@@ -211,7 +211,7 @@ export default function LoadingBpmnDiagram({
     <div className="notranslate w-full max-w-4xl px-4" translate="no">
       <svg
         viewBox="0 0 800 240"
-        className="h-auto w-full text-[hsl(var(--accent))]"
+        className="h-auto w-full text-accent"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >

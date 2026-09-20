@@ -63,10 +63,10 @@ export const FaqItem = memo(function FaqItem({
           }}
           aria-expanded={isOpen}
           aria-controls={contentId}
-          className="focus-visible:ring-accent/60 flex w-full cursor-pointer items-center justify-between gap-4 rounded-lg text-left select-none focus-visible:ring-2 focus-visible:outline-none"
+          className="flex w-full cursor-pointer items-center justify-between gap-4 rounded-lg text-left select-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none"
         >
           <div className="flex flex-col">
-            <h3 className="font-display text-text-primary text-lg font-normal text-balance transition-colors duration-200 md:text-xl">
+            <h3 className="font-display text-lg font-normal text-balance text-text-primary transition-colors duration-200 md:text-xl">
               {item.question}
             </h3>
           </div>
@@ -74,7 +74,7 @@ export const FaqItem = memo(function FaqItem({
           <InteractiveGlass
             as="span"
             roundedClass="rounded-full"
-            className="text-text-primary flex size-[44px] min-h-[44px] min-w-[44px] flex-shrink-0 cursor-pointer items-center justify-center p-0 shadow-sm transition-colors"
+            className="flex size-[44px] min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center p-0 text-text-primary shadow-sm transition-colors"
             magnetic
             tilt
             magneticStrength={0.03}
@@ -85,7 +85,7 @@ export const FaqItem = memo(function FaqItem({
               initial={false}
               animate={{ rotate: isOpen ? 180 : 0 }}
               transition={isReduced ? { duration: 0.1 } : SPRING.snappy}
-              className="text-text-primary flex items-center justify-center transition-colors duration-200"
+              className="flex items-center justify-center text-text-primary transition-colors duration-200"
             >
               <ChevronDown size={18} aria-hidden="true" />
             </motion.span>
@@ -108,11 +108,11 @@ export const FaqItem = memo(function FaqItem({
           <div className="overflow-hidden">
             <div
               className={cn(
-                "mt-4 border-t border-white/[0.06] pt-4 transition-transform duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] select-text motion-reduce:transition-none",
+                "mt-4 border-t border-white/6 pt-4 transition-transform duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] select-text motion-reduce:transition-none",
                 isOpen ? "translate-y-0" : "-translate-y-2",
               )}
             >
-              <p className="text-muted text-base leading-relaxed text-pretty whitespace-pre-line select-text">
+              <p className="text-base leading-relaxed text-pretty whitespace-pre-line text-muted select-text">
                 {item.answer}
               </p>
 
@@ -122,7 +122,7 @@ export const FaqItem = memo(function FaqItem({
                     type="button"
                     onClick={() => handleAction(item.actionLink?.action)}
                     roundedClass="rounded-full"
-                    className="group/action-btn text-text-primary flex min-h-[44px] cursor-pointer items-center justify-center px-6 py-2.5 text-sm font-semibold shadow-sm transition-colors"
+                    className="group/action-btn flex min-h-11 cursor-pointer items-center justify-center px-6 py-2.5 text-sm font-semibold text-text-primary shadow-sm transition-colors"
                     ariaLabel={item.actionLink.label}
                     magnetic
                     tilt

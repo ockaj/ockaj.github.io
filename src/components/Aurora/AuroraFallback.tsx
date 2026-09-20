@@ -6,7 +6,7 @@ const FALLBACK_SVG = (
     height="100%"
     viewBox="0 0 1200 800"
     preserveAspectRatio="xMidYMid slice"
-    className="h-full w-full"
+    className="size-full"
   >
     <defs>
       <linearGradient
@@ -34,9 +34,9 @@ function AuroraFallback() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 h-full w-full overflow-hidden bg-[#0a0a0a]"
+      className="pointer-events-none absolute inset-0 size-full overflow-hidden bg-[#0a0a0a]"
     >
-      <div className="h-full w-full scale-110 opacity-90 blur-3xl">
+      <div className="size-full scale-110 opacity-90 blur-3xl">
         {FALLBACK_SVG}
       </div>
     </div>
