@@ -59,9 +59,19 @@ const dialogVariants: Variants = {
   }),
 };
 
-const DOUBLE_CLICK_CONFIG = { disabled: true };
+const DOUBLE_CLICK_CONFIG = {
+  mode: "toggle" as const,
+  step: 1.5,
+  animationTime: 200,
+  animationType: "easeOut" as const,
+};
 const WHEEL_CONFIG = { step: 0.00125 };
-const ZOOM_ANIMATION_CONFIG = { disabled: true };
+const ZOOM_ANIMATION_CONFIG = {
+  disabled: false,
+  size: 0.4,
+  animationTime: 200,
+  animationType: "easeOut" as const,
+};
 const TRANSFORM_CONTAINER_STYLE: React.CSSProperties = {
   width: "100%",
   height: "100%",
@@ -103,7 +113,6 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
 
   const isMobile = useIsMobile();
   const containerRef = useRef<HTMLDivElement>(null);
-  const wasPanningRef = useRef(false);
 
   if (typeof document === "undefined") return null;
 
@@ -154,16 +163,14 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
             <div
               ref={containerRef}
               data-zoomed="false"
-              className="bg-surface group relative flex w-full flex-1 cursor-zoom-in touch-none items-center justify-center overflow-hidden p-0 data-[zoomed=true]:cursor-grab data-[zoomed=true]:active:cursor-grabbing md:h-full"
+              className="bg-surface group relative flex w-full flex-1 cursor-default touch-none items-center justify-center overflow-hidden p-0 data-[zoomed=true]:cursor-grab data-[zoomed=true]:active:cursor-grabbing md:h-full"
             >
               <TransformWrapper
                 initialScale={1}
                 minScale={1}
                 maxScale={10}
                 centerOnInit
-                centerZoomedOut
                 smooth
-                disablePadding
                 doubleClick={DOUBLE_CLICK_CONFIG}
                 wheel={WHEEL_CONFIG}
                 zoomAnimation={ZOOM_ANIMATION_CONFIG}
@@ -176,27 +183,17 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
                     containerRef.current.dataset.zoomed = String(zoomed);
                   }
                 }}
-                onPanningStart={() => {
-                  wasPanningRef.current = false;
-                }}
-                onPanning={() => {
-                  wasPanningRef.current = true;
-                }}
               >
                 {/* Floating Island Control Panel inside context to use useControls */}
                 <LightboxControls isMobile={isMobile} onClose={onClose} />
 
                 <TransformComponent
-                  wrapperClass="w-full h-full flex justify-center items-center cursor-zoom-in group-data-[zoomed=true]:cursor-grab group-data-[zoomed=true]:active:cursor-grabbing"
-                  contentClass="w-full h-full flex justify-center items-center cursor-zoom-in group-data-[zoomed=true]:cursor-grab group-data-[zoomed=true]:active:cursor-grabbing"
+                  wrapperClass="w-full h-full flex justify-center items-center cursor-default group-data-[zoomed=true]:cursor-grab group-data-[zoomed=true]:active:cursor-grabbing"
+                  contentClass="w-full h-full flex justify-center items-center cursor-default group-data-[zoomed=true]:cursor-grab group-data-[zoomed=true]:active:cursor-grabbing"
                   wrapperStyle={TRANSFORM_CONTAINER_STYLE}
                   contentStyle={TRANSFORM_CONTAINER_STYLE}
                 >
-                  <ZoomableImage
-                    src={item.image}
-                    alt={item.title}
-                    wasPanningRef={wasPanningRef}
-                  />
+                  <ZoomableImage src={item.image} alt={item.title} />
                 </TransformComponent>
               </TransformWrapper>
             </div>

@@ -83,7 +83,7 @@ const LightboxControls = memo(function LightboxControls({
             className="text-text-primary notranslate flex h-10 w-16 items-center justify-center text-sm font-bold tracking-wider uppercase transition-opacity select-none disabled:pointer-events-none disabled:cursor-default disabled:opacity-40"
             onClick={() => {
               if (currentScaleRef.current > 1.01) {
-                resetTransform();
+                resetTransform(200);
               }
             }}
             magnetic={canZoomOut}
@@ -101,7 +101,7 @@ const LightboxControls = memo(function LightboxControls({
 
         {/* Zoom In */}
         <LiquidGlassButton
-          onClick={() => zoomIn(0.15, 0)}
+          onClick={() => zoomIn(0.15, 200)}
           disabled={!canZoomIn}
           magnetic={canZoomIn}
           magneticStrength={0.04}
@@ -114,7 +114,7 @@ const LightboxControls = memo(function LightboxControls({
 
         {/* Zoom Out */}
         <LiquidGlassButton
-          onClick={() => zoomOut(0.15, 0)}
+          onClick={() => zoomOut(0.15, 200)}
           disabled={!canZoomOut}
           magnetic={canZoomOut}
           magneticStrength={0.04}

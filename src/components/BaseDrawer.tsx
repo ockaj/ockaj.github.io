@@ -4,7 +4,7 @@ import { motion, useReducedMotion, Variants } from "motion/react";
 import { X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { SPRING } from "../utils/springConfig";
-import { useIsMobile } from "../hooks/useMediaQuery";
+import { useIsMobile, useIsTouchDevice } from "../hooks/useMediaQuery";
 import { useOverlay } from "../hooks/useAppNavigation";
 import { cn } from "../utils/cn";
 
@@ -19,7 +19,6 @@ interface BaseDrawerProps {
 
 interface DrawerCustom {
   prefersReducedMotion: boolean;
-  isMobile: boolean;
   exitVelocityX?: number;
 }
 
@@ -53,7 +52,7 @@ const drawerVariants: Variants = {
 };
 
 const DRAG_CONSTRAINTS = { left: 0, right: 0 } as const;
-const DRAG_ELASTIC = { left: 0.05, right: 0.7 } as const;
+const DRAG_ELASTIC = { left: 0.05, right: 1 } as const;
 
 const BaseDrawer = memo(function BaseDrawer({
   title,
@@ -66,6 +65,8 @@ const BaseDrawer = memo(function BaseDrawer({
   const overlayRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
+  const isTouchDevice = useIsTouchDevice();
+  const canDrag = isMobile || isTouchDevice;
   const [exitVelocityX, setExitVelocityX] = useState<number | undefined>(
     undefined,
   );
@@ -112,14 +113,13 @@ const BaseDrawer = memo(function BaseDrawer({
             <motion.div
               custom={{
                 prefersReducedMotion: !!prefersReducedMotion,
-                isMobile,
                 exitVelocityX,
               }}
               initial="hidden"
               animate="visible"
               exit="hidden"
               variants={drawerVariants}
-              drag={isMobile ? "x" : false}
+              drag={canDrag ? "x" : false}
               dragConstraints={DRAG_CONSTRAINTS}
               dragElastic={DRAG_ELASTIC}
               onDragEnd={(_e, info) => {
@@ -134,7 +134,7 @@ const BaseDrawer = memo(function BaseDrawer({
               className={cn(
                 "bg-surface md:bg-surface/90 fixed top-0 right-0 z-[100] flex h-full w-full flex-col overflow-hidden overscroll-contain border-l border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:backdrop-blur-2xl",
                 maxWidthClass || "max-w-2xl",
-                isMobile && "touch-pan-y will-change-transform select-none",
+                canDrag && "touch-pan-y will-change-transform select-none",
               )}
             />
           }

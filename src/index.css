@@ -321,7 +321,6 @@ p {
     animation-iteration-count: 1 !important;
     background-attachment: initial !important;
     scroll-behavior: auto !important;
-    transform: none !important;
     transition:
       opacity 200ms ease,
       color 200ms ease,
@@ -424,6 +423,7 @@ p {
 @media (prefers-reduced-transparency: reduce) {
   .navbar-capsule,
   .highlight-pill,
+  .backdrop-blur-sm,
   .backdrop-blur-lg,
   .backdrop-blur-md,
   .backdrop-blur-2xl,
@@ -433,6 +433,8 @@ p {
   .bg-surface\/60,
   .bg-surface\/80,
   .bg-surface\/85,
+  .bg-surface\/90,
+  .bg-surface\/95,
   .md\:bg-surface\/90 {
     background-color: hsl(var(--surface)) !important;
     backdrop-filter: none !important;
@@ -443,10 +445,15 @@ p {
 @media (prefers-contrast: more) {
   .navbar-capsule,
   .highlight-pill,
+  .backdrop-blur-sm,
   .backdrop-blur-lg,
   .backdrop-blur-md,
   .backdrop-blur-2xl {
     border-color: hsl(var(--text)) !important;
     background-color: hsl(var(--bg)) !important;
+  }
+
+  [class*="border-white"] {
+    border-color: hsl(var(--text) / 0.4) !important;
   }
 }
