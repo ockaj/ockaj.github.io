@@ -20,6 +20,17 @@ Omit this verification pipeline for pure design, styling, and copy changes unles
 
 ---
 
+## Rules Maintenance
+
+Propose updates to `AGENTS.md` or `.agents/rules/` when changing:
+- Dependencies or scripts in `package.json`
+- Feature entry points
+- Architecture boundaries
+
+Include exact target file paths and line numbers.
+
+---
+
 ## Detailed Guidelines & References
 
 Refer to specialized documentation for deep task context:
@@ -27,7 +38,6 @@ Refer to specialized documentation for deep task context:
 - [Product Vision & Requirements](./PRODUCT.md)
 - [Design System & UI Guidelines](./DESIGN.md)
 - [Critical Build Invariants](./.agents/rules/build-invariants.md)
-- [Rules Maintenance Protocol](./.agents/rules/rules-maintenance.md)
 - [Architecture Guide](./.agents/rules/architecture.md)
 - [Component Imports & Entry Points](./.agents/rules/component-imports.md)
 - [LiquidGlass Primitives](./.agents/rules/liquid-glass.md)
