@@ -102,7 +102,7 @@ Tier 1: Foundation (types/*, styles/*, data/*)
    - `store/` and `hooks/` cannot import from `components/`.
 3. **Deep Encapsulation & Zero Barrels**: Feature directories encapsulate private child components, and runtime `index.ts` barrels are prohibited. See [Component Imports](file:///d:/github/ockaj.github.io/.agents/rules/component-imports.md).
 4. **Grey Box Testing Contracts**: Pure domain logic and store state mutations are locked down with fast unit tests (`npm test` via Vitest). AI agents can safely modify internal mechanics as long as the test contract passes.
-5. **Tooling Enforcement**: ESLint `no-restricted-imports` fails the build on any layer or boundary violation.
+5. **Tooling Enforcement**: [`eslint/boundaries.js`](file:///d:/github/ockaj.github.io/eslint/boundaries.js) configures `no-restricted-imports`. ESLint fails the build on any layer or boundary violation.
 
 ---
 

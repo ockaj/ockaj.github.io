@@ -25,19 +25,19 @@ typography:
     letterSpacing: "-0.015em"
   title:
     fontFamily: "Outfit, sans-serif"
-    fontSize: "1.25rem to 1.875rem"
+    fontSize: "clamp(1.25rem, 2vw, 1.875rem)"
     fontWeight: 600
     lineHeight: 1.2
     letterSpacing: "-0.01em"
   metrics:
     fontFamily: "Libre Caslon Condensed, Georgia, serif"
-    fontSize: "1.25rem to 1.875rem"
+    fontSize: "clamp(1.25rem, 2vw, 1.875rem)"
     fontWeight: 400
     lineHeight: 1.0
     letterSpacing: "-0.02em"
   body:
     fontFamily: "Outfit, sans-serif"
-    fontSize: "0.875rem to 1rem"
+    fontSize: "clamp(0.875rem, 1.5vw, 1rem)"
     fontWeight: 400
     lineHeight: 1.5
     letterSpacing: "0em"
@@ -49,13 +49,13 @@ typography:
     letterSpacing: "0.05em"
   footnote:
     fontFamily: "Outfit, sans-serif"
-    fontSize: "0.75rem to 0.8125rem"
+    fontSize: "clamp(0.75rem, 1.2vw, 0.8125rem)"
     fontWeight: 600
     lineHeight: 1.35
     letterSpacing: "0.05em"
   caption:
     fontFamily: "Outfit, sans-serif"
-    fontSize: "0.6875rem to 0.75rem"
+    fontSize: "clamp(0.6875rem, 1vw, 0.75rem)"
     fontWeight: 500
     lineHeight: 1.3
     letterSpacing: "0.02em"
@@ -82,7 +82,7 @@ spacing:
   md: "16px"
   lg: "24px"
   xl: "32px"
-  2xl: "48px"
+  "2xl": "48px"
 components:
   button-primary:
     backgroundColor: "{colors.neutral-surface}"
@@ -194,6 +194,11 @@ The interface operates on a single-page continuous scroll structure with seven d
 
 Generous vertical spacing (`py-24 sm:py-32`) separates landmark sections. High information density governs the process models, case studies, and comparison matrices. This rhythm permits recruiters to scan credentials quickly while offering deep technical models for lead analysts.
 
+The layout enforces responsive viewport boundaries through theme tokens (`max-w-85vw`, `max-w-95vw`, `max-h-85vh`, `max-h-mobile-panel`). Dedicated utility classes preserve interface ergonomics:
+- **Canvas Minimum Width** (`min-w-bpmn-canvas`): Preserves a 950px baseline for desktop BPMN process models.
+- **Safe Area Insets** (`pb-safe-8`, `pb-safe-12`): Prevents UI clipping above mobile navigation bars.
+- **Accordion Transitions** (`grid-rows-open`, `grid-rows-closed`, `transition-accordion`): Smoothly animates expanding panel content.
+
 ## Elevation & Depth
 
 The system uses a hybrid tactile glass architecture. Rather than relying on heavy opaque drop shadows, surfaces convey depth through translucency (`backdrop-blur-sm md:backdrop-blur-lg`), specular edge highlights, and subtle inner reflections.
@@ -202,6 +207,8 @@ The system uses a hybrid tactile glass architecture. Rather than relying on heav
 - **LiquidGlass Flat** (`box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 4px 8px rgba(255, 255, 255, 0.03), 0 4px 10px rgba(0, 0, 0, 0.08)`): Resting elevation for glass cards, containers, and non-active controls.
 - **LiquidGlass Sunken** (`box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 1px 2px rgba(255, 255, 255, 0.02)`): Pressed controls, active tab recesses, and indented indicator wells.
 - **LiquidGlass Beveled Active** (`box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4), inset 0 6px 12px rgba(255, 255, 255, 0.06), 0 8px 16px rgba(0, 0, 0, 0.15)`): Highlighted callouts, hovered cards, and elevated modal sheets.
+- **Drawer Structural Shadow** (`--shadow-drawer: 0 4px 16px rgba(0, 0, 0, 0.6)`): Deep elevation for slide-out drawers and bottom sheets.
+- **Accent Glow** (`--shadow-glow-accent: 0 0 10px hsla(var(--accent), 0.8)`): High-contrast focal illumination for active elements.
 
 ### Named Rules
 - **The Specular Illumination Rule.** Depth arises from top-edge specular highlights (`rgba(255, 255, 255, 0.25)`) and translucency, never from thick dark drop shadows.
@@ -250,6 +257,7 @@ Surfaces feature delicate translucent strokes (`1px solid rgba(255, 255, 255, 0.
 - **Do** apply `tabular-nums` to all quantitative metrics, cycle times, and statistical data points.
 - **Do** reuse standardized spring configs from `src/utils/springConfig.ts` for all motion transitions.
 - **Do** honor `@media (prefers-reduced-motion: reduce)` by bypassing spring physics and tilt transforms.
+- **Do** use `@theme` tokens or native Tailwind scale utilities. The project enforces `tailwindcss/no-arbitrary-value`.
 
 ### Don't:
 - **Don't** use pure pitch black (`#000000`) for dark backgrounds; preserve the obsidian baseline (`#0a0a0a`).
@@ -257,3 +265,4 @@ Surfaces feature delicate translucent strokes (`1px solid rgba(255, 255, 255, 0.
 - **Don't** import removed facade components; import explicit primitives from `src/components/LiquidGlass/`.
 - **Don't** use generic SaaS warm beige or creamy palettes that conflict with the analytical process theme.
 - **Don't** decorate layouts with cartoon illustrations, skeuomorphic noise textures, or repetitive uppercase eyebrows.
+- **Don't** introduce arbitrary Tailwind values (such as `w-[320px]` or `bottom-[-20vh]`); define reusable theme tokens or `@utility` rules in `src/index.css`.
