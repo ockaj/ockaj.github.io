@@ -86,7 +86,7 @@ function MobileMenu({
             variants={mobileMenuBackdropVariants}
             custom={isMotionReduced}
             aria-hidden="true"
-            className="fixed inset-x-0 top-0 bottom-[-20vh] z-40 touch-none bg-black/50 backdrop-blur-sm md:hidden"
+            className="fixed inset-x-0 top-0 -bottom-bleed z-40 touch-none bg-black/50 backdrop-blur-sm md:hidden"
             onClick={onClose}
           />
         ) : null}
@@ -110,7 +110,7 @@ function MobileMenu({
           isOpen ? "pointer-events-auto" : "pointer-events-none",
         )}
       >
-        <div className="no-scrollbar relative z-10 max-h-[calc(100svh-100px)] w-full overflow-y-auto overscroll-contain p-3">
+        <div className="no-scrollbar relative z-10 max-h-mobile-panel w-full overflow-y-auto overscroll-contain p-3">
           <Tabs
             value={active}
             onChange={onChange}
@@ -130,7 +130,7 @@ function MobileMenu({
                 variants={mobileMenuItemVariants}
                 custom={isMotionReduced}
                 tabIndex={isOpen ? 0 : -1}
-                className="relative z-10 flex w-full items-center justify-center rounded-full px-4 py-3.5 text-center text-sm font-semibold tracking-[0.01em] text-muted transition-colors duration-300 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset"
+                className="relative z-10 flex w-full items-center justify-center rounded-full px-4 py-3.5 text-center text-sm font-semibold tracking-subtle text-muted transition-colors duration-300 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset"
                 activeClassName="text-text-primary"
               >
                 <span>{link.label}</span>

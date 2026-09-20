@@ -20,7 +20,7 @@ function ProcessMobileControls() {
           onClick={onPrevTopic}
           disabled={prevDisabled}
           roundedClass="rounded-full"
-          className="flex size-[44px] min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center text-text-primary transition-opacity disabled:pointer-events-none disabled:opacity-30"
+          className="flex size-11 min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center text-text-primary transition-opacity disabled:pointer-events-none disabled:opacity-30"
           aria-label="Previous process topic"
         >
           <ChevronLeft size={18} />
@@ -40,7 +40,7 @@ function ProcessMobileControls() {
           onClick={onNextTopic}
           disabled={nextDisabled}
           roundedClass="rounded-full"
-          className="flex size-[44px] min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center text-text-primary transition-opacity disabled:pointer-events-none disabled:opacity-30"
+          className="flex size-11 min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center text-text-primary transition-opacity disabled:pointer-events-none disabled:opacity-30"
           aria-label="Next process topic"
         >
           <ChevronRight size={18} />

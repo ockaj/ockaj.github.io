@@ -67,6 +67,7 @@ export default tseslint.config(
       "tailwindcss/classnames-order": "off",
       "tailwindcss/no-custom-classname": "off",
       "tailwindcss/no-unnecessary-arbitrary-value": "warn",
+      "tailwindcss/no-arbitrary-value": "warn",
     },
     settings: {
       react: {

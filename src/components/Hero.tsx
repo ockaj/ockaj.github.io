@@ -367,7 +367,7 @@ function Hero() {
         {/* Name */}
         <motion.h1
           variants={nameVariants}
-          className="leading-1.1 mb-5 pb-1 font-display text-[clamp(3.5rem,8vw,6.0rem)] tracking-tight text-balance text-text-primary italic sm:mb-6 sm:pb-2"
+          className="leading-1.1 mb-5 pb-1 font-display text-headline-hero tracking-tight text-balance text-text-primary italic sm:mb-6 sm:pb-2"
         >
           Ondrej Michal Očkaj
         </motion.h1>

@@ -10,6 +10,29 @@
   --color-muted: hsl(var(--muted));
   --color-stroke: hsl(var(--stroke));
   --color-accent: hsl(var(--accent));
+
+  /* Typography */
+  --text-headline-hero: clamp(3.5rem, 8vw, 6rem);
+  --text-headline-section: clamp(1.625rem, 4.5vw, 3rem);
+  --tracking-subtle: 0.01em;
+
+  /* Easing curves */
+  --ease-expo-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-quint-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+  /* Shadows */
+  --shadow-drawer: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --shadow-glow-accent: 0 0 10px hsla(var(--accent), 0.8);
+
+  /* Blur */
+  --blur-subtle: 6px;
+
+  /* Viewport dimensions */
+  --height-85vh: 85vh;
+  --height-90vh: 90vh;
+  --max-height-85vh: 85vh;
+  --max-width-85vw: 85vw;
+  --max-width-95vw: 95vw;
 }
 
 @font-face {
@@ -418,6 +441,87 @@ p {
 
 .process-tabs-scrollbar::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--accent));
+}
+
+@utility transform-gpu {
+  transform: translateZ(0);
+}
+
+@utility grid-rows-open {
+  grid-template-rows: 1fr;
+}
+
+@utility grid-rows-closed {
+  grid-template-rows: 0fr;
+}
+
+@utility transition-accordion {
+  transition-property: grid-template-rows, visibility;
+}
+
+@utility transition-surface {
+  transition-property: border-color, background-color, box-shadow;
+}
+
+@utility transition-slide {
+  transition-property: transform, opacity;
+}
+
+@utility will-change-slide {
+  will-change: transform, opacity;
+}
+
+.skill-bullet {
+  transition:
+    clip-path 200ms cubic-bezier(0, 0, 0.2, 1),
+    background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+@utility pb-safe-8 {
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+}
+
+@utility pb-safe-12 {
+  padding-bottom: calc(3rem + env(safe-area-inset-bottom));
+}
+
+@utility min-w-bpmn-canvas {
+  min-width: 950px;
+}
+
+@utility -translate-y-subpixel {
+  translate: 0 -0.5px;
+}
+
+@utility h-checklist-slot {
+  height: 50px;
+}
+
+@utility min-w-3ch {
+  min-width: 3ch;
+}
+
+@utility -bottom-bleed {
+  bottom: -20vh;
+}
+
+@utility max-h-mobile-panel {
+  max-height: calc(100svh - 100px);
+}
+
+.loading-grid-background {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.loading-radial-spotlight {
+  background-image: radial-gradient(
+    circle at center,
+    transparent 20%,
+    hsl(var(--bg)) 85%
+  );
 }
 
 @media (prefers-reduced-transparency: reduce) {

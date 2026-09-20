@@ -116,7 +116,7 @@ const JournalDrawer = memo(function JournalDrawer({
         <motion.div
           variants={drawerItemVariants}
           custom={prefersReducedMotion}
-          className="max-w-[70ch] text-base leading-relaxed text-text-primary/90"
+          className="max-w-prose text-base leading-relaxed text-text-primary/90"
         >
           <ReactMarkdown
             remarkPlugins={REMARK_PLUGINS}

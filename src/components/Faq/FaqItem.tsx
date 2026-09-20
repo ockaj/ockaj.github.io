@@ -74,7 +74,7 @@ export const FaqItem = memo(function FaqItem({
           <InteractiveGlass
             as="span"
             roundedClass="rounded-full"
-            className="flex size-[44px] min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center p-0 text-text-primary shadow-sm transition-colors"
+            className="flex size-11 min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center p-0 text-text-primary shadow-sm transition-colors"
             magnetic
             tilt
             magneticStrength={0.03}
@@ -99,16 +99,16 @@ export const FaqItem = memo(function FaqItem({
           aria-hidden={!isOpen}
           data-no-skeleton={!isOpen ? "" : undefined}
           className={cn(
-            "grid transition-[grid-template-rows,visibility] duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none",
+            "grid transition-accordion duration-350 ease-expo-out motion-reduce:transition-none",
             isOpen
-              ? "visible grid-rows-[1fr]"
-              : "pointer-events-none invisible grid-rows-[0fr]",
+              ? "visible grid-rows-open"
+              : "pointer-events-none invisible grid-rows-closed",
           )}
         >
           <div className="overflow-hidden">
             <div
               className={cn(
-                "mt-4 border-t border-white/6 pt-4 transition-transform duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] select-text motion-reduce:transition-none",
+                "mt-4 border-t border-white/6 pt-4 transition-transform duration-350 ease-expo-out select-text motion-reduce:transition-none",
                 isOpen ? "translate-y-0" : "-translate-y-2",
               )}
             >

@@ -288,7 +288,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
                     {cat.items.map((skill) => (
                       <span
                         key={skill}
-                        className="rounded-xl border border-white/5 bg-white/5 px-3 py-1 text-sm text-muted/95 transition-[background-color,color] select-none hover:bg-white/8 hover:text-text-primary"
+                        className="rounded-xl border border-white/5 bg-white/5 px-3 py-1 text-sm text-muted/95 transition-colors select-none hover:bg-white/8 hover:text-text-primary"
                       >
                         {skill}
                       </span>

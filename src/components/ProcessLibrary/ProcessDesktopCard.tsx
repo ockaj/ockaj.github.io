@@ -103,7 +103,7 @@ function ProcessDesktopCard({
                   layoutId={`process-view-mode-pill-${activeTopic.id}`}
                   roundedClass="rounded-xl"
                   highlightStyle={DESKTOP_HIGHLIGHT_STYLE}
-                  className="isolate inline-flex transform-[translateZ(0)] items-center rounded-xl border border-white/10 bg-surface/90 p-1 shadow-lg backdrop-blur-md select-none"
+                  className="isolate inline-flex transform-gpu items-center rounded-xl border border-white/10 bg-surface/90 p-1 shadow-lg backdrop-blur-md select-none"
                   highlightClassName="bg-white/15 border border-white/20 shadow-md"
                 >
                   <Tab

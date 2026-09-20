@@ -233,7 +233,7 @@ const PdfModalTabs = memo(function PdfModalTabs({
       onChange={onTabChange}
       layoutId="active-viewer-tab"
       highlightClassName="navbar-highlight-flat"
-      className="isolate flex transform-[translateZ(0)] items-center gap-0.5 overflow-hidden rounded-full border border-white/5 bg-white/3 p-2"
+      className="isolate flex transform-gpu items-center gap-0.5 overflow-hidden rounded-full border border-white/5 bg-white/3 p-2"
     >
       <Tab
         id="tab-pdf"
@@ -386,7 +386,7 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
             animate="visible"
             exit="hidden"
             variants={modalVariants}
-            className="pointer-events-auto relative z-10 flex size-full flex-col overflow-hidden rounded-none border-0 bg-surface md:h-[85vh] md:max-w-5xl md:rounded-3xl md:border md:border-white/10 md:bg-surface/90 md:backdrop-blur-2xl"
+            className="pointer-events-auto relative z-10 flex size-full flex-col overflow-hidden rounded-none border-0 bg-surface md:h-85vh md:max-w-5xl md:rounded-3xl md:border md:border-white/10 md:bg-surface/90 md:backdrop-blur-2xl"
             style={MODAL_CONTAINER_STYLE}
           />
         }

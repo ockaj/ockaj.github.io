@@ -145,7 +145,7 @@ export default function BpmnOverlay() {
                       animate="visible"
                       exit="hidden"
                       variants={bpmnModalVariants}
-                      className="pointer-events-auto relative z-10 flex size-full flex-col overflow-hidden rounded-none border-0 bg-surface/95 shadow-2xl backdrop-blur-2xl md:h-[90vh] md:max-w-[85vw] md:rounded-3xl md:border md:border-white/10 2xl:max-w-340"
+                      className="pointer-events-auto relative z-10 flex size-full flex-col overflow-hidden rounded-none border-0 bg-surface/95 shadow-2xl backdrop-blur-2xl md:h-90vh md:max-w-85vw md:rounded-3xl md:border md:border-white/10 2xl:max-w-340"
                       style={{
                         boxShadow:
                           "inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 20px rgba(0, 0, 0, 0.6)",

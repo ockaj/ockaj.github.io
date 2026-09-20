@@ -164,7 +164,7 @@ function ProcessVariantStage({
   return (
     <div className="flex w-full flex-1 flex-col justify-start">
       {/* Permanent Solid Blueprint Stage Canvas (Zero Ghosting & Zero Frame Pop) */}
-      <div className="group/canvas relative mb-3 flex aspect-video min-h-0 w-full min-w-0 transform-[translateZ(0)] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white transition-colors duration-300 contain-paint select-none hover:border-white/25 sm:mb-5">
+      <div className="group/canvas relative mb-3 flex aspect-video min-h-0 w-full min-w-0 transform-gpu items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white transition-colors duration-300 contain-paint select-none hover:border-white/25 sm:mb-5">
         <div className="relative grid size-full grid-cols-1 grid-rows-1">
           {MODES.map((mode) => (
             <DiagramCanvasItem

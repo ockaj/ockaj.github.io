@@ -62,10 +62,10 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
       data-topic-id={topic.id}
       data-no-skeleton={idx > 0 ? "" : undefined}
       className={cn(
-        "w-full min-w-0 flex-[0_0_100%] origin-center snap-center snap-always",
+        "w-full min-w-0 shrink-0 basis-full origin-center snap-center snap-always",
         prefersReducedMotion
           ? "transition-opacity duration-200 ease-out"
-          : "transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-[transform,opacity]",
+          : "transition-slide duration-300 ease-quint-out will-change-slide",
         motionClass,
       )}
     >
@@ -88,7 +88,7 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
               layoutId={`process-view-mode-pill-mobile-${topic.id}`}
               roundedClass="rounded-xl"
               highlightStyle={MOBILE_HIGHLIGHT_STYLE}
-              className="isolate inline-flex h-9 w-full transform-[translateZ(0)] items-center rounded-xl border border-white/10 bg-surface/80 p-1 shadow-md backdrop-blur-md select-none sm:w-auto"
+              className="isolate inline-flex h-9 w-full transform-gpu items-center rounded-xl border border-white/10 bg-surface/80 p-1 shadow-md backdrop-blur-md select-none sm:w-auto"
               highlightClassName="bg-white/15 border border-white/20 shadow-sm"
             >
               <Tab

@@ -147,7 +147,7 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
           <Dialog.Popup
             render={
               <motion.div
-                className="relative z-10 flex h-dvh max-h-dvh w-full max-w-7xl flex-col overflow-hidden rounded-none border-0 border-white/10 bg-surface shadow-2xl md:aspect-16/10 md:h-auto md:max-h-[85vh] md:rounded-3xl md:border"
+                className="relative z-10 flex h-dvh max-h-dvh w-full max-w-7xl flex-col overflow-hidden rounded-none border-0 border-white/10 bg-surface shadow-2xl md:aspect-16/10 md:h-auto md:max-h-85vh md:rounded-3xl md:border"
                 custom={{ prefersReducedMotion, isMobile }}
                 variants={dialogVariants}
                 initial="hidden"

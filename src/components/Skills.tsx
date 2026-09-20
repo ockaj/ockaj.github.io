@@ -194,7 +194,7 @@ const SkillItem = memo(function SkillItem({ skill }: { skill: string }) {
   return (
     <p className="skill-item-hover group/item flex cursor-default items-start gap-1 text-sm text-pretty text-muted/80">
       <span className="flex h-5 w-4 shrink-0 items-center justify-start">
-        <span className="h-1.5 w-3.5 rounded-full bg-accent/60 transition-[clip-path,background-color] duration-200 ease-out [clip-path:inset(0_57.14%_0_0_round_9999px)] group-hover/item:bg-accent group-hover/item:[clip-path:inset(0_0_0_0_round_9999px)]" />
+        <span className="skill-bullet h-1.5 w-3.5 rounded-full bg-accent/60 [clip-path:inset(0_57.14%_0_0_round_9999px)] group-hover/item:bg-accent group-hover/item:[clip-path:inset(0_0_0_0_round_9999px)]" />
       </span>
       <span className="skill-item-text flex-1">{skill}</span>
     </p>
@@ -218,7 +218,7 @@ const WideSkillCard = memo(function WideSkillCard({
       tilt
     >
       <div className="flex size-full flex-col md:flex-row md:justify-between md:gap-8">
-        <div className="mb-5 shrink-0 md:mb-0 md:max-w-[40%]">
+        <div className="mb-5 shrink-0 md:mb-0 md:max-w-2/5">
           <div className="flex items-center gap-3">
             <Icon
               size={20}

@@ -163,7 +163,7 @@ export default function Navbar() {
         <div
           ref={capsuleRef}
           className={cn(
-            "navbar-capsule pointer-events-auto relative isolate z-50 flex w-full max-w-[85vw] transform-[translateZ(0)] items-center justify-between gap-1 overflow-hidden rounded-full border border-white/10 bg-surface/40 p-[7px] backdrop-blur-md backdrop-saturate-150 max-md:data-[scrolling=true]:backdrop-blur-[3px] md:w-auto md:max-w-[95vw] md:justify-start md:gap-1.5",
+            "navbar-capsule pointer-events-auto relative isolate z-50 flex w-full max-w-85vw transform-gpu items-center justify-between gap-1 overflow-hidden rounded-full border border-white/10 bg-surface/40 p-1.75 backdrop-blur-md backdrop-saturate-150 md:w-auto md:max-w-95vw md:justify-start md:gap-1.5",
             scrolled && "border-white/20 bg-surface/60",
           )}
         >
@@ -180,7 +180,7 @@ export default function Navbar() {
               value="home"
               tabIndex={0}
               highlightClassName="hidden md:block"
-              className="relative z-10 flex items-center gap-2 rounded-full py-1.5 pr-3 pl-1.5 text-sm text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset md:py-[9px] md:pr-[15px] md:pl-[9px]"
+              className="relative z-10 flex items-center gap-2 rounded-full py-1.5 pr-3 pl-1.5 text-sm text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset md:py-2.25 md:pr-3.75 md:pl-2.25"
               activeClassName="text-text-primary"
               aria-label="Home"
             >
@@ -223,7 +223,7 @@ export default function Navbar() {
                   key={link.id}
                   value={link.id}
                   tabIndex={0}
-                  className="relative z-10 rounded-full px-3 py-1.5 text-sm text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px]"
+                  className="relative z-10 rounded-full px-3 py-1.5 text-sm text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset md:px-4.75 md:py-2.75"
                   activeClassName="text-text-primary"
                 >
                   <span>{link.label}</span>
@@ -234,7 +234,7 @@ export default function Navbar() {
               <Tab
                 value="contact"
                 tabIndex={0}
-                className="relative z-10 rounded-full px-3 py-1.5 text-sm text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset md:px-[19px] md:py-[11px]"
+                className="relative z-10 rounded-full px-3 py-1.5 text-sm text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset md:px-4.75 md:py-2.75"
                 activeClassName="text-text-primary"
               >
                 <span>Contact</span>

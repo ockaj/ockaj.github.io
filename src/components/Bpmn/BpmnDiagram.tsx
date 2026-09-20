@@ -134,7 +134,7 @@ function BpmnTaskNode({
         fill="#90D3FF"
         aria-hidden="true"
         className={cn(
-          "transition-[stroke,fill] duration-200 ease-out group-focus-visible/node:stroke-[#000000] group-focus-visible/node:stroke-2",
+          "transition-colors duration-200 ease-out group-focus-visible/node:stroke-black group-focus-visible/node:stroke-2",
           hoverFillClass,
           hoverStrokeClass,
         )}
@@ -168,7 +168,7 @@ function BpmnDiagram({ onTaskClick }: Readonly<BpmnDiagramProps>) {
   return (
     <svg
       viewBox="0 0 1420 600"
-      className="notranslate h-auto w-full min-w-[950px] text-accent"
+      className="notranslate h-auto w-full min-w-bpmn-canvas text-accent"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-label="BPMN 2.0 Interactive Portfolio Navigation Diagram"

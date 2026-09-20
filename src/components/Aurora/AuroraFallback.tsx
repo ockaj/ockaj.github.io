@@ -34,7 +34,7 @@ function AuroraFallback() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 size-full overflow-hidden bg-[#0a0a0a]"
+      className="pointer-events-none absolute inset-0 size-full overflow-hidden bg-bg"
     >
       <div className="size-full scale-110 opacity-90 blur-3xl">
         {FALLBACK_SVG}

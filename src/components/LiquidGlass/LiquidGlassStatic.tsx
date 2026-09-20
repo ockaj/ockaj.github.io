@@ -78,7 +78,7 @@ export function StaticGlass({
     >
       <span
         className={cn(
-          "pointer-events-none absolute inset-0 z-0 border transition-[border-color,background-color,box-shadow] duration-300 ease-out",
+          "pointer-events-none absolute inset-0 z-0 border transition-surface duration-300 ease-out",
           borderActiveClasses,
           roundedClass,
         )}

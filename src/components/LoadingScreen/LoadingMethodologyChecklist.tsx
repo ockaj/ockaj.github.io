@@ -111,10 +111,10 @@ export default function LoadingMethodologyChecklist({
 
             return (
               <div className="flex h-full items-center gap-3 font-sans text-sm text-text-primary">
-                <span className="flex size-6 shrink-0 items-center justify-center rounded-full border border-[hsl(var(--accent))]/20 bg-[hsl(var(--accent))]/10">
-                  <span className="size-2 animate-pulse rounded-full bg-accent shadow-[0_0_10px_hsla(var(--accent),0.8)]" />
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full border border-accent/20 bg-accent/10">
+                  <span className="size-2 animate-pulse rounded-full bg-accent shadow-glow-accent" />
                 </span>
-                <div className="relative h-[50px] min-w-0 flex-1 overflow-hidden">
+                <div className="relative h-checklist-slot min-w-0 flex-1 overflow-hidden">
                   <motion.div
                     animate={{ y: -displayIdx * 50 }}
                     transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.6 }}
@@ -123,7 +123,7 @@ export default function LoadingMethodologyChecklist({
                     {BPMN_STEPS.map((step, idx) => (
                       <div
                         key={step.label}
-                        className="flex h-[50px] flex-col justify-center pr-2"
+                        className="flex h-checklist-slot flex-col justify-center pr-2"
                       >
                         <span className="mb-0.5 text-sm font-bold tracking-wider text-accent/80 uppercase">
                           Phase {idx + 1} of 7

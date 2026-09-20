@@ -61,7 +61,7 @@ const LightboxControls = memo(function LightboxControls({
       className="notranslate absolute top-4 left-1/2 z-60 -translate-x-1/2 md:right-4 md:left-auto md:translate-x-0"
       translate="no"
     >
-      <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/80 p-[6px] shadow-2xl backdrop-blur-md select-none">
+      <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/80 p-1.5 shadow-2xl backdrop-blur-md select-none">
         {/* Scale / Reset */}
         <span
           className="notranslate inline-flex"

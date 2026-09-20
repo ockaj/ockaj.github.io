@@ -132,7 +132,7 @@ const BaseDrawer = memo(function BaseDrawer({
                 }
               }}
               className={cn(
-                "fixed top-0 right-0 z-100 flex size-full flex-col overflow-hidden overscroll-contain border-l border-white/10 bg-surface shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:bg-surface/90 md:backdrop-blur-2xl",
+                "fixed top-0 right-0 z-100 flex size-full flex-col overflow-hidden overscroll-contain border-l border-white/10 bg-surface shadow-drawer md:bg-surface/90 md:backdrop-blur-2xl",
                 maxWidthClass || "max-w-2xl",
                 canDrag && "touch-pan-y will-change-transform select-none",
               )}

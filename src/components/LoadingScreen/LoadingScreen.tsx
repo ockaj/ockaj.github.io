@@ -85,8 +85,8 @@ function checkStepThresholds(
 function StaticLoadingBackground() {
   return (
     <>
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-size-[32px_32px] opacity-60" />
-      <div className="pointer-events-none absolute inset-0 hidden bg-[radial-gradient(circle_at_center,transparent_20%,hsl(var(--bg))_85%)] md:block" />
+      <div className="loading-grid-background pointer-events-none absolute inset-0 opacity-60" />
+      <div className="loading-radial-spotlight pointer-events-none absolute inset-0 hidden md:block" />
     </>
   );
 }
@@ -254,7 +254,7 @@ function LoadingScreen({ onComplete }: Readonly<LoadingScreenProps>) {
         {/* Right column: Large tabular counter & progress indicator */}
         <div className="flex flex-col items-start justify-end gap-3 md:col-span-6 md:items-end">
           <div className="flex items-baseline gap-1 select-none">
-            <motion.span className="inline-block min-w-[3ch] text-right font-display text-5xl leading-none text-text-primary tabular-nums md:text-7xl">
+            <motion.span className="inline-block min-w-3ch text-right font-display text-5xl leading-none text-text-primary tabular-nums md:text-7xl">
               {displayText}
             </motion.span>
             <span className="font-display text-lg text-muted/80 md:text-2xl">
@@ -263,8 +263,8 @@ function LoadingScreen({ onComplete }: Readonly<LoadingScreenProps>) {
           </div>
 
           {/* Micro progress line */}
-          <div className="relative h-[2px] w-full max-w-xs overflow-hidden rounded-full bg-stroke/60">
-            <div className="loading-progress-line absolute top-0 left-0 size-full bg-linear-to-r from-[hsl(var(--accent))]/70 to-[hsl(var(--accent))]" />
+          <div className="relative h-0.5 w-full max-w-xs overflow-hidden rounded-full bg-stroke/60">
+            <div className="loading-progress-line absolute top-0 left-0 size-full bg-linear-to-r from-accent/70 to-accent" />
           </div>
         </div>
       </div>
