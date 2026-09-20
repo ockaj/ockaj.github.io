@@ -41,4 +41,5 @@ Refer to specialized documentation for deep task context:
 - [Architecture Guide](./.agents/rules/architecture.md)
 - [Component Imports & Entry Points](./.agents/rules/component-imports.md)
 - [LiquidGlass Primitives](./.agents/rules/liquid-glass.md)
+- [Third-Party Library Usage](./.agents/rules/library-usage.md)
 - [All Specialized Rules](./.agents/rules/)
