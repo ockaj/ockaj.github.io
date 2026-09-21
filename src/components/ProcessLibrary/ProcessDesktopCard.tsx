@@ -1,14 +1,10 @@
-import { memo, type CSSProperties } from "react";
+import { memo } from "react";
 import { motion, AnimatePresence, type Variants } from "motion/react";
 import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
 import ProcessVariantStage from "./ProcessVariantStage";
 import { useProcessLibraryContext } from "./ProcessLibraryContext";
 import { SPRING } from "../../utils/springConfig";
-
-const DESKTOP_HIGHLIGHT_STYLE: CSSProperties = {
-  "--base-radius": "8px",
-} as CSSProperties;
 
 interface CustomAnimationProps {
   prefersReducedMotion?: boolean | null;
@@ -101,13 +97,14 @@ function ProcessDesktopCard({
                     )
                   }
                   layoutId={`process-view-mode-pill-${activeTopic.id}`}
+                  variant="segmented"
                   roundedClass="rounded-xl"
-                  highlightStyle={DESKTOP_HIGHLIGHT_STYLE}
                   className="isolate inline-flex transform-gpu items-center rounded-xl border border-white/10 bg-surface/90 p-1 shadow-lg backdrop-blur-md select-none"
                   highlightClassName="bg-white/15 border border-white/20 shadow-md"
                 >
                   <Tab
                     value="asis"
+                    roundedClass="rounded-lg"
                     className="relative flex h-9 cursor-pointer items-center justify-center rounded-lg px-4 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none"
                     activeClassName="font-semibold text-white"
                   >
@@ -115,6 +112,7 @@ function ProcessDesktopCard({
                   </Tab>
                   <Tab
                     value="tobe"
+                    roundedClass="rounded-lg"
                     className="relative flex h-9 cursor-pointer items-center justify-center rounded-lg px-4 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:inset-x-0 before:-inset-y-1.5 hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-black focus-visible:outline-none"
                     activeClassName="font-semibold text-white"
                   >

@@ -9,8 +9,6 @@ import {
   memo,
   useRef,
   useCallback,
-  isValidElement,
-  type ReactElement,
   type CSSProperties,
   type ReactNode,
   type MouseEvent,
@@ -18,6 +16,7 @@ import {
   type KeyboardEvent,
   type HTMLAttributes,
   type ComponentPropsWithoutRef,
+  type RefObject,
 } from "react";
 import {
   motion,
@@ -25,16 +24,19 @@ import {
   LayoutGroup,
   MotionContext,
   type Transition,
+  type MotionValue,
 } from "motion/react";
 import { SPRING } from "../../utils/springConfig";
 import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
-import { useIsMobile } from "../../hooks/useMediaQuery";
+import { useIsMobile, useIsTouchDevice } from "../../hooks/useMediaQuery";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 import { getEntryDimensions } from "./liquidGlassUtils";
 import { cn } from "../../utils/cn";
 import { DEFAULT_STYLE } from "./types";
 import { scaleDeltas, scaleVertical, springs, hoverDelta } from "./config";
+
+type TabVariant = "capsule" | "segmented";
 
 interface LiquidGlassTabsProps<
   T extends string | number = string | number,
@@ -46,7 +48,7 @@ interface LiquidGlassTabsProps<
   hoverSlide?: boolean;
   ripple?: boolean;
   roundedClass?: string;
-  squircle?: boolean;
+  variant?: TabVariant;
   highlightClassName?: string;
   highlightStyle?: CSSProperties;
   highlightTransition?: Transition;
@@ -60,6 +62,7 @@ interface LiquidGlassTabProps extends Omit<
   value: string | number;
   children?: ReactNode;
   activeClassName?: string;
+  roundedClass?: string;
   highlightClassName?: string;
   highlightStyle?: CSSProperties;
   highlightTransition?: Transition;
@@ -116,18 +119,24 @@ interface HoverStore {
 }
 
 interface TabsContextValue {
-  onChange?: (value: TabValue) => void;
-  layoutId: string;
-  hoverStore: HoverStore;
-  activeStore: ActiveStore;
-  hoverSlide: boolean;
-  ripple: boolean;
-  roundedClass: string;
-  squircle: boolean;
-  highlightClassName?: string;
-  highlightStyle?: CSSProperties;
-  highlightTransition?: Transition;
-  role?: string | null;
+  state: {
+    activeStore: ActiveStore;
+    hoverStore: HoverStore;
+  };
+  actions: {
+    onChange?: (value: TabValue) => void;
+  };
+  config: {
+    layoutId: string;
+    variant: TabVariant;
+    hoverSlide: boolean;
+    ripple: boolean;
+    roundedClass: string;
+    highlightClassName?: string;
+    highlightStyle?: CSSProperties;
+    highlightTransition?: Transition;
+    role?: string | null;
+  };
 }
 
 const TabsContext = createContext<TabsContextValue | null>(null);
@@ -164,6 +173,53 @@ function createHoverStore(): HoverStore {
   };
 }
 
+function getDefaultTabRadius(variant: TabVariant): string {
+  return variant === "segmented" ? "rounded-lg" : "rounded-full";
+}
+
+function resolveBaseRadius(
+  variant: TabVariant,
+  roundedClass: string,
+  height: number,
+): string {
+  if (variant === "capsule") {
+    return "9999px";
+  }
+  if (roundedClass.includes("rounded-2xl")) {
+    return `${Math.min(height / 2, 16)}px`;
+  }
+  if (roundedClass.includes("rounded-3xl")) {
+    return `${Math.min(height / 2, 24)}px`;
+  }
+  if (roundedClass.includes("rounded-xl")) {
+    return "12px";
+  }
+  if (roundedClass.includes("rounded-md")) {
+    return "6px";
+  }
+  if (roundedClass.includes("rounded-sm")) {
+    return "4px";
+  }
+  return "8px";
+}
+
+function computeOuterHighlightStyle(
+  variant: TabVariant,
+  roundedClass: string,
+  height: number,
+  willChange: boolean,
+  contextHighlightStyle?: CSSProperties,
+  highlightStyle?: CSSProperties,
+): CSSProperties {
+  const baseRadius = resolveBaseRadius(variant, roundedClass, height);
+  return {
+    "--base-radius": baseRadius,
+    ...contextHighlightStyle,
+    ...highlightStyle,
+    willChange: willChange ? "transform" : "auto",
+  } as CSSProperties;
+}
+
 function TabsInner<T extends TabValue>({
   value,
   onChange,
@@ -171,8 +227,8 @@ function TabsInner<T extends TabValue>({
   children,
   hoverSlide = true,
   ripple = true,
-  roundedClass = "rounded-full",
-  squircle = false,
+  variant = "capsule",
+  roundedClass,
   className = "",
   highlightClassName = "",
   highlightStyle = DEFAULT_STYLE,
@@ -195,30 +251,38 @@ function TabsInner<T extends TabValue>({
     };
   }, [activeStore, hoverStore]);
 
+  const effectiveRoundedClass = roundedClass ?? getDefaultTabRadius(variant);
+
   const contextValue = useMemo<TabsContextValue>(
     () => ({
-      onChange: onChange as (value: string | number) => void,
-      layoutId,
-      hoverStore,
-      activeStore,
-      hoverSlide,
-      ripple,
-      roundedClass,
-      squircle,
-      highlightClassName,
-      highlightStyle,
-      highlightTransition,
-      role,
+      state: {
+        activeStore,
+        hoverStore,
+      },
+      actions: {
+        onChange: onChange as ((val: TabValue) => void) | undefined,
+      },
+      config: {
+        layoutId,
+        variant,
+        hoverSlide,
+        ripple,
+        roundedClass: effectiveRoundedClass,
+        highlightClassName,
+        highlightStyle,
+        highlightTransition,
+        role,
+      },
     }),
     [
+      activeStore,
+      hoverStore,
       onChange,
       layoutId,
-      hoverStore,
-      activeStore,
+      variant,
       hoverSlide,
       ripple,
-      roundedClass,
-      squircle,
+      effectiveRoundedClass,
       highlightClassName,
       highlightStyle,
       highlightTransition,
@@ -365,22 +429,6 @@ function resolveTabRole(
   return "tab";
 }
 
-function computeOuterHighlightStyle(
-  squircle: boolean,
-  height: number,
-  willChange: boolean,
-  contextHighlightStyle?: CSSProperties,
-  highlightStyle?: CSSProperties,
-): CSSProperties {
-  const baseRadius = squircle ? `${Math.min(height / 2, 16)}px` : "9999px";
-  return {
-    "--base-radius": baseRadius,
-    ...contextHighlightStyle,
-    ...highlightStyle,
-    willChange: willChange ? "transform" : "auto",
-  } as CSSProperties;
-}
-
 const HIGHLIGHT_TRANSITION = { layout: SPRING.highlight } as const;
 const NAVBAR_HIGHLIGHT_REGEX = /navbar-highlight-(?:active|flat)/;
 const GET_FALSE = () => false;
@@ -419,19 +467,23 @@ function useTabHover(
   value: TabValue,
   isActive: boolean,
   hoverSlide: boolean,
+  isTouchDevice: boolean,
 ) {
   const isHovered = useSyncExternalStore(
     hoverStore.subscribe,
-    useCallback(() => hoverStore.get() === value, [hoverStore, value]),
+    useCallback(
+      () => !isTouchDevice && hoverStore.get() === value,
+      [hoverStore, isTouchDevice, value],
+    ),
     GET_FALSE,
   );
   const showHighlight = useSyncExternalStore(
     hoverStore.subscribe,
     useCallback(() => {
-      if (!hoverSlide) return isActive;
+      if (!hoverSlide || isTouchDevice) return isActive;
       const current = hoverStore.get();
       return current === value || (isActive && current === null);
-    }, [hoverStore, hoverSlide, isActive, value]),
+    }, [hoverStore, hoverSlide, isActive, isTouchDevice, value]),
     useCallback(() => isActive, [isActive]),
   );
   return { isHovered, showHighlight };
@@ -451,160 +503,13 @@ function resolveContextHighlightClass(
   return contextHighlightClass;
 }
 
-function areElementsEqual(prev: ReactElement, next: ReactElement): boolean {
-  if (prev.type !== next.type || prev.key !== next.key) return false;
-  const prevProps = (prev.props ?? {}) as { [key: string]: unknown };
-  const nextProps = (next.props ?? {}) as { [key: string]: unknown };
-  const prevKeys = Object.keys(prevProps);
-  if (prevKeys.length !== Object.keys(nextProps).length) return false;
-
-  return prevKeys.every((key) => {
-    if (!Object.prototype.hasOwnProperty.call(nextProps, key)) return false;
-    if (key === "children") {
-      return areChildrenEqual(
-        prevProps.children as ReactNode,
-        nextProps.children as ReactNode,
-      );
-    }
-    if (key === "style") {
-      return areStylesEqual(
-        prevProps.style as CSSProperties | undefined,
-        nextProps.style as CSSProperties | undefined,
-      );
-    }
-    return prevProps[key] === nextProps[key];
-  });
-}
-
-function areArrayChildrenEqual(prev: ReactNode[], next: ReactNode[]): boolean {
-  if (prev.length !== next.length) return false;
-  return prev.every((node, i) => areChildrenEqual(node, next[i]));
-}
-
-function areChildrenEqual(prev: ReactNode, next: ReactNode): boolean {
-  if (prev === next) return true;
-  if (!prev || !next) return false;
-  if (typeof prev === "string" || typeof prev === "number") {
-    return prev === next;
-  }
-  if (Array.isArray(prev) && Array.isArray(next)) {
-    return areArrayChildrenEqual(prev, next);
-  }
-  if (isValidElement(prev) && isValidElement(next)) {
-    return areElementsEqual(prev, next);
-  }
-  return false;
-}
-
-function areDefinedStylesEqual(
-  prev: CSSProperties,
-  next: CSSProperties,
-): boolean {
-  const pKeys = Object.keys(prev) as (keyof CSSProperties)[];
-  const nKeys = Object.keys(next);
-  if (pKeys.length !== nKeys.length) return false;
-
-  return pKeys.every((key) => {
-    if (!Object.prototype.hasOwnProperty.call(next, key)) return false;
-    return prev[key] === next[key];
-  });
-}
-
-function areStylesEqual(
-  prev: CSSProperties | undefined,
-  next: CSSProperties | undefined,
-): boolean {
-  if (prev === next) return true;
-  if (!prev || !next) return false;
-  return areDefinedStylesEqual(prev, next);
-}
-
-function areTabPropsEqual(
-  prev: Readonly<LiquidGlassTabProps>,
-  next: Readonly<LiquidGlassTabProps>,
-): boolean {
-  const prevKeys = Object.keys(prev) as (keyof LiquidGlassTabProps)[];
-  if (prevKeys.length !== Object.keys(next).length) return false;
-
-  return prevKeys.every((key) => {
-    if (!Object.prototype.hasOwnProperty.call(next, key)) return false;
-    if (key === "children") {
-      return areChildrenEqual(prev.children, next.children);
-    }
-    if (key === "highlightStyle") {
-      return areStylesEqual(prev.highlightStyle, next.highlightStyle);
-    }
-    if (key === "style") {
-      return areStylesEqual(
-        prev.style as CSSProperties | undefined,
-        next.style as CSSProperties | undefined,
-      );
-    }
-    return prev[key] === next[key];
-  });
-}
-
-function TabComponent({
-  value,
-  children,
-  className = "",
-  activeClassName = "",
-  highlightClassName = "",
-  highlightStyle = DEFAULT_STYLE,
-  highlightTransition,
-  onClick,
-  disabled = false,
-  ...rest
-}: Readonly<LiquidGlassTabProps>) {
-  const {
-    onChange,
-    layoutId,
-    hoverStore,
-    activeStore,
-    hoverSlide,
-    ripple,
-    roundedClass,
-    squircle,
-    highlightClassName: contextHighlightClass,
-    highlightStyle: contextHighlightStyle,
-    highlightTransition: contextHighlightTransition,
-    role: parentRole,
-  } = useTabsContext();
-
-  const prefersReducedMotion = useReducedMotion();
-
-  const { rippleX, rippleY, rippleRadius, rippleOpacity, onPointerDown } =
-    useRipple(ripple && !prefersReducedMotion);
-
-  const isMobile = useIsMobile();
-  const { isActive, isTransitioning } = useTabActive(activeStore, value);
-  const { isHovered, showHighlight } = useTabHover(
-    hoverStore,
-    value,
-    isActive,
-    hoverSlide,
-  );
-  const [willChange, setWillChange] = useState(false);
-
-  const isMobileNav = layoutId?.includes("mobile") || isMobile;
-
-  const layoutTransition = useMemo(() => {
-    if (prefersReducedMotion) {
-      return { layout: { duration: 0 } };
-    }
-    return (
-      highlightTransition ?? contextHighlightTransition ?? HIGHLIGHT_TRANSITION
-    );
-  }, [prefersReducedMotion, highlightTransition, contextHighlightTransition]);
-
-  const tabRole = resolveTabRole(rest.role, parentRole);
-  const isTabRole = tabRole === "tab";
-
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
+function useTabDimensions(
+  buttonRef: RefObject<HTMLButtonElement | null>,
+  enabled: boolean,
+) {
   const [dimensions, setDimensions] = useState({ width: 120, height: 36 });
-  const [isPressed, setIsPressed] = useState(false);
 
-  useResizeObserver(showHighlight || isPressed ? buttonRef : null, (entry) => {
+  useResizeObserver(enabled ? buttonRef : null, (entry) => {
     const { width, height } = getEntryDimensions(entry);
     if (width > 0 && height > 0) {
       setDimensions((prev) =>
@@ -614,6 +519,242 @@ function TabComponent({
       );
     }
   });
+
+  return dimensions;
+}
+
+function useTabWillChange(isActive: boolean) {
+  const [willChange, setWillChange] = useState(false);
+
+  useEffect(() => {
+    if (isActive) {
+      const handle = requestAnimationFrame(() => {
+        setWillChange(true);
+      });
+      return () => cancelAnimationFrame(handle);
+    }
+  }, [isActive]);
+
+  return [willChange, setWillChange] as const;
+}
+
+function useTabLayoutTransition(
+  prefersReducedMotion: boolean | null,
+  highlightTransition?: Transition,
+  contextHighlightTransition?: Transition,
+) {
+  return useMemo(() => {
+    if (prefersReducedMotion) {
+      return { layout: { duration: 0 } };
+    }
+    return (
+      highlightTransition ?? contextHighlightTransition ?? HIGHLIGHT_TRANSITION
+    );
+  }, [prefersReducedMotion, highlightTransition, contextHighlightTransition]);
+}
+
+function useTabPress(
+  disabled: boolean,
+  hoverSlide: boolean,
+  value: TabValue,
+  hoverStore: HoverStore,
+  onPointerDown: (e: PointerEvent<HTMLButtonElement>) => void,
+  setWillChange: (val: boolean) => void,
+  isTouchDevice: boolean,
+) {
+  const [isPressed, setIsPressed] = useState(false);
+
+  const handlePointerDown = useCallback(
+    (e: PointerEvent<HTMLButtonElement>) => {
+      if (disabled) return;
+      if (hoverSlide && !isTouchDevice && e.pointerType !== "touch") {
+        hoverStore.set(value);
+      }
+      onPointerDown(e);
+      setWillChange(true);
+      setIsPressed(true);
+    },
+    [
+      disabled,
+      hoverSlide,
+      isTouchDevice,
+      value,
+      hoverStore,
+      onPointerDown,
+      setWillChange,
+    ],
+  );
+
+  const handlePointerUp = useCallback(
+    (e: PointerEvent<HTMLButtonElement>) => {
+      setIsPressed(false);
+      if (isTouchDevice || e.pointerType === "touch") {
+        hoverStore.set(null);
+      }
+    },
+    [isTouchDevice, hoverStore],
+  );
+
+  const handlePointerCancel = useCallback(() => {
+    setIsPressed(false);
+    hoverStore.set(null);
+  }, [hoverStore]);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsPressed(false);
+  }, []);
+
+  return {
+    isPressed,
+    handlePointerDown,
+    handlePointerUp,
+    handlePointerCancel,
+    handleMouseLeave,
+  };
+}
+
+interface TabHighlightProps {
+  layoutId: string;
+  layoutTransition: Transition;
+  outerHighlightClass: string;
+  outerHighlightStyle: CSSProperties;
+  scaleAnimationTarget: { "--scale-x": number; "--scale-y": number };
+  innerHighlightClass: string;
+  willChange: boolean;
+  onAnimationComplete: () => void;
+  ripple: boolean;
+  rippleX: MotionValue<number>;
+  rippleY: MotionValue<number>;
+  rippleRadius: MotionValue<number>;
+  rippleOpacity: MotionValue<number>;
+}
+
+const TabHighlight = memo(function TabHighlight({
+  layoutId,
+  layoutTransition,
+  outerHighlightClass,
+  outerHighlightStyle,
+  scaleAnimationTarget,
+  innerHighlightClass,
+  willChange,
+  onAnimationComplete,
+  ripple,
+  rippleX,
+  rippleY,
+  rippleRadius,
+  rippleOpacity,
+}: Readonly<TabHighlightProps>) {
+  return (
+    <motion.span
+      layoutId={layoutId}
+      initial={false}
+      className={outerHighlightClass}
+      style={outerHighlightStyle}
+      transition={layoutTransition}
+    >
+      <motion.span
+        animate={scaleAnimationTarget}
+        transition={springs.scale}
+        onAnimationComplete={onAnimationComplete}
+        className={innerHighlightClass}
+        style={{
+          transform: "scale(var(--scale-x), var(--scale-y))",
+          borderRadius:
+            "calc((var(--base-radius) * var(--scale-y)) / var(--scale-x)) / var(--base-radius)",
+          transformOrigin: "center center",
+          willChange: willChange ? "transform" : "auto",
+        }}
+      >
+        {ripple ? (
+          <Ripple
+            rippleX={rippleX}
+            rippleY={rippleY}
+            rippleRadius={rippleRadius}
+            rippleOpacity={rippleOpacity}
+          />
+        ) : null}
+      </motion.span>
+    </motion.span>
+  );
+});
+TabHighlight.displayName = "TabHighlight";
+
+function TabComponent({
+  value,
+  children,
+  className = "",
+  activeClassName = "",
+  roundedClass: tabRoundedClass,
+  highlightClassName = "",
+  highlightStyle = DEFAULT_STYLE,
+  highlightTransition,
+  onClick,
+  disabled = false,
+  ...rest
+}: Readonly<LiquidGlassTabProps>) {
+  const { state, actions, config } = useTabsContext();
+  const { activeStore, hoverStore } = state;
+  const { onChange } = actions;
+  const {
+    layoutId,
+    variant,
+    hoverSlide,
+    ripple,
+    roundedClass: contextRoundedClass,
+    highlightClassName: contextHighlightClass,
+    highlightStyle: contextHighlightStyle,
+    highlightTransition: contextHighlightTransition,
+    role: parentRole,
+  } = config;
+
+  const effectiveRoundedClass = tabRoundedClass ?? contextRoundedClass;
+
+  const prefersReducedMotion = useReducedMotion();
+  const { rippleX, rippleY, rippleRadius, rippleOpacity, onPointerDown } =
+    useRipple(ripple && !prefersReducedMotion);
+
+  const isMobile = useIsMobile();
+  const isTouchDevice = useIsTouchDevice();
+  const { isActive, isTransitioning } = useTabActive(activeStore, value);
+  const { isHovered, showHighlight } = useTabHover(
+    hoverStore,
+    value,
+    isActive,
+    hoverSlide,
+    isTouchDevice,
+  );
+
+  const [willChange, setWillChange] = useTabWillChange(isActive);
+  const layoutTransition = useTabLayoutTransition(
+    prefersReducedMotion,
+    highlightTransition,
+    contextHighlightTransition,
+  );
+
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+
+  const {
+    isPressed,
+    handlePointerDown,
+    handlePointerUp,
+    handlePointerCancel,
+    handleMouseLeave,
+  } = useTabPress(
+    disabled,
+    hoverSlide,
+    value,
+    hoverStore,
+    onPointerDown,
+    setWillChange,
+    isTouchDevice,
+  );
+
+  const dimensions = useTabDimensions(buttonRef, showHighlight || isPressed);
+
+  const isMobileNav = layoutId?.includes("mobile") || isMobile;
+
+  const tabRole = resolveTabRole(rest.role, parentRole);
+  const isTabRole = tabRole === "tab";
 
   const isNavbarActive =
     isHovered ||
@@ -627,30 +768,10 @@ function TabComponent({
     dimensions,
   );
 
-  useEffect(() => {
-    if (isActive) {
-      const handle = requestAnimationFrame(() => {
-        setWillChange(true);
-      });
-      return () => cancelAnimationFrame(handle);
-    }
-  }, [isActive, setWillChange]);
-
-  const handlePointerDown = useCallback(
-    (e: PointerEvent<HTMLButtonElement>) => {
-      if (disabled) return;
-      if (hoverSlide) {
-        hoverStore.set(value);
-      }
-      onPointerDown(e);
-    },
-    [disabled, hoverSlide, value, hoverStore, onPointerDown],
-  );
-
   const handleMouseEnter = useCallback(() => {
-    if (disabled || !hoverSlide) return;
+    if (disabled || !hoverSlide || isTouchDevice) return;
     hoverStore.set(value);
-  }, [disabled, hoverSlide, value, hoverStore]);
+  }, [disabled, hoverSlide, isTouchDevice, value, hoverStore]);
 
   const selectOption = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
@@ -674,10 +795,11 @@ function TabComponent({
   );
 
   const outerHighlightClass =
-    `absolute inset-0 z-[-1] pointer-events-none ${roundedClass}`.trim();
+    `absolute inset-0 z-[-1] pointer-events-none ${effectiveRoundedClass}`.trim();
 
   const outerHighlightStyle = computeOuterHighlightStyle(
-    squircle,
+    variant,
+    effectiveRoundedClass,
     dimensions.height,
     willChange,
     contextHighlightStyle,
@@ -691,7 +813,7 @@ function TabComponent({
 
   const innerHighlightClass = cn(
     "absolute inset-0 highlight-pill overflow-hidden",
-    roundedClass,
+    effectiveRoundedClass,
     resolvedContextHighlightClass,
     highlightClassName,
   );
@@ -716,24 +838,11 @@ function TabComponent({
       type="button"
       disabled={disabled}
       onClick={selectOption}
-      onPointerDown={(e) => {
-        handlePointerDown(e);
-        setWillChange(true);
-        setIsPressed(true);
-      }}
-      onPointerUp={() => setIsPressed(false)}
-      onPointerCancel={() => {
-        setIsPressed(false);
-        if (hoverSlide) {
-          hoverStore.set(null);
-        }
-      }}
-      onMouseLeave={() => {
-        setIsPressed(false);
-      }}
-      onMouseEnter={() => {
-        handleMouseEnter();
-      }}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
+      onMouseLeave={handleMouseLeave}
+      onMouseEnter={handleMouseEnter}
       className={cn(
         "relative z-10 transition-colors duration-200 select-none focus-visible:outline-none",
         className,
@@ -749,43 +858,28 @@ function TabComponent({
       onKeyDown={isTabRole ? handleTabKeyDown : rest.onKeyDown}
     >
       {showHighlight ? (
-        <motion.span
+        <TabHighlight
           layoutId={layoutId}
-          initial={false}
-          className={outerHighlightClass}
-          style={outerHighlightStyle as CSSProperties}
-          transition={layoutTransition}
-        >
-          <motion.span
-            animate={scaleAnimationTarget}
-            transition={springs.scale}
-            onAnimationComplete={handleAnimationComplete}
-            className={innerHighlightClass}
-            style={{
-              transform: "scale(var(--scale-x), var(--scale-y))",
-              borderRadius:
-                "calc((var(--base-radius) * var(--scale-y)) / var(--scale-x)) / var(--base-radius)",
-              transformOrigin: "center center",
-              willChange: willChange ? "transform" : "auto",
-            }}
-          >
-            {ripple ? (
-              <Ripple
-                rippleX={rippleX}
-                rippleY={rippleY}
-                rippleRadius={rippleRadius}
-                rippleOpacity={rippleOpacity}
-              />
-            ) : null}
-          </motion.span>
-        </motion.span>
+          layoutTransition={layoutTransition}
+          outerHighlightClass={outerHighlightClass}
+          outerHighlightStyle={outerHighlightStyle}
+          scaleAnimationTarget={scaleAnimationTarget}
+          innerHighlightClass={innerHighlightClass}
+          willChange={willChange}
+          onAnimationComplete={handleAnimationComplete}
+          ripple={ripple}
+          rippleX={rippleX}
+          rippleY={rippleY}
+          rippleRadius={rippleRadius}
+          rippleOpacity={rippleOpacity}
+        />
       ) : null}
       {children}
     </motion.button>
   );
 }
 
-const Tab = memo(TabComponent, areTabPropsEqual);
+const Tab = memo(TabComponent);
 Tab.displayName = "Tab";
 
 export { Tabs, Tab };

@@ -1,10 +1,4 @@
-import {
-  memo,
-  useCallback,
-  useEffect,
-  useRef,
-  type CSSProperties,
-} from "react";
+import { memo, useCallback, useEffect, useRef } from "react";
 import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
 import { PROCESS_TOPICS, type ProcessTopic } from "../../data/processItems";
@@ -12,10 +6,6 @@ import { cn } from "../../utils/cn";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 import ProcessVariantStage from "./ProcessVariantStage";
 import { useProcessLibraryContext } from "./ProcessLibraryContext";
-
-const MOBILE_HIGHLIGHT_STYLE: CSSProperties = {
-  "--base-radius": "10px",
-} as CSSProperties;
 
 interface ProcessMobileSlideProps {
   topic: ProcessTopic;
@@ -86,13 +76,14 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
               value={cardViewMode}
               onChange={handleModeChange}
               layoutId={`process-view-mode-pill-mobile-${topic.id}`}
+              variant="segmented"
               roundedClass="rounded-xl"
-              highlightStyle={MOBILE_HIGHLIGHT_STYLE}
               className="isolate inline-flex h-9 w-full transform-gpu items-center rounded-xl border border-white/10 bg-surface/80 p-1 shadow-md backdrop-blur-md select-none sm:w-auto"
               highlightClassName="bg-white/15 border border-white/20 shadow-sm"
             >
               <Tab
                 value="asis"
+                roundedClass="rounded-lg"
                 className="relative flex h-7 flex-1 cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:-inset-y-2 before:inset-x-0 hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none sm:flex-initial"
                 activeClassName="font-semibold text-white"
               >
@@ -100,6 +91,7 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
               </Tab>
               <Tab
                 value="tobe"
+                roundedClass="rounded-lg"
                 className="relative flex h-7 flex-1 cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:-inset-y-2 before:inset-x-0 hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none sm:flex-initial"
                 activeClassName="font-semibold text-white"
               >

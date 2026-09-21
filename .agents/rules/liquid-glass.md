@@ -20,7 +20,7 @@ Always import named exports from `src/components/LiquidGlass/`. The previous `Li
 | `InteractiveGlass` | `src/components/LiquidGlass/LiquidGlass` | Cards, landmark containers, clickable surfaces (`CaseStudyCard`, `JournalEntry`, `FaqItem`, `ProcessDesktopCard`, `Skills` badges) | Dynamic desktop physics (tilt, magnetic pull, specular glow, spring scale) and mobile gyro/touch handling. |
 | `StaticGlass` | `src/components/LiquidGlass/LiquidGlass` | Non-interactive containers, toolbars, controls, layout shells (`ProcessMobileControls`) | Zero physics overhead. Stripped of motion listeners and spring calculations for optimal performance. |
 | `LiquidGlassButton` | `src/components/LiquidGlass/LiquidGlass` | Tactile interactive buttons and anchor links | Pre-configured `InteractiveGlass` with `as={href ? "a" : "button"}`, `springScale={true}`, magnetic pull, and keyboard accessibility. |
-| `Tabs`, `Tab` | `src/components/LiquidGlass/LiquidGlassTabs` | Segmented controls, filter bars, view switchers | Sliding highlight pill with spring physics, squircle support, and keyboard navigation. |
+| `Tabs`, `Tab` | `src/components/LiquidGlass/LiquidGlassTabs` | Segmented controls, filter bars, view switchers | Sliding highlight pill with spring physics, 2 variants (`"capsule"` and `"segmented"`), and keyboard navigation. |
 
 ---
 
@@ -38,3 +38,6 @@ Always import named exports from `src/components/LiquidGlass/`. The previous `Li
    - Do NOT pass physics props (`springScale`, `tilt`, `magnetic`, `ripple`) to `StaticGlass`.
    - On `InteractiveGlass`, leverage `as` prop (`"div"`, `"button"`, `"a"`, `"article"`, `"section"`, `"span"`) to ensure semantic HTML.
    - Use `roundedClass` (e.g. `rounded-2xl`, `rounded-full`, `rounded-xl`) to specify border radius curvature.
+4. **Tabs Variants**:
+   - Use `variant="capsule"` (default) for floating stadium pill navigation bars and modals (`rounded-full`).
+   - Use `variant="segmented"` for segmented controls and card selectors. Follow concentric geometry ($R_{inner} = R_{outer} - \text{padding}$, e.g. outer `rounded-xl` with `p-1` and inner `rounded-lg`).

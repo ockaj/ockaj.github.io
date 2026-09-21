@@ -21,7 +21,7 @@ function ProcessTopicMenu() {
             value={activeTopicId}
             onChange={onTopicChange}
             layoutId="active-process-highlight"
-            squircle
+            variant="segmented"
             roundedClass="rounded-2xl"
             className="flex w-full flex-col justify-center gap-2.5"
           >

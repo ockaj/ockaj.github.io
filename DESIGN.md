@@ -231,9 +231,12 @@ Surfaces feature delicate translucent strokes (`1px solid rgba(255, 255, 255, 0.
 - **Secondary / Ghost:** Transparent background, fine stroke border (`border-white/[0.08]`), text color transition on hover.
 
 ### Tabs
-- **Style:** Capsule container hosting individual interactive tab triggers with an animated sliding highlight pill.
+- **Variants:**
+  - **Capsule (`variant="capsule"`, default):** Stadium pill container (`rounded-full`, 9999px) hosting interactive triggers with an animated sliding highlight pill for floating navigation bars and modals.
+  - **Segmented (`variant="segmented"`):** Segmented control following concentric corner geometry ($R_{inner} = R_{outer} - \text{padding}$, e.g. outer `rounded-xl` with `p-1` and inner `rounded-lg`) with specular highlight depth for view switchers and card selectors.
 - **Sliding Pill:** Shared highlight pill (`.highlight-pill`) with subtle gradient reflection and spring physics (`stiffness: 380, damping: 24, mass: 0.6`).
 - **States:** Active tab presents high-contrast text and specular glow. Inactive tabs display muted text and respond with pointer hover slide.
+- **Mobile Touch Targets:** Compact segmented tabs use invisible hit area padding (`before:-inset-y-1.5` or `before:-inset-y-2`) to satisfy 44px WCAG minimum touch bounds.
 
 ### Cards / Containers
 - **Corner Style:** Rounded rectangles (`rounded-2xl` 16px or `rounded-3xl` 24px).
