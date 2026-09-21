@@ -396,7 +396,7 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
           {MODAL_SHEEN_OVERLAY}
 
           {/* Header */}
-          <div className="relative z-30 flex flex-col items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:flex-row md:px-6 md:py-4">
+          <div className="relative z-30 flex flex-col items-center justify-between gap-3 border-b border-white/10 px-4 pb-3 pt-safe-4 sm:flex-row md:px-6 md:py-4">
             {/* Title, Avatar & Mobile Action Buttons */}
             <div className="flex w-full items-center justify-between gap-4 sm:w-auto">
               <PdfModalTitle />
@@ -440,7 +440,7 @@ const PdfModalBody = memo(function PdfModalBody({
         aria-labelledby="tab-interactive"
         className={
           activeTab === "interactive"
-            ? "custom-cv-scrollbar absolute inset-0 overscroll-contain overflow-y-auto p-6 md:p-8 lg:p-12"
+            ? "custom-cv-scrollbar absolute inset-0 overscroll-contain overflow-y-auto p-6 pb-safe-6 md:p-8 md:pb-8 lg:p-12"
             : "hidden"
         }
       >

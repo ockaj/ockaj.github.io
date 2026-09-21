@@ -144,7 +144,7 @@ const BaseDrawer = memo(function BaseDrawer({
             <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-28 bg-linear-to-b from-white/5 to-transparent" />
 
             {/* Top bar */}
-            <div className="relative z-30 flex items-center justify-between border-b border-white/10 p-6">
+            <div className="relative z-30 flex items-center justify-between border-b border-white/10 px-6 pb-6 pt-safe-6 md:pt-6">
               <Dialog.Title className="flex items-center gap-2 text-sm font-semibold text-text-primary/90">
                 {icon ? icon : null}
                 <span>{title}</span>

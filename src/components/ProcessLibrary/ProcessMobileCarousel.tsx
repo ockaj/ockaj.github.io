@@ -71,20 +71,20 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
             {topic.asis.title}
           </h3>
 
-          <div className="w-full shrink-0 sm:w-auto">
+          <div className="shrink-0 self-start sm:self-auto">
             <Tabs
               value={cardViewMode}
               onChange={handleModeChange}
               layoutId={`process-view-mode-pill-mobile-${topic.id}`}
               variant="segmented"
               roundedClass="rounded-xl"
-              className="isolate inline-flex h-9 w-full transform-gpu items-center rounded-xl border border-white/10 bg-surface/80 p-1 shadow-md backdrop-blur-md select-none sm:w-auto"
+              className="isolate inline-flex h-9 transform-gpu items-center rounded-xl border border-white/10 bg-surface/80 p-1 shadow-md backdrop-blur-md select-none"
               highlightClassName="bg-white/15 border border-white/20 shadow-sm"
             >
               <Tab
                 value="asis"
                 roundedClass="rounded-lg"
-                className="relative flex h-7 flex-1 cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:-inset-y-2 before:inset-x-0 hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none sm:flex-initial"
+                className="relative flex h-7 cursor-pointer items-center justify-center rounded-lg px-6 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:-inset-y-2 before:inset-x-0 hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
                 activeClassName="font-semibold text-white"
               >
                 <span>Source</span>
@@ -92,7 +92,7 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
               <Tab
                 value="tobe"
                 roundedClass="rounded-lg"
-                className="relative flex h-7 flex-1 cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:-inset-y-2 before:inset-x-0 hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none sm:flex-initial"
+                className="relative flex h-7 cursor-pointer items-center justify-center rounded-lg px-6 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:-inset-y-2 before:inset-x-0 hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
                 activeClassName="font-semibold text-white"
               >
                 <span>Optimized</span>

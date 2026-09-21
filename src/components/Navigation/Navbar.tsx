@@ -158,7 +158,7 @@ export default function Navbar() {
       />
       <nav
         aria-label="Main Navigation"
-        className="pointer-events-none fixed inset-x-0 top-0 z-50 flex flex-col items-center px-4 pt-4 md:pt-6"
+        className="pointer-events-none fixed inset-x-0 top-0 z-50 flex flex-col items-center px-4 pt-safe-4 md:pt-6"
       >
         <div
           ref={capsuleRef}
