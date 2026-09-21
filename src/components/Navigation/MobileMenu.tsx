@@ -47,31 +47,9 @@ function MobileMenu({
   );
 
   useEffect(() => {
-    if (!isOpen) {
-      if (typeof document !== "undefined") {
-        const activeEl = document.activeElement;
-        if (
-          activeEl instanceof HTMLElement &&
-          activeEl.closest("#mobile-nav-panel")
-        ) {
-          activeEl.blur();
-        }
-      }
-      return;
-    }
-    const preventScroll = (e: Event) => {
-      if (!(e.target as HTMLElement | null)?.closest(".overflow-y-auto")) {
-        e.preventDefault();
-      }
-    };
-    const types = ["touchmove", "wheel"] as const;
-    types.forEach((type) =>
-      document.addEventListener(type, preventScroll, { passive: false }),
-    );
+    document.documentElement.toggleAttribute("data-mobile-nav-open", isOpen);
     return () =>
-      types.forEach((type) =>
-        document.removeEventListener(type, preventScroll),
-      );
+      document.documentElement.removeAttribute("data-mobile-nav-open");
   }, [isOpen]);
 
   return (

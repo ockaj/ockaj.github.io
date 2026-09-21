@@ -126,6 +126,12 @@ html[data-base-ui-scroll-locked] {
   background-color: hsl(var(--bg)) !important;
 }
 
+@media (max-width: 767px) {
+  html[data-mobile-nav-open] {
+    overflow: hidden;
+  }
+}
+
 body {
   @apply bg-bg font-body leading-normal text-text-primary;
   letter-spacing: 0em;
