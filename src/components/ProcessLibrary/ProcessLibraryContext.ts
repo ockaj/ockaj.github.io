@@ -23,9 +23,9 @@ interface ProcessLibraryState {
 }
 
 interface ProcessLibraryActions {
-  onTopicChange: (id: number) => void;
-  onPrevTopic: () => void;
-  onNextTopic: () => void;
+  selectTopic: (id: number) => void;
+  selectPreviousTopic: () => void;
+  selectNextTopic: () => void;
   handleTopicViewModeChange: (topicId: number, mode: "tobe" | "asis") => void;
   setLightboxItem: (item: LightboxTargetItem) => void;
 }

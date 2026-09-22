@@ -8,7 +8,7 @@ import { useProcessLibraryContext } from "./ProcessLibraryContext";
 function ProcessTopicMenu() {
   const { state, actions } = useProcessLibraryContext();
   const { activeTopicId, cardVariants, prefersReducedMotion } = state;
-  const { onTopicChange } = actions;
+  const { selectTopic } = actions;
   return (
     <motion.div
       variants={cardVariants}
@@ -19,7 +19,7 @@ function ProcessTopicMenu() {
         <div className="no-scrollbar process-tabs-mask -mx-4 max-h-90 overflow-y-auto px-4 py-6">
           <Tabs
             value={activeTopicId}
-            onChange={onTopicChange}
+            onChange={selectTopic}
             layoutId="active-process-highlight"
             variant="segmented"
             roundedClass="rounded-2xl"

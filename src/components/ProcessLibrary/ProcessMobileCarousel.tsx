@@ -117,12 +117,13 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
 function ProcessMobileCarousel() {
   const { state, actions } = useProcessLibraryContext();
   const { activeTopicId, viewModes, prefersReducedMotion } = state;
-  const { onTopicChange, handleTopicViewModeChange, setLightboxItem } = actions;
+  const { selectTopic, handleTopicViewModeChange, setLightboxItem } = actions;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const isProgrammaticScrollRef = useRef(false);
   const scrollEndTimeoutRef = useRef<number | null>(null);
+  const isUserScrollingRef = useRef(false);
+  const scrollFrameRef = useRef<number | null>(null);
   const isInitialMountRef = useRef(true);
-  const lastReportedTopicIdRef = useRef<number>(activeTopicId);
 
   // Smoothly scroll the snap container when activeTopicId changes externally
   useEffect(() => {
@@ -130,10 +131,12 @@ function ProcessMobileCarousel() {
     isInitialMountRef.current = false;
 
     // Ignore topic changes that were reported internally by carousel scrolling
-    if (!isInitial && lastReportedTopicIdRef.current === activeTopicId) {
+    if (
+      !isInitial &&
+      (isProgrammaticScrollRef.current || isUserScrollingRef.current)
+    ) {
       return;
     }
-    lastReportedTopicIdRef.current = activeTopicId;
 
     const container = containerRef.current;
     if (!container) return;
@@ -196,12 +199,12 @@ function ProcessMobileCarousel() {
     }
   });
 
-  // Handle user interaction and scrollend events to release scroll lock and sync centered slide
+  // Track the nearest slide during scrolling without reading layout on every raw event.
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const resetScrollLock = () => {
+    const resetProgrammaticScroll = () => {
       isProgrammaticScrollRef.current = false;
       if (scrollEndTimeoutRef.current !== null) {
         window.clearTimeout(scrollEndTimeoutRef.current);
@@ -209,10 +212,7 @@ function ProcessMobileCarousel() {
       }
     };
 
-    const handleScrollEnd = () => {
-      resetScrollLock();
-
-      // Ensure active slide is in sync after momentum scroll settles
+    const updateActiveTopic = () => {
       const containerRect = container.getBoundingClientRect();
       if (containerRect.width === 0) return;
       const containerCenter = containerRect.left + containerRect.width / 2;
@@ -231,82 +231,63 @@ function ProcessMobileCarousel() {
         }
       });
 
-      if (
-        closestTopicId !== -1 &&
-        closestTopicId !== lastReportedTopicIdRef.current
-      ) {
-        lastReportedTopicIdRef.current = closestTopicId;
-        onTopicChange(closestTopicId);
-      }
+      if (closestTopicId !== -1) selectTopic(closestTopicId);
     };
 
+    const handleScroll = () => {
+      if (isProgrammaticScrollRef.current) return;
+      isUserScrollingRef.current = true;
+      if (scrollFrameRef.current !== null) return;
+
+      scrollFrameRef.current = window.requestAnimationFrame(() => {
+        scrollFrameRef.current = null;
+        updateActiveTopic();
+      });
+    };
+
+    const handleScrollEnd = () => {
+      if (isProgrammaticScrollRef.current) {
+        resetProgrammaticScroll();
+        isUserScrollingRef.current = false;
+        return;
+      }
+      if (scrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(scrollFrameRef.current);
+        scrollFrameRef.current = null;
+      }
+      updateActiveTopic();
+      isUserScrollingRef.current = false;
+    };
+
+    const handleUserInteraction = () => {
+      resetProgrammaticScroll();
+      isUserScrollingRef.current = true;
+    };
+
+    container.addEventListener("scroll", handleScroll, { passive: true });
     container.addEventListener("scrollend", handleScrollEnd, { passive: true });
-    container.addEventListener("touchstart", resetScrollLock, {
+    container.addEventListener("touchstart", handleUserInteraction, {
       passive: true,
     });
-    container.addEventListener("pointerdown", resetScrollLock, {
+    container.addEventListener("pointerdown", handleUserInteraction, {
       passive: true,
     });
 
     return () => {
+      container.removeEventListener("scroll", handleScroll);
       container.removeEventListener("scrollend", handleScrollEnd);
-      container.removeEventListener("touchstart", resetScrollLock);
-      container.removeEventListener("pointerdown", resetScrollLock);
+      container.removeEventListener("touchstart", handleUserInteraction);
+      container.removeEventListener("pointerdown", handleUserInteraction);
       if (scrollEndTimeoutRef.current !== null) {
         window.clearTimeout(scrollEndTimeoutRef.current);
         scrollEndTimeoutRef.current = null;
       }
+      if (scrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(scrollFrameRef.current);
+        scrollFrameRef.current = null;
+      }
     };
-  }, [onTopicChange]);
-
-  // Detect when a slide snaps into center view and notify parent
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (isProgrammaticScrollRef.current) return;
-
-        let bestEntry: IntersectionObserverEntry | null = null;
-        for (const entry of entries) {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-            if (
-              !bestEntry ||
-              entry.intersectionRatio > bestEntry.intersectionRatio
-            ) {
-              bestEntry = entry;
-            }
-          }
-        }
-
-        if (bestEntry) {
-          const topicIdStr = (bestEntry.target as HTMLElement).dataset.topicId;
-          if (topicIdStr) {
-            const topicId = Number(topicIdStr);
-            if (
-              !Number.isNaN(topicId) &&
-              topicId !== lastReportedTopicIdRef.current
-            ) {
-              lastReportedTopicIdRef.current = topicId;
-              onTopicChange(topicId);
-            }
-          }
-        }
-      },
-      {
-        root: container,
-        threshold: [0.5, 0.65, 0.75],
-      },
-    );
-
-    const slides = container.querySelectorAll<HTMLElement>("[data-topic-id]");
-    slides.forEach((slide) => observer.observe(slide));
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [onTopicChange]);
+  }, [selectTopic]);
 
   return (
     <div className="col-span-1 flex w-full min-w-0 flex-col justify-center lg:hidden">

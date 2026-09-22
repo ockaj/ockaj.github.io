@@ -7,7 +7,7 @@ import { useProcessLibraryContext } from "./ProcessLibraryContext";
 function ProcessMobileControls() {
   const { state, actions } = useProcessLibraryContext();
   const { activeTopic, prevDisabled, nextDisabled } = state;
-  const { onPrevTopic, onNextTopic } = actions;
+  const { selectPreviousTopic, selectNextTopic } = actions;
   return (
     <div className="flex w-full justify-center lg:hidden">
       <StaticGlass
@@ -17,7 +17,7 @@ function ProcessMobileControls() {
         innerClassName="flex items-center gap-3.5"
       >
         <LiquidGlassButton
-          onClick={onPrevTopic}
+          onClick={selectPreviousTopic}
           disabled={prevDisabled}
           roundedClass="rounded-full"
           className="flex size-11 min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center text-text-primary transition-opacity disabled:pointer-events-none disabled:opacity-30"
@@ -37,7 +37,7 @@ function ProcessMobileControls() {
         </span>
 
         <LiquidGlassButton
-          onClick={onNextTopic}
+          onClick={selectNextTopic}
           disabled={nextDisabled}
           roundedClass="rounded-full"
           className="flex size-11 min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center text-text-primary transition-opacity disabled:pointer-events-none disabled:opacity-30"

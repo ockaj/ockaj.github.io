@@ -1,9 +1,7 @@
 import {
   useState,
   useEffect,
-  useLayoutEffect,
   useCallback,
-  useRef,
   useMemo,
   memo,
 } from "react";
@@ -32,17 +30,16 @@ import {
   ProcessLibraryContext,
   type ProcessLibraryContextValue,
 } from "./ProcessLibraryContext";
+import {
+  getInitialProcessTopicId,
+  getLightboxTopicId,
+  useProcessTopicController,
+} from "./useProcessTopicController";
 
 const isBuildMode = isBoneyardBuild();
 const containerVariants = containerStaggerVariants();
 const cardVariants = cardStaggerVariants;
 
-const PROCESS_TOPIC_MAP = new Map(
-  PROCESS_TOPICS.map((topic) => [topic.id, topic]),
-);
-const PROCESS_TOPIC_INDEX_MAP = new Map(
-  PROCESS_TOPICS.map((topic, index) => [topic.id, index]),
-);
 const INITIAL_TOPIC_IMAGES = new Set(
   PROCESS_TOPICS[0]
     ? [PROCESS_TOPICS[0].asis.image, PROCESS_TOPICS[0].tobe.image]
@@ -51,38 +48,25 @@ const INITIAL_TOPIC_IMAGES = new Set(
 
 function ProcessLibrary() {
   const prefersReducedMotion = useReducedMotion();
-  const activeLightboxId = useAppStore((state) =>
-    state.activeModal?.startsWith("lightbox-")
-      ? state.activeModal.slice("lightbox-".length)
-      : null,
-  );
+  const activeModal = useAppStore((state) => state.activeModal);
+  const activeLightboxId = activeModal?.startsWith("lightbox-")
+    ? activeModal.slice("lightbox-".length)
+    : null;
 
-  const [activeTopicId, setActiveTopicId] = useState(() => {
-    const modal = useAppStore.getState().activeModal;
-    if (modal?.startsWith("lightbox-")) {
-      const id = Number(modal.slice("lightbox-".length));
-      if (!Number.isNaN(id)) {
-        const topicId = Math.ceil(id / 2);
-        if (PROCESS_TOPIC_MAP.has(topicId)) return topicId;
-      }
-    }
-    return PROCESS_TOPICS[0].id;
-  });
-  const activeTopicIdRef = useRef(activeTopicId);
-  useLayoutEffect(() => {
-    activeTopicIdRef.current = activeTopicId;
-  }, [activeTopicId]);
+  const initialModal = activeModal;
+  const initialTopicId = getInitialProcessTopicId(initialModal);
+  const topicController = useProcessTopicController(initialTopicId);
+  const { activeTopicId, activeTopic, direction, prevDisabled, nextDisabled } =
+    topicController;
 
   const [viewModes, setViewModes] = useState<Record<number, "tobe" | "asis">>(
     () => {
       const modal = useAppStore.getState().activeModal;
       if (modal?.startsWith("lightbox-")) {
         const id = Number(modal.slice("lightbox-".length));
-        if (!Number.isNaN(id)) {
-          const topicId = Math.ceil(id / 2);
-          if (PROCESS_TOPIC_MAP.has(topicId)) {
-            return { [topicId]: id % 2 === 0 ? "tobe" : "asis" };
-          }
+        const topicId = getLightboxTopicId(modal);
+        if (topicId !== null && !Number.isNaN(id)) {
+          return { [topicId]: id % 2 === 0 ? "tobe" : "asis" };
         }
       }
       return {};
@@ -127,9 +111,6 @@ function ProcessLibrary() {
     useAppStore.getState().closeModal();
   }, []);
 
-  const [direction, setDirection] = useState(1);
-
-  const activeTopic = PROCESS_TOPIC_MAP.get(activeTopicId) ?? PROCESS_TOPICS[0];
   const activeViewMode = viewModes[activeTopic.id] || "asis";
 
   useEffect(() => {
@@ -151,44 +132,6 @@ function ProcessLibrary() {
     };
   }, []);
 
-  const handleTopicChange = useCallback((id: number) => {
-    const newIdx = PROCESS_TOPIC_INDEX_MAP.get(id) ?? -1;
-    if (newIdx === -1) return;
-
-    const oldIdx = PROCESS_TOPIC_INDEX_MAP.get(activeTopicIdRef.current) ?? -1;
-    if (oldIdx !== -1 && newIdx !== oldIdx) {
-      setDirection(newIdx > oldIdx ? 1 : -1);
-    }
-    activeTopicIdRef.current = id;
-    setActiveTopicId((prevId) => (prevId === id ? prevId : id));
-  }, []);
-
-  const handlePrevTopic = useCallback(() => {
-    setDirection(-1);
-    setActiveTopicId((prevId) => {
-      const currentIndex = PROCESS_TOPIC_INDEX_MAP.get(prevId) ?? -1;
-      if (currentIndex > 0) {
-        return PROCESS_TOPICS[currentIndex - 1].id;
-      }
-      return prevId;
-    });
-  }, []);
-
-  const handleNextTopic = useCallback(() => {
-    setDirection(1);
-    setActiveTopicId((prevId) => {
-      const currentIndex = PROCESS_TOPIC_INDEX_MAP.get(prevId) ?? -1;
-      if (currentIndex >= 0 && currentIndex < PROCESS_TOPICS.length - 1) {
-        return PROCESS_TOPICS[currentIndex + 1].id;
-      }
-      return prevId;
-    });
-  }, []);
-
-  const prevDisabled = activeTopicId === PROCESS_TOPICS[0].id;
-  const nextDisabled =
-    activeTopicId === PROCESS_TOPICS[PROCESS_TOPICS.length - 1].id;
-
   const contextValue = useMemo<ProcessLibraryContextValue>(
     () => ({
       state: {
@@ -203,9 +146,7 @@ function ProcessLibrary() {
         cardVariants,
       },
       actions: {
-        onTopicChange: handleTopicChange,
-        onPrevTopic: handlePrevTopic,
-        onNextTopic: handleNextTopic,
+        ...topicController.actions,
         handleTopicViewModeChange,
         setLightboxItem: handleOpenLightbox,
       },
@@ -219,9 +160,7 @@ function ProcessLibrary() {
       prevDisabled,
       nextDisabled,
       prefersReducedMotion,
-      handleTopicChange,
-      handlePrevTopic,
-      handleNextTopic,
+      topicController.actions,
       handleTopicViewModeChange,
       handleOpenLightbox,
     ],
