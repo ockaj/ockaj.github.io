@@ -123,8 +123,6 @@ function ProcessMobileCarousel() {
   const scrollEndTimeoutRef = useRef<number | null>(null);
   const isUserScrollingRef = useRef(false);
   const scrollFrameRef = useRef<number | null>(null);
-  const fallbackScrollEndTimeoutRef = useRef<number | null>(null);
-  const isTouchActiveRef = useRef(false);
   const isInitialMountRef = useRef(true);
 
   // Smoothly scroll the snap container when activeTopicId changes externally
@@ -205,7 +203,6 @@ function ProcessMobileCarousel() {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const supportsScrollEnd = "onscrollend" in window;
 
     const resetProgrammaticScroll = () => {
       isProgrammaticScrollRef.current = false;
@@ -213,30 +210,6 @@ function ProcessMobileCarousel() {
         window.clearTimeout(scrollEndTimeoutRef.current);
         scrollEndTimeoutRef.current = null;
       }
-    };
-
-    const finishUserScroll = () => {
-      if (fallbackScrollEndTimeoutRef.current !== null) {
-        window.clearTimeout(fallbackScrollEndTimeoutRef.current);
-        fallbackScrollEndTimeoutRef.current = null;
-      }
-      if (scrollFrameRef.current !== null) {
-        window.cancelAnimationFrame(scrollFrameRef.current);
-        scrollFrameRef.current = null;
-      }
-      updateActiveTopic();
-      isUserScrollingRef.current = false;
-    };
-
-    const armFallbackScrollEnd = () => {
-      if (supportsScrollEnd) return;
-      if (fallbackScrollEndTimeoutRef.current !== null) {
-        window.clearTimeout(fallbackScrollEndTimeoutRef.current);
-      }
-      fallbackScrollEndTimeoutRef.current = window.setTimeout(() => {
-        fallbackScrollEndTimeoutRef.current = null;
-        if (!isTouchActiveRef.current) finishUserScroll();
-      }, 140);
     };
 
     const updateActiveTopic = () => {
@@ -264,7 +237,6 @@ function ProcessMobileCarousel() {
     const handleScroll = () => {
       if (isProgrammaticScrollRef.current) return;
       isUserScrollingRef.current = true;
-      armFallbackScrollEnd();
       if (scrollFrameRef.current !== null) return;
 
       scrollFrameRef.current = window.requestAnimationFrame(() => {
@@ -279,48 +251,27 @@ function ProcessMobileCarousel() {
         isUserScrollingRef.current = false;
         return;
       }
-      finishUserScroll();
+      if (scrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(scrollFrameRef.current);
+        scrollFrameRef.current = null;
+      }
+      updateActiveTopic();
+      isUserScrollingRef.current = false;
     };
 
     const handleProgrammaticScrollInterruption = () => {
       resetProgrammaticScroll();
     };
 
-    const handleTouchStart = () => {
-      isTouchActiveRef.current = true;
-      handleProgrammaticScrollInterruption();
-    };
-
-    const handleTouchEnd = () => {
-      isTouchActiveRef.current = false;
-      if (isUserScrollingRef.current) armFallbackScrollEnd();
-    };
-
     container.addEventListener("scroll", handleScroll, { passive: true });
-    if (supportsScrollEnd) {
-      container.addEventListener("scrollend", handleScrollEnd, {
-        passive: true,
-      });
-    }
-    container.addEventListener("touchstart", handleTouchStart, {
-      passive: true,
-    });
-    container.addEventListener("touchend", handleTouchEnd, { passive: true });
-    container.addEventListener("touchcancel", handleTouchEnd, {
-      passive: true,
-    });
+    container.addEventListener("scrollend", handleScrollEnd, { passive: true });
     container.addEventListener("pointerdown", handleProgrammaticScrollInterruption, {
       passive: true,
     });
 
     return () => {
       container.removeEventListener("scroll", handleScroll);
-      if (supportsScrollEnd) {
-        container.removeEventListener("scrollend", handleScrollEnd);
-      }
-      container.removeEventListener("touchstart", handleTouchStart);
-      container.removeEventListener("touchend", handleTouchEnd);
-      container.removeEventListener("touchcancel", handleTouchEnd);
+      container.removeEventListener("scrollend", handleScrollEnd);
       container.removeEventListener(
         "pointerdown",
         handleProgrammaticScrollInterruption,
@@ -328,10 +279,6 @@ function ProcessMobileCarousel() {
       if (scrollEndTimeoutRef.current !== null) {
         window.clearTimeout(scrollEndTimeoutRef.current);
         scrollEndTimeoutRef.current = null;
-      }
-      if (fallbackScrollEndTimeoutRef.current !== null) {
-        window.clearTimeout(fallbackScrollEndTimeoutRef.current);
-        fallbackScrollEndTimeoutRef.current = null;
       }
       if (scrollFrameRef.current !== null) {
         window.cancelAnimationFrame(scrollFrameRef.current);
