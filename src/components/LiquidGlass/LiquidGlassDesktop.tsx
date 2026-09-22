@@ -90,7 +90,7 @@ function computeTagStyle(
     backfaceVisibility: hasTransform ? "hidden" : undefined,
     willChange:
       style?.willChange ??
-      (hasTransform ? "transform, filter, backdrop-filter" : undefined),
+      (hasTransform ? "transform" : undefined),
     x: effectiveMagnetic ? springPullX : undefined,
     y: effectiveMagnetic ? springPullY : undefined,
     rotateX: effectiveTilt ? springTiltX : undefined,

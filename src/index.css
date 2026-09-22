@@ -235,7 +235,6 @@ p {
 
 /* Custom transition for the main navbar capsule matching the site-wide duration and bezier curve */
 .navbar-capsule {
-  will-change: transform, backdrop-filter;
   transition:
     border-color 250ms cubic-bezier(0.25, 0.1, 0.25, 1),
     background-color 250ms cubic-bezier(0.25, 0.1, 0.25, 1),
@@ -351,7 +350,6 @@ p {
 
 .loading-progress-line {
   transform-origin: left;
-  will-change: transform;
   animation: loadingProgressFill 1.8s linear forwards;
 }
 

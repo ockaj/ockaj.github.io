@@ -116,9 +116,7 @@ export default function LiquidGlassMobile(
       backfaceVisibility: effectiveSpringScale ? "hidden" : undefined,
       willChange:
         style?.willChange ??
-        (effectiveSpringScale
-          ? "transform, filter, backdrop-filter"
-          : undefined),
+        (effectiveSpringScale ? "transform" : undefined),
       ...style,
     };
   }, [effectiveSpringScale, style]);
