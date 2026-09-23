@@ -43,7 +43,7 @@ function getHiddenTransition(custom: DrawerCustom) {
 const drawerVariants: Variants = {
   hidden: (custom: DrawerCustom) => ({
     x: custom.prefersReducedMotion ? 0 : "100%",
-    opacity: custom.prefersReducedMotion ? 0 : 1,
+    opacity: custom.prefersReducedMotion ? 0 : 0.9999,
     transition: getHiddenTransition(custom),
   }),
   visible: (custom: DrawerCustom) => ({

@@ -21,6 +21,7 @@ Base UI overlays require controlled open state and keepMounted portals for exit 
 3. Render motion components directly inside `Dialog.Backdrop` and `Dialog.Popup`.
 4. Define `initial`, `animate`, and `exit` props on each motion component.
 5. Retain modal content state during the exit transition. Clear the state on `onExitComplete`.
+6. If an exit animation only translates position, animate `opacity` to `0.9999` so Base UI detects the running animation via `element.getAnimations()`.
 
 Example:
 
