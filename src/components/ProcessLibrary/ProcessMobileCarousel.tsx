@@ -1,9 +1,9 @@
-import { memo, useCallback, useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
-import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
 import { PROCESS_TOPICS, type ProcessTopic } from "../../data/processItems";
 import { cn } from "../../utils/cn";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
+import ProcessCardHeader from "./ProcessCardHeader";
 import ProcessVariantStage from "./ProcessVariantStage";
 import { useProcessLibraryContext } from "./ProcessLibraryContext";
 
@@ -32,13 +32,6 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
   onViewModeChange,
   setLightboxItem,
 }: Readonly<ProcessMobileSlideProps>) {
-  const handleModeChange = useCallback(
-    (val: string | number) => {
-      onViewModeChange(topic.id, val as "tobe" | "asis");
-    },
-    [onViewModeChange, topic.id],
-  );
-
   let motionClass = "opacity-100 [transform:scale(1)]";
   if (!isActive) {
     motionClass = "opacity-65";
@@ -65,41 +58,13 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
         className="size-full flex-col items-stretch justify-start p-5 text-left sm:p-7 md:p-8"
         innerClassName="flex flex-col flex-1 min-h-0"
       >
-        {/* Card Header */}
-        <div className="relative z-10 mb-3 flex w-full flex-col gap-2.5 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
-          <h3 className="flex min-h-0 items-center font-display text-xl leading-snug tracking-tight text-balance text-text-primary sm:min-h-13 sm:text-2xl md:text-3xl">
-            {topic.asis.title}
-          </h3>
-
-          <div className="shrink-0 self-start sm:self-auto">
-            <Tabs
-              value={cardViewMode}
-              onChange={handleModeChange}
-              layoutId={`process-view-mode-pill-mobile-${topic.id}`}
-              variant="segmented"
-              roundedClass="rounded-xl"
-              className="isolate inline-flex h-9 transform-gpu items-center rounded-xl border border-white/10 bg-surface/80 p-1 shadow-md backdrop-blur-md select-none"
-              highlightClassName="bg-white/15 border border-white/20 shadow-sm"
-            >
-              <Tab
-                value="asis"
-                roundedClass="rounded-lg"
-                className="relative flex h-7 cursor-pointer items-center justify-center rounded-lg px-6 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:-inset-y-2 before:inset-x-0 hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
-                activeClassName="font-semibold text-white"
-              >
-                <span>Source</span>
-              </Tab>
-              <Tab
-                value="tobe"
-                roundedClass="rounded-lg"
-                className="relative flex h-7 cursor-pointer items-center justify-center rounded-lg px-6 text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none before:absolute before:-inset-y-2 before:inset-x-0 hover:text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
-                activeClassName="font-semibold text-white"
-              >
-                <span>Optimized</span>
-              </Tab>
-            </Tabs>
-          </div>
-        </div>
+        <ProcessCardHeader
+          topicId={topic.id}
+          title={topic.asis.title}
+          viewMode={cardViewMode}
+          onViewModeChange={onViewModeChange}
+          isMobile
+        />
 
         {/* Zero-Unmount Layer Staged Content */}
         <ProcessVariantStage
@@ -288,7 +253,7 @@ function ProcessMobileCarousel() {
   }, [selectTopic]);
 
   return (
-    <div className="col-span-1 flex w-full min-w-0 flex-col justify-center lg:hidden">
+    <div className="col-span-1 flex w-full min-w-0 flex-col justify-center">
       <div className="flex w-full flex-col">
         <div
           ref={containerRef}

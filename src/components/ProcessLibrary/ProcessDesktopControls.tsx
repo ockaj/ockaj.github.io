@@ -1,20 +1,15 @@
 import { memo } from "react";
-import { motion } from "motion/react";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
 import { PROCESS_TOPICS } from "../../data/processItems";
 import { cn } from "../../utils/cn";
 import { useProcessLibraryContext } from "./ProcessLibraryContext";
 
-function ProcessTopicMenu() {
+function ProcessDesktopControls() {
   const { state, actions } = useProcessLibraryContext();
-  const { activeTopicId, cardVariants, prefersReducedMotion } = state;
+  const { activeTopicId } = state;
   const { selectTopic } = actions;
   return (
-    <motion.div
-      variants={cardVariants}
-      custom={prefersReducedMotion}
-      className="hidden w-full flex-col justify-center lg:col-span-5 lg:flex"
-    >
+    <div className="flex w-full flex-col justify-center lg:col-span-5">
       <div className="relative w-full">
         <div className="no-scrollbar process-tabs-mask -mx-4 max-h-90 overflow-y-auto px-4 py-6">
           <Tabs
@@ -64,8 +59,8 @@ function ProcessTopicMenu() {
           </Tabs>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
-export default memo(ProcessTopicMenu);
+export default memo(ProcessDesktopControls);

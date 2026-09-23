@@ -19,13 +19,12 @@ import { isConnectionConstrained } from "../../utils/connection";
 import { isBoneyardBuild } from "../../utils/boneyard";
 import {
   containerStaggerVariants,
-  cardStaggerVariants,
   SECTION_VIEWPORT,
 } from "../../utils/motionVariants";
-import ProcessDesktopCard from "./ProcessDesktopCard";
-import ProcessMobileCarousel from "./ProcessMobileCarousel";
-import ProcessTopicMenu from "./ProcessTopicMenu";
+import { useIsDesktop } from "../../hooks/useMediaQuery";
+import ProcessDesktopControls from "./ProcessDesktopControls";
 import ProcessMobileControls from "./ProcessMobileControls";
+import ProcessCarouselViewport from "./ProcessCarouselViewport";
 import {
   ProcessLibraryContext,
   type ProcessLibraryContextValue,
@@ -38,7 +37,6 @@ import {
 
 const isBuildMode = isBoneyardBuild();
 const containerVariants = containerStaggerVariants();
-const cardVariants = cardStaggerVariants;
 
 const INITIAL_TOPIC_IMAGES = new Set(
   PROCESS_TOPICS[0]
@@ -47,14 +45,17 @@ const INITIAL_TOPIC_IMAGES = new Set(
 );
 
 function ProcessLibrary() {
+  const isDesktop = useIsDesktop();
   const prefersReducedMotion = useReducedMotion();
-  const activeModal = useAppStore((state) => state.activeModal);
-  const activeLightboxId = activeModal?.startsWith("lightbox-")
-    ? activeModal.slice("lightbox-".length)
-    : null;
+  const activeLightboxId = useAppStore((state) =>
+    state.activeModal?.startsWith("lightbox-")
+      ? state.activeModal.slice("lightbox-".length)
+      : null,
+  );
 
-  const initialModal = activeModal;
-  const initialTopicId = getInitialProcessTopicId(initialModal);
+  const [initialTopicId] = useState(() =>
+    getInitialProcessTopicId(useAppStore.getState().activeModal),
+  );
   const topicController = useProcessTopicController(initialTopicId);
   const { activeTopicId, activeTopic, direction, prevDisabled, nextDisabled } =
     topicController;
@@ -143,7 +144,6 @@ function ProcessLibrary() {
         prevDisabled,
         nextDisabled,
         prefersReducedMotion,
-        cardVariants,
       },
       actions: {
         ...topicController.actions,
@@ -177,17 +177,14 @@ function ProcessLibrary() {
           viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
           className="relative z-20 grid grid-cols-1 items-stretch gap-5 sm:gap-6 md:gap-8 lg:grid-cols-12 lg:gap-12"
         >
-          {/* Left Column: Index Menu Selector */}
-          <ProcessTopicMenu />
+          {/* Left Column: Index Menu Selector (Desktop only) */}
+          {isDesktop ? <ProcessDesktopControls /> : null}
 
-          {/* Mobile Column: CSS Scroll Snap Carousel */}
-          <ProcessMobileCarousel />
+          {/* Responsive Carousel Viewport */}
+          <ProcessCarouselViewport />
 
-          {/* Desktop Right Column: Display Stage */}
-          <ProcessDesktopCard />
-
-          {/* Mobile Topic Selector Dock */}
-          <ProcessMobileControls />
+          {/* Mobile Topic Selector Dock (Mobile only) */}
+          {isDesktop ? null : <ProcessMobileControls />}
         </motion.div>
       </div>
 

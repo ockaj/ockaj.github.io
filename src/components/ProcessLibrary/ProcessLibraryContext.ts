@@ -1,5 +1,4 @@
 import { createContext, use } from "react";
-import type { Variants } from "motion/react";
 import type { ProcessTopic } from "../../data/processItems";
 
 interface LightboxTargetItem {
@@ -19,7 +18,6 @@ interface ProcessLibraryState {
   prevDisabled: boolean;
   nextDisabled: boolean;
   prefersReducedMotion: boolean | null;
-  cardVariants: Variants;
 }
 
 interface ProcessLibraryActions {

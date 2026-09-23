@@ -9,7 +9,7 @@ function ProcessMobileControls() {
   const { activeTopic, prevDisabled, nextDisabled } = state;
   const { selectPreviousTopic, selectNextTopic } = actions;
   return (
-    <div className="flex w-full justify-center lg:hidden">
+    <div className="flex w-full justify-center">
       <StaticGlass
         as="div"
         roundedClass="rounded-full"
