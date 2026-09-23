@@ -5,6 +5,7 @@ import {
   useReducedMotion,
   useScroll,
   useTransform,
+  useMotionValueEvent,
   Variants,
 } from "motion/react";
 import "slot-text/style.css";
@@ -133,8 +134,8 @@ const itemVariants = {
 };
 
 const scrollIndicatorVariants: Variants = {
-  initial: { y: 0 },
-  hover: { y: 5 },
+  initial: { opacity: 1 },
+  hover: {},
 };
 
 const circleVariants: Variants = {
@@ -237,6 +238,16 @@ function HeroScrollIndicatorDesktop({
   const { scrollY } = useScroll();
   const scrollOpacity = useTransform(scrollY, [0, 150], [1, 0]);
   const scrollYOffset = useTransform(scrollY, [0, 150], [0, 15]);
+  const [isPastThreshold, setIsPastThreshold] = useState(false);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    const past = latest > 150;
+    if (past !== isPastThreshold) {
+      setIsPastThreshold(past);
+    }
+  });
+
+  const shouldAnimate = !prefersReducedMotion && !isPastThreshold;
 
   return (
     <motion.a
@@ -246,7 +257,7 @@ function HeroScrollIndicatorDesktop({
       style={{ opacity: scrollOpacity, y: scrollYOffset }}
       variants={scrollIndicatorVariants}
       initial="initial"
-      animate={prefersReducedMotion ? undefined : "animate"}
+      animate={shouldAnimate ? "animate" : undefined}
       whileHover={prefersReducedMotion ? undefined : "hover"}
       transition={SPRING.hero}
       onClick={(e) => {

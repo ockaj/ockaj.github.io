@@ -5,7 +5,7 @@ import {
   useMemo,
   memo,
 } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import {
   PROCESS_TOPICS,
   PROCESS_ITEMS,
@@ -87,6 +87,17 @@ function ProcessLibrary() {
     ? (PROCESS_ITEMS_BY_ID.get(Number(activeLightboxId)) ?? null)
     : null;
 
+  const [prevLightboxItem, setPrevLightboxItem] = useState(lightboxItem);
+  const [displayedLightboxItem, setDisplayedLightboxItem] =
+    useState(lightboxItem);
+
+  if (lightboxItem !== prevLightboxItem) {
+    setPrevLightboxItem(lightboxItem);
+    if (lightboxItem !== null) {
+      setDisplayedLightboxItem(lightboxItem);
+    }
+  }
+
   // Dismiss non-existent process lightbox deep links (e.g. #lightbox-999)
   useEffect(() => {
     if (activeLightboxId && !lightboxItem) {
@@ -110,6 +121,10 @@ function ProcessLibrary() {
 
   const handleCloseLightbox = useCallback(() => {
     useAppStore.getState().closeModal();
+  }, []);
+
+  const handleExitComplete = useCallback(() => {
+    setDisplayedLightboxItem(null);
   }, []);
 
   const activeViewMode = viewModes[activeTopic.id] || "asis";
@@ -188,15 +203,12 @@ function ProcessLibrary() {
         </motion.div>
       </div>
 
-      <AnimatePresence>
-        {lightboxItem ? (
-          <ProcessLightbox
-            key={lightboxItem.id}
-            item={lightboxItem}
-            onClose={handleCloseLightbox}
-          />
-        ) : null}
-      </AnimatePresence>
+      <ProcessLightbox
+        open={Boolean(lightboxItem)}
+        item={displayedLightboxItem}
+        onClose={handleCloseLightbox}
+        onExitComplete={handleExitComplete}
+      />
     </ProcessLibraryContext>
   );
 }

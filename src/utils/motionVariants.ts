@@ -108,17 +108,11 @@ export const mobileMenuPanelVariants: Variants = {
           y: -6,
           scale: 0.98,
           opacity: 0,
-          backdropFilter: "blur(0px) saturate(100%)",
-          backgroundColor: "hsla(0, 0%, 8%, 0)",
-          borderColor: "hsla(0, 0%, 100%, 0)",
         },
   visible: (prefersReducedMotion: boolean | null) => ({
     y: 0,
     scale: 1,
     opacity: 1,
-    backdropFilter: "blur(10px) saturate(180%)",
-    backgroundColor: "hsla(0, 0%, 8%, 0.85)",
-    borderColor: "hsla(0, 0%, 100%, 0.1)",
     transition: prefersReducedMotion
       ? { duration: 0.15 }
       : {
@@ -134,9 +128,6 @@ export const mobileMenuPanelVariants: Variants = {
           y: -6,
           scale: 0.98,
           opacity: 0,
-          backdropFilter: "blur(0px) saturate(100%)",
-          backgroundColor: "hsla(0, 0%, 8%, 0)",
-          borderColor: "hsla(0, 0%, 100%, 0)",
           transition: SPRING.exit,
         },
 };

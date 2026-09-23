@@ -14,8 +14,10 @@ import { CONTACT_EMAIL } from "../../data/cvData";
 import MetricCountUp from "./MetricCountUp";
 
 interface DrawerProps {
-  study: CaseStudyDetail;
+  open: boolean;
+  study: CaseStudyDetail | null;
   onClose: () => void;
+  onExitComplete?: () => void;
 }
 
 const CLIENT_MARKDOWN_COMPONENTS = {
@@ -37,18 +39,24 @@ const DESCRIPTION_MARKDOWN_COMPONENTS = {
 };
 
 const CaseStudyDrawer = memo(function CaseStudyDrawer({
+  open,
   study,
   onClose,
+  onExitComplete,
 }: DrawerProps) {
   const prefersReducedMotion = useReducedMotion();
 
+  if (!study) return null;
+
   return (
     <BaseDrawer
+      open={open}
       title="Process Audit Case File"
       icon={<Activity size={14} className="text-accent" />}
       onClose={onClose}
       maxWidthClass="max-w-4xl"
       hashId={`case-study-${study.id}`}
+      onExitComplete={onExitComplete}
     >
       {/* Scrollable Content Container */}
       <motion.div

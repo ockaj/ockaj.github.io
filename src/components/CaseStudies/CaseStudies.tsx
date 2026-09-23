@@ -1,5 +1,5 @@
-import { memo, useCallback, useEffect } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { memo, useCallback, useEffect, useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import {
   CASE_STUDIES,
   CASE_STUDIES_BY_ID,
@@ -31,6 +31,16 @@ function CaseStudies() {
     ? (CASE_STUDIES_BY_ID.get(activeStudyId) ?? null)
     : null;
 
+  const [prevStudy, setPrevStudy] = useState(selectedStudy);
+  const [displayedStudy, setDisplayedStudy] = useState(selectedStudy);
+
+  if (selectedStudy !== prevStudy) {
+    setPrevStudy(selectedStudy);
+    if (selectedStudy !== null) {
+      setDisplayedStudy(selectedStudy);
+    }
+  }
+
   // Dismiss non-existent case study deep links (e.g. #case-study-999)
   useEffect(() => {
     if (activeStudyId && !selectedStudy) {
@@ -45,6 +55,10 @@ function CaseStudies() {
 
   const handleCloseStudy = useCallback(() => {
     useAppStore.getState().closeModal();
+  }, []);
+
+  const handleExitComplete = useCallback(() => {
+    setDisplayedStudy(null);
   }, []);
 
   return (
@@ -71,11 +85,12 @@ function CaseStudies() {
       </div>
 
       {/* Drawer */}
-      <AnimatePresence>
-        {selectedStudy ? (
-          <CaseStudyDrawer study={selectedStudy} onClose={handleCloseStudy} />
-        ) : null}
-      </AnimatePresence>
+      <CaseStudyDrawer
+        open={Boolean(selectedStudy)}
+        study={displayedStudy}
+        onClose={handleCloseStudy}
+        onExitComplete={handleExitComplete}
+      />
     </>
   );
 }

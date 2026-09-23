@@ -4,7 +4,7 @@ import { motion, type MotionValue } from "motion/react";
 interface RippleProps {
   rippleX: MotionValue<number>;
   rippleY: MotionValue<number>;
-  rippleRadius: MotionValue<number>;
+  rippleScale: MotionValue<number>;
   rippleOpacity: MotionValue<number>;
 }
 
@@ -12,17 +12,16 @@ interface RippleProps {
 function Ripple({
   rippleX,
   rippleY,
-  rippleRadius,
+  rippleScale,
   rippleOpacity,
 }: Readonly<RippleProps>) {
   return (
     <motion.span
-      className="pointer-events-none absolute z-10 rounded-full bg-white mix-blend-screen blur-subtle"
+      className="pointer-events-none absolute z-10 size-24 rounded-full bg-white blur-subtle mix-blend-screen"
       style={{
         left: rippleX,
         top: rippleY,
-        width: rippleRadius,
-        height: rippleRadius,
+        scale: rippleScale,
         x: "-50%",
         y: "-50%",
         opacity: rippleOpacity,

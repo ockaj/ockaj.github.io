@@ -82,7 +82,7 @@ export default function LiquidGlassMobile(
   const {
     rippleX,
     rippleY,
-    rippleRadius,
+    rippleScale,
     rippleOpacity,
     onPointerDown: handlePointerDown,
   } = useRipple(effectiveSpringScale && effectiveRipple);
@@ -162,7 +162,7 @@ export default function LiquidGlassMobile(
         <Ripple
           rippleX={rippleX}
           rippleY={rippleY}
-          rippleRadius={rippleRadius}
+          rippleScale={rippleScale}
           rippleOpacity={rippleOpacity}
         />
       ) : null}

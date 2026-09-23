@@ -1,7 +1,6 @@
 import { memo, useEffect, useMemo } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
-import { cn } from "../../utils/cn";
 import {
   mobileMenuBackdropVariants,
   mobileMenuPanelVariants,
@@ -11,8 +10,6 @@ import {
 const HIGHLIGHT_STYLE = {
   boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.15)",
 } as const;
-
-const INSTANT_LAYOUT_TRANSITION = { layout: { duration: 0 } } as const;
 
 interface NavLinkItem {
   id: string;
@@ -70,53 +67,52 @@ function MobileMenu({
         ) : null}
       </AnimatePresence>
 
-      <motion.div
-        variants={mobileMenuPanelVariants}
-        initial="hidden"
-        animate={isOpen ? "visible" : "hidden"}
-        custom={isMotionReduced}
-        style={{
-          transformOrigin: "top",
-          boxShadow:
-            "inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(0, 0, 0, 0.7)",
-        }}
-        id="mobile-nav-panel"
-        aria-label="Mobile Navigation"
-        inert={!isOpen ? true : undefined}
-        className={cn(
-          "relative z-50 mt-2 w-72 overflow-hidden rounded-3xl border md:hidden",
-          isOpen ? "pointer-events-auto" : "pointer-events-none",
-        )}
-      >
-        <div className="no-scrollbar relative z-10 max-h-mobile-panel w-full overflow-y-auto overscroll-contain p-3">
-          <Tabs
-            value={active}
-            onChange={onChange}
-            layoutId="active-mobile-nav-highlight"
-            role={null}
-            highlightClassName="border border-white/10 navbar-highlight-flat"
-            highlightStyle={HIGHLIGHT_STYLE}
-            highlightTransition={
-              !isOpen ? INSTANT_LAYOUT_TRANSITION : undefined
-            }
-            className="flex flex-col gap-1.5"
+      <AnimatePresence>
+        {isOpen ? (
+          <motion.div
+            key="mobile-nav-panel"
+            variants={mobileMenuPanelVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            custom={isMotionReduced}
+            style={{
+              transformOrigin: "top",
+              boxShadow:
+                "inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(0, 0, 0, 0.7)",
+            }}
+            id="mobile-nav-panel"
+            aria-label="Mobile Navigation"
+            className="pointer-events-auto relative z-50 mt-2 w-72 overflow-hidden rounded-3xl border border-white/10 bg-surface/85 backdrop-blur-md backdrop-saturate-180 md:hidden"
           >
-            {allLinks.map((link) => (
-              <Tab
-                key={link.id}
-                value={link.id}
-                variants={mobileMenuItemVariants}
-                custom={isMotionReduced}
-                tabIndex={isOpen ? 0 : -1}
-                className="relative z-10 flex w-full items-center justify-center rounded-full px-4 py-3.5 text-center text-sm font-semibold tracking-subtle text-muted transition-colors duration-300 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset"
-                activeClassName="text-text-primary"
+            <div className="no-scrollbar relative z-10 max-h-mobile-panel w-full overflow-y-auto overscroll-contain p-3">
+              <Tabs
+                value={active}
+                onChange={onChange}
+                layoutId="active-mobile-nav-highlight"
+                role={null}
+                highlightClassName="border border-white/10 navbar-highlight-flat"
+                highlightStyle={HIGHLIGHT_STYLE}
+                className="flex flex-col gap-1.5"
               >
-                <span>{link.label}</span>
-              </Tab>
-            ))}
-          </Tabs>
-        </div>
-      </motion.div>
+                {allLinks.map((link) => (
+                  <Tab
+                    key={link.id}
+                    value={link.id}
+                    variants={mobileMenuItemVariants}
+                    custom={isMotionReduced}
+                    tabIndex={0}
+                    className="relative z-10 flex w-full items-center justify-center rounded-full px-4 py-3.5 text-center text-sm font-semibold tracking-subtle text-muted transition-colors duration-300 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset"
+                    activeClassName="text-text-primary"
+                  >
+                    <span>{link.label}</span>
+                  </Tab>
+                ))}
+              </Tabs>
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </>
   );
 }

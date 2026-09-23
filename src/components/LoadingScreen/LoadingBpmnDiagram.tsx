@@ -191,21 +191,11 @@ export default function LoadingBpmnDiagram({
   const path4b = useTransform(count, [80, 90], [0, 1]);
   const path5 = useTransform(count, [90, 95], [0, 1]);
 
-  const path1Visible = useTransform<number, number>(count, (v) =>
-    v >= 10 ? 1 : 0,
-  );
-  const path2Visible = useTransform<number, number>(count, (v) =>
-    v >= 35 ? 1 : 0,
-  );
-  const path3Visible = useTransform<number, number>(count, (v) =>
-    v >= 60 ? 1 : 0,
-  );
-  const path4Visible = useTransform<number, number>(count, (v) =>
-    v >= 80 ? 1 : 0,
-  );
-  const path5Visible = useTransform<number, number>(count, (v) =>
-    v >= 90 ? 1 : 0,
-  );
+  const path1Visible = useTransform(() => (count.get() >= 10 ? 1 : 0));
+  const path2Visible = useTransform(() => (count.get() >= 35 ? 1 : 0));
+  const path3Visible = useTransform(() => (count.get() >= 60 ? 1 : 0));
+  const path4Visible = useTransform(() => (count.get() >= 80 ? 1 : 0));
+  const path5Visible = useTransform(() => (count.get() >= 90 ? 1 : 0));
 
   return (
     <div className="notranslate w-full max-w-4xl px-4" translate="no">

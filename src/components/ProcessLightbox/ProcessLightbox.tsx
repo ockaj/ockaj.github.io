@@ -1,6 +1,6 @@
 import { useRef, memo } from "react";
 import { Dialog } from "@base-ui/react/dialog";
-import { motion, useReducedMotion, Variants } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion, Variants } from "motion/react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useOverlay } from "../../hooks/useAppNavigation";
 import { useIsMobile } from "../../hooks/useMediaQuery";
@@ -9,14 +9,16 @@ import ZoomableImage from "./ZoomableImage";
 import LightboxControls from "./LightboxControls";
 
 interface ProcessLightboxProps {
+  open?: boolean;
   item: {
     id: number;
     title: string;
     description: string;
     image: string;
     type: string;
-  };
+  } | null;
   onClose: () => void;
+  onExitComplete?: () => void;
 }
 
 const backdropVariants: Variants = {
@@ -105,29 +107,36 @@ const LightboxFooter = memo(function LightboxFooter({
   );
 });
 
-function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
+function ProcessLightbox({
+  open = true,
+  item,
+  onClose,
+  onExitComplete,
+}: Readonly<ProcessLightboxProps>) {
   const prefersReducedMotion = useReducedMotion();
 
   // Close lightbox on back swipe / browser back button
-  useOverlay(true, onClose, `lightbox-${item.id}`);
+  useOverlay(open, onClose, item ? `lightbox-${item.id}` : "lightbox");
 
   const isMobile = useIsMobile();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  if (typeof document === "undefined") return null;
+  if (typeof document === "undefined" || !item) return null;
 
   return (
     <Dialog.Root
-      open
+      open={open}
       modal
-      onOpenChange={(open) => {
-        if (!open) {
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
           onClose();
         }
       }}
     >
-      <Dialog.Portal keepMounted>
-        <div className="fixed inset-0 z-100 flex touch-none items-center justify-center p-0 md:p-6">
+      <AnimatePresence onExitComplete={onExitComplete}>
+        {open ? (
+          <Dialog.Portal keepMounted>
+            <div className="fixed inset-0 z-100 flex touch-none items-center justify-center p-0 md:p-6">
           {/* Backdrop */}
           <Dialog.Backdrop
             onClick={onClose}
@@ -203,6 +212,8 @@ function ProcessLightbox({ item, onClose }: Readonly<ProcessLightboxProps>) {
           </Dialog.Popup>
         </div>
       </Dialog.Portal>
+        ) : null}
+      </AnimatePresence>
     </Dialog.Root>
   );
 }

@@ -198,8 +198,8 @@ function LoadingScreen({ onComplete }: Readonly<LoadingScreenProps>) {
     };
   }, [onComplete, prefersReducedMotion, count]);
 
-  const displayText = useTransform(count, (v) =>
-    String(Math.floor(v)).padStart(3, "0"),
+  const displayText = useTransform(() =>
+    String(Math.floor(count.get())).padStart(3, "0"),
   );
 
   return (

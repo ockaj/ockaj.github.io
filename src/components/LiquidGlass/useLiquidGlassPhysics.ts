@@ -49,12 +49,18 @@ export function useLiquidGlassPhysics({
   const hasMeasuredRef = useRef(false);
   const settleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const [overlayActive, setOverlayActive] = useState(false);
+  const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     return () => {
       if (settleTimerRef.current !== null) {
         clearTimeout(settleTimerRef.current);
         settleTimerRef.current = null;
+      }
+      if (overlayTimerRef.current !== null) {
+        clearTimeout(overlayTimerRef.current);
+        overlayTimerRef.current = null;
       }
     };
   }, []);
@@ -129,27 +135,27 @@ export function useLiquidGlassPhysics({
     tiltStrength,
   );
 
-  const springPullX = useTransform(springX, (x) =>
-    effectiveMagnetic ? x * magneticStrength : 0,
+  const springPullX = useTransform(() =>
+    effectiveMagnetic ? springX.get() * magneticStrength : 0,
   );
-  const springPullY = useTransform(springY, (y) =>
-    effectiveMagnetic ? y * magneticStrength : 0,
+  const springPullY = useTransform(() =>
+    effectiveMagnetic ? springY.get() * magneticStrength : 0,
   );
 
-  const springTiltX = useTransform(springY, (y) =>
+  const springTiltX = useTransform(() =>
     effectiveTilt
       ? -computeTiltAngle(
-          y,
+          springY.get(),
           liveDimensionsRef.current.height,
           effectiveTiltStrength,
         )
       : 0,
   );
 
-  const springTiltY = useTransform(springX, (x) =>
+  const springTiltY = useTransform(() =>
     effectiveTilt
       ? computeTiltAngle(
-          x,
+          springX.get(),
           liveDimensionsRef.current.width,
           effectiveTiltStrength,
         )
@@ -157,13 +163,17 @@ export function useLiquidGlassPhysics({
   );
 
   const borderGradient = useTransform(
-    [springX, springY],
-    ([x, y]) =>
-      `radial-gradient(180px circle at calc(50% + ${x}px) calc(50% + ${y}px), rgba(255, 255, 255, 0.06) 0%, transparent 80%)`,
+    () =>
+      `radial-gradient(180px circle at calc(50% + ${springX.get()}px) calc(50% + ${springY.get()}px), rgba(255, 255, 255, 0.06) 0%, transparent 80%)`,
   );
 
   const handleMouseEnter = useCallback(() => {
     if (!interactive) return;
+    if (overlayTimerRef.current !== null) {
+      clearTimeout(overlayTimerRef.current);
+      overlayTimerRef.current = null;
+    }
+    setOverlayActive(true);
     opacity.set(1);
     setIsHovered(true);
   }, [interactive, opacity]);
@@ -187,6 +197,13 @@ export function useLiquidGlassPhysics({
     mouseX.set(0);
     mouseY.set(0);
     setIsHovered(false);
+    if (overlayTimerRef.current !== null) {
+      clearTimeout(overlayTimerRef.current);
+    }
+    overlayTimerRef.current = setTimeout(() => {
+      overlayTimerRef.current = null;
+      setOverlayActive(false);
+    }, 350);
   }, [interactive, opacity, mouseX, mouseY]);
 
   const setElementRef = useCallback((node: HTMLElement | null) => {
@@ -197,6 +214,7 @@ export function useLiquidGlassPhysics({
     setElementRef,
     dimensions,
     isHovered,
+    overlayActive,
     springX,
     springY,
     lagX,

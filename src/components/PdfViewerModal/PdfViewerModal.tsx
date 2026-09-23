@@ -373,7 +373,12 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
   children,
 }: PdfModalPopupContentProps) {
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center p-0 md:p-6 lg:p-8">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: SPRING.exit }}
+      className="pointer-events-none fixed inset-0 z-100 flex items-center justify-center p-0 md:p-6 lg:p-8"
+    >
       {/* Backdrop Blur overlay */}
       <Dialog.Backdrop onClick={onClose} render={BACKDROP_ANIMATION} />
 
@@ -420,7 +425,7 @@ const PdfModalPopupContent = memo(function PdfModalPopupContent({
           </div>
         </div>
       </Dialog.Popup>
-    </div>
+    </motion.div>
   );
 });
 
@@ -468,9 +473,9 @@ function PdfViewerModal() {
       disablePointerDismissal
       onOpenChange={handleOpenChange}
     >
-      <Dialog.Portal keepMounted>
-        <AnimatePresence>
-          {isOpen ? (
+      <AnimatePresence>
+        {isOpen ? (
+          <Dialog.Portal keepMounted>
             <PdfModalPopupContent
               activeTab={activeTab}
               onTabChange={handleTabChange}
@@ -480,9 +485,9 @@ function PdfViewerModal() {
             >
               <PdfModalBody activeTab={activeTab} />
             </PdfModalPopupContent>
-          ) : null}
-        </AnimatePresence>
-      </Dialog.Portal>
+          </Dialog.Portal>
+        ) : null}
+      </AnimatePresence>
     </Dialog.Root>
   );
 }

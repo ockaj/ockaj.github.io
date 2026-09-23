@@ -22,7 +22,6 @@ import {
   motion,
   useReducedMotion,
   LayoutGroup,
-  MotionContext,
   type Transition,
   type MotionValue,
 } from "motion/react";
@@ -148,8 +147,6 @@ function useTabsContext() {
   }
   return context;
 }
-
-const EMPTY_MOTION_CONTEXT = {};
 
 function createHoverStore(): HoverStore {
   let currentVal: TabValue | null = null;
@@ -291,27 +288,25 @@ function TabsInner<T extends TabValue>({
   );
 
   return (
-    <MotionContext value={EMPTY_MOTION_CONTEXT}>
-      <TabsContext value={contextValue}>
-        <LayoutGroup id={layoutId} inherit={false}>
-          <div
-            role={role ?? undefined}
-            tabIndex={role === "tablist" ? -1 : undefined}
-            className={cn("flex", className)}
-            style={style}
-            {...rest}
-            onMouseLeave={(e) => {
-              hoverStore.set(null);
-              if (rest.onMouseLeave) {
-                rest.onMouseLeave(e);
-              }
-            }}
-          >
-            {children}
-          </div>
-        </LayoutGroup>
-      </TabsContext>
-    </MotionContext>
+    <TabsContext value={contextValue}>
+      <LayoutGroup id={layoutId} inherit={false}>
+        <div
+          role={role ?? undefined}
+          tabIndex={role === "tablist" ? -1 : undefined}
+          className={cn("flex", className)}
+          style={style}
+          {...rest}
+          onMouseLeave={(e) => {
+            hoverStore.set(null);
+            if (rest.onMouseLeave) {
+              rest.onMouseLeave(e);
+            }
+          }}
+        >
+          {children}
+        </div>
+      </LayoutGroup>
+    </TabsContext>
   );
 }
 
@@ -625,7 +620,7 @@ interface TabHighlightProps {
   ripple: boolean;
   rippleX: MotionValue<number>;
   rippleY: MotionValue<number>;
-  rippleRadius: MotionValue<number>;
+  rippleScale: MotionValue<number>;
   rippleOpacity: MotionValue<number>;
 }
 
@@ -641,7 +636,7 @@ const TabHighlight = memo(function TabHighlight({
   ripple,
   rippleX,
   rippleY,
-  rippleRadius,
+  rippleScale,
   rippleOpacity,
 }: Readonly<TabHighlightProps>) {
   return (
@@ -669,7 +664,7 @@ const TabHighlight = memo(function TabHighlight({
           <Ripple
             rippleX={rippleX}
             rippleY={rippleY}
-            rippleRadius={rippleRadius}
+            rippleScale={rippleScale}
             rippleOpacity={rippleOpacity}
           />
         ) : null}
@@ -710,7 +705,7 @@ function TabComponent({
   const effectiveRoundedClass = tabRoundedClass ?? contextRoundedClass;
 
   const prefersReducedMotion = useReducedMotion();
-  const { rippleX, rippleY, rippleRadius, rippleOpacity, onPointerDown } =
+  const { rippleX, rippleY, rippleScale, rippleOpacity, onPointerDown } =
     useRipple(ripple && !prefersReducedMotion);
 
   const isMobile = useIsMobile();
@@ -870,7 +865,7 @@ function TabComponent({
           ripple={ripple}
           rippleX={rippleX}
           rippleY={rippleY}
-          rippleRadius={rippleRadius}
+          rippleScale={rippleScale}
           rippleOpacity={rippleOpacity}
         />
       ) : null}

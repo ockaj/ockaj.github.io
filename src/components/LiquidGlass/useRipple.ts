@@ -5,7 +5,7 @@ import { springs, ripple as rippleCfg } from "./config";
 export function useRipple(enabled: boolean) {
   const rippleX = useMotionValue(0);
   const rippleY = useMotionValue(0);
-  const rippleRadius = useMotionValue(0);
+  const rippleScale = useMotionValue(0);
   const rippleOpacity = useMotionValue(0);
 
   const handlePointerDown = useCallback(
@@ -21,21 +21,22 @@ export function useRipple(enabled: boolean) {
 
       const maxRadius =
         Math.max(rect.width, rect.height) * rippleCfg.maxRadiusMultiplier;
+      const targetScale = maxRadius / 96;
 
-      animate(rippleRadius, [0, maxRadius], springs.ripple);
+      animate(rippleScale, [0, targetScale], springs.ripple);
 
       animate(rippleOpacity, [rippleCfg.initialOpacity, 0], {
         duration: rippleCfg.opacityDuration,
         ease: "easeOut",
       });
     },
-    [enabled, rippleX, rippleY, rippleRadius, rippleOpacity],
+    [enabled, rippleX, rippleY, rippleScale, rippleOpacity],
   );
 
   return {
     rippleX,
     rippleY,
-    rippleRadius,
+    rippleScale,
     rippleOpacity,
     onPointerDown: handlePointerDown,
   };

@@ -1,6 +1,6 @@
 import { useRef, useState, ReactNode, memo } from "react";
 import { Dialog } from "@base-ui/react/dialog";
-import { motion, useReducedMotion, Variants } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion, Variants } from "motion/react";
 import { X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { SPRING } from "../utils/springConfig";
@@ -9,12 +9,14 @@ import { useOverlay } from "../hooks/useAppNavigation";
 import { cn } from "../utils/cn";
 
 interface BaseDrawerProps {
+  open?: boolean;
   title: string;
   icon?: ReactNode;
   onClose: () => void;
   children: ReactNode;
   maxWidthClass?: string;
   hashId?: string;
+  onExitComplete?: () => void;
 }
 
 interface DrawerCustom {
@@ -55,12 +57,14 @@ const DRAG_CONSTRAINTS = { left: 0, right: 0 } as const;
 const DRAG_ELASTIC = { left: 0.05, right: 1 } as const;
 
 const BaseDrawer = memo(function BaseDrawer({
+  open = true,
   title,
   icon,
   onClose,
   children,
   maxWidthClass,
   hashId = "drawer",
+  onExitComplete,
 }: BaseDrawerProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
@@ -71,101 +75,105 @@ const BaseDrawer = memo(function BaseDrawer({
     undefined,
   );
 
-  useOverlay(true, onClose, hashId);
+  useOverlay(open, onClose, hashId);
 
   if (typeof document === "undefined") return null;
 
   return (
     <Dialog.Root
-      open
+      open={open}
       modal
       disablePointerDismissal
-      onOpenChange={(open) => {
-        if (!open) {
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
           onClose();
         }
       }}
     >
-      <Dialog.Portal keepMounted>
-        {/* Backdrop */}
-        <Dialog.Backdrop
-          onClick={onClose}
-          render={
-            <motion.div
-              ref={overlayRef}
-              initial={{ opacity: 0 }}
-              animate={{
-                opacity: 1,
-                transition: SPRING.drawer,
-              }}
-              exit={{
-                opacity: 0,
-                transition: SPRING.exit,
-              }}
-              className="fixed inset-0 z-90 overscroll-contain bg-black/70 backdrop-blur-none md:backdrop-blur-sm"
+      <AnimatePresence onExitComplete={onExitComplete}>
+        {open ? (
+          <Dialog.Portal keepMounted>
+            {/* Backdrop */}
+            <Dialog.Backdrop
+              onClick={onClose}
+              render={
+                <motion.div
+                  ref={overlayRef}
+                  initial={{ opacity: 0 }}
+                  animate={{
+                    opacity: 1,
+                    transition: SPRING.drawer,
+                  }}
+                  exit={{
+                    opacity: 0,
+                    transition: SPRING.exit,
+                  }}
+                  className="fixed inset-0 z-90 overscroll-contain bg-black/70 backdrop-blur-none md:backdrop-blur-sm"
+                />
+              }
             />
-          }
-        />
 
-        {/* Drawer Body */}
-        <Dialog.Popup
-          render={
-            <motion.div
-              custom={{
-                prefersReducedMotion: !!prefersReducedMotion,
-                exitVelocityX,
-              }}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              variants={drawerVariants}
-              drag={canDrag ? "x" : false}
-              dragConstraints={DRAG_CONSTRAINTS}
-              dragElastic={DRAG_ELASTIC}
-              onDragEnd={(_e, info) => {
-                const projectedX =
-                  info.offset.x +
-                  (info.velocity.x / 1000) * (0.998 / (1 - 0.998));
-                if (projectedX > 160 || info.velocity.x > 450) {
-                  setExitVelocityX(info.velocity.x);
-                  onClose();
-                }
-              }}
-              className={cn(
-                "fixed top-0 right-0 z-100 flex size-full flex-col overflow-hidden overscroll-contain border-l border-white/10 bg-surface shadow-drawer md:bg-surface/90 md:backdrop-blur-2xl",
-                maxWidthClass || "max-w-2xl",
-                canDrag && "touch-pan-y will-change-transform select-none",
-              )}
-            />
-          }
-        >
-          <div className="relative flex size-full flex-col">
-            {/* Specular sheen header overlay matching CV modal */}
-            <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-28 bg-linear-to-b from-white/5 to-transparent" />
+            {/* Drawer Body */}
+            <Dialog.Popup
+              render={
+                <motion.div
+                  custom={{
+                    prefersReducedMotion: !!prefersReducedMotion,
+                    exitVelocityX,
+                  }}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  variants={drawerVariants}
+                  drag={canDrag ? "x" : false}
+                  dragConstraints={DRAG_CONSTRAINTS}
+                  dragElastic={DRAG_ELASTIC}
+                  onDragEnd={(_e, info) => {
+                    const projectedX =
+                      info.offset.x +
+                      (info.velocity.x / 1000) * (0.998 / (1 - 0.998));
+                    if (projectedX > 160 || info.velocity.x > 450) {
+                      setExitVelocityX(info.velocity.x);
+                      onClose();
+                    }
+                  }}
+                  className={cn(
+                    "fixed top-0 right-0 z-100 flex size-full flex-col overflow-hidden overscroll-contain border-l border-white/10 bg-surface shadow-drawer md:bg-surface/90 md:backdrop-blur-2xl",
+                    maxWidthClass || "max-w-2xl",
+                    canDrag && "touch-pan-y will-change-transform select-none",
+                  )}
+                />
+              }
+            >
+              <div className="relative flex size-full flex-col">
+                {/* Specular sheen header overlay matching CV modal */}
+                <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-28 bg-linear-to-b from-white/5 to-transparent" />
 
-            {/* Top bar */}
-            <div className="relative z-30 flex items-center justify-between border-b border-white/10 px-6 pb-6 pt-safe-6 md:pt-6">
-              <Dialog.Title className="flex items-center gap-2 text-sm font-semibold text-text-primary/90">
-                {icon ? icon : null}
-                <span>{title}</span>
-              </Dialog.Title>
-              <Dialog.Close
-                render={
-                  <LiquidGlassButton
-                    onClick={onClose}
-                    ariaLabel="Close panel"
-                    className="size-11 p-0"
-                  >
-                    <X size={16} />
-                  </LiquidGlassButton>
-                }
-              />
-            </div>
+                {/* Top bar */}
+                <div className="relative z-30 flex items-center justify-between border-b border-white/10 px-6 pb-6 pt-safe-6 md:pt-6">
+                  <Dialog.Title className="flex items-center gap-2 text-sm font-semibold text-text-primary/90">
+                    {icon ? icon : null}
+                    <span>{title}</span>
+                  </Dialog.Title>
+                  <Dialog.Close
+                    render={
+                      <LiquidGlassButton
+                        onClick={onClose}
+                        ariaLabel="Close panel"
+                        className="size-11 p-0"
+                      >
+                        <X size={16} />
+                      </LiquidGlassButton>
+                    }
+                  />
+                </div>
 
-            {children}
-          </div>
-        </Dialog.Popup>
-      </Dialog.Portal>
+                {children}
+              </div>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        ) : null}
+      </AnimatePresence>
     </Dialog.Root>
   );
 });

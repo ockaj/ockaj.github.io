@@ -190,7 +190,7 @@ export default function LiquidGlassDesktop({
   const {
     rippleX,
     rippleY,
-    rippleRadius,
+    rippleScale,
     rippleOpacity,
     onPointerDown: handlePointerDown,
   } = useRipple(rendersRipple);
@@ -293,7 +293,7 @@ export default function LiquidGlassDesktop({
         roundedClass={roundedClass}
         style={innerGlassStyle}
       />
-      {rendersFullEffects ? (
+      {rendersFullEffects && physics.overlayActive ? (
         <DesktopEffectsOverlay
           roundedClass={roundedClass}
           springX={physics.springX}
@@ -309,7 +309,7 @@ export default function LiquidGlassDesktop({
         <Ripple
           rippleX={rippleX}
           rippleY={rippleY}
-          rippleRadius={rippleRadius}
+          rippleScale={rippleScale}
           rippleOpacity={rippleOpacity}
         />
       ) : null}
