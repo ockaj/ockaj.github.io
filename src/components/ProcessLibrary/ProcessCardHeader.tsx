@@ -66,21 +66,18 @@ function ProcessCardHeader({
               ? "h-9 bg-surface/80 shadow-md"
               : "bg-surface/90 shadow-lg",
           )}
-          highlightClassName={cn(
-            "border border-white/20 bg-white/15",
-            isMobile ? "shadow-sm" : "shadow-md",
-          )}
+          highlightClassName="navbar-highlight-flat"
         >
           <Tab
             value="asis"
             roundedClass="rounded-lg"
             className={cn(
-              "relative flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+              "relative flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
               isMobile
                 ? "h-7 px-6 before:absolute before:-inset-y-2 before:inset-x-0"
                 : "h-9 px-4 before:absolute before:inset-x-0 before:-inset-y-1.5 focus-visible:ring-offset-1 focus-visible:ring-offset-black",
             )}
-            activeClassName="font-semibold text-white"
+            activeClassName="font-semibold text-text-primary"
           >
             <span>Source</span>
           </Tab>
@@ -88,12 +85,12 @@ function ProcessCardHeader({
             value="tobe"
             roundedClass="rounded-lg"
             className={cn(
-              "relative flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium tracking-wide text-white/80 transition-colors duration-200 select-none hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+              "relative flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
               isMobile
                 ? "h-7 px-6 before:absolute before:-inset-y-2 before:inset-x-0"
                 : "h-9 px-4 before:absolute before:inset-x-0 before:-inset-y-1.5 focus-visible:ring-offset-1 focus-visible:ring-offset-black",
             )}
-            activeClassName="font-semibold text-white"
+            activeClassName="font-semibold text-text-primary"
           >
             <span>Optimized</span>
           </Tab>
