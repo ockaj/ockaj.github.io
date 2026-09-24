@@ -14,8 +14,10 @@ import {
 import { CONTACT_EMAIL } from "../../data/cvData";
 
 interface DrawerProps {
-  article: Article;
+  open: boolean;
+  article: Article | null;
   onClose: () => void;
+  onExitComplete?: () => void;
 }
 
 const REMARK_PLUGINS = [remarkGfm];
@@ -71,18 +73,24 @@ const JOURNAL_MARKDOWN_COMPONENTS = {
 };
 
 const JournalDrawer = memo(function JournalDrawer({
+  open,
   article,
   onClose,
+  onExitComplete,
 }: DrawerProps) {
   const prefersReducedMotion = useReducedMotion();
 
+  if (!article) return null;
+
   return (
     <BaseDrawer
+      open={open}
       title="Journal Entry"
       icon={<BookOpen size={14} className="text-accent" />}
       onClose={onClose}
       maxWidthClass="max-w-3xl"
       hashId={`article-${article.id}`}
+      onExitComplete={onExitComplete}
     >
       <motion.div
         variants={drawerContentVariants}

@@ -1,5 +1,5 @@
-import { memo, useCallback, useEffect } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { memo, useCallback, useEffect, useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { ARTICLES, ARTICLES_BY_ID, type Article } from "../../data/articles";
 import { useAppStore } from "../../store/useAppStore";
 import JournalEntry from "./JournalEntry";
@@ -28,6 +28,16 @@ function Journal() {
     ? (ARTICLES_BY_ID.get(activeArticleId) ?? null)
     : null;
 
+  const [prevArticle, setPrevArticle] = useState(selectedArticle);
+  const [displayedArticle, setDisplayedArticle] = useState(selectedArticle);
+
+  if (selectedArticle !== prevArticle) {
+    setPrevArticle(selectedArticle);
+    if (selectedArticle !== null) {
+      setDisplayedArticle(selectedArticle);
+    }
+  }
+
   // Dismiss non-existent journal article deep links (e.g. #article-invalid)
   useEffect(() => {
     if (activeArticleId && !selectedArticle) {
@@ -42,6 +52,10 @@ function Journal() {
 
   const handleCloseArticle = useCallback(() => {
     useAppStore.getState().closeModal();
+  }, []);
+
+  const handleExitComplete = useCallback(() => {
+    setDisplayedArticle(null);
   }, []);
 
   return (
@@ -67,14 +81,13 @@ function Journal() {
         </motion.div>
       </div>
 
-      <AnimatePresence>
-        {selectedArticle ? (
-          <JournalDrawer
-            article={selectedArticle}
-            onClose={handleCloseArticle}
-          />
-        ) : null}
-      </AnimatePresence>
+      {/* Drawer */}
+      <JournalDrawer
+        open={Boolean(selectedArticle)}
+        article={displayedArticle}
+        onClose={handleCloseArticle}
+        onExitComplete={handleExitComplete}
+      />
     </>
   );
 }
