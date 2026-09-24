@@ -43,4 +43,5 @@ Refer to specialized documentation for deep task context:
 - [LiquidGlass Primitives](./.agents/rules/liquid-glass.md)
 - [Motion Implementation](./.agents/rules/motion.md)
 - [Third-Party Library Usage](./.agents/rules/library-usage.md)
+- [Base UI Components](./.agents/rules/base-ui.md)
 - [All Specialized Rules](./.agents/rules/)
