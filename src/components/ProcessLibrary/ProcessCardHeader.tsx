@@ -63,7 +63,7 @@ function ProcessCardHeader({
           className={cn(
             "isolate inline-flex transform-gpu items-center rounded-xl border border-white/10 p-1 backdrop-blur-md select-none",
             isMobile
-              ? "h-9 bg-surface/80 shadow-md"
+              ? "bg-surface/80 shadow-md"
               : "bg-surface/90 shadow-lg",
           )}
           highlightClassName="navbar-highlight-flat"
