@@ -1,4 +1,4 @@
-export const CONTACT_EMAIL = "ondrej.michal.ockaj@gmail.com";
+import { CONTACT_EMAIL } from "../constants/contact";
 
 const UNIZA_FRI_SK =
   "Žilinská univerzita v Žiline, Fakulta riadenia a informatiky, Žilina";

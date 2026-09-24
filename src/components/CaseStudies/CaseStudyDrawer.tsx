@@ -10,7 +10,7 @@ import {
   drawerContentVariants,
   drawerItemVariants,
 } from "../../utils/motionVariants";
-import { CONTACT_EMAIL } from "../../data/cvData";
+import { CONTACT_EMAIL } from "../../constants/contact";
 import MetricCountUp from "./MetricCountUp";
 
 interface DrawerProps {

@@ -4,7 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import BpmnNodeBadge from "./Bpmn/BpmnNodeBadge";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import Footer from "./Footer";
-import { CONTACT_EMAIL } from "../data/cvData";
+import { CONTACT_EMAIL } from "../constants/contact";
 
 import {
   SECTION_ANIMATE,

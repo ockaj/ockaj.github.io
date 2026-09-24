@@ -94,7 +94,7 @@ Tier 3: State & Hooks (store/*, hooks/*)
   ↓
 Tier 2: Shared Utilities (utils/*)
   ↓
-Tier 1: Foundation (types/*, styles/*, data/*)
+Tier 1: Foundation (types/*, styles/*, constants/*, data/*)
 ```
 
 ### Architectural Rules
