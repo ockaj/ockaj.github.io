@@ -23,88 +23,43 @@ export function InnerBorderOverlay({
   );
 }
 
-function SpecularGlowOverlay({
+export function DesktopEffectsOverlay({
   roundedClass,
+  sheenSize,
   springX,
   springY,
-  lagX,
-  lagY,
-  springOpacity,
+  isHovered,
 }: Readonly<{
   roundedClass: string;
+  sheenSize: number;
   springX: MotionValue<number>;
   springY: MotionValue<number>;
-  lagX: MotionValue<number>;
-  lagY: MotionValue<number>;
-  springOpacity: MotionValue<number>;
+  isHovered: boolean;
 }>) {
+  const halfSheen = Math.round(sheenSize / 2);
+
   return (
     <span
       className={cn(
-        "pointer-events-none absolute inset-0 z-0 overflow-hidden",
+        "liquid-glass-rim pointer-events-none absolute inset-0 z-10 overflow-hidden transition-opacity duration-300",
         roundedClass,
+        isHovered ? "opacity-100" : "opacity-0",
       )}
     >
+      {/* Primary Specular Glint */}
       <motion.span
-        className="pointer-events-none absolute -mt-24 -ml-24 size-48 rounded-full bg-linear-to-r from-[#7A7BBF]/6 to-[#6667AB]/6 mix-blend-screen blur-2xl"
+        className="liquid-glass-sheen pointer-events-none absolute rounded-full"
         style={{
+          width: sheenSize,
+          height: sheenSize,
+          marginTop: -halfSheen,
+          marginLeft: -halfSheen,
           x: springX,
           y: springY,
-          opacity: springOpacity,
-          left: "50%",
-          top: "50%",
-        }}
-      />
-      <motion.span
-        className="pointer-events-none absolute -mt-16 -ml-16 size-32 rounded-full bg-linear-to-r from-[#F26B5B]/3 to-[#926AA6]/3 mix-blend-screen blur-xl"
-        style={{
-          x: lagX,
-          y: lagY,
-          opacity: springOpacity,
           left: "50%",
           top: "50%",
         }}
       />
     </span>
-  );
-}
-
-export function DesktopEffectsOverlay({
-  roundedClass,
-  springX,
-  springY,
-  lagX,
-  lagY,
-  springOpacity,
-  borderGradient,
-  isHovered,
-}: Readonly<{
-  roundedClass: string;
-  springX: MotionValue<number>;
-  springY: MotionValue<number>;
-  lagX: MotionValue<number>;
-  lagY: MotionValue<number>;
-  springOpacity: MotionValue<number>;
-  borderGradient: MotionValue<string>;
-  isHovered: boolean;
-}>) {
-  return (
-    <>
-      <SpecularGlowOverlay
-        roundedClass={roundedClass}
-        springX={springX}
-        springY={springY}
-        lagX={lagX}
-        lagY={lagY}
-        springOpacity={springOpacity}
-      />
-      <motion.span
-        className={cn(
-          "pointer-events-none absolute inset-0 z-10 transition-opacity duration-300",
-          isHovered ? "opacity-100" : "opacity-0",
-        )}
-        style={{ background: borderGradient, mixBlendMode: "overlay" }}
-      />
-    </>
   );
 }

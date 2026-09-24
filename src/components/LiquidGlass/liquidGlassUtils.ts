@@ -79,10 +79,12 @@ export function getGlassClasses({
   className?: string;
   isHovered?: boolean;
 }) {
-  const isEffectivelyActive = active || isHovered;
-  const borderActiveClasses = isEffectivelyActive
-    ? "border-white/[0.12] bg-white/[0.04]"
-    : "border-white/[0.04] bg-white/[0.015]";
+  let borderActiveClasses = "border-white/[0.04] bg-white/[0.015]";
+  if (active) {
+    borderActiveClasses = "border-white/[0.12] bg-white/[0.05]";
+  } else if (isHovered) {
+    borderActiveClasses = "border-white/[0.06] bg-white/[0.03]";
+  }
 
   const cursorAndFocusClasses =
     as === "button" || href || onClick

@@ -121,14 +121,9 @@ export function useLiquidGlassPhysics({
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const opacity = useMotionValue(0);
 
   const springX = useSpring(mouseX, SPRING.glassMouse);
   const springY = useSpring(mouseY, SPRING.glassMouse);
-  const springOpacity = useSpring(opacity, SPRING.glassOpacity);
-
-  const lagX = useSpring(mouseX, SPRING.glassLag);
-  const lagY = useSpring(mouseY, SPRING.glassLag);
 
   const effectiveTiltStrength = computeEffectiveTiltStrength(
     dimensions.width,
@@ -162,11 +157,6 @@ export function useLiquidGlassPhysics({
       : 0,
   );
 
-  const borderGradient = useTransform(
-    () =>
-      `radial-gradient(180px circle at calc(50% + ${springX.get()}px) calc(50% + ${springY.get()}px), rgba(255, 255, 255, 0.06) 0%, transparent 80%)`,
-  );
-
   const handleMouseEnter = useCallback(() => {
     if (!interactive) return;
     if (overlayTimerRef.current !== null) {
@@ -174,9 +164,8 @@ export function useLiquidGlassPhysics({
       overlayTimerRef.current = null;
     }
     setOverlayActive(true);
-    opacity.set(1);
     setIsHovered(true);
-  }, [interactive, opacity]);
+  }, [interactive]);
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
@@ -193,7 +182,6 @@ export function useLiquidGlassPhysics({
 
   const handleMouseLeave = useCallback(() => {
     if (!interactive) return;
-    opacity.set(0);
     mouseX.set(0);
     mouseY.set(0);
     setIsHovered(false);
@@ -204,7 +192,7 @@ export function useLiquidGlassPhysics({
       overlayTimerRef.current = null;
       setOverlayActive(false);
     }, 350);
-  }, [interactive, opacity, mouseX, mouseY]);
+  }, [interactive, mouseX, mouseY]);
 
   const setElementRef = useCallback((node: HTMLElement | null) => {
     elementRef.current = node;
@@ -217,14 +205,10 @@ export function useLiquidGlassPhysics({
     overlayActive,
     springX,
     springY,
-    lagX,
-    lagY,
-    springOpacity,
     springPullX,
     springPullY,
     springTiltX,
     springTiltY,
-    borderGradient,
     handleMouseEnter,
     handleMouseMove,
     handleMouseLeave,

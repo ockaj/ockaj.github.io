@@ -17,13 +17,14 @@ export function getInnerGlassStyle(
   if (variant === "beveled") {
     return {
       boxShadow: active
-        ? "inset 0 1px 2px rgba(255, 255, 255, 0.4), inset 0 6px 12px rgba(255, 255, 255, 0.06), 0 8px 16px rgba(0, 0, 0, 0.15)"
-        : "inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 4px 8px rgba(255, 255, 255, 0.03), 0 4px 10px rgba(0, 0, 0, 0.08)",
+        ? "inset 0 1px 2px rgba(255, 255, 255, 0.35), inset 0 6px 12px rgba(255, 255, 255, 0.06), 0 8px 16px rgba(0, 0, 0, 0.15)"
+        : "inset 0 1px 1px rgba(255, 255, 255, 0.2), inset 0 4px 8px rgba(255, 255, 255, 0.03), 0 4px 10px rgba(0, 0, 0, 0.08)",
     };
   }
   return {
-    boxShadow:
-      "inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 4px 8px rgba(255, 255, 255, 0.03), 0 4px 10px rgba(0, 0, 0, 0.08)",
+    boxShadow: active
+      ? "inset 0 1px 2px rgba(255, 255, 255, 0.3), inset 0 6px 12px rgba(255, 255, 255, 0.04), 0 6px 14px rgba(0, 0, 0, 0.15)"
+      : "inset 0 1px 1px rgba(255, 255, 255, 0.18), inset 0 4px 8px rgba(255, 255, 255, 0.03), 0 4px 12px rgba(0, 0, 0, 0.12)",
   };
 }
 

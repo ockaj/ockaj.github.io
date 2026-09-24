@@ -562,7 +562,29 @@ p {
   );
 }
 
+.liquid-glass-rim {
+  padding: 1px;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+
+.liquid-glass-sheen {
+  background-image: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.16) 28%,
+    rgba(255, 255, 255, 0.03) 55%,
+    transparent 75%
+  );
+}
+
 @media (prefers-reduced-transparency: reduce) {
+  .liquid-glass-rim {
+    display: none !important;
+  }
+
   .navbar-capsule,
   .highlight-pill,
   .backdrop-blur-sm,
@@ -585,6 +607,10 @@ p {
 }
 
 @media (prefers-contrast: more) {
+  .liquid-glass-rim {
+    display: none !important;
+  }
+
   .navbar-capsule,
   .highlight-pill,
   .backdrop-blur-sm,

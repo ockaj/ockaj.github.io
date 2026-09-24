@@ -64,10 +64,8 @@ function computeInnerGlassStyle(
 ): CSSProperties {
   const baseStyle = getInnerGlassStyle(variant, isActive);
   if (specularGlow && isActive && variant === "flat") {
-    const defaultShadow =
-      "inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 4px 8px rgba(255, 255, 255, 0.03), 0 4px 10px rgba(0, 0, 0, 0.08)";
     return {
-      boxShadow: `inset 0 1px 2px rgba(255, 255, 255, 0.24), inset 0 8px 16px rgba(255, 255, 255, 0.06), ${defaultShadow}`,
+      boxShadow: `inset 0 1px 2px rgba(255, 255, 255, 0.24), inset 0 8px 16px rgba(255, 255, 255, 0.06), ${baseStyle.boxShadow ?? ""}`,
     };
   }
   return baseStyle;
@@ -208,13 +206,8 @@ export default function LiquidGlassDesktop({
   });
 
   const innerGlassStyle = useMemo(
-    () =>
-      computeInnerGlassStyle(
-        variant,
-        active || physics.isHovered,
-        specularGlow,
-      ),
-    [variant, active, physics.isHovered, specularGlow],
+    () => computeInnerGlassStyle(variant, active, specularGlow),
+    [variant, active, specularGlow],
   );
 
   const tagStyle = useMemo(
@@ -286,6 +279,12 @@ export default function LiquidGlassDesktop({
     domProps,
   );
 
+  const minDim = Math.min(physics.dimensions.width, physics.dimensions.height);
+  const maxDim = Math.max(physics.dimensions.width, physics.dimensions.height);
+  // Anisotropic power law: 70% shortest dimension, 30% longest dimension
+  const rawSize = Math.pow(minDim, 0.7) * Math.pow(maxDim, 0.3) * 1.15;
+  const sheenSize = Math.round(Math.min(Math.max(rawSize, 48), 500));
+
   return (
     <Tag ref={handleRef} {...tagProps}>
       <InnerBorderOverlay
@@ -296,12 +295,9 @@ export default function LiquidGlassDesktop({
       {rendersFullEffects && physics.overlayActive ? (
         <DesktopEffectsOverlay
           roundedClass={roundedClass}
+          sheenSize={sheenSize}
           springX={physics.springX}
           springY={physics.springY}
-          lagX={physics.lagX}
-          lagY={physics.lagY}
-          springOpacity={physics.springOpacity}
-          borderGradient={physics.borderGradient}
           isHovered={physics.isHovered}
         />
       ) : null}

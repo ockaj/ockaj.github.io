@@ -8,6 +8,7 @@ import {
 } from "../LiquidGlass/LiquidGlass";
 import BpmnNodeBadge from "./BpmnNodeBadge";
 import { PauseableTimer } from "./pauseableTimer";
+import { SPRING } from "../../utils/springConfig";
 
 export interface BpmnHotkeyToastProps {
   readonly onDismiss: () => void;
@@ -87,11 +88,17 @@ export default function BpmnHotkeyToast({
         y: prefersReducedMotion ? 0 : 30,
         scale: prefersReducedMotion ? 1 : 0.95,
       }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
+      animate={{
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: prefersReducedMotion ? { duration: 0.15 } : SPRING.modal,
+      }}
       exit={{
         opacity: 0,
         y: prefersReducedMotion ? 0 : 20,
         scale: prefersReducedMotion ? 1 : 0.95,
+        transition: prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
       }}
       className="pointer-events-auto fixed right-6 bottom-6 z-40 hidden max-w-sm text-sm md:block"
       onPointerEnter={handlePointerEnter}
