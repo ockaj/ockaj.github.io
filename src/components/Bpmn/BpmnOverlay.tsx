@@ -169,19 +169,18 @@ export default function BpmnOverlay() {
                           <Dialog.Title className="font-display text-lg text-text-primary md:text-2xl">
                             Portfolio System Operation Blueprint
                           </Dialog.Title>
-                          <p className="mt-1 max-w-xl text-sm leading-relaxed text-pretty text-muted">
+                          <Dialog.Description className="mt-1 max-w-xl text-sm leading-relaxed text-pretty text-muted">
                             Click any user task box in the upper lane to navigate
                             directly to that section. Press{" "}
                             <span className="rounded-xl border border-white/10 bg-white/5 px-2.5 py-0.5 font-mono font-bold text-accent">
                               ESC
                             </span>{" "}
                             or click close to dismiss.
-                          </p>
+                          </Dialog.Description>
                         </div>
                         <Dialog.Close
                           render={
                             <LiquidGlassButton
-                              onClick={close}
                               ariaLabel="Close model overlay"
                               className="size-10 shrink-0 p-0 md:size-11"
                             >

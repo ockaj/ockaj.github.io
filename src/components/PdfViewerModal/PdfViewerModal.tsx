@@ -135,13 +135,7 @@ const PdfModalTitle = memo(function PdfModalTitle() {
   );
 });
 
-interface PdfModalActionsProps {
-  onClose: () => void;
-}
-
-const PdfModalMobileActions = memo(function PdfModalMobileActions({
-  onClose,
-}: PdfModalActionsProps) {
+const PdfModalMobileActions = memo(function PdfModalMobileActions() {
   return (
     <div className="flex items-center gap-2.5 sm:hidden">
       <LiquidGlassButton
@@ -156,7 +150,6 @@ const PdfModalMobileActions = memo(function PdfModalMobileActions({
       <Dialog.Close
         render={
           <LiquidGlassButton
-            onClick={onClose}
             ariaLabel="Close CV Viewer"
             className="size-11 p-0"
           >
@@ -168,9 +161,7 @@ const PdfModalMobileActions = memo(function PdfModalMobileActions({
   );
 });
 
-const PdfModalDesktopActions = memo(function PdfModalDesktopActions({
-  onClose,
-}: PdfModalActionsProps) {
+const PdfModalDesktopActions = memo(function PdfModalDesktopActions() {
   return (
     <div className="hidden items-center gap-2 sm:flex">
       <LiquidGlassButton
@@ -195,7 +186,6 @@ const PdfModalDesktopActions = memo(function PdfModalDesktopActions({
       <Dialog.Close
         render={
           <LiquidGlassButton
-            onClick={onClose}
             ariaLabel="Close CV Viewer"
             className="size-11 p-0"
           >
@@ -440,7 +430,7 @@ function PdfViewerModal() {
                     {/* Title, Avatar & Mobile Action Buttons */}
                     <div className="flex w-full items-center justify-between gap-4 sm:w-auto">
                       <PdfModalTitle />
-                      <PdfModalMobileActions onClose={handleClose} />
+                      <PdfModalMobileActions />
                     </div>
 
                     {/* Tab Selector */}
@@ -451,7 +441,7 @@ function PdfViewerModal() {
                     />
 
                     {/* Desktop Action Buttons */}
-                    <PdfModalDesktopActions onClose={handleClose} />
+                    <PdfModalDesktopActions />
                   </div>
 
                   {/* Viewer Body Content */}

@@ -1,6 +1,7 @@
-import { memo, useCallback, useId } from "react";
+import { memo, useCallback } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ChevronDown, ArrowUpRight } from "lucide-react";
+import { Accordion } from "@base-ui/react/accordion";
 import {
   InteractiveGlass,
   LiquidGlassButton,
@@ -14,16 +15,12 @@ import type { FaqItem as FaqItemType } from "../../data/faqData";
 interface FaqItemProps {
   item: FaqItemType;
   isOpen: boolean;
-  onToggle: (id: string) => void;
 }
 
 export const FaqItem = memo(function FaqItem({
   item,
   isOpen,
-  onToggle,
 }: FaqItemProps) {
-  const contentId = useId();
-  const triggerId = useId();
   const prefersReducedMotion = useReducedMotion();
   const isReduced = !!prefersReducedMotion;
 
@@ -42,69 +39,56 @@ export const FaqItem = memo(function FaqItem({
   }, []);
 
   return (
-    <InteractiveGlass
-      as="div"
-      roundedClass="rounded-2xl"
-      className="w-full text-left"
-      tilt={false}
-      specularGlow
-    >
-      <div className="p-6 md:p-7">
-        <div
-          id={triggerId}
-          role="button"
-          tabIndex={0}
-          onClick={() => onToggle(item.id)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              onToggle(item.id);
-            }
-          }}
-          aria-expanded={isOpen}
-          aria-controls={contentId}
-          className="flex w-full cursor-pointer items-center justify-between gap-4 rounded-lg text-left select-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none"
-        >
-          <div className="flex flex-col">
-            <h3 className="font-display text-lg font-normal text-balance text-text-primary transition-colors duration-200 md:text-xl">
-              {item.question}
-            </h3>
-          </div>
+    <Accordion.Item value={item.id} className="w-full">
+      <InteractiveGlass
+        as="div"
+        roundedClass="rounded-2xl"
+        className="w-full text-left"
+        tilt={false}
+        specularGlow
+      >
+        <div className="p-6 md:p-7">
+          <Accordion.Header className="m-0 p-0 font-normal">
+            <Accordion.Trigger className="flex w-full cursor-pointer items-center justify-between gap-4 rounded-lg text-left select-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none">
+              <div className="flex flex-col">
+                <span className="font-display text-lg font-normal text-balance text-text-primary transition-colors duration-200 md:text-xl">
+                  {item.question}
+                </span>
+              </div>
 
-          <InteractiveGlass
-            as="span"
-            roundedClass="rounded-full"
-            className="flex size-11 min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center p-0 text-text-primary shadow-sm transition-colors"
-            magnetic
-            tilt
-            magneticStrength={0.03}
-            specularGlow
+              <InteractiveGlass
+                as="span"
+                roundedClass="rounded-full"
+                className="flex size-11 min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center p-0 text-text-primary shadow-sm transition-colors"
+                magnetic
+                tilt
+                magneticStrength={0.03}
+                specularGlow
+              >
+                <motion.span
+                  data-no-skeleton=""
+                  initial={false}
+                  animate={{ rotate: isOpen ? 180 : 0 }}
+                  transition={isReduced ? { duration: 0.1 } : SPRING.snappy}
+                  className="flex items-center justify-center text-text-primary transition-colors duration-200"
+                >
+                  <ChevronDown size={18} aria-hidden="true" />
+                </motion.span>
+              </InteractiveGlass>
+            </Accordion.Trigger>
+          </Accordion.Header>
+
+          <Accordion.Panel
+            keepMounted
+            hiddenUntilFound
+            data-no-skeleton={!isOpen ? "" : undefined}
+            className={cn(
+              "grid transition-accordion duration-350 ease-expo-out motion-reduce:transition-none",
+              isOpen
+                ? "visible grid-rows-open"
+                : "pointer-events-none invisible grid-rows-closed",
+            )}
           >
-            <motion.span
-              data-no-skeleton=""
-              initial={false}
-              animate={{ rotate: isOpen ? 180 : 0 }}
-              transition={isReduced ? { duration: 0.1 } : SPRING.snappy}
-              className="flex items-center justify-center text-text-primary transition-colors duration-200"
-            >
-              <ChevronDown size={18} aria-hidden="true" />
-            </motion.span>
-          </InteractiveGlass>
-        </div>
-
-        <div
-          id={contentId}
-          role="region"
-          aria-labelledby={triggerId}
-          aria-hidden={!isOpen}
-          data-no-skeleton={!isOpen ? "" : undefined}
-          className={cn(
-            "grid transition-accordion duration-350 ease-expo-out motion-reduce:transition-none",
-            isOpen
-              ? "visible grid-rows-open"
-              : "pointer-events-none invisible grid-rows-closed",
-          )}
-        >
           <div className="overflow-hidden">
             <div
               className={cn(
@@ -142,8 +126,9 @@ export const FaqItem = memo(function FaqItem({
               ) : null}
             </div>
           </div>
-        </div>
+        </Accordion.Panel>
       </div>
     </InteractiveGlass>
-  );
+  </Accordion.Item>
+);
 });

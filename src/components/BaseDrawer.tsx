@@ -162,7 +162,6 @@ const BaseDrawer = memo(function BaseDrawer({
                   <Dialog.Close
                     render={
                       <LiquidGlassButton
-                        onClick={onClose}
                         ariaLabel="Close panel"
                         className="size-11 p-0"
                       >

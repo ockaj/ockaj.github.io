@@ -47,8 +47,9 @@ Single-page React portfolio (no router) built with React 19, Vite 8, TypeScript 
 ## 4. Overlays, Dialogs & Modals
 
 - **Base UI Primitives**: Built using unstyled `@base-ui/react` primitives imported from direct subpaths:
-  - Dialogs: `@base-ui/react/dialog` (`Dialog.Root`, `Dialog.Portal`, `Dialog.Backdrop`, `Dialog.Popup`, `Dialog.Title`, `Dialog.Close`)
+  - Dialogs: `@base-ui/react/dialog` (`Dialog.Root`, `Dialog.Portal`, `Dialog.Backdrop`, `Dialog.Popup`, `Dialog.Title`, `Dialog.Description`, `Dialog.Close`)
   - Tooltips: `@base-ui/react/tooltip`
+  - Accordions: `@base-ui/react/accordion` (`Accordion.Root`, `Accordion.Item`, `Accordion.Header`, `Accordion.Trigger`, `Accordion.Panel`)
 - **Exit Transitions**: Always pass `keepMounted` to `<Dialog.Portal keepMounted>` when wrapping with `motion/react` `<AnimatePresence>` to allow exit animations to complete.
 - **Tooltip Animations**: Tooltips use exclusively CSS transitions (`[&[data-starting-style]]`, `[&[data-ending-style]]`, `[&[data-instant]]`). Tooltips do not use `motion/react` or `<AnimatePresence>`. Base UI detects native `transitionend` events to manage entrance and unmount timing with zero JavaScript animation overhead.
 - **Universal Modal Hook**: [`useModal(id)`](file:///d:/github/ockaj.github.io/src/hooks/useAppNavigation.ts) combines `activeModal` in Zustand and `useOverlay` to provide `{ isOpen, open, close }` while synchronizing URL hash history.
@@ -58,6 +59,7 @@ Single-page React portfolio (no router) built with React 19, Vite 8, TypeScript 
   - `BpmnOverlay`: Desktop-only blueprint overlay in [`src/components/Bpmn/BpmnOverlay.tsx`](file:///d:/github/ockaj.github.io/src/components/Bpmn/BpmnOverlay.tsx) (`!isLoading && !isMobile`). `DesktopBpmnOverlay` and `useNavigation` check `useIsMobile()` from [`src/hooks/useMediaQuery.ts`](file:///d:/github/ockaj.github.io/src/hooks/useMediaQuery.ts) (which uses the shared `MediaQueryStore` registry) to dismiss `#bpmn` and redirect to `#home` on mobile.
   - `ProcessLightbox`: Modal image lightbox with `react-zoom-pan-pinch` pan/zoom controls.
   - `Tooltip`: Informational node badges with pure CSS transitions.
+  - `Faq`: Accordion disclosure list using `@base-ui/react/accordion`.
 
 ---
 

@@ -1,6 +1,7 @@
 import { memo, useState, useCallback } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowDown } from "lucide-react";
+import { Accordion } from "@base-ui/react/accordion";
 import {
   InteractiveGlass,
   LiquidGlassButton,
@@ -22,19 +23,7 @@ const cardVariants = cardStaggerVariants;
 function Faq() {
   const prefersReducedMotion = useReducedMotion();
 
-  const [openItemIds, setOpenItemIds] = useState<Set<string>>(() => new Set());
-
-  const handleToggle = useCallback((id: string) => {
-    setOpenItemIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  }, []);
+  const [openItemIds, setOpenItemIds] = useState<string[]>([]);
 
   const handleScrollToContact = useCallback(() => {
     navigateTo("contact");
@@ -51,19 +40,25 @@ function Faq() {
         viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
         className="flex flex-col gap-4"
       >
-        {FAQ_ITEMS.map((item) => (
-          <motion.div
-            key={item.id}
-            variants={cardVariants}
-            custom={prefersReducedMotion}
-          >
-            <FaqItem
-              item={item}
-              isOpen={openItemIds.has(item.id)}
-              onToggle={handleToggle}
-            />
-          </motion.div>
-        ))}
+        <Accordion.Root
+          value={openItemIds}
+          onValueChange={setOpenItemIds}
+          multiple
+          className="flex flex-col gap-4"
+        >
+          {FAQ_ITEMS.map((item) => (
+            <motion.div
+              key={item.id}
+              variants={cardVariants}
+              custom={prefersReducedMotion}
+            >
+              <FaqItem
+                item={item}
+                isOpen={openItemIds.includes(item.id)}
+              />
+            </motion.div>
+          ))}
+        </Accordion.Root>
 
         {/* Editorial Transition Card */}
         <motion.div variants={cardVariants} custom={prefersReducedMotion}>

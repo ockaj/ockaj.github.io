@@ -92,7 +92,9 @@ const LightboxFooter = memo(function LightboxFooter({
       >
         {title}
       </Dialog.Title>
-      <p className="text-sm text-pretty text-white/80">{description}</p>
+      <Dialog.Description className="text-sm text-pretty text-white/80">
+        {description}
+      </Dialog.Description>
     </div>
   );
 });
@@ -193,7 +195,7 @@ function ProcessLightbox({
                 }}
               >
                 {/* Floating Island Control Panel inside context to use useControls */}
-                <LightboxControls isMobile={isMobile} onClose={onClose} />
+                <LightboxControls isMobile={isMobile} />
 
                 <TransformComponent
                   wrapperClass="w-full h-full flex justify-center items-center cursor-default group-data-[zoomed=true]:cursor-grab group-data-[zoomed=true]:active:cursor-grabbing"

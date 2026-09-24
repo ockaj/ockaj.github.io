@@ -13,12 +13,10 @@ import {
 
 interface LightboxControlsProps {
   isMobile: boolean;
-  onClose: () => void;
 }
 
 const LightboxControls = memo(function LightboxControls({
   isMobile,
-  onClose,
 }: LightboxControlsProps) {
   const libraryContext = useTransformContext();
   const scaleTextRef = useRef<HTMLSpanElement>(null);
@@ -132,7 +130,6 @@ const LightboxControls = memo(function LightboxControls({
         <Dialog.Close
           render={
             <LiquidGlassButton
-              onClick={onClose}
               ariaLabel="Close lightbox"
               magnetic
               magneticStrength={0.04}
