@@ -40,7 +40,7 @@ Feature modules encapsulate internal implementation. ESLint (`no-restricted-impo
 |---|---|---|
 | `CaseStudies` | `CaseStudies/CaseStudies` | `CaseStudyCard`, `CaseStudyDrawer`, `MetricCountUp` |
 | `Journal` | `Journal/Journal` | `JournalDrawer`, `JournalEntry` |
-| `ProcessLibrary` | `ProcessLibrary/ProcessLibrary` | `ProcessCardHeader`, `ProcessCarouselViewport`, `ProcessDesktopCard`, `ProcessDesktopControls`, `ProcessMobileCarousel`, `ProcessMobileControls`, `ProcessVariantStage`, `ProcessLibraryContext` |
+| `ProcessLibrary` | `ProcessLibrary/ProcessLibrary` | `ProcessCardHeader`, `ProcessDesktopCard`, `ProcessDesktopControls`, `ProcessMobileCarousel`, `ProcessMobileControls`, `ProcessVariantStage`, `ProcessLibraryContext` |
 | `ProcessLightbox` | `ProcessLightbox/ProcessLightbox` | `LightboxControls`, `ZoomableImage` |
 | `Faq` | `Faq/Faq` | `FaqItem` |
 | `Aurora` | `Aurora/Aurora` | `AuroraFallback` |

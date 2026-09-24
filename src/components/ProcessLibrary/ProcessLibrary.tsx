@@ -22,9 +22,10 @@ import {
   SECTION_VIEWPORT,
 } from "../../utils/motionVariants";
 import { useIsDesktop } from "../../hooks/useMediaQuery";
+import ProcessDesktopCard from "./ProcessDesktopCard";
 import ProcessDesktopControls from "./ProcessDesktopControls";
+import ProcessMobileCarousel from "./ProcessMobileCarousel";
 import ProcessMobileControls from "./ProcessMobileControls";
-import ProcessCarouselViewport from "./ProcessCarouselViewport";
 import {
   ProcessLibraryContext,
   type ProcessLibraryContextValue,
@@ -192,14 +193,23 @@ function ProcessLibrary() {
           viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
           className="relative z-20 grid grid-cols-1 items-stretch gap-5 sm:gap-6 md:gap-8 lg:grid-cols-12 lg:gap-12"
         >
-          {/* Left Column: Index Menu Selector (Desktop only) */}
-          {isDesktop ? <ProcessDesktopControls /> : null}
+          {isDesktop ? (
+            <>
+              {/* Left Column: Index Menu Selector */}
+              <ProcessDesktopControls />
 
-          {/* Responsive Carousel Viewport */}
-          <ProcessCarouselViewport />
+              {/* Right Column: Process Interactive Card */}
+              <ProcessDesktopCard />
+            </>
+          ) : (
+            <>
+              {/* Responsive Carousel Viewport */}
+              <ProcessMobileCarousel />
 
-          {/* Mobile Topic Selector Dock (Mobile only) */}
-          {isDesktop ? null : <ProcessMobileControls />}
+              {/* Mobile Topic Selector Dock */}
+              <ProcessMobileControls />
+            </>
+          )}
         </motion.div>
       </div>
 
