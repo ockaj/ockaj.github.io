@@ -21,16 +21,6 @@ interface ProcessLightboxProps {
   onExitComplete?: () => void;
 }
 
-const backdropVariants: Variants = {
-  hidden: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
-    opacity: 0,
-    transition: custom.prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
-  }),
-  visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
-    opacity: 1,
-    transition: custom.prefersReducedMotion ? { duration: 0.15 } : SPRING.modal,
-  }),
-};
 
 function getDialogHiddenScale(custom: {
   prefersReducedMotion: boolean;
@@ -127,6 +117,7 @@ function ProcessLightbox({
     <Dialog.Root
       open={open}
       modal
+      disablePointerDismissal
       onOpenChange={(nextOpen) => {
         if (!nextOpen) {
           onClose();
@@ -136,27 +127,35 @@ function ProcessLightbox({
       <AnimatePresence onExitComplete={onExitComplete}>
         {open ? (
           <Dialog.Portal keepMounted>
-            <div className="fixed inset-0 z-100 flex touch-none items-center justify-center p-0 md:p-6">
-          {/* Backdrop */}
-          <Dialog.Backdrop
-            onClick={onClose}
-            render={
-              <motion.div
-                className="pointer-events-auto fixed inset-0 bg-black/80 backdrop-blur-md"
-                custom={{ prefersReducedMotion, isMobile }}
-                variants={backdropVariants}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-              />
-            }
-          />
+            {/* Backdrop */}
+            <Dialog.Backdrop
+              onClick={onClose}
+              render={
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{
+                    opacity: 1,
+                    transition: prefersReducedMotion
+                      ? { duration: 0.15 }
+                      : SPRING.modal,
+                  }}
+                  exit={{
+                    opacity: 0,
+                    transition: prefersReducedMotion
+                      ? { duration: 0.15 }
+                      : SPRING.exit,
+                  }}
+                  className="fixed inset-0 z-90 overscroll-contain bg-black/70 backdrop-blur-none md:backdrop-blur-sm"
+                />
+              }
+            />
 
-          {/* Modal Popup Container */}
-          <Dialog.Popup
-            render={
-              <motion.div
-                className="relative z-10 flex h-dvh max-h-dvh w-full max-w-7xl flex-col overflow-hidden rounded-none border-0 border-white/10 bg-surface shadow-2xl md:aspect-16/10 md:h-auto md:max-h-85vh md:rounded-3xl md:border"
+            {/* Modal Viewport Container */}
+            <Dialog.Viewport className="pointer-events-none fixed inset-0 z-100 flex touch-none items-center justify-center p-0 md:p-6">
+              <Dialog.Popup
+                render={
+                  <motion.div
+                    className="pointer-events-auto relative z-10 flex h-dvh max-h-dvh w-full max-w-7xl flex-col overflow-hidden rounded-none border-0 border-white/10 bg-surface shadow-2xl md:aspect-16/10 md:h-auto md:max-h-85vh md:rounded-3xl md:border"
                 custom={{ prefersReducedMotion, isMobile }}
                 variants={dialogVariants}
                 initial="hidden"
@@ -210,7 +209,7 @@ function ProcessLightbox({
             {/* Bottom text info overlay */}
             <LightboxFooter title={item.title} description={item.description} />
           </Dialog.Popup>
-        </div>
+        </Dialog.Viewport>
       </Dialog.Portal>
         ) : null}
       </AnimatePresence>

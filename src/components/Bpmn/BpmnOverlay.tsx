@@ -117,30 +117,34 @@ export default function BpmnOverlay() {
       >
         <AnimatePresence>
           {isOpen ? (
-              <Dialog.Portal keepMounted>
-                <div className="pointer-events-none fixed inset-0 z-120 flex items-center justify-center p-0 md:p-6 lg:p-8">
-                  {/* Backdrop */}
-                  <Dialog.Backdrop
-                    onClick={close}
-                    render={
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{
-                          opacity: 1,
-                          transition: SPRING.modal,
-                        }}
-                        exit={{
-                          opacity: 0,
-                          transition: SPRING.exit,
-                        }}
-                        className="pointer-events-auto fixed inset-0 bg-black/80 backdrop-blur-md"
-                      />
-                    }
+            <Dialog.Portal keepMounted>
+              {/* Backdrop */}
+              <Dialog.Backdrop
+                onClick={close}
+                render={
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{
+                      opacity: 1,
+                      transition: prefersReducedMotion
+                        ? { duration: 0.15 }
+                        : SPRING.modal,
+                    }}
+                    exit={{
+                      opacity: 0,
+                      transition: prefersReducedMotion
+                        ? { duration: 0.15 }
+                        : SPRING.exit,
+                    }}
+                    className="fixed inset-0 z-90 overscroll-contain bg-black/70 backdrop-blur-none md:backdrop-blur-sm"
                   />
+                }
+              />
 
-                  {/* Modal Container */}
-                  <Dialog.Popup
-                    render={
+              {/* Modal Viewport Container */}
+              <Dialog.Viewport className="pointer-events-none fixed inset-0 z-100 flex items-center justify-center p-0 md:p-6 lg:p-8">
+                <Dialog.Popup
+                  render={
                       <motion.div
                         custom={{ prefersReducedMotion, isMobile }}
                         initial="hidden"
@@ -208,7 +212,7 @@ export default function BpmnOverlay() {
                       </div>
                     </div>
                   </Dialog.Popup>
-                </div>
+              </Dialog.Viewport>
               </Dialog.Portal>
             ) : null}
           </AnimatePresence>

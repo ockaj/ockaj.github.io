@@ -4,7 +4,6 @@ import {
   useCallback,
   memo,
   useReducer,
-  type ReactNode,
 } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Dialog } from "@base-ui/react/dialog";
@@ -37,14 +36,6 @@ const MODAL_CONTAINER_STYLE: React.CSSProperties = {
     "inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 16px rgba(0, 0, 0, 0.6)",
 };
 
-const BACKDROP_ANIMATION = (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    exit={{ opacity: 0, transition: SPRING.exit }}
-    className="pointer-events-auto fixed inset-0 bg-bg/80 backdrop-blur-none md:backdrop-blur-md"
-  />
-);
 
 const MODAL_SHEEN_OVERLAY = (
   <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-1/2 bg-linear-to-b from-white/5 to-transparent" />
@@ -355,80 +346,6 @@ const InteractiveCvContent = memo(function InteractiveCvContent() {
   );
 });
 
-interface PdfModalPopupContentProps {
-  activeTab: "pdf" | "interactive";
-  onTabChange: (tab: "pdf" | "interactive") => void;
-  onClose: () => void;
-  isMobile: boolean;
-  prefersReducedMotion: boolean;
-  children: ReactNode;
-}
-
-const PdfModalPopupContent = memo(function PdfModalPopupContent({
-  activeTab,
-  onTabChange,
-  onClose,
-  isMobile,
-  prefersReducedMotion,
-  children,
-}: PdfModalPopupContentProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: SPRING.exit }}
-      className="pointer-events-none fixed inset-0 z-100 flex items-center justify-center p-0 md:p-6 lg:p-8"
-    >
-      {/* Backdrop Blur overlay */}
-      <Dialog.Backdrop onClick={onClose} render={BACKDROP_ANIMATION} />
-
-      {/* Modal Container */}
-      <Dialog.Popup
-        render={
-          <motion.div
-            custom={{ prefersReducedMotion, isMobile }}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            variants={modalVariants}
-            className="pointer-events-auto relative z-10 flex size-full flex-col overflow-hidden rounded-none border-0 bg-surface md:h-85vh md:max-w-5xl md:rounded-3xl md:border md:border-white/10 md:bg-surface/90 md:backdrop-blur-2xl"
-            style={MODAL_CONTAINER_STYLE}
-          />
-        }
-      >
-        <div className="flex size-full flex-col">
-          {/* Specular sheen header overlay */}
-          {MODAL_SHEEN_OVERLAY}
-
-          {/* Header */}
-          <div className="relative z-30 flex flex-col items-center justify-between gap-3 border-b border-white/10 px-4 pb-3 pt-safe-4 sm:flex-row md:px-6 md:py-4">
-            {/* Title, Avatar & Mobile Action Buttons */}
-            <div className="flex w-full items-center justify-between gap-4 sm:w-auto">
-              <PdfModalTitle />
-              <PdfModalMobileActions onClose={onClose} />
-            </div>
-
-            {/* Tab Selector */}
-            <PdfModalTabs
-              activeTab={activeTab}
-              onTabChange={onTabChange}
-              isMobile={isMobile}
-            />
-
-            {/* Desktop Action Buttons */}
-            <PdfModalDesktopActions onClose={onClose} />
-          </div>
-
-          {/* Viewer Body Content */}
-          <div className="relative flex-1 overflow-hidden bg-bg/40">
-            {children}
-          </div>
-        </div>
-      </Dialog.Popup>
-    </motion.div>
-  );
-});
-
 interface PdfModalBodyProps {
   activeTab: "pdf" | "interactive";
 }
@@ -476,15 +393,74 @@ function PdfViewerModal() {
       <AnimatePresence>
         {isOpen ? (
           <Dialog.Portal keepMounted>
-            <PdfModalPopupContent
-              activeTab={activeTab}
-              onTabChange={handleTabChange}
-              onClose={handleClose}
-              isMobile={isMobile}
-              prefersReducedMotion={!!prefersReducedMotion}
-            >
-              <PdfModalBody activeTab={activeTab} />
-            </PdfModalPopupContent>
+            {/* Backdrop */}
+            <Dialog.Backdrop
+              onClick={handleClose}
+              render={
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{
+                    opacity: 1,
+                    transition: prefersReducedMotion
+                      ? { duration: 0.15 }
+                      : SPRING.modal,
+                  }}
+                  exit={{
+                    opacity: 0,
+                    transition: prefersReducedMotion
+                      ? { duration: 0.15 }
+                      : SPRING.exit,
+                  }}
+                  className="fixed inset-0 z-90 overscroll-contain bg-black/70 backdrop-blur-none md:backdrop-blur-sm"
+                />
+              }
+            />
+
+            {/* Modal Viewport Container */}
+            <Dialog.Viewport className="pointer-events-none fixed inset-0 z-100 flex items-center justify-center p-0 md:p-6 lg:p-8">
+              <Dialog.Popup
+                render={
+                  <motion.div
+                    custom={{ prefersReducedMotion, isMobile }}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    variants={modalVariants}
+                    className="pointer-events-auto relative z-10 flex size-full flex-col overflow-hidden rounded-none border-0 bg-surface md:h-85vh md:max-w-5xl md:rounded-3xl md:border md:border-white/10 md:bg-surface/90 md:backdrop-blur-2xl"
+                    style={MODAL_CONTAINER_STYLE}
+                  />
+                }
+              >
+                <div className="flex size-full flex-col">
+                  {/* Specular sheen header overlay */}
+                  {MODAL_SHEEN_OVERLAY}
+
+                  {/* Header */}
+                  <div className="relative z-30 flex flex-col items-center justify-between gap-3 border-b border-white/10 px-4 pb-3 pt-safe-4 sm:flex-row md:px-6 md:py-4">
+                    {/* Title, Avatar & Mobile Action Buttons */}
+                    <div className="flex w-full items-center justify-between gap-4 sm:w-auto">
+                      <PdfModalTitle />
+                      <PdfModalMobileActions onClose={handleClose} />
+                    </div>
+
+                    {/* Tab Selector */}
+                    <PdfModalTabs
+                      activeTab={activeTab}
+                      onTabChange={handleTabChange}
+                      isMobile={isMobile}
+                    />
+
+                    {/* Desktop Action Buttons */}
+                    <PdfModalDesktopActions onClose={handleClose} />
+                  </div>
+
+                  {/* Viewer Body Content */}
+                  <div className="relative flex-1 overflow-hidden bg-bg/40">
+                    <PdfModalBody activeTab={activeTab} />
+                  </div>
+                </div>
+              </Dialog.Popup>
+            </Dialog.Viewport>
           </Dialog.Portal>
         ) : null}
       </AnimatePresence>

@@ -102,11 +102,15 @@ const BaseDrawer = memo(function BaseDrawer({
                   initial={{ opacity: 0 }}
                   animate={{
                     opacity: 1,
-                    transition: SPRING.drawer,
+                    transition: prefersReducedMotion
+                      ? { duration: 0.15 }
+                      : SPRING.drawer,
                   }}
                   exit={{
                     opacity: 0,
-                    transition: SPRING.exit,
+                    transition: prefersReducedMotion
+                      ? { duration: 0.15 }
+                      : SPRING.exit,
                   }}
                   className="fixed inset-0 z-90 overscroll-contain bg-black/70 backdrop-blur-none md:backdrop-blur-sm"
                 />
