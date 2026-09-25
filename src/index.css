@@ -15,6 +15,11 @@
   --color-dispersion-cyan: oklch(85% 0.12 215 / 0.08);
   --color-dispersion-amber: oklch(85% 0.14 75 / 0.06);
 
+  /* Specular illumination */
+  --color-glass-sheen-core: oklch(100% 0 0 / 0.45);
+  --color-glass-sheen-mid: oklch(100% 0 0 / 0.12);
+  --color-glass-sheen-edge: oklch(100% 0 0 / 0.0);
+
   /* Typography */
   --text-headline-hero: clamp(3.5rem, 8vw, 6rem);
   --text-headline-section: clamp(1.625rem, 4.5vw, 3rem);
@@ -583,16 +588,12 @@ p {
 }
 
 .liquid-glass-sheen {
-  background-image: radial-gradient(
-    circle at center,
-    rgba(255, 255, 255, 0.4) 0%,
-    rgba(255, 255, 255, 0.16) 28%,
-    rgba(255, 255, 255, 0.03) 55%,
-    transparent 75%
-  );
+  pointer-events: none;
+  will-change: background;
 }
 
 @media (prefers-reduced-transparency: reduce) {
+  .liquid-glass-sheen,
   .liquid-glass-rim {
     display: none !important;
   }
@@ -619,6 +620,7 @@ p {
 }
 
 @media (prefers-contrast: more) {
+  .liquid-glass-sheen,
   .liquid-glass-rim {
     display: none !important;
   }

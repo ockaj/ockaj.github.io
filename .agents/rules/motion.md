@@ -84,3 +84,11 @@ const display = useTransform(count, (v) => String(Math.floor(v)));
 - Use `useMotionValueEvent` with scroll listeners to stop stroke animations when scrolled past view boundaries.
 - Gate heavy hover layers on desktop glass components with hover state checks.
 - Maintain hover overlays until exit transitions complete.
+
+## 6. Non-Reconciling Pointer & Sheen Motion
+
+- High-frequency pointer tracking must update `MotionValue` signals directly via `.set()`.
+- Never store continuous pointer coordinates in React component state.
+- Use `useMotionTemplate` to bind dynamic CSS gradient strings directly to the DOM style property.
+- When pointer enters an element, snap spring coordinates immediately using `spring.jump(value)` on frame 0.
+- Declare `isolation: isolate` on the parent container when rendering `mix-blend-mode` overlays. This prevents ancestor layer invalidation.

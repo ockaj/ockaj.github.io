@@ -40,4 +40,16 @@ Always import named exports from `src/components/LiquidGlass/`. The previous `Li
    - Use `roundedClass` (e.g. `rounded-2xl`, `rounded-full`, `rounded-xl`) to specify border radius curvature.
 4. **Tabs Variants**:
    - Use `variant="capsule"` (default) for floating stadium pill navigation bars and modals (`rounded-full`).
-   - Use `variant="segmented"` for segmented controls and card selectors. Follow concentric geometry ($R_{inner} = R_{outer} - \text{padding}$, e.g. outer `rounded-xl` with `p-1` and inner `rounded-lg`).
+   - Use `variant="segmented"` for segmented controls and card selectors. Follow concentric geometry ($R_{inner} = R_{outer} - \text{padding}$, e.g. outer `rounded-xl` with `p-1.25` container padding and inner `rounded-lg`).
+5. **Border Geometry & Chromatic Dispersion**:
+   - MUST use inset box shadows instead of external 1px border strokes across glass elements.
+   - Glass surfaces and active highlight pills MUST include prismatic chromatic dispersion margins:
+     `inset 1.5px 0 2px -0.5px var(--color-dispersion-cyan)`
+     `inset -1.5px 0 2px -0.5px var(--color-dispersion-amber)`
+   - Flat inactive tab highlights MUST use inset borders (`box-shadow: inset 0 0 0 1px ...`) without CSS borders.
+6. **Non-Reconciling Specular Rim Sheen**:
+   - MUST use `useMotionTemplate` to interpolate radial gradients without React component re-renders.
+   - Pointer tracking MUST update MotionValues directly. Never dispatch React component state on pointer move.
+   - The specular highlight MUST be masked to the 1px edge perimeter using `.liquid-glass-rim`. This prevents interior surface blobs.
+   - On cursor entry, MUST call `smoothSheenX.jump(localX)` to position coordinates instantly on frame 0.
+   - Glass containers MUST declare `isolation: isolate` (via Tailwind `isolate`) to bound visual blending to the element.

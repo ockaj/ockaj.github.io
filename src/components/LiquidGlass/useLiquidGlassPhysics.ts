@@ -49,18 +49,12 @@ export function useLiquidGlassPhysics({
   const hasMeasuredRef = useRef(false);
   const settleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isHovered, setIsHovered] = useState(false);
-  const [overlayActive, setOverlayActive] = useState(false);
-  const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     return () => {
       if (settleTimerRef.current !== null) {
         clearTimeout(settleTimerRef.current);
         settleTimerRef.current = null;
-      }
-      if (overlayTimerRef.current !== null) {
-        clearTimeout(overlayTimerRef.current);
-        overlayTimerRef.current = null;
       }
     };
   }, []);
@@ -121,9 +115,15 @@ export function useLiquidGlassPhysics({
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+  const rawMouseX = useMotionValue(-1000);
+  const rawMouseY = useMotionValue(-1000);
+  const rawSheenOpacity = useMotionValue(0);
 
   const springX = useSpring(mouseX, SPRING.glassMouse);
   const springY = useSpring(mouseY, SPRING.glassMouse);
+  const smoothSheenX = useSpring(rawMouseX, SPRING.glassMouse);
+  const smoothSheenY = useSpring(rawMouseY, SPRING.glassMouse);
+  const sheenOpacity = useSpring(rawSheenOpacity, SPRING.glassOpacity);
 
   const effectiveTiltStrength = computeEffectiveTiltStrength(
     dimensions.width,
@@ -157,15 +157,36 @@ export function useLiquidGlassPhysics({
       : 0,
   );
 
-  const handleMouseEnter = useCallback(() => {
-    if (!interactive) return;
-    if (overlayTimerRef.current !== null) {
-      clearTimeout(overlayTimerRef.current);
-      overlayTimerRef.current = null;
-    }
-    setOverlayActive(true);
-    setIsHovered(true);
-  }, [interactive]);
+  const handleMouseEnter = useCallback(
+    (e: MouseEvent) => {
+      if (!interactive) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        liveDimensionsRef.current = { width: rect.width, height: rect.height };
+      }
+      const localX = e.clientX - rect.left;
+      const localY = e.clientY - rect.top;
+      smoothSheenX.jump(localX);
+      smoothSheenY.jump(localY);
+      rawMouseX.set(localX);
+      rawMouseY.set(localY);
+      mouseX.set(localX - rect.width / 2);
+      mouseY.set(localY - rect.height / 2);
+
+      rawSheenOpacity.set(1);
+      setIsHovered(true);
+    },
+    [
+      interactive,
+      mouseX,
+      mouseY,
+      rawMouseX,
+      rawMouseY,
+      rawSheenOpacity,
+      smoothSheenX,
+      smoothSheenY,
+    ],
+  );
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
@@ -174,25 +195,23 @@ export function useLiquidGlassPhysics({
       if (rect.width > 0 && rect.height > 0) {
         liveDimensionsRef.current = { width: rect.width, height: rect.height };
       }
-      mouseX.set(e.clientX - rect.left - rect.width / 2);
-      mouseY.set(e.clientY - rect.top - rect.height / 2);
+      const localX = e.clientX - rect.left;
+      const localY = e.clientY - rect.top;
+      rawMouseX.set(localX);
+      rawMouseY.set(localY);
+      mouseX.set(localX - rect.width / 2);
+      mouseY.set(localY - rect.height / 2);
     },
-    [interactive, mouseX, mouseY],
+    [interactive, mouseX, mouseY, rawMouseX, rawMouseY],
   );
 
   const handleMouseLeave = useCallback(() => {
     if (!interactive) return;
+    rawSheenOpacity.set(0);
     mouseX.set(0);
     mouseY.set(0);
     setIsHovered(false);
-    if (overlayTimerRef.current !== null) {
-      clearTimeout(overlayTimerRef.current);
-    }
-    overlayTimerRef.current = setTimeout(() => {
-      overlayTimerRef.current = null;
-      setOverlayActive(false);
-    }, 350);
-  }, [interactive, mouseX, mouseY]);
+  }, [interactive, mouseX, mouseY, rawSheenOpacity]);
 
   const setElementRef = useCallback((node: HTMLElement | null) => {
     elementRef.current = node;
@@ -202,9 +221,11 @@ export function useLiquidGlassPhysics({
     setElementRef,
     dimensions,
     isHovered,
-    overlayActive,
     springX,
     springY,
+    smoothSheenX,
+    smoothSheenY,
+    sheenOpacity,
     springPullX,
     springPullY,
     springTiltX,

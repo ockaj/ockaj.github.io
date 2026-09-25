@@ -4,6 +4,7 @@ import { useMemo, useCallback, type CSSProperties } from "react";
 import {
   motion,
   useReducedMotion,
+  useMotionTemplate,
   type MotionStyle,
   type MotionValue,
 } from "motion/react";
@@ -284,6 +285,14 @@ export default function LiquidGlassDesktop({
   // Anisotropic power law: 70% shortest dimension, 30% longest dimension
   const rawSize = Math.pow(minDim, 0.7) * Math.pow(maxDim, 0.3) * 1.15;
   const sheenSize = Math.round(Math.min(Math.max(rawSize, 48), 500));
+  const sheenRadius = Math.round(Math.min(Math.max(sheenSize * 1.4, 140), 400));
+
+  const dynamicSheenGradient = useMotionTemplate`radial-gradient(
+    circle ${sheenRadius}px at ${physics.smoothSheenX}px ${physics.smoothSheenY}px,
+    var(--color-glass-sheen-core) 0%,
+    var(--color-glass-sheen-mid) 40%,
+    var(--color-glass-sheen-edge) 80%
+  )`;
 
   return (
     <Tag ref={handleRef} {...tagProps}>
@@ -292,13 +301,11 @@ export default function LiquidGlassDesktop({
         roundedClass={roundedClass}
         style={innerGlassStyle}
       />
-      {rendersFullEffects && physics.overlayActive ? (
+      {rendersFullEffects ? (
         <DesktopEffectsOverlay
           roundedClass={roundedClass}
-          sheenSize={sheenSize}
-          springX={physics.springX}
-          springY={physics.springY}
-          isHovered={physics.isHovered}
+          sheenGradient={dynamicSheenGradient}
+          sheenOpacity={physics.sheenOpacity}
         />
       ) : null}
       {rendersRipple ? (

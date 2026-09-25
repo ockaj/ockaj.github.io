@@ -162,6 +162,13 @@ The palette pairs deep neutral obsidian layers with a singular, luminous periwin
 - **Muted Ash** (`#cccccc` / `hsl(0 0% 80%)`): Secondary typography tone. Used for descriptions, subtitles, table metadata, and inactive labels.
 - **Fine Stroke** (`#1f1f1f` / `hsl(0 0% 12%)`): Structural divider tone. Used for borders, card outlines, grid lines, and scrollbar tracks.
 
+### Optical & Material Tokens
+- **Cyan Dispersion** (`--color-dispersion-cyan: oklch(85% 0.12 215 / 0.08)`): Prismatic cool edge refraction margin.
+- **Amber Dispersion** (`--color-dispersion-amber: oklch(85% 0.14 75 / 0.06)`): Prismatic warm edge refraction margin.
+- **Specular Core** (`--color-glass-sheen-core: oklch(100% 0 0 / 0.45)`): Peak highlight luminance.
+- **Specular Mid** (`--color-glass-sheen-mid: oklch(100% 0 0 / 0.12)`): Internal material bounce falloff.
+- **Specular Edge** (`--color-glass-sheen-edge: oklch(100% 0 0 / 0.0)`): Transparent boundary decay.
+
 ### Named Rules
 - **The Restrained Accent Rule.** The system restricts the primary accent to interactive controls and critical process indicators. Accent coverage must not exceed 5% of any viewport.
 - **The Obsidian Depth Rule.** Backgrounds never use pure pitch black (`#000000`) or saturated navy tints. Surfaces preserve a neutral obsidian value so translucent glass refractions remain visible.
@@ -204,14 +211,16 @@ The layout enforces responsive viewport boundaries through theme tokens (`max-w-
 The system uses a hybrid tactile glass architecture. Rather than relying on heavy opaque drop shadows, surfaces convey depth through translucency (`backdrop-blur-sm md:backdrop-blur-lg`), specular edge highlights, and subtle inner reflections.
 
 ### Shadow Vocabulary
-- **LiquidGlass Flat** (`box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 4px 8px rgba(255, 255, 255, 0.03), 0 4px 10px rgba(0, 0, 0, 0.08)`): Resting elevation for glass cards, containers, and non-active controls.
+- **LiquidGlass Flat** (`box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.18), inset 0 4px 8px rgba(255, 255, 255, 0.03), 0 4px 12px rgba(0, 0, 0, 0.12)`): Resting elevation for glass cards, containers, and non-active controls.
 - **LiquidGlass Sunken** (`box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 1px 2px rgba(255, 255, 255, 0.02)`): Pressed controls, active tab recesses, and indented indicator wells.
-- **LiquidGlass Beveled Active** (`box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4), inset 0 6px 12px rgba(255, 255, 255, 0.06), 0 8px 16px rgba(0, 0, 0, 0.15)`): Highlighted callouts, hovered cards, and elevated modal sheets.
+- **LiquidGlass Beveled Active** (`box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3), inset 0 6px 12px rgba(255, 255, 255, 0.04), inset 1.5px 0 2px -0.5px var(--color-dispersion-cyan), inset -1.5px 0 2px -0.5px var(--color-dispersion-amber), 0 6px 14px rgba(0, 0, 0, 0.15)`): Highlighted callouts, hovered cards, and active navigation pills.
 - **Drawer Structural Shadow** (`--shadow-drawer: 0 4px 16px rgba(0, 0, 0, 0.6)`): Deep elevation for slide-out drawers and bottom sheets.
 - **Accent Glow** (`--shadow-glow-accent: 0 0 10px hsla(var(--accent), 0.8)`): High-contrast focal illumination for active elements.
 
 ### Named Rules
 - **The Specular Illumination Rule.** Depth arises from top-edge specular highlights (`rgba(255, 255, 255, 0.25)`) and translucency, never from thick dark drop shadows.
+- **The Prismatic Dispersion Rule.** Active glass elements project opposing cyan and amber inset margins to reproduce optical chromatic dispersion.
+- **The Inset Border Rule.** Glass containers use inset box shadows instead of external border strokes to prevent sub-pixel seams.
 - **The Transparency Fallback Rule.** When users enable reduced transparency, all glass surfaces revert to solid charcoal (`hsl(var(--surface))`) with simple borders.
 
 ## Shapes
@@ -233,7 +242,7 @@ Surfaces feature delicate translucent strokes (`1px solid rgba(255, 255, 255, 0.
 ### Tabs
 - **Variants:**
   - **Capsule (`variant="capsule"`, default):** Stadium pill container (`rounded-full`, 9999px) hosting interactive triggers with an animated sliding highlight pill for floating navigation bars and modals.
-  - **Segmented (`variant="segmented"`):** Segmented control following concentric corner geometry ($R_{inner} = R_{outer} - \text{padding}$, e.g. outer `rounded-xl` with `p-1` and inner `rounded-lg`) with specular highlight depth for view switchers and card selectors.
+  - **Segmented (`variant="segmented"`):** Segmented control following concentric corner geometry ($R_{inner} = R_{outer} - \text{padding}$, e.g. outer `rounded-xl` with `p-1.25` container padding and inner `rounded-lg`) with specular highlight depth for view switchers and card selectors.
 - **Sliding Pill:** Shared highlight pill (`.highlight-pill`) with subtle gradient reflection and spring physics (`stiffness: 380, damping: 24, mass: 0.6`).
 - **States:** Active tab presents high-contrast text and specular glow. Inactive tabs display muted text and respond with pointer hover slide.
 - **Mobile Touch Targets:** Compact segmented tabs use invisible hit area padding (`before:-inset-y-1.5` or `before:-inset-y-2`) to satisfy 44px WCAG minimum touch bounds.
@@ -241,7 +250,7 @@ Surfaces feature delicate translucent strokes (`1px solid rgba(255, 255, 255, 0.
 ### Cards / Containers
 - **Corner Style:** Rounded rectangles (`rounded-2xl` 16px or `rounded-3xl` 24px).
 - **Background:** Charcoal glass with backdrop filter (`bg-surface/35 backdrop-blur-sm md:backdrop-blur-lg backdrop-saturate-150`).
-- **Interactive Glass (`InteractiveGlass`):** Desktop 3D tilt (maximum 12 degrees), cursor-following glow blob, specular border highlight, and tap scale compression.
+- **Interactive Glass (`InteractiveGlass`):** Desktop 3D tilt (maximum 12 degrees), non-reconciling specular rim sheen driven by `useMotionTemplate`, and tap scale compression.
 - **Static Glass (`StaticGlass`):** Stripped of motion listeners and physics overhead for toolbars, mobile controls, and fixed layout shells.
 
 ### Navigation

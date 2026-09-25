@@ -25,41 +25,34 @@ export function InnerBorderOverlay({
 
 export function DesktopEffectsOverlay({
   roundedClass,
-  sheenSize,
-  springX,
-  springY,
-  isHovered,
+  sheenGradient,
+  sheenOpacity,
 }: Readonly<{
   roundedClass: string;
-  sheenSize: number;
-  springX: MotionValue<number>;
-  springY: MotionValue<number>;
-  isHovered: boolean;
+  sheenGradient: MotionValue<string>;
+  sheenOpacity: MotionValue<number>;
 }>) {
-  const halfSheen = Math.round(sheenSize / 2);
-
   return (
-    <span
+    <motion.span
       className={cn(
-        "liquid-glass-rim pointer-events-none absolute inset-0 z-10 overflow-hidden transition-opacity duration-300",
+        "liquid-glass-rim pointer-events-none absolute inset-0 z-10 overflow-hidden",
         roundedClass,
-        isHovered ? "opacity-100" : "opacity-0",
       )}
+      style={{
+        opacity: sheenOpacity,
+      }}
+      aria-hidden="true"
     >
-      {/* Primary Specular Glint */}
       <motion.span
-        className="liquid-glass-sheen pointer-events-none absolute rounded-full"
+        className={cn(
+          "liquid-glass-sheen pointer-events-none absolute inset-0",
+          roundedClass,
+        )}
         style={{
-          width: sheenSize,
-          height: sheenSize,
-          marginTop: -halfSheen,
-          marginLeft: -halfSheen,
-          x: springX,
-          y: springY,
-          left: "50%",
-          top: "50%",
+          background: sheenGradient,
         }}
+        aria-hidden="true"
       />
-    </span>
+    </motion.span>
   );
 }
