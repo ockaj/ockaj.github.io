@@ -191,6 +191,9 @@ function resolveBaseRadius(
   if (roundedClass.includes("rounded-xl")) {
     return "12px";
   }
+  if (roundedClass.includes("rounded-lg")) {
+    return "8px";
+  }
   if (roundedClass.includes("rounded-md")) {
     return "6px";
   }
@@ -622,6 +625,7 @@ interface TabHighlightProps {
   rippleY: MotionValue<number>;
   rippleScale: MotionValue<number>;
   rippleOpacity: MotionValue<number>;
+  variant: TabVariant;
 }
 
 const TabHighlight = memo(function TabHighlight({
@@ -638,6 +642,7 @@ const TabHighlight = memo(function TabHighlight({
   rippleY,
   rippleScale,
   rippleOpacity,
+  variant,
 }: Readonly<TabHighlightProps>) {
   return (
     <motion.span
@@ -655,7 +660,9 @@ const TabHighlight = memo(function TabHighlight({
         style={{
           transform: "scale(var(--scale-x), var(--scale-y))",
           borderRadius:
-            "calc((var(--base-radius) * var(--scale-y)) / var(--scale-x)) / var(--base-radius)",
+            variant === "segmented"
+              ? "var(--base-radius)"
+              : "calc((var(--base-radius) * var(--scale-y)) / var(--scale-x)) / var(--base-radius)",
           transformOrigin: "center center",
           willChange: willChange ? "transform" : "auto",
         }}
@@ -867,6 +874,7 @@ function TabComponent({
           rippleY={rippleY}
           rippleScale={rippleScale}
           rippleOpacity={rippleOpacity}
+          variant={variant}
         />
       ) : null}
       {children}

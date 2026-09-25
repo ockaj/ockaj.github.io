@@ -25,8 +25,8 @@ export function StaticGlass({
   ...domProps
 }: Readonly<StaticGlassPropsWithRef>) {
   const borderActiveClasses = active
-    ? "border-white/[0.15] bg-white/[0.04]"
-    : "border-white/[0.04] bg-white/[0.015]";
+    ? "bg-white/[0.04]"
+    : "bg-white/[0.015]";
 
   const baseClasses = `
     relative inline-flex items-center justify-center
@@ -78,7 +78,7 @@ export function StaticGlass({
     >
       <span
         className={cn(
-          "pointer-events-none absolute inset-0 z-0 border transition-surface duration-300 ease-out",
+          "pointer-events-none absolute inset-0 z-0 transition-surface duration-300 ease-out",
           borderActiveClasses,
           roundedClass,
         )}

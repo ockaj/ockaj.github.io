@@ -61,7 +61,7 @@ function ProcessCardHeader({
           variant="segmented"
           roundedClass="rounded-xl"
           className={cn(
-            "isolate inline-flex transform-gpu items-center rounded-xl border border-white/10 p-1 backdrop-blur-md select-none",
+            "isolate inline-flex transform-gpu items-center rounded-xl p-1.25 backdrop-blur-md select-none shadow-inset-border",
             isMobile
               ? "bg-surface/80 shadow-md"
               : "bg-surface/90 shadow-lg",

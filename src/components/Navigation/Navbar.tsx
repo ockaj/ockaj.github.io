@@ -163,8 +163,8 @@ export default function Navbar() {
         <div
           ref={capsuleRef}
           className={cn(
-            "navbar-capsule pointer-events-auto relative isolate z-50 flex w-full max-w-85vw transform-gpu items-center justify-between gap-1 overflow-hidden rounded-full border border-white/10 bg-surface/40 p-1.75 backdrop-blur-md backdrop-saturate-150 md:w-auto md:max-w-95vw md:justify-start md:gap-1.5",
-            scrolled && "border-white/20 bg-surface/60",
+            "navbar-capsule pointer-events-auto relative isolate z-50 flex w-full max-w-85vw transform-gpu items-center justify-between gap-1 overflow-hidden rounded-full bg-surface/40 p-1.75 backdrop-blur-md backdrop-saturate-150 md:w-auto md:max-w-95vw md:justify-start md:gap-1.5",
+            scrolled && "bg-surface/60",
           )}
         >
           <Tabs

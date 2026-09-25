@@ -11,6 +11,10 @@
   --color-stroke: hsl(var(--stroke));
   --color-accent: hsl(var(--accent));
 
+  /* Prismatic dispersion bands */
+  --color-dispersion-cyan: oklch(85% 0.12 215 / 0.08);
+  --color-dispersion-amber: oklch(85% 0.14 75 / 0.06);
+
   /* Typography */
   --text-headline-hero: clamp(3.5rem, 8vw, 6rem);
   --text-headline-section: clamp(1.625rem, 4.5vw, 3rem);
@@ -205,38 +209,42 @@ p {
     oklab(0.61 0.022 -0.1 / 0.1) 0%,
     oklab(0.543 0.021 -0.103 / 0.1) 100%
   );
-  border: 1px solid rgba(255, 255, 255, 0.04);
   box-shadow:
     inset 0 1px 1px rgba(255, 255, 255, 0.25),
     inset 0 4px 8px rgba(255, 255, 255, 0.03),
+    inset 1.5px 0 2px -0.5px var(--color-dispersion-cyan),
+    inset -1.5px 0 2px -0.5px var(--color-dispersion-amber),
     0 4px 10px rgba(0, 0, 0, 0.08);
   transition:
     background-color 200ms cubic-bezier(0.25, 0.1, 0.25, 1),
-    box-shadow 200ms cubic-bezier(0.25, 0.1, 0.25, 1),
-    border-color 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
+    box-shadow 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
-/* Flat state when navbar is stationary - solid rgba(122, 123, 191, 0.2), no box-shadow or refraction */
+/* Flat state when navbar is stationary - solid rgba(122, 123, 191, 0.2), inset border without CSS border */
 .highlight-pill.navbar-highlight-flat {
   background: rgba(122, 123, 191, 0.2) !important;
-  border-color: rgba(255, 255, 255, 0.04) !important;
-  box-shadow: none !important;
+  border: none !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06) !important;
 }
 
 /* Active state (hovering, scrolling, transitioning) - solid rgba(122, 123, 191, 0.1) with box-shadows */
 .highlight-pill.navbar-highlight-active {
   background: rgba(122, 123, 191, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
+  border: none !important;
   box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
     inset 0 1px 1px rgba(255, 255, 255, 0.25),
     inset 0 4px 8px rgba(255, 255, 255, 0.03),
+    inset 1.5px 0 2px -0.5px var(--color-dispersion-cyan),
+    inset -1.5px 0 2px -0.5px var(--color-dispersion-amber),
     0 4px 10px rgba(0, 0, 0, 0.08) !important;
 }
 
 /* Custom transition for the main navbar capsule matching the site-wide duration and bezier curve */
 .navbar-capsule {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
   transition:
-    border-color 250ms cubic-bezier(0.25, 0.1, 0.25, 1),
+    box-shadow 250ms cubic-bezier(0.25, 0.1, 0.25, 1),
     background-color 250ms cubic-bezier(0.25, 0.1, 0.25, 1),
     backdrop-filter 250ms cubic-bezier(0.25, 0.1, 0.25, 1),
     -webkit-backdrop-filter 250ms cubic-bezier(0.25, 0.1, 0.25, 1);
@@ -479,6 +487,10 @@ p {
 
 @utility transition-surface {
   transition-property: border-color, background-color, box-shadow;
+}
+
+@utility shadow-inset-border {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 @utility transition-slide {

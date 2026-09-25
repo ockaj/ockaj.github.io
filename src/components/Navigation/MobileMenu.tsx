@@ -79,11 +79,11 @@ function MobileMenu({
             style={{
               transformOrigin: "top",
               boxShadow:
-                "inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(0, 0, 0, 0.7)",
+                "inset 0 1px 1px rgba(255, 255, 255, 0.15), inset 1.5px 0 2px -0.5px var(--color-dispersion-cyan), inset -1.5px 0 2px -0.5px var(--color-dispersion-amber), 0 20px 40px -15px rgba(0, 0, 0, 0.7)",
             }}
             id="mobile-nav-panel"
             aria-label="Mobile Navigation"
-            className="pointer-events-auto relative z-50 mt-2 w-72 overflow-hidden rounded-3xl border border-white/10 bg-surface/85 backdrop-blur-md backdrop-saturate-180 md:hidden"
+            className="pointer-events-auto relative z-50 mt-2 w-72 overflow-hidden rounded-3xl bg-surface/85 backdrop-blur-md backdrop-saturate-180 md:hidden"
           >
             <div className="no-scrollbar relative z-10 max-h-mobile-panel w-full overflow-y-auto overscroll-contain p-3">
               <Tabs
@@ -91,7 +91,7 @@ function MobileMenu({
                 onChange={onChange}
                 layoutId="active-mobile-nav-highlight"
                 role={null}
-                highlightClassName="border border-white/10 navbar-highlight-flat"
+                highlightClassName="navbar-highlight-flat"
                 highlightStyle={HIGHLIGHT_STYLE}
                 className="flex flex-col gap-1.5"
               >

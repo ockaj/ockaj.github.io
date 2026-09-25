@@ -79,11 +79,11 @@ export function getGlassClasses({
   className?: string;
   isHovered?: boolean;
 }) {
-  let borderActiveClasses = "border-white/[0.04] bg-white/[0.015]";
+  let borderActiveClasses = "bg-white/[0.015]";
   if (active) {
-    borderActiveClasses = "border-white/[0.12] bg-white/[0.05]";
+    borderActiveClasses = "bg-white/[0.05]";
   } else if (isHovered) {
-    borderActiveClasses = "border-white/[0.06] bg-white/[0.03]";
+    borderActiveClasses = "bg-white/[0.03]";
   }
 
   const cursorAndFocusClasses =

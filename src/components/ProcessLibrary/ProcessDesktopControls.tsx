@@ -18,6 +18,7 @@ function ProcessDesktopControls() {
             layoutId="active-process-highlight"
             variant="segmented"
             roundedClass="rounded-2xl"
+            highlightClassName="navbar-highlight-flat"
             className="flex w-full flex-col justify-center gap-2.5"
           >
             {PROCESS_TOPICS.map((topic, idx) => {
