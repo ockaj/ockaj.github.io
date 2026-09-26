@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useRef, useCallback } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Sparkles, Maximize2 } from "lucide-react";
 import { SPRING } from "../../utils/springConfig";
@@ -80,7 +80,7 @@ const DiagramCanvasItem = memo(function DiagramCanvasItem({
           alt={variant.title}
           width={800}
           height={500}
-          className="notranslate pointer-events-none select-none group-hover/canvas:scale-1.015 size-full rounded-lg object-contain transition-transform duration-300 ease-out"
+          className="notranslate group-hover/canvas:scale-1.015 pointer-events-none size-full rounded-lg object-contain transition-transform duration-300 ease-out select-none"
           translate="no"
           draggable={false}
           loading={isFirstSlide && isSelected ? "eager" : "lazy"}
@@ -99,6 +99,72 @@ interface FooterDetailsItemProps {
   prefersReducedMotion: boolean | null;
   badges?: boolean;
 }
+
+interface ScrollableBadgeListProps {
+  tags: string[];
+}
+
+const ScrollableBadgeList = memo(function ScrollableBadgeList({
+  tags,
+}: Readonly<ScrollableBadgeListProps>) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isPointerDownRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftStartRef = useRef(0);
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!containerRef.current) return;
+      isPointerDownRef.current = true;
+      startXRef.current = e.clientX;
+      scrollLeftStartRef.current = containerRef.current.scrollLeft;
+      containerRef.current.setPointerCapture(e.pointerId);
+    },
+    [],
+  );
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!isPointerDownRef.current || !containerRef.current) return;
+      const deltaX = e.clientX - startXRef.current;
+      containerRef.current.scrollLeft = scrollLeftStartRef.current - deltaX;
+    },
+    [],
+  );
+
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!isPointerDownRef.current || !containerRef.current) return;
+      isPointerDownRef.current = false;
+      try {
+        containerRef.current.releasePointerCapture(e.pointerId);
+      } catch {
+        // Ignored if pointer was already released
+      }
+    },
+    [],
+  );
+
+  return (
+    <div
+      ref={containerRef}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+      className="no-scrollbar badge-scroll-mask flex w-full cursor-grab flex-nowrap items-center gap-2 overflow-x-auto px-0.5 pt-1 select-none active:cursor-grabbing"
+    >
+      {tags.map((tag: string) => (
+        <span
+          key={tag}
+          className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm whitespace-nowrap text-muted transition-colors hover:border-white/20 hover:text-text-primary"
+        >
+          {tag}
+        </span>
+      ))}
+    </div>
+  );
+});
 
 const FooterDetailsItem = memo(function FooterDetailsItem({
   variant,
@@ -132,22 +198,13 @@ const FooterDetailsItem = memo(function FooterDetailsItem({
       <p
         className={cn(
           "line-clamp-3 text-base leading-relaxed text-pretty text-text-primary/90",
-          badges ? "min-h-18" : "min-h-0",
+          badges ? "min-h-process-desc" : "min-h-0",
         )}
       >
         {variant.description}
       </p>
       {badges && variant.specTags && variant.specTags.length > 0 ? (
-        <div className="flex min-h-8 flex-wrap gap-2 pt-1">
-          {variant.specTags.map((tag: string) => (
-            <span
-              key={tag}
-              className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm text-muted transition-colors select-none hover:border-white/20 hover:text-text-primary"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
+        <ScrollableBadgeList tags={variant.specTags} />
       ) : null}
     </motion.div>
   );

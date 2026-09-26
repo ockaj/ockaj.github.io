@@ -38,7 +38,7 @@ function ProcessCardHeader({
           "font-display tracking-tight text-balance text-text-primary",
           isMobile
             ? "flex min-h-0 items-center text-xl leading-snug sm:min-h-13 sm:text-2xl md:text-3xl"
-            : "text-3xl leading-tight",
+            : "text-title-card leading-tight",
         )}
       >
         {title}
@@ -61,10 +61,8 @@ function ProcessCardHeader({
           variant="segmented"
           roundedClass="rounded-xl"
           className={cn(
-            "isolate inline-flex transform-gpu items-center rounded-xl p-1.25 backdrop-blur-md select-none shadow-inset-border",
-            isMobile
-              ? "bg-surface/80 shadow-md"
-              : "bg-surface/90 shadow-lg",
+            "isolate inline-flex transform-gpu items-center rounded-xl p-1.25 shadow-inset-border backdrop-blur-md select-none",
+            isMobile ? "bg-surface/80 shadow-md" : "bg-surface/90 shadow-lg",
           )}
           highlightClassName="navbar-highlight-flat"
         >
@@ -72,9 +70,9 @@ function ProcessCardHeader({
             value="asis"
             roundedClass="rounded-lg"
             className={cn(
-              "relative flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+              "relative flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none",
               isMobile
-                ? "h-7 px-6 before:absolute before:-inset-y-2 before:inset-x-0"
+                ? "h-7 px-6 before:absolute before:inset-x-0 before:-inset-y-2"
                 : "h-9 px-4 before:absolute before:inset-x-0 before:-inset-y-1.5 focus-visible:ring-offset-1 focus-visible:ring-offset-black",
             )}
             activeClassName="font-semibold text-text-primary"
@@ -85,9 +83,9 @@ function ProcessCardHeader({
             value="tobe"
             roundedClass="rounded-lg"
             className={cn(
-              "relative flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+              "relative flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none",
               isMobile
-                ? "h-7 px-6 before:absolute before:-inset-y-2 before:inset-x-0"
+                ? "h-7 px-6 before:absolute before:inset-x-0 before:-inset-y-2"
                 : "h-9 px-4 before:absolute before:inset-x-0 before:-inset-y-1.5 focus-visible:ring-offset-1 focus-visible:ring-offset-black",
             )}
             activeClassName="font-semibold text-text-primary"

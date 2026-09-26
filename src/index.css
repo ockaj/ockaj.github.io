@@ -18,11 +18,12 @@
   /* Specular illumination */
   --color-glass-sheen-core: oklch(100% 0 0 / 0.45);
   --color-glass-sheen-mid: oklch(100% 0 0 / 0.12);
-  --color-glass-sheen-edge: oklch(100% 0 0 / 0.0);
+  --color-glass-sheen-edge: oklch(100% 0 0 / 0);
 
   /* Typography */
   --text-headline-hero: clamp(3.5rem, 8vw, 6rem);
   --text-headline-section: clamp(1.625rem, 4.5vw, 3rem);
+  --text-title-card: clamp(1.5rem, 2.4vw, 1.875rem);
   --tracking-subtle: 0.01em;
 
   /* Easing curves */
@@ -450,6 +451,55 @@ p {
   }
 }
 
+@property --scroll-fade-l {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --scroll-fade-r {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 28px;
+}
+
+@keyframes scroll-fade-inline {
+  0% {
+    --scroll-fade-l: 0px;
+    --scroll-fade-r: 28px;
+  }
+  15% {
+    --scroll-fade-l: 28px;
+  }
+  85% {
+    --scroll-fade-r: 28px;
+  }
+  100% {
+    --scroll-fade-l: 28px;
+    --scroll-fade-r: 0px;
+  }
+}
+
+/* Dynamic scroll-driven bidirectional edge fade mask */
+.badge-scroll-mask {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0px,
+    black var(--scroll-fade-l, 0px),
+    black calc(100% - var(--scroll-fade-r, 28px)),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0px,
+    black var(--scroll-fade-l, 0px),
+    black calc(100% - var(--scroll-fade-r, 28px)),
+    transparent 100%
+  );
+  animation: scroll-fade-inline linear both;
+  animation-timeline: scroll(self inline);
+}
+
 /* Elegant scrollbar for process tabs */
 .process-tabs-scrollbar {
   scrollbar-width: thin;
@@ -564,6 +614,10 @@ p {
   max-height: calc(100svh - 100px);
 }
 
+@utility min-h-process-desc {
+  min-height: 4.875rem;
+}
+
 .loading-grid-background {
   background-image:
     linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
@@ -581,9 +635,13 @@ p {
 
 .liquid-glass-rim {
   padding: 1px;
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   mask-composite: exclude;
 }
 
