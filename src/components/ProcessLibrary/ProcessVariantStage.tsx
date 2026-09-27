@@ -114,7 +114,13 @@ const ScrollableBadgeList = memo(function ScrollableBadgeList({
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      if (!containerRef.current) return;
+      if (
+        e.pointerType !== "mouse" ||
+        e.button !== 0 ||
+        !containerRef.current
+      ) {
+        return;
+      }
       isPointerDownRef.current = true;
       startXRef.current = e.clientX;
       scrollLeftStartRef.current = containerRef.current.scrollLeft;
@@ -136,10 +142,8 @@ const ScrollableBadgeList = memo(function ScrollableBadgeList({
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (!isPointerDownRef.current || !containerRef.current) return;
       isPointerDownRef.current = false;
-      try {
+      if (containerRef.current.hasPointerCapture(e.pointerId)) {
         containerRef.current.releasePointerCapture(e.pointerId);
-      } catch {
-        // Ignored if pointer was already released
       }
     },
     [],
@@ -148,11 +152,14 @@ const ScrollableBadgeList = memo(function ScrollableBadgeList({
   return (
     <div
       ref={containerRef}
+      role="region"
+      aria-label="Process tags"
+      tabIndex={0}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
-      className="no-scrollbar badge-scroll-mask flex w-full cursor-grab flex-nowrap items-center gap-2 overflow-x-auto px-0.5 pt-1 select-none active:cursor-grabbing"
+      className="no-scrollbar badge-scroll-mask flex w-full cursor-grab flex-nowrap items-center gap-2 overflow-x-auto px-0.5 pt-1 select-none active:cursor-grabbing touch-pan-x overscroll-x-contain focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/50"
     >
       {tags.map((tag: string) => (
         <span
