@@ -42,7 +42,7 @@ export const drawerItemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { type: "spring" as const, duration: 0.22, bounce: 0 },
+    transition: SPRING.exit,
   },
 };
 
