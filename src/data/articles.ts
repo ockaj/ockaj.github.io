@@ -1,12 +1,5 @@
-import { parse } from "yaml";
-
-const markdownModules = import.meta.glob("./articles/*.md", {
-  query: "?raw",
-  eager: true,
-}) as Record<string, { default: string }>;
-
-const MD_EXT_REGEX = /\.md$/;
-const WHITESPACE_REGEX = /\s+/;
+import type { ComponentType } from "react";
+import type { MdxComponentsMap } from "../utils/mdxComponents";
 
 interface ArticleFrontmatter {
   id?: string;
@@ -15,7 +8,23 @@ interface ArticleFrontmatter {
   readTime?: string;
   date?: string;
   image?: string;
+  excerpt?: string;
 }
+
+interface CompiledArticleModule {
+  readonly id?: string;
+  readonly frontmatter?: ArticleFrontmatter;
+  readonly excerpt?: string;
+  readonly readTime?: string;
+  readonly default: ComponentType;
+}
+
+const articleModules = import.meta.glob<CompiledArticleModule>(
+  "./articles/*.md",
+  {
+    eager: true,
+  },
+);
 
 export interface Article {
   id: string;
@@ -24,37 +33,26 @@ export interface Article {
   readTime: string;
   date: string;
   image: string;
-  body: string;
   excerpt: string;
+  Content: ComponentType<{ components?: MdxComponentsMap }>;
 }
 
-export const ARTICLES: Article[] = Object.entries(markdownModules)
-  .map(([path, module]) => {
-    const filename = path.split("/").pop() || "";
-    const raw = module.default;
-    const parts = raw.split("---");
-    const frontmatter = (parse(parts[1]) || {}) as ArticleFrontmatter;
-    const body = parts.slice(2).join("---").trim();
-
-    const words = body.split(WHITESPACE_REGEX).filter(Boolean);
-    const wordCount = words.length;
-    const excerpt = words.slice(0, 40).join(" ") + "...";
-
-    const dateStr = frontmatter.date || "";
+export const ARTICLES: Article[] = Object.values(articleModules)
+  .map((mod) => {
+    const fm = mod.frontmatter || {};
+    const dateStr = fm.date || "";
     const timestamp = dateStr ? Date.parse(dateStr) || 0 : 0;
 
     return {
       article: {
-        id: frontmatter.id || filename.replace(MD_EXT_REGEX, ""),
-        title: frontmatter.title || "Untitled",
-        subtitle: frontmatter.subtitle || "",
-        readTime:
-          frontmatter.readTime ||
-          `${Math.max(1, Math.ceil(wordCount / 200))} min read`,
+        id: String(fm.id || mod.id || "article"),
+        title: fm.title || "Untitled",
+        subtitle: fm.subtitle || "",
+        readTime: mod.readTime || fm.readTime || "1 min read",
         date: dateStr,
-        image: frontmatter.image || "",
-        body,
-        excerpt,
+        image: fm.image || "",
+        excerpt: mod.excerpt || fm.excerpt || "",
+        Content: mod.default,
       },
       timestamp,
     };

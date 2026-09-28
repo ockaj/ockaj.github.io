@@ -4,13 +4,12 @@ import { Activity, FileText } from "lucide-react";
 import type { CaseStudyDetail } from "../../data/caseStudies";
 import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import BaseDrawer from "../BaseDrawer";
-import ReactMarkdown from "react-markdown";
-import { COMMON_MARKDOWN_COMPONENTS } from "../../utils/markdownRenderers";
 import {
   drawerContentVariants,
   drawerItemVariants,
 } from "../../utils/motionVariants";
 import { CONTACT_EMAIL } from "../../constants/contact";
+import { mdxComponents } from "../../utils/mdxComponents";
 import MetricCountUp from "./MetricCountUp";
 
 interface DrawerProps {
@@ -19,24 +18,6 @@ interface DrawerProps {
   onClose: () => void;
   onExitComplete?: () => void;
 }
-
-const CLIENT_MARKDOWN_COMPONENTS = {
-  ...COMMON_MARKDOWN_COMPONENTS,
-  p: ({ children }: { children?: React.ReactNode }) => (
-    <p className="text-base leading-relaxed font-normal text-pretty text-text-primary/95">
-      {children}
-    </p>
-  ),
-};
-
-const DESCRIPTION_MARKDOWN_COMPONENTS = {
-  ...COMMON_MARKDOWN_COMPONENTS,
-  p: ({ children }: { children?: React.ReactNode }) => (
-    <p className="text-base leading-relaxed text-pretty text-muted">
-      {children}
-    </p>
-  ),
-};
 
 const CaseStudyDrawer = memo(function CaseStudyDrawer({
   open,
@@ -87,12 +68,12 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
           <h3 className="border-b border-white/10 pb-1.5 text-lg font-semibold text-balance text-text-primary/90">
             Client profile
           </h3>
-          <ReactMarkdown components={CLIENT_MARKDOWN_COMPONENTS}>
+          <p className="text-base leading-relaxed font-normal text-pretty text-text-primary/95">
             {study.client}
-          </ReactMarkdown>
-          <ReactMarkdown components={DESCRIPTION_MARKDOWN_COMPONENTS}>
-            {study.longDescription}
-          </ReactMarkdown>
+          </p>
+          <div className="markdown-prose text-base leading-relaxed text-pretty text-text-primary/80">
+            <study.Content components={mdxComponents} />
+          </div>
         </motion.div>
 
         {/* Results Grid */}

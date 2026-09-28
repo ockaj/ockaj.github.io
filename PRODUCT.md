@@ -36,7 +36,7 @@ Junior Business & Process Analyst bridging rigorous formal notation (BPMN 2.0, A
 - Tactile LiquidGlass primitives (`InteractiveGlass`, `StaticGlass`, `LiquidGlassButton`, `Tabs`, `Tab`) with cursor-following specular glow, spring recoil, and 3D tilt.
 - WebGL background aurora effect (OGL) with hardware GPU validation and `@media (prefers-reduced-motion: reduce)` vector SVG fallback (`AuroraFallback.tsx`).
 - Dual-language interactive CV viewer (`InteractiveCvView.tsx`) rendering structured English and Slovak data, alongside direct PDF download.
-- Markdown technical journal articles parsed via `react-markdown` and `remark-gfm` with frontmatter metadata.
+- Markdown technical journal articles compiled to static HTML at build time with frontmatter metadata.
 - Static architecture: Hosted on GitHub Pages with zero backend services and zero dynamic databases.
 - Native typography scaling: Authentic support for compact sizes (10pt–13pt / `text-xs` to `text-[13px]`) for footnotes, captions, tags, and micro-metadata, paired with high-contrast obsidian surfaces.
 - Mobile interaction ergonomics: Compact circular glass overlay badge (`size-7 rounded-full`) for diagram expansion on phones, and balanced stacked contact actions sharing a unified `max-w-sm` container width.

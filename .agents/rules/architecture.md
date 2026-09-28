@@ -65,9 +65,9 @@ Single-page React portfolio (no router) built with React 19, Vite 8, TypeScript 
 
 ## 5. Content Parsing & Data Loading
 
-- **Eager Raw Glob Imports**: Articles and case studies loaded at build time via `import.meta.glob("./articles/*.md", { query: "?raw", eager: true })` in `src/data/articles.ts` and `import.meta.glob("./caseStudies/*.md", { query: "?raw", eager: true })` in `src/data/caseStudies.ts`.
-- **Frontmatter Parsing**: Parsed using `yaml` (`import { parse } from "yaml"`), **NOT** `gray-matter`.
-- **Markdown Rendering**: Rendered with `react-markdown` + `remark-gfm` using custom component maps in [`src/utils/markdownRenderers.tsx`](file:///d:/github/ockaj.github.io/src/utils/markdownRenderers.tsx).
+- **Build-Time MDX Transformation**: Markdown articles and case studies compile at build time via the official `@mdx-js/rollup` plugin in [`vite/mdxPlugin.ts`](file:///Users/ondrejmichalockaj/Documents/github/ockaj.github.io/vite/mdxPlugin.ts). Frontmatter parses into metadata exports via `remark-frontmatter` and `remark-mdx-frontmatter`. `remark-gfm` adds GitHub Flavored Markdown support. Text excerpts and read-time metrics generate during compilation via [`vite/remarkMdxMetadata.ts`](file:///Users/ondrejmichalockaj/Documents/github/ockaj.github.io/vite/remarkMdxMetadata.ts).
+- **Eager Module Imports**: Modules load eagerly as typed ES modules (`import.meta.glob("./articles/*.md", { eager: true })` in `src/data/articles.ts` and `import.meta.glob("./caseStudies/*.md", { eager: true })` in `src/data/caseStudies.ts`).
+- **Zero Client Runtime Markdown & Zero innerHTML**: Client parser libraries and `dangerouslySetInnerHTML` are prohibited. Content renders directly as native React components (`<article.Content />`, `<study.Content />`) inside `.markdown-prose` containers styled in [`src/index.css`](file:///Users/ondrejmichalockaj/Documents/github/ockaj.github.io/src/index.css).
 
 ---
 

@@ -4,14 +4,12 @@ import { BookOpen, MessageSquare } from "lucide-react";
 import type { Article } from "../../data/articles";
 import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import BaseDrawer from "../BaseDrawer";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { COMMON_MARKDOWN_COMPONENTS } from "../../utils/markdownRenderers";
 import {
   drawerContentVariants,
   drawerItemVariants,
 } from "../../utils/motionVariants";
 import { CONTACT_EMAIL } from "../../constants/contact";
+import { mdxComponents } from "../../utils/mdxComponents";
 
 interface DrawerProps {
   open: boolean;
@@ -19,58 +17,6 @@ interface DrawerProps {
   onClose: () => void;
   onExitComplete?: () => void;
 }
-
-const REMARK_PLUGINS = [remarkGfm];
-
-const JOURNAL_MARKDOWN_COMPONENTS = {
-  ...COMMON_MARKDOWN_COMPONENTS,
-  h3: ({ children }: { children?: React.ReactNode }) => (
-    <h3 className="mt-8 mb-4 flex items-center gap-2 font-body text-lg font-bold text-balance text-text-primary">
-      <span className="size-1.5 shrink-0 rounded-full bg-accent" />
-      {children}
-    </h3>
-  ),
-  p: ({ children }: { children?: React.ReactNode }) => (
-    <p className="mb-4 leading-relaxed font-normal text-pretty text-text-primary/80">
-      {children}
-    </p>
-  ),
-  ul: ({ children }: { children?: React.ReactNode }) => (
-    <ul className="my-4 list-disc space-y-2 pl-5 text-muted">{children}</ul>
-  ),
-  li: ({ children }: { children?: React.ReactNode }) => (
-    <li className="text-sm leading-relaxed text-pretty md:text-base">
-      {children}
-    </li>
-  ),
-  table: ({ children }: { children?: React.ReactNode }) => (
-    <div className="my-6 scrollbar-thin overflow-x-auto rounded-xl border border-white/10 bg-white/5">
-      <table className="w-full min-w-180 table-auto border-collapse text-left text-sm md:min-w-0">
-        {children}
-      </table>
-    </div>
-  ),
-  thead: ({ children }: { children?: React.ReactNode }) => (
-    <thead className="border-b border-white/10 bg-white/5 font-body text-text-primary">
-      {children}
-    </thead>
-  ),
-  th: ({ children }: { children?: React.ReactNode }) => (
-    <th className="px-3 py-2.5 text-sm font-semibold tracking-wider text-accent/90 uppercase">
-      {children}
-    </th>
-  ),
-  tbody: ({ children }: { children?: React.ReactNode }) => (
-    <tbody className="divide-y divide-white/5 text-text-primary/75">
-      {children}
-    </tbody>
-  ),
-  td: ({ children }: { children?: React.ReactNode }) => (
-    <td className="p-2 align-top leading-relaxed wrap-break-word">
-      {children}
-    </td>
-  ),
-};
 
 const JournalDrawer = memo(function JournalDrawer({
   open,
@@ -124,14 +70,9 @@ const JournalDrawer = memo(function JournalDrawer({
         <motion.div
           variants={drawerItemVariants}
           custom={prefersReducedMotion}
-          className="max-w-prose text-base leading-relaxed text-text-primary/90"
+          className="markdown-prose max-w-prose text-base leading-relaxed text-text-primary/90"
         >
-          <ReactMarkdown
-            remarkPlugins={REMARK_PLUGINS}
-            components={JOURNAL_MARKDOWN_COMPONENTS}
-          >
-            {article.body}
-          </ReactMarkdown>
+          <article.Content components={mdxComponents} />
         </motion.div>
 
         <motion.div

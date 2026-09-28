@@ -22,7 +22,7 @@ A high-end, premium interactive portfolio showcasing Ondrej Michal Očkaj's skil
 - **Graphics & Motion**: WebGL Aurora (`ogl`), `motion/react` (v13+), NumberFlow (`@number-flow/react`)
 - **State Management**: Zustand 5 with URL hash synchronization
 - **Asset Processing**: `lightningcss` (CSS transformer), SVGO (SVG optimizer), `boneyard-js` (build-time skeleton generation)
-- **Content**: `react-markdown` + `remark-gfm` for fast, lightweight article rendering
+- **Content**: Build-time Vite Markdown plugin (`micromark` + GFM) for zero-runtime article compilation
 - **Quality & Testing**: Vitest, React Doctor, Knip, ESLint flat config (React Compiler, SonarJS)
 
 ---

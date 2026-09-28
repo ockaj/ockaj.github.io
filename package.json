@@ -27,18 +27,17 @@
     "quicklink": "^3.0.2",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "react-markdown": "^10.1.0",
     "react-zoom-pan-pinch": "^4.2.0",
-    "remark-gfm": "^4.0.1",
     "slot-text": "^0.3.4",
     "tailwind-merge": "^3.7.0",
-    "yaml": "^2.9.1",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@babel/core": "^8.0.6",
     "@eslint-react/eslint-plugin": "^5.20.8",
     "@eslint/js": "^10.0.1",
+    "@mdx-js/mdx": "^3.1.1",
+    "@mdx-js/rollup": "^3.1.1",
     "@rolldown/plugin-babel": "^0.2.4",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.6.3",
@@ -63,6 +62,9 @@
     "prettier": "^3.9.9",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "react-doctor": "^0.9.14",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-mdx-frontmatter": "^6.0.0",
     "rollup-plugin-visualizer": "^7.0.1",
     "svgo": "^4.1.0",
     "tailwindcss": "^4.3.3",
@@ -72,7 +74,8 @@
     "vite-plugin-checker": "^0.14.5",
     "vite-plugin-compression": "^0.5.1",
     "vitest": "^5.0.2",
-    "web-vitals": "^6.2.2"
+    "web-vitals": "^6.2.2",
+    "yaml": "^2.9.1"
   },
   "overrides": {
     "@babel/plugin-proposal-private-methods": "npm:@babel/plugin-transform-private-methods@^7.22.0",

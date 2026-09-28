@@ -6,10 +6,12 @@ import checker from "vite-plugin-checker";
 import compression from "vite-plugin-compression";
 import { visualizer } from "rollup-plugin-visualizer";
 import { boneyardPlugin } from "boneyard-js/vite";
+import { createMdxPlugin } from "./vite/mdxPlugin.ts";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   plugins: [
+    createMdxPlugin(),
     react(),
     boneyardPlugin(),
 

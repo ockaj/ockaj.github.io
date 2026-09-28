@@ -1,9 +1,5 @@
-import { parse } from "yaml";
-
-const caseStudyModules = import.meta.glob("./caseStudies/*.md", {
-  query: "?raw",
-  eager: true,
-}) as Record<string, { default: string }>;
+import type { ComponentType } from "react";
+import type { MdxComponentsMap } from "../utils/mdxComponents";
 
 interface CaseStudyFrontmatter {
   id?: string | number;
@@ -12,14 +8,19 @@ interface CaseStudyFrontmatter {
   category?: string;
   challenge?: string;
   solution?: string;
-  results?: string;
-  tools?: string;
+  results?: unknown;
+  tools?: unknown;
   timeline?: string;
   client?: string;
   asIsFlow?: string[];
   toBeFlow?: string[];
   methodology?: string[];
   deliverables?: string[];
+}
+
+export interface CaseStudyResult {
+  metric: string;
+  description: string;
 }
 
 export interface CaseStudyDetail {
@@ -29,71 +30,97 @@ export interface CaseStudyDetail {
   category: string;
   challenge: string;
   solution: string;
-  results: { metric: string; description: string }[];
+  results: CaseStudyResult[];
   tools: string[];
   timeline: string;
   client: string;
-  longDescription: string;
+  Content: ComponentType<{ components?: MdxComponentsMap }>;
   asIsFlow: string[];
   toBeFlow: string[];
   methodology: string[];
   deliverables: string[];
 }
 
-const parseResults = (raw: string): { metric: string; description: string }[] =>
-  raw.split(";").flatMap((item) => {
-    const pipeIndex = item.indexOf("|");
-    const metric = (
-      pipeIndex !== -1 ? item.substring(0, pipeIndex) : item
-    ).trim();
-    if (!metric) return [];
-    const description =
-      pipeIndex !== -1 ? item.substring(pipeIndex + 1).trim() : "";
-    return [{ metric, description }];
-  });
-
-const parseTools = (raw: string): string[] => {
-  if (!raw) return [];
-  const parts = raw.split(",");
-  const tools: string[] = [];
-  for (let i = 0; i < parts.length; i++) {
-    const tool = parts[i].trim();
-    if (tool) tools.push(tool);
+export const parseResults = (raw: unknown): CaseStudyResult[] => {
+  if (Array.isArray(raw)) {
+    return raw.flatMap((item) => {
+      if (item && typeof item === "object" && "metric" in item) {
+        const resultItem = item as { metric?: unknown; description?: unknown };
+        const metric = String(resultItem.metric ?? "").trim();
+        const description = String(resultItem.description ?? "").trim();
+        if (metric) return [{ metric, description }];
+      }
+      return [];
+    });
   }
-  return tools;
+  if (typeof raw === "string") {
+    return raw.split(";").flatMap((item) => {
+      const pipeIndex = item.indexOf("|");
+      const metric = (
+        pipeIndex !== -1 ? item.substring(0, pipeIndex) : item
+      ).trim();
+      if (!metric) return [];
+      const description =
+        pipeIndex !== -1 ? item.substring(pipeIndex + 1).trim() : "";
+      return [{ metric, description }];
+    });
+  }
+  return [];
 };
 
-const MD_EXT_REGEX = /\.md$/;
+export const parseTools = (raw: unknown): string[] => {
+  if (Array.isArray(raw)) {
+    return raw.map((item) => String(item).trim()).filter(Boolean);
+  }
+  if (typeof raw === "string") {
+    return raw
+      .split(",")
+      .map((tool) => tool.trim())
+      .filter(Boolean);
+  }
+  return [];
+};
 
-export const CASE_STUDIES: CaseStudyDetail[] = Object.entries(
+interface CompiledCaseStudyModule {
+  readonly id?: string | number;
+  readonly frontmatter?: CaseStudyFrontmatter;
+  readonly excerpt?: string;
+  readonly readTime?: string;
+  readonly default: ComponentType;
+}
+
+const caseStudyModules = import.meta.glob<CompiledCaseStudyModule>(
+  "./caseStudies/*.md",
+  {
+    eager: true,
+  },
+);
+
+export const CASE_STUDIES: CaseStudyDetail[] = Object.values(
   caseStudyModules,
-).map(([path, module]) => {
-  const filename = path.split("/").pop() || "";
-  const raw = module.default;
-  const parts = raw.split("---");
-  const fm = (parse(parts[1]) || {}) as CaseStudyFrontmatter;
-  const body = parts.slice(2).join("---").trim();
+).map((mod) => {
+  const fm = mod.frontmatter || {};
 
   let id: number | string =
-    (fm.id as string) || filename.replace(MD_EXT_REGEX, "");
+    fm.id !== undefined && fm.id !== "" ? fm.id : (mod.id ?? "case-study");
   if (typeof id === "string" && !isNaN(Number(id))) id = Number(id);
 
   return {
     id,
-    title: (fm.title as string) || "Untitled",
-    subtitle: (fm.subtitle as string) || "",
-    category: (fm.category as string) || "",
-    challenge: (fm.challenge as string) || "",
-    solution: (fm.solution as string) || "",
-    results: parseResults((fm.results as string) || ""),
-    tools: parseTools((fm.tools as string) || ""),
-    timeline: (fm.timeline as string) || "",
-    client: (fm.client as string) || "",
-    longDescription: body,
-    asIsFlow: (fm.asIsFlow as string[]) || [],
-    toBeFlow: (fm.toBeFlow as string[]) || [],
-    methodology: (fm.methodology as string[]) || [],
-    deliverables: (fm.deliverables as string[]) || [],
+    title: fm.title || "Untitled",
+    subtitle: fm.subtitle || "",
+    category: fm.category || "",
+    challenge: fm.challenge || "",
+    solution: fm.solution || "",
+    results: parseResults(fm.results),
+    tools: parseTools(fm.tools),
+    timeline: fm.timeline || "",
+    client: fm.client || "",
+    Content: mod.default,
+    asIsFlow: Array.isArray(fm.asIsFlow) ? fm.asIsFlow : [],
+    toBeFlow: Array.isArray(fm.toBeFlow) ? fm.toBeFlow : [],
+    methodology: Array.isArray(fm.methodology) ? fm.methodology : [],
+    deliverables: Array.isArray(fm.deliverables) ? fm.deliverables : [],
   };
 });
 
