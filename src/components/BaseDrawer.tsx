@@ -1,6 +1,12 @@
 import { useRef, useState, ReactNode, memo } from "react";
 import { Dialog } from "@base-ui/react/dialog";
-import { motion, AnimatePresence, useReducedMotion, Variants } from "motion/react";
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+  useDragControls,
+  Variants,
+} from "motion/react";
 import { X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { SPRING } from "../utils/springConfig";
@@ -71,6 +77,7 @@ const BaseDrawer = memo(function BaseDrawer({
   const isMobile = useIsMobile();
   const isTouchDevice = useIsTouchDevice();
   const canDrag = isMobile || isTouchDevice;
+  const dragControls = useDragControls();
   const [exitVelocityX, setExitVelocityX] = useState<number | undefined>(
     undefined,
   );
@@ -130,13 +137,19 @@ const BaseDrawer = memo(function BaseDrawer({
                   exit="hidden"
                   variants={drawerVariants}
                   drag={canDrag ? "x" : false}
+                  dragControls={dragControls}
+                  dragListener={false}
+                  dragDirectionLock
                   dragConstraints={DRAG_CONSTRAINTS}
                   dragElastic={DRAG_ELASTIC}
                   onDragEnd={(_e, info) => {
                     const projectedX =
                       info.offset.x +
                       (info.velocity.x / 1000) * (0.998 / (1 - 0.998));
-                    if (projectedX > 160 || info.velocity.x > 450) {
+                    const isDeliberateSwipe = info.offset.x > 60;
+                    const reachedThreshold =
+                      projectedX > 200 || info.velocity.x > 750;
+                    if (isDeliberateSwipe && reachedThreshold) {
                       setExitVelocityX(info.velocity.x);
                       onClose();
                     }
@@ -144,7 +157,7 @@ const BaseDrawer = memo(function BaseDrawer({
                   className={cn(
                     "fixed top-0 right-0 z-100 flex size-full flex-col overflow-hidden overscroll-contain border-l border-white/10 bg-surface shadow-drawer md:bg-surface/90 md:backdrop-blur-2xl",
                     maxWidthClass || "max-w-2xl",
-                    canDrag && "touch-pan-y will-change-transform select-none",
+                    canDrag && "will-change-transform",
                   )}
                 />
               }
@@ -153,8 +166,34 @@ const BaseDrawer = memo(function BaseDrawer({
                 {/* Specular sheen header overlay matching CV modal */}
                 <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-28 bg-linear-to-b from-white/5 to-transparent" />
 
-                {/* Top bar */}
-                <div className="relative z-30 flex items-center justify-between border-b border-white/10 px-6 pb-6 pt-safe-6 md:pt-6">
+                {/* Left edge swipe-to-dismiss handle for touch devices */}
+                {canDrag ? (
+                  <div
+                    className="absolute inset-y-0 left-0 z-40 w-6 touch-none cursor-grab select-none active:cursor-grabbing"
+                    aria-hidden="true"
+                    onPointerDown={(e) => dragControls.start(e)}
+                  />
+                ) : null}
+
+                {/* Top bar drag handle */}
+                <div
+                  className={cn(
+                    "relative z-30 flex items-center justify-between border-b border-white/10 px-6 pb-6 pt-safe-6 md:pt-6",
+                    canDrag &&
+                      "touch-none cursor-grab select-none active:cursor-grabbing",
+                  )}
+                  onPointerDown={(e) => {
+                    if (!canDrag) return;
+                    if (
+                      (e.target as HTMLElement).closest(
+                        "button, a, [role='button']",
+                      )
+                    ) {
+                      return;
+                    }
+                    dragControls.start(e);
+                  }}
+                >
                   <Dialog.Title className="flex items-center gap-2 text-sm font-semibold text-text-primary/90">
                     {icon ? icon : null}
                     <span>{title}</span>
