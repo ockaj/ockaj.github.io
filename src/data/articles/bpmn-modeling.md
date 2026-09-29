@@ -6,49 +6,47 @@ date: June 15, 2026
 image: https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=600&h=600&q=80
 ---
 
-In the domain of business process management, organizations frequently translate their day-to-day operations into visual schemas. However, many models fall short because practitioners conflate informal process mapping with formal process modeling. While mapping gathers a descriptive overview of the "AS-IS" reality, modeling demands a standardized, logical representation that is syntactically sound and directly ready for operational analysis or technical execution.
+Process mapping creates an informal view of current operations. Process modeling requires standardized, logical syntax ready for operational analysis and execution.
 
-Based on my methodological research with the ADONIS enterprise modeling tool, this piece outlines a structured, 7-step pipeline to construct precise BPMN 2.0 models, ending with a detailed real-world case study.
+This guide presents a seven-step pipeline for building BPMN 2.0 models in ADONIS, followed by a school scheduling case study.
 
-### The ADONIS Integrated Modeling Environment
+### The ADONIS modeling environment
 
-ADONIS operates on an integrated multi-model architecture. Processes are not designed in isolation; instead, they are connected to other business dimensions:
+ADONIS links processes across several business models:
 
-- **Process Landscape (Procesná mapa)**: A high-level overview map categorizing activities into Management (Riadiace), Core (Hlavné), and Supporting (Podporné) processes, establishing clear organizational hierarchies.
-- **Business Process Diagram (BPMN Model)**: The detailed execution model using standard BPMN 2.0 symbols to map sequence flows, gateways, and tasks.
-- **Working Environment (Organizačná štruktúra)**: A hierarchical structure of organizational units, positions, and roles, which are directly mapped to process lanes.
-- **Document Model (Model dokumentov)**: A centralized inventory of files, records, and databases that feed into activities as inputs and emerge as outputs.
+- **Process map (Procesná mapa)**: Groups activities into management, core, and supporting categories.
+- **BPMN model**: Specifies sequence flows, gateways, and tasks with standard BPMN 2.0 notation.
+- **Working environment (Organizačná štruktúra)**: Maps organizational units and roles directly to swimlanes.
+- **Document model (Model dokumentov)**: Tracks input and output files, records, and databases.
 
-### The 7-Step Modeling Pipeline
+### The seven-step modeling pipeline
 
-To transform raw organizational data into a verified process model, we follow a rigorous seven-step methodological pipeline:
+Transforming raw operational data into a verified model follows seven steps:
 
-- **Step 1: Process Identification & Info Gathering**: Define the process's goal, boundary events (triggering start events and final end states), and compile existing documentation (e.g., guidelines, spreadsheets, interviews).
-- **Step 2: Process Decomposition**: Break down the process into discrete, atomic activities. Ensure each activity is formulated using active verb-noun syntax (e.g., "Review invoice" or "Input record").
-- **Step 3: Sequence & Responsibility Mapping**: Order the activities logically in time. Assign each activity to a specific role from the Working Environment model, separating roles from individual employees.
-- **Step 4: Input & Output Mapping**: Identify the information flows. Associate document objects from the Document Model to specific activities, distinguishing between inputs, outputs, and updated records.
-- **Step 5: Gateways & Decision Points**: Pinpoint where the process branches. Select the correct gateway type (e.g., Exclusive XOR, Parallel AND, or Inclusive OR) and label outgoing paths with clear conditional results (e.g., "Approved?" -> Yes/No).
-- **Step 6: BPMN Diagram Construction**: Translate the structured data into visual symbols within the modeling workspace, utilizing pools, swimlanes, and connectors according to strict BPMN 2.0 specifications.
-- **Step 7: Logic & Quality Verification**: Validate the model’s syntax and operational accuracy. Check for orphans, deadlocks, and infinite loops, and perform a walkthrough with process owners to confirm alignment with reality.
+1. **Identify the process and gather data**: Define boundary events (start and end states) and collect existing spreadsheets, guidelines, and interview notes.
+2. **Decompose activities**: Break procedures into atomic tasks using active verb-noun pairs (such as "Review invoice").
+3. **Map sequence and assign roles**: Sequence tasks chronologically. Assign each task to a role from the working environment model rather than an individual person.
+4. **Map inputs and outputs**: Connect document objects to tasks to show data flow.
+5. **Define gateways**: Choose decision logic (exclusive XOR, parallel AND, or inclusive OR) and label outgoing branches with conditions.
+6. **Build the BPMN diagram**: Draw pools, swimlanes, tasks, and connectors in ADONIS to match the BPMN 2.0 standard.
+7. **Verify syntax and logic**: Inspect the model for deadlocks, orphans, and infinite loops. Review the draft with process owners.
 
-### Critical Modeling Rules & Pitfalls to Avoid
+### Modeling rules and common pitfalls
 
-During modeling, analysts must enforce strict validation rules to prevent design defects that break technical integration:
+Process models require strict validation before operational handoff:
 
-- **The Pool Boundary Rule**: Sequence flow arrows (solid lines) must never cross pool boundaries. Communication between separate business entities (pools) must only be modeled using dashed Message Flows.
-- **Infinite Loop Avoidance**: Loops returning to previous activities must route through an explicit decision gateway (XOR) with conditional labels, rather than connecting directly back to task nodes.
-- **Gateway Synchronization**: When splitting paths with an Inclusive OR, they must be synchronized and merged using a matching Inclusive gateway later in the flow to prevent token deadlocks.
-- **RACI Competency Mapping**: Assign explicit responsibility attributes to tasks using the RACI matrix (Responsible, Accountable, Consulted, Informed) to clarify governance.
+- **Pool boundaries**: Solid sequence flow lines cannot cross pools. Use dashed message flows between separate participant pools.
+- **Loop routing**: Route return loops through an explicit decision gateway (XOR) rather than directly back to a task.
+- **Gateway joins**: Merge paths split by an inclusive OR with a matching inclusive OR join to prevent execution deadlocks.
+- **Task responsibilities**: Record role governance on each task with a RACI matrix.
 
-### Case Study: Class Schedule Generation ("Rozvrh hodín")
+### Case study: class schedule generation
 
-To illustrate this methodology in practice, we examine the complex process of generating a school's academic class schedule, modeled in ADONIS:
+This case study models academic schedule generation in ADONIS:
 
-- **Trigger & Roles**: The process starts when the new school year approaches. It involves four key roles: the Vice-Principal for Education (Process Owner), Admin Staff, the Finance VP, and Teachers.
-- **Phase 1: Database Population**: The Vice-Principal fills the software database. Inputs include student group divisions, teachers' availability requests, curricula, and teacher workloads. The output is a populated database.
-- **Phase 2: Automated Generation**: The database and environmental constraints are fed into the scheduling software to generate the initial draft schedule.
-- **Phase 3: Parallel Printing & Review**: The draft is processed. In parallel, two sub-activities run: the Finance VP prints individual teacher schedules (to verify contract workloads), and the Vice-Principal prints class schedules.
-- **Phase 4: Feedback Loop**: Teachers review the printed schedules. A decision gateway poses the question: *"Is a schedule change required?"* If yes, the Admin Staff manually adjusts the schedule, and the flow loops back to parallel printing and review. If no, the process advances.
-- **Phase 5: Publication**: The Vice-Principal creates the final classroom allocation schedule, calculates overtime hours for contracts, and publishes the finalized schedule, terminating the process.
-
-By applying this 7-step pipeline, we successfully translated a highly complex operational procedure with multiple feedback loops and cross-functional responsibilities into a structured, validated BPMN 2.0 model ready for implementation.
+- **Trigger and roles**: Work starts before the academic year. Four roles participate: the Vice-Principal for Education (process owner), administrative staff, the Finance Vice-Principal, and teachers.
+- **Database entry**: The Vice-Principal enters student cohorts, teacher availability requests, curricula, and workloads into the scheduling system.
+- **Schedule draft generation**: The scheduling engine computes the first draft from database entries and operational constraints.
+- **Parallel printing and inspection**: Two activities run simultaneously. The Finance Vice-Principal prints teacher schedules to verify contracted workloads. The Vice-Principal prints class schedules.
+- **Feedback loop**: Teachers inspect the printed timetables. If changes are necessary, administrative staff adjust the software schedule and regenerate prints. If no changes remain, the process continues.
+- **Publication**: The Vice-Principal sets room allocations, calculates overtime hours, and publishes the final schedule.

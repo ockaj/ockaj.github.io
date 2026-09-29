@@ -3,13 +3,13 @@ id: 1
 title: School Process Optimization
 subtitle: Institutional Operations & Modeling
 category: Education & Public Sector
-challenge: Legacy school procedures exist only as flat Excel spreadsheets, text descriptions, and informal verbal knowledge, often containing logical errors, deadlocks, and unclear responsibilities.
-solution: Mapping and modeling 42 management processes in ADONIS using BPMN 2.0, identifying and correcting process logic errors, gateway mismatches, and role ambiguities.
+challenge: School procedures existed only in spreadsheets, text documents, and unwritten staff habits, resulting in logic deadlocks and unclear responsibilities.
+solution: Mapped 42 management processes in ADONIS using BPMN 2.0 to resolve gateway mismatches and define role boundaries.
 results:
   - metric: "42"
     description: "processes mapped"
   - metric: "Phase 1"
-    description: "complete (Ongoing)"
+    description: "complete (Phase 2 in Sept)"
   - metric: "100%"
     description: "logic errors audited"
 tools:
@@ -18,30 +18,32 @@ tools:
   - Process Mapping
   - Logic Verification
 timeline: Ongoing (Phase 2 starting Sept)
-client: "School Institution: a public educational institution establishing structural transparency."
+client: "Secondary School: public educational institution formalizing administrative processes."
 asIsFlow:
-  - Processes exist only as flat tabular outlines without visual logic or sequence flows.
-  - Process flows contain logical errors, such as incomplete loops or missing decision gateways.
-  - Role boundaries and operational responsibilities between school VPs and administrative staff are ambiguous.
+  - Processes exist only as tabular outlines without formal sequence logic.
+  - Process flows contain broken loops and missing decision gateways.
+  - Operational responsibilities between school vice-principals and office staff overlap.
 toBeFlow:
-  - Structured BPMN 2.0 diagrams in ADONIS resolving all logic errors, deadlocks, and orphans.
-  - Hierarchical process map categorizing existing school activities into Management, Core (Education), and Supporting blocks.
-  - Explicit swimlanes assigning tasks to modeled organizational roles (e.g., Principal, Tech-Economic VP) to clarify actual responsibilities.
-  - Integrated Document Model mapping how files flow as inputs and outputs across audited processes.
+  - Validated BPMN 2.0 diagrams in ADONIS without orphans or deadlocks.
+  - Process landscape separating activities into management, educational, and supporting areas.
+  - Swimlanes assigning each task to an explicit organizational role.
+  - Document model tracing inputs and outputs across all mapped workflows.
 methodology:
-  - "Step 1: Process Identification & Info Gathering via interviews and spreadsheet collection."
-  - "Step 2: Process Decomposition breaking down unstructured procedures into atomic activities."
-  - "Step 3 & 4: Sequence mapping and assigning responsibilities with Input/Output document associations."
-  - "Step 5: Gateway Mapping resolving branching paths and checking conditional logic."
-  - "Step 6: BPMN Diagram Construction in the ADONIS modeling workspace."
-  - "Step 7: Logic & Quality Verification to identify and correct process gaps, deadlocks, and loop errors."
+  - "Step 1: Identify processes and gather data from staff interviews and existing documents."
+  - "Step 2: Decompose unstructured workflows into atomic activities."
+  - "Step 3 & 4: Sequence tasks, assign roles, and associate input/output documents."
+  - "Step 5: Define decision points and conditional branching logic."
+  - "Step 6: Build BPMN diagrams in ADONIS."
+  - "Step 7: Verify diagram syntax and validate logic with process owners."
 deliverables:
-  - School Process Map Architecture (Management, Core, Support)
-  - 42 Detailed BPMN 2.0 Management Process Diagrams in ADONIS (fully audited and corrected)
-  - School Organizational Structure Model with designated roles
-  - Centralized Document Model Inventory (Invoices, Guidelines, Contracts)
+  - School process map architecture (management, core, support)
+  - 42 audited BPMN 2.0 management process models in ADONIS
+  - School organizational structure model with designated roles
+  - Centralized document inventory (invoices, guidelines, contracts)
 ---
 
-In this ongoing academic and practical project, which is a key part of my Master's degree project (Ing. projekt), we are analyzing and modeling the management, educational, and supporting processes of the School Institution. The school's existing workflows were gathered from raw materials like Excel spreadsheets, text guidelines, and individual staff interviews.
+This project analyzes and models the management, educational, and supporting processes of a public secondary school for my Master's engineering project (Ing. projekt at UNIZA FRI).
 
-By applying a structured 7-step modeling pipeline, we are migrating these unstructured legacy inputs into the ADONIS modeling environment. A major focus of this mapping is diagnosing and correcting underlying logical errors, such as process deadlocks, incorrect gateway splits, infinite loops, and undefined role responsibilities. **Phase 1, focusing on mapping and correcting the 42 management processes, has been successfully completed.** The next phase, covering core (educational) and supporting processes, is scheduled to begin in **September** as part of the continuing Master's project.
+The initial state relied on spreadsheets, text guidelines, and staff interviews. Using the seven-step modeling pipeline, we migrated these records into ADONIS, resolving process deadlocks, incorrect gateway splits, infinite loops, and ambiguous role assignments.
+
+Phase 1 mapped and corrected the 42 management processes. Phase 2 begins in September, covering educational and supporting processes.
