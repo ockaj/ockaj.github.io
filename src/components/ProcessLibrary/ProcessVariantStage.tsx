@@ -5,11 +5,11 @@ import { SPRING } from "../../utils/springConfig";
 import { cn } from "../../utils/cn";
 import { type ProcessTopic } from "../../data/processItems";
 
-type ProcessVariant = ProcessTopic["asis"];
+type ProcessVariant = ProcessTopic["source"];
 
 interface ProcessVariantStageProps {
   topic: ProcessTopic;
-  activeViewMode: "tobe" | "asis";
+  activeViewMode: "source" | "optimized";
   setLightboxItem: (item: {
     id: number;
     title: string;
@@ -21,13 +21,13 @@ interface ProcessVariantStageProps {
   badges?: boolean;
 }
 
-const MODES = ["asis", "tobe"] as const;
+const MODES = ["source", "optimized"] as const;
 const SPRING_STAGE_DELAYED = { ...SPRING.stage, delay: 0.04 };
 
 interface DiagramCanvasItemProps {
   topicId: number;
   variant: ProcessVariant;
-  mode: "asis" | "tobe";
+  mode: "source" | "optimized";
   isSelected: boolean;
   isFirstSlide: boolean;
   prefersReducedMotion: boolean | null;
@@ -43,7 +43,7 @@ const DiagramCanvasItem = memo(function DiagramCanvasItem({
   prefersReducedMotion,
   setLightboxItem,
 }: Readonly<DiagramCanvasItemProps>) {
-  const offsetDirection = mode === "tobe" ? 1 : -1;
+  const offsetDirection = mode === "optimized" ? 1 : -1;
   const xOffset = prefersReducedMotion ? 0 : 14 * offsetDirection;
 
   return (
@@ -64,7 +64,7 @@ const DiagramCanvasItem = memo(function DiagramCanvasItem({
         tabIndex={isSelected ? 0 : -1}
         className="active:scale-0.97 flex size-full min-h-11 cursor-zoom-in items-center justify-center p-3 transition-transform duration-100 ease-out focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none sm:p-5 md:p-6"
         onClick={() => {
-          const itemId = mode === "tobe" ? topicId * 2 : topicId * 2 - 1;
+          const itemId = mode === "optimized" ? topicId * 2 : topicId * 2 - 1;
           setLightboxItem({
             id: itemId,
             title: variant.title,
@@ -94,7 +94,7 @@ const DiagramCanvasItem = memo(function DiagramCanvasItem({
 
 interface FooterDetailsItemProps {
   variant: ProcessVariant;
-  mode: "asis" | "tobe";
+  mode: "source" | "optimized";
   isSelected: boolean;
   prefersReducedMotion: boolean | null;
   badges?: boolean;
@@ -180,7 +180,7 @@ const FooterDetailsItem = memo(function FooterDetailsItem({
   prefersReducedMotion,
   badges = true,
 }: Readonly<FooterDetailsItemProps>) {
-  const offsetDirection = mode === "tobe" ? 1 : -1;
+  const offsetDirection = mode === "optimized" ? 1 : -1;
   const xOffset = prefersReducedMotion ? 0 : 10 * offsetDirection;
 
   return (

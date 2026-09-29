@@ -5,8 +5,8 @@ import { cn } from "../../utils/cn";
 interface ProcessCardHeaderProps {
   topicId: number;
   title: string;
-  viewMode: "tobe" | "asis";
-  onViewModeChange: (topicId: number, mode: "tobe" | "asis") => void;
+  viewMode: "source" | "optimized";
+  onViewModeChange: (topicId: number, mode: "source" | "optimized") => void;
   isMobile?: boolean;
 }
 
@@ -19,7 +19,7 @@ function ProcessCardHeader({
 }: Readonly<ProcessCardHeaderProps>) {
   const handleModeChange = useCallback(
     (val: string | number) => {
-      onViewModeChange(topicId, val as "tobe" | "asis");
+      onViewModeChange(topicId, val as "source" | "optimized");
     },
     [onViewModeChange, topicId],
   );
@@ -67,7 +67,7 @@ function ProcessCardHeader({
           highlightClassName="navbar-highlight-flat"
         >
           <Tab
-            value="asis"
+            value="source"
             roundedClass="rounded-lg"
             className={cn(
               "relative flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none",
@@ -80,7 +80,7 @@ function ProcessCardHeader({
             <span>Source</span>
           </Tab>
           <Tab
-            value="tobe"
+            value="optimized"
             roundedClass="rounded-lg"
             className={cn(
               "relative flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none",

@@ -77,7 +77,7 @@ function ProcessDesktopCard({
           >
             <ProcessCardHeader
               topicId={activeTopic.id}
-              title={activeTopic.asis.title}
+              title={activeTopic.source.title}
               viewMode={activeViewMode}
               onViewModeChange={handleTopicViewModeChange}
             />

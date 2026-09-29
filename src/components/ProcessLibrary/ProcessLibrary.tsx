@@ -41,7 +41,7 @@ const containerVariants = containerStaggerVariants();
 
 const INITIAL_TOPIC_IMAGES = new Set(
   PROCESS_TOPICS[0]
-    ? [PROCESS_TOPICS[0].asis.image, PROCESS_TOPICS[0].tobe.image]
+    ? [PROCESS_TOPICS[0].source.image, PROCESS_TOPICS[0].optimized.image]
     : [],
 );
 
@@ -61,22 +61,22 @@ function ProcessLibrary() {
   const { activeTopicId, activeTopic, direction, prevDisabled, nextDisabled } =
     topicController;
 
-  const [viewModes, setViewModes] = useState<Record<number, "tobe" | "asis">>(
-    () => {
-      const modal = useAppStore.getState().activeModal;
-      if (modal?.startsWith("lightbox-")) {
-        const id = Number(modal.slice("lightbox-".length));
-        const topicId = getLightboxTopicId(modal);
-        if (topicId !== null && !Number.isNaN(id)) {
-          return { [topicId]: id % 2 === 0 ? "tobe" : "asis" };
-        }
+  const [viewModes, setViewModes] = useState<
+    Record<number, "source" | "optimized">
+  >(() => {
+    const modal = useAppStore.getState().activeModal;
+    if (modal?.startsWith("lightbox-")) {
+      const id = Number(modal.slice("lightbox-".length));
+      const topicId = getLightboxTopicId(modal);
+      if (topicId !== null && !Number.isNaN(id)) {
+        return { [topicId]: id % 2 === 0 ? "optimized" : "source" };
       }
-      return {};
-    },
-  );
+    }
+    return {};
+  });
 
   const handleTopicViewModeChange = useCallback(
-    (topicId: number, mode: "tobe" | "asis") => {
+    (topicId: number, mode: "source" | "optimized") => {
       setViewModes((prev) =>
         prev[topicId] === mode ? prev : { ...prev, [topicId]: mode },
       );
@@ -128,7 +128,7 @@ function ProcessLibrary() {
     setDisplayedLightboxItem(null);
   }, []);
 
-  const activeViewMode = viewModes[activeTopic.id] || "asis";
+  const activeViewMode = viewModes[activeTopic.id] || "source";
 
   useEffect(() => {
     if (isConnectionConstrained()) return;

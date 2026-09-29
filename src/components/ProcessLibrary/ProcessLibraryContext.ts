@@ -12,8 +12,8 @@ interface LightboxTargetItem {
 interface ProcessLibraryState {
   activeTopicId: number;
   activeTopic: ProcessTopic;
-  activeViewMode: "tobe" | "asis";
-  viewModes: Record<number, "tobe" | "asis">;
+  activeViewMode: "source" | "optimized";
+  viewModes: Record<number, "source" | "optimized">;
   direction: number;
   prevDisabled: boolean;
   nextDisabled: boolean;
@@ -24,7 +24,10 @@ interface ProcessLibraryActions {
   selectTopic: (id: number) => void;
   selectPreviousTopic: () => void;
   selectNextTopic: () => void;
-  handleTopicViewModeChange: (topicId: number, mode: "tobe" | "asis") => void;
+  handleTopicViewModeChange: (
+    topicId: number,
+    mode: "source" | "optimized",
+  ) => void;
   setLightboxItem: (item: LightboxTargetItem) => void;
 }
 

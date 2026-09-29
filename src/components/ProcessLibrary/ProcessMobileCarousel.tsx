@@ -12,8 +12,8 @@ interface ProcessMobileSlideProps {
   idx: number;
   isActive: boolean;
   prefersReducedMotion: boolean | null;
-  cardViewMode: "tobe" | "asis";
-  onViewModeChange: (topicId: number, mode: "tobe" | "asis") => void;
+  cardViewMode: "source" | "optimized";
+  onViewModeChange: (topicId: number, mode: "source" | "optimized") => void;
   setLightboxItem: (item: {
     id: number;
     title: string;
@@ -60,7 +60,7 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
       >
         <ProcessCardHeader
           topicId={topic.id}
-          title={topic.asis.title}
+          title={topic.source.title}
           viewMode={cardViewMode}
           onViewModeChange={onViewModeChange}
           isMobile
@@ -267,7 +267,7 @@ function ProcessMobileCarousel() {
               topic={topic}
               idx={idx}
               isActive={topic.id === activeTopicId}
-              cardViewMode={viewModes[topic.id] || "asis"}
+              cardViewMode={viewModes[topic.id] || "source"}
               onViewModeChange={handleTopicViewModeChange}
               setLightboxItem={setLightboxItem}
               prefersReducedMotion={prefersReducedMotion}

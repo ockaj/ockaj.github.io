@@ -14,8 +14,8 @@ export interface ProcessTopic {
   accent: string;
   accentTwo: string;
   rotation?: number;
-  asis: ProcessModelVariant;
-  tobe: ProcessModelVariant;
+  source: ProcessModelVariant;
+  optimized: ProcessModelVariant;
 }
 
 export const PROCESS_TOPICS: ProcessTopic[] = [
@@ -27,11 +27,11 @@ export const PROCESS_TOPICS: ProcessTopic[] = [
     accent: "#5F7A6B",
     accentTwo: "#101511",
     rotation: -2,
-    asis: {
+    source: {
       title: "Conflict Resolution",
       type: "BPMN 2.0 Source Model",
       description:
-        "BPMN process model constructed strictly and literally from the raw, unoptimized legacy source materials as provided.",
+        "Original process captured directly from legacy staff notes, showing missing decision gateways and unhandled escalation loops.",
       image: "/BPMN_models/riesenie_situacii/situacie_v1.svg",
       specTags: [
         "Raw Legacy Blueprint",
@@ -39,11 +39,11 @@ export const PROCESS_TOPICS: ProcessTopic[] = [
         "Implicit Deadlocks",
       ],
     },
-    tobe: {
+    optimized: {
       title: "Conflict Resolution",
       type: "BPMN 2.0 Optimized Model",
       description:
-        "Optimized BPMN process model by eliminating bottlenecks and structural inconsistencies for improved efficiency.",
+        "Refactored process flow with explicit XOR decision gateways, defined SLA escalation limits, and clear role swimlanes.",
       image: "/BPMN_models/riesenie_situacii/situacie_v2.svg",
       specTags: [
         "Syntax Validation",
@@ -60,19 +60,19 @@ export const PROCESS_TOPICS: ProcessTopic[] = [
     accent: "#7A5F6D",
     accentTwo: "#151012",
     rotation: 2,
-    asis: {
+    source: {
       title: "Project Coordination",
       type: "BPMN 2.0 Source Model",
       description:
-        "BPMN process model constructed strictly and literally from the raw, unoptimized project coordination legacy source materials.",
+        "Legacy coordination flow with redundant handoffs between managers, untracked review delays, and missing error boundary events.",
       image: "/BPMN_models/koordinacia_projektu/projekt_v1.svg",
       specTags: ["Unbounded Loops", "Redundant Handoffs", "Legacy Sequence"],
     },
-    tobe: {
+    optimized: {
       title: "Project Coordination",
       type: "BPMN 2.0 Optimized Model",
       description:
-        "Optimized BPMN process model for project coordination, corrected and logically validated using target business analyst methodology.",
+        "Streamlined workflow using parallel gateways (AND) for concurrent reviews and intermediate timer events to prevent project stalls.",
       image: "/BPMN_models/koordinacia_projektu/projekt_v2.svg",
       specTags: ["Handoff Streamlining", "Parallel Gateways", "Error Boundary"],
     },
@@ -85,11 +85,11 @@ export const PROCESS_TOPICS: ProcessTopic[] = [
     accent: "#5D948E",
     accentTwo: "#101414",
     rotation: 1,
-    asis: {
+    source: {
       title: "Class Timetable Creation",
       type: "BPMN 2.0 Source Model",
       description:
-        "BPMN process model constructed strictly and literally from the raw, unoptimized timetable creation legacy source materials.",
+        "Initial scheduling procedure based on unstructured spreadsheets, causing room allocation conflicts and unverified contract workloads.",
       image: "/BPMN_models/rozvrh/rozvrh_v1.svg",
       specTags: [
         "Manual Scheduling Overlaps",
@@ -97,11 +97,11 @@ export const PROCESS_TOPICS: ProcessTopic[] = [
         "Legacy Draft",
       ],
     },
-    tobe: {
+    optimized: {
       title: "Class Timetable Creation",
       type: "BPMN 2.0 Optimized Model",
       description:
-        "Optimized BPMN process model for timetable creation, corrected and logically validated using target business analyst methodology.",
+        "Validated timetable pipeline in ADONIS with automated generation constraints, dual review lanes, and contractor workload checks.",
       image: "/BPMN_models/rozvrh/rozvrh_v2.svg",
       specTags: [
         "Resource Allocation",
@@ -115,22 +115,22 @@ export const PROCESS_TOPICS: ProcessTopic[] = [
 export const PROCESS_ITEMS = PROCESS_TOPICS.flatMap((t) => [
   {
     id: t.id * 2 - 1,
-    title: t.asis.title,
-    type: t.asis.type,
-    description: t.asis.description,
-    image: t.asis.image,
-    specTags: t.asis.specTags,
+    title: t.source.title,
+    type: t.source.type,
+    description: t.source.description,
+    image: t.source.image,
+    specTags: t.source.specTags,
     accent: t.accent,
     accentTwo: t.accentTwo,
     rotation: t.rotation,
   },
   {
     id: t.id * 2,
-    title: t.tobe.title,
-    type: t.tobe.type,
-    description: t.tobe.description,
-    image: t.tobe.image,
-    specTags: t.tobe.specTags,
+    title: t.optimized.title,
+    type: t.optimized.type,
+    description: t.optimized.description,
+    image: t.optimized.image,
+    specTags: t.optimized.specTags,
     accent: t.accent,
     accentTwo: t.accentTwo,
     rotation: t.rotation,
