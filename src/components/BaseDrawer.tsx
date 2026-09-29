@@ -169,7 +169,7 @@ const BaseDrawer = memo(function BaseDrawer({
                 {/* Left edge swipe-to-dismiss handle for touch devices */}
                 {canDrag ? (
                   <div
-                    className="absolute inset-y-0 left-0 z-40 w-6 touch-none cursor-grab select-none active:cursor-grabbing"
+                    className="absolute inset-y-0 left-0 z-40 w-16 touch-none cursor-grab select-none active:cursor-grabbing"
                     aria-hidden="true"
                     onPointerDown={(e) => dragControls.start(e)}
                   />
