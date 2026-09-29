@@ -79,6 +79,22 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
   );
 });
 
+function getTargetScrollOffset(
+  container: HTMLElement,
+  topicId: string | number,
+): number | null {
+  const targetSlide = container.querySelector<HTMLElement>(
+    `[data-topic-id="${topicId}"]`,
+  );
+  if (!targetSlide) return null;
+
+  return Math.max(
+    0,
+    targetSlide.offsetLeft -
+      (container.clientWidth - targetSlide.offsetWidth) / 2,
+  );
+}
+
 function ProcessMobileCarousel() {
   const { state, actions } = useProcessLibraryContext();
   const { activeTopicId, viewModes, prefersReducedMotion } = state;
@@ -106,18 +122,11 @@ function ProcessMobileCarousel() {
     const container = containerRef.current;
     if (!container) return;
 
-    const targetSlide = container.querySelector<HTMLElement>(
-      `[data-topic-id="${activeTopicId}"]`,
-    );
-    if (!targetSlide) return;
-
-    const targetOffset = Math.max(
-      0,
-      targetSlide.offsetLeft -
-        (container.clientWidth - targetSlide.offsetWidth) / 2,
-    );
-
-    if (Math.abs(container.scrollLeft - targetOffset) <= 2) {
+    const targetOffset = getTargetScrollOffset(container, activeTopicId);
+    if (
+      targetOffset === null ||
+      Math.abs(container.scrollLeft - targetOffset) <= 2
+    ) {
       return;
     }
 
@@ -145,18 +154,11 @@ function ProcessMobileCarousel() {
     const container = containerRef.current;
     if (!container) return;
 
-    const targetSlide = container.querySelector<HTMLElement>(
-      `[data-topic-id="${activeTopicId}"]`,
-    );
-    if (!targetSlide) return;
-
-    const targetOffset = Math.max(
-      0,
-      targetSlide.offsetLeft -
-        (container.clientWidth - targetSlide.offsetWidth) / 2,
-    );
-
-    if (Math.abs(container.scrollLeft - targetOffset) > 2) {
+    const targetOffset = getTargetScrollOffset(container, activeTopicId);
+    if (
+      targetOffset !== null &&
+      Math.abs(container.scrollLeft - targetOffset) > 2
+    ) {
       container.scrollTo({
         left: targetOffset,
         behavior: "instant",

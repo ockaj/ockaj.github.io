@@ -135,28 +135,36 @@ const PdfModalTitle = memo(function PdfModalTitle() {
   );
 });
 
+const PdfModalCloseButton = memo(function PdfModalCloseButton() {
+  return (
+    <Dialog.Close
+      render={
+        <LiquidGlassButton ariaLabel="Close CV Viewer" className="size-11 p-0">
+          <X size={16} />
+        </LiquidGlassButton>
+      }
+    />
+  );
+});
+
+function PdfModalDownloadButton({ size }: Readonly<{ size: number }>) {
+  return (
+    <LiquidGlassButton
+      href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
+      download="Ondrej_Michal_Ockaj_CV.pdf"
+      className="size-11 p-3"
+      ariaLabel="Download PDF CV"
+    >
+      <Download size={size} className="text-text-primary" />
+    </LiquidGlassButton>
+  );
+}
+
 const PdfModalMobileActions = memo(function PdfModalMobileActions() {
   return (
     <div className="flex items-center gap-2.5 sm:hidden">
-      <LiquidGlassButton
-        href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
-        download="Ondrej_Michal_Ockaj_CV.pdf"
-        className="size-11 p-3"
-        ariaLabel="Download PDF CV"
-      >
-        <Download size={15} className="text-text-primary" />
-      </LiquidGlassButton>
-
-      <Dialog.Close
-        render={
-          <LiquidGlassButton
-            ariaLabel="Close CV Viewer"
-            className="size-11 p-0"
-          >
-            <X size={16} />
-          </LiquidGlassButton>
-        }
-      />
+      <PdfModalDownloadButton size={15} />
+      <PdfModalCloseButton />
     </div>
   );
 });
@@ -164,14 +172,7 @@ const PdfModalMobileActions = memo(function PdfModalMobileActions() {
 const PdfModalDesktopActions = memo(function PdfModalDesktopActions() {
   return (
     <div className="hidden items-center gap-2 sm:flex">
-      <LiquidGlassButton
-        href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
-        download="Ondrej_Michal_Ockaj_CV.pdf"
-        className="size-11 p-3"
-        ariaLabel="Download PDF CV"
-      >
-        <Download size={14} className="text-text-primary" />
-      </LiquidGlassButton>
+      <PdfModalDownloadButton size={14} />
 
       <LiquidGlassButton
         href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
@@ -183,16 +184,7 @@ const PdfModalDesktopActions = memo(function PdfModalDesktopActions() {
         <ExternalLink size={14} className="text-text-primary" />
       </LiquidGlassButton>
 
-      <Dialog.Close
-        render={
-          <LiquidGlassButton
-            ariaLabel="Close CV Viewer"
-            className="size-11 p-0"
-          >
-            <X size={16} />
-          </LiquidGlassButton>
-        }
-      />
+      <PdfModalCloseButton />
     </div>
   );
 });

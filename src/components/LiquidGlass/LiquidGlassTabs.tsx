@@ -77,24 +77,17 @@ interface ActiveStore {
   destroy: () => void;
 }
 
-function createActiveStore(initialValue: TabValue): ActiveStore {
-  let currentVal: TabValue = initialValue;
-  let isTransitioningVal = false;
-  let transitionTimer: ReturnType<typeof setTimeout> | null = null;
+function createSubscribableStore<T>(initialValue: T) {
+  let currentVal = initialValue;
   const listeners = new Set<() => void>();
-
   return {
     get: () => currentVal,
-    isTransitioning: () => isTransitioningVal,
-    set: (val: TabValue) => {
+    set: (val: T) => {
       if (currentVal === val) return;
       currentVal = val;
-      isTransitioningVal = true;
-      if (transitionTimer) clearTimeout(transitionTimer);
-      transitionTimer = setTimeout(() => {
-        isTransitioningVal = false;
-        listeners.forEach((l) => l());
-      }, 300);
+      listeners.forEach((l) => l());
+    },
+    notify: () => {
       listeners.forEach((l) => l());
     },
     subscribe: (listener: () => void) => {
@@ -104,8 +97,33 @@ function createActiveStore(initialValue: TabValue): ActiveStore {
       };
     },
     destroy: () => {
-      if (transitionTimer) clearTimeout(transitionTimer);
       listeners.clear();
+    },
+  };
+}
+
+function createActiveStore(initialValue: TabValue): ActiveStore {
+  const store = createSubscribableStore(initialValue);
+  let isTransitioningVal = false;
+  let transitionTimer: ReturnType<typeof setTimeout> | null = null;
+
+  return {
+    get: store.get,
+    isTransitioning: () => isTransitioningVal,
+    set: (val: TabValue) => {
+      if (store.get() === val) return;
+      store.set(val);
+      isTransitioningVal = true;
+      if (transitionTimer) clearTimeout(transitionTimer);
+      transitionTimer = setTimeout(() => {
+        isTransitioningVal = false;
+        store.notify();
+      }, 300);
+    },
+    subscribe: store.subscribe,
+    destroy: () => {
+      if (transitionTimer) clearTimeout(transitionTimer);
+      store.destroy();
     },
   };
 }
@@ -149,25 +167,7 @@ function useTabsContext() {
 }
 
 function createHoverStore(): HoverStore {
-  let currentVal: TabValue | null = null;
-  const listeners = new Set<() => void>();
-  return {
-    get: () => currentVal,
-    set: (val: TabValue | null) => {
-      if (currentVal === val) return;
-      currentVal = val;
-      listeners.forEach((l) => l());
-    },
-    subscribe: (listener: () => void) => {
-      listeners.add(listener);
-      return () => {
-        listeners.delete(listener);
-      };
-    },
-    destroy: () => {
-      listeners.clear();
-    },
-  };
+  return createSubscribableStore<TabValue | null>(null);
 }
 
 function getDefaultTabRadius(variant: TabVariant): string {

@@ -17,9 +17,7 @@ export class PauseableTimer {
     this.onExpire = options.onExpire;
   }
 
-  start(): void {
-    if (this.isDisposed || this.timerId !== null) return;
-    if (this.isHovered || this.isFocused) return;
+  private scheduleTimeout(): void {
     if (this.remainingMs <= 0) {
       this.triggerExpire();
       return;
@@ -29,6 +27,12 @@ export class PauseableTimer {
       this.timerId = null;
       this.triggerExpire();
     }, this.remainingMs);
+  }
+
+  start(): void {
+    if (this.isDisposed || this.timerId !== null) return;
+    if (this.isHovered || this.isFocused) return;
+    this.scheduleTimeout();
   }
 
   pause(): void {
@@ -45,15 +49,7 @@ export class PauseableTimer {
       clearTimeout(this.timerId);
       this.timerId = null;
     }
-    if (this.remainingMs <= 0) {
-      this.triggerExpire();
-      return;
-    }
-    this.startTime = Date.now();
-    this.timerId = setTimeout(() => {
-      this.timerId = null;
-      this.triggerExpire();
-    }, this.remainingMs);
+    this.scheduleTimeout();
   }
 
   setHovered(hovered: boolean): void {

@@ -12,12 +12,8 @@ declare module "*.md" {
 }
 
 declare module "*.mdx" {
-  import type { ComponentType } from "react";
-  import type { MdxComponentsMap } from "./utils/mdxComponents";
-  const Content: ComponentType<{ components?: MdxComponentsMap }>;
+  import Content, { excerpt, frontmatter, id, readTime } from "*.md";
   export default Content;
-  export const id: string | number;
-  export const frontmatter: unknown;
-  export const excerpt: string;
-  export const readTime: string;
+  export { excerpt, frontmatter, id, readTime };
 }
+

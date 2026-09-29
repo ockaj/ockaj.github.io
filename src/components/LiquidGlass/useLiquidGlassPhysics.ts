@@ -157,52 +157,47 @@ export function useLiquidGlassPhysics({
       : 0,
   );
 
-  const handleMouseEnter = useCallback(
+  const updateMousePositions = useCallback(
     (e: MouseEvent) => {
-      if (!interactive) return;
       const rect = e.currentTarget.getBoundingClientRect();
       if (rect.width > 0 && rect.height > 0) {
         liveDimensionsRef.current = { width: rect.width, height: rect.height };
       }
       const localX = e.clientX - rect.left;
       const localY = e.clientY - rect.top;
-      smoothSheenX.jump(localX);
-      smoothSheenY.jump(localY);
       rawMouseX.set(localX);
       rawMouseY.set(localY);
       mouseX.set(localX - rect.width / 2);
       mouseY.set(localY - rect.height / 2);
+      return { localX, localY };
+    },
+    [mouseX, mouseY, rawMouseX, rawMouseY],
+  );
 
+  const handleMouseEnter = useCallback(
+    (e: MouseEvent) => {
+      if (!interactive) return;
+      const { localX, localY } = updateMousePositions(e);
+      smoothSheenX.jump(localX);
+      smoothSheenY.jump(localY);
       rawSheenOpacity.set(1);
       setIsHovered(true);
     },
     [
       interactive,
-      mouseX,
-      mouseY,
-      rawMouseX,
-      rawMouseY,
       rawSheenOpacity,
       smoothSheenX,
       smoothSheenY,
+      updateMousePositions,
     ],
   );
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
       if (!interactive) return;
-      const rect = e.currentTarget.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) {
-        liveDimensionsRef.current = { width: rect.width, height: rect.height };
-      }
-      const localX = e.clientX - rect.left;
-      const localY = e.clientY - rect.top;
-      rawMouseX.set(localX);
-      rawMouseY.set(localY);
-      mouseX.set(localX - rect.width / 2);
-      mouseY.set(localY - rect.height / 2);
+      updateMousePositions(e);
     },
-    [interactive, mouseX, mouseY, rawMouseX, rawMouseY],
+    [interactive, updateMousePositions],
   );
 
   const handleMouseLeave = useCallback(() => {
