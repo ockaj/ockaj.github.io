@@ -34,7 +34,7 @@ const JournalDrawer = memo(function JournalDrawer({
       title="Journal Entry"
       icon={<BookOpen size={14} className="text-accent" />}
       onClose={onClose}
-      maxWidthClass="max-w-3xl"
+      maxWidthClass="max-w-4xl"
       hashId={`article-${article.id}`}
       onExitComplete={onExitComplete}
     >
@@ -70,7 +70,7 @@ const JournalDrawer = memo(function JournalDrawer({
         <motion.div
           variants={drawerItemVariants}
           custom={prefersReducedMotion}
-          className="markdown-prose max-w-prose text-base leading-relaxed text-text-primary/90"
+          className="markdown-prose text-base leading-relaxed text-text-primary/90"
         >
           <article.Content components={mdxComponents} />
         </motion.div>

@@ -33,7 +33,7 @@ To systematically evaluate these languages, we apply a 6-criteria framework that
 
 - **Degree of Formalism**: Measures how strictly defined the notation's syntax and execution semantics are (e.g., FEEL logic in DMN vs. informal shapes in SIPOC).
 - **Readability**: Evaluates how easily non-technical business stakeholders, managers, and end-users can interpret and validate the models.
-- **Level of Abstraction**: Defines whether the notation operates at a high strategic level (enterprise landscape), middle operational level, or detailed technical execution level.
+- **Level of Abstraction**: Categorizes the notation into three architectural tiers: Strategic (enterprise scoping), Operational (business workflows), or Technical (executable rules and system specifications).
 - **Tool Support**: The availability of industry-standard modeling software (CASE tools), import/export capabilities, and vendor integration.
 - **Execution Potential (Automatizability)**: The feasibility of directly deploying models into automation engines (e.g., Camunda, Signavio) without manual code conversion.
 - **Domain of Application**: The primary context where the notation excels, ranging from software design to Lean optimization.
@@ -42,20 +42,20 @@ To systematically evaluate these languages, we apply a 6-criteria framework that
 
 Below is a structured synthesis comparing each notation against the evaluation criteria, mapping their strengths and limitations:
 
-| Notation | Degree of Formalism | Readability | Level of Abstraction | Tool Support | Execution Potential | Domain of Application |
+| Notation | Formalism | Readability | Abstraction | Tooling | Execution | Primary Domain |
 |---|---|---|---|---|---|---|
-| **BPMN 2.0** | Medium-High | Medium | Detailed & Executable | Very High | High | Workflow Automation & Process Orchestration |
-| **DMN** | High (FEEL, formal logic) | Medium | Detailed & Rules-based | High | Very High | Business Decision & Operational Rule Management |
-| **IDEF0** | Medium (no temporal logic) | High | Middle | Medium | Low | Hierarchical Functional System Analysis |
-| **IDEF3** | Medium (causality-focused) | Medium | Middle-Detailed | Low | Low | Empirical Process Behavior Capture |
-| **EPC** | Low | High | Middle | High | Low | Business Process Documentation & ARIS modeling |
-| **ERD** | Medium | High | Structural & Conceptual | Very High | Medium (SQL generation) | Relational Database Design |
-| **UML Activity** | Medium-High | Medium | Detailed | High | Low-Medium | Software Specification & System Engineering |
-| **VSM** | Low | High | High (Flow focus) | Medium | Low | Lean Manufacturing & Waste Elimination |
-| **DFD** | Low-Medium | High | Middle | Medium | Low | Structured Data Flow Mapping |
-| **SIPOC** | Very Low | Very High | Very High | Low | Low | Six Sigma Process Scoping & Project Definition |
-| **ArchiMate** | Low-Medium | Medium | High (Enterprise-wide) | High | Low | Enterprise Architecture & TOGAF Framework Alignment |
-| **AMBER** | High (mathematical verification) | Low-Medium | Middle | Low | Medium-High (Simulations) | Academic Simulation & Formal Process Redesign |
+| **BPMN 2.0** | Medium-High | Medium | Technical | Very High | High | Workflow Automation & Orchestration |
+| **DMN** | High | Medium | Technical | High | Very High | Business Decision & Rule Management |
+| **IDEF0** | Medium | High | Operational | Medium | Low | Hierarchical Functional System Analysis |
+| **IDEF3** | Medium | Medium | Operational | Low | Low | Empirical Process Behavior Capture |
+| **EPC** | Low | High | Operational | High | Low | Process Documentation & ARIS Modeling |
+| **ERD** | Medium | High | Technical | Very High | Medium | Relational Database Design |
+| **UML Activity** | Medium-High | Medium | Technical | High | Medium | Software Specification & System Engineering |
+| **VSM** | Low | High | Operational | Medium | Low | Lean Manufacturing & Waste Elimination |
+| **DFD** | Low-Medium | High | Operational | Medium | Low | Structured Data Flow Mapping |
+| **SIPOC** | Very Low | Very High | Strategic | Low | Low | Six Sigma Scoping & Project Definition |
+| **ArchiMate** | Low-Medium | Medium | Strategic | High | Low | Enterprise Architecture & TOGAF Alignment |
+| **AMBER** | High | Low-Medium | Operational | Low | Medium-High | Academic Simulation & Formal Process Redesign |
 
 
 ### Synthesis: Selecting the Correct Notation
