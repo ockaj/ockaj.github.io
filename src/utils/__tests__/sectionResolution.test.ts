@@ -1,9 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
   normalizeHash,
   resolveSectionFromHash,
   isValidModalHash,
   isTransientModalHash,
+  safeDecodeFragment,
+  findIndicatedElement,
 } from "../sectionResolution";
 
 describe("sectionResolution", () => {
@@ -77,6 +79,134 @@ describe("sectionResolution", () => {
       expect(isTransientModalHash("#cv")).toBe(false);
       expect(isTransientModalHash("#case-study-1")).toBe(false);
       expect(isTransientModalHash("#home")).toBe(false);
+    });
+  });
+
+  describe("safeDecodeFragment", () => {
+    it("should return empty string for empty input", () => {
+      expect(safeDecodeFragment("")).toBe("");
+      expect(safeDecodeFragment("#")).toBe("");
+    });
+
+    it("should strip leading hash and return plain strings", () => {
+      expect(safeDecodeFragment("#skills")).toBe("skills");
+      expect(safeDecodeFragment("skills")).toBe("skills");
+    });
+
+    it("should decode percent-encoded sequences correctly", () => {
+      expect(safeDecodeFragment("#case%20study")).toBe("case study");
+      expect(safeDecodeFragment("#caf%C3%A9")).toBe("café");
+    });
+
+    it("should safely handle malformed percent sequences without throwing", () => {
+      expect(() => safeDecodeFragment("#%E0%A4%A")).not.toThrow();
+      expect(() => safeDecodeFragment("#work%ZZ")).not.toThrow();
+    });
+
+    it("should preserve valid multi-byte characters even when malformed sequences exist", () => {
+      expect(safeDecodeFragment("#caf%C3%A9%ZZ")).toBe("café%ZZ");
+    });
+  });
+
+  describe("findIndicatedElement", () => {
+    const originalDocument = globalThis.document;
+    const originalCSS = globalThis.CSS;
+
+    beforeEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    afterEach(() => {
+      globalThis.document = originalDocument;
+      globalThis.CSS = originalCSS;
+    });
+
+    it("should return null for empty fragment", () => {
+      expect(findIndicatedElement("")).toBeNull();
+    });
+
+    it("should return null when document is undefined", () => {
+      // @ts-expect-error testing undefined document
+      delete globalThis.document;
+      expect(findIndicatedElement("skills")).toBeNull();
+    });
+
+    it("should return documentElement for 'top' fragment case-insensitively when no element matches", () => {
+      const mockDocElement = { id: "root" } as unknown as HTMLElement;
+      globalThis.document = {
+        documentElement: mockDocElement,
+        getElementById: vi.fn(() => null),
+        querySelector: vi.fn(() => null),
+      } as unknown as Document;
+
+      expect(findIndicatedElement("top")).toBe(mockDocElement);
+      expect(findIndicatedElement("TOP")).toBe(mockDocElement);
+    });
+
+    it("should prioritize an element with id 'top' over documentElement", () => {
+      const mockDocElement = { id: "root" } as unknown as HTMLElement;
+      const mockTopElement = { id: "top" } as unknown as HTMLElement;
+      globalThis.document = {
+        documentElement: mockDocElement,
+        getElementById: vi.fn((id: string) =>
+          id === "top" ? mockTopElement : null,
+        ),
+        querySelector: vi.fn(() => null),
+      } as unknown as Document;
+
+      expect(findIndicatedElement("top")).toBe(mockTopElement);
+    });
+
+    it("should return element when found by ID", () => {
+      const mockElement = { id: "skills" } as unknown as HTMLElement;
+      globalThis.document = {
+        getElementById: vi.fn((id: string) =>
+          id === "skills" ? mockElement : null,
+        ),
+      } as unknown as Document;
+
+      expect(findIndicatedElement("skills")).toBe(mockElement);
+    });
+
+    it("should return legacy anchor when element ID is not found", () => {
+      const mockAnchor = {
+        tagName: "A",
+        name: "legacy-ref",
+      } as unknown as HTMLElement;
+      globalThis.document = {
+        getElementById: vi.fn(() => null),
+        querySelector: vi.fn((sel: string) =>
+          sel === 'a[name="legacy-ref"]' ? mockAnchor : null,
+        ),
+      } as unknown as Document;
+      globalThis.CSS = {
+        escape: vi.fn((s: string) => s),
+      } as unknown as typeof CSS;
+
+      expect(findIndicatedElement("legacy-ref")).toBe(mockAnchor);
+    });
+
+    it("should return null when neither element ID nor legacy anchor exists", () => {
+      globalThis.document = {
+        getElementById: vi.fn(() => null),
+        querySelector: vi.fn(() => null),
+      } as unknown as Document;
+      globalThis.CSS = {
+        escape: vi.fn((s: string) => s),
+      } as unknown as typeof CSS;
+
+      expect(findIndicatedElement("nonexistent")).toBeNull();
+    });
+
+    it("should return null gracefully if document.querySelector throws", () => {
+      globalThis.document = {
+        getElementById: vi.fn(() => null),
+        querySelector: vi.fn(() => {
+          throw new Error("Invalid selector syntax");
+        }),
+      } as unknown as Document;
+
+      expect(findIndicatedElement("invalid[syntax")).toBeNull();
     });
   });
 });

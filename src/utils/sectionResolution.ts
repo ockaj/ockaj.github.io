@@ -13,10 +13,67 @@ const SECTION_SET = new Set<string>([
   "contact",
 ]);
 
+/**
+ * Decode percent-encoded URL fragments safely.
+ * Isolates malformed byte sequences to prevent errors.
+ */
+export function safeDecodeFragment(rawHash: string): string {
+  const cleanHash = rawHash.startsWith("#") ? rawHash.slice(1) : rawHash;
+  if (!cleanHash) return "";
+
+  try {
+    return decodeURIComponent(cleanHash);
+  } catch {
+    return cleanHash.replace(/(?:%[0-9a-fA-F]{2})+/g, (match) => {
+      try {
+        return decodeURIComponent(match);
+      } catch {
+        return "";
+      }
+    });
+  }
+}
+
+/**
+ * Find the indicated element from a decoded URL fragment.
+ * Evaluates element IDs, legacy anchor names, and top shorthand per WHATWG HTML § 7.4.2.
+ */
+export function findIndicatedElement(
+  decodedFragment: string,
+): HTMLElement | null {
+  if (!decodedFragment) return null;
+  if (typeof document === "undefined") return null;
+
+  const elementById = document.getElementById(decodedFragment);
+  if (elementById) return elementById;
+
+  const escaped =
+    typeof CSS !== "undefined" && typeof CSS.escape === "function"
+      ? CSS.escape(decodedFragment)
+      : decodedFragment.replace(/(["\\])/g, "\\$1");
+  try {
+    const legacyAnchor = document.querySelector(`a[name="${escaped}"]`);
+    if (legacyAnchor) {
+      if (typeof HTMLElement !== "undefined") {
+        return legacyAnchor instanceof HTMLElement ? legacyAnchor : null;
+      }
+      return legacyAnchor as HTMLElement;
+    }
+  } catch {
+    // Return null if document.querySelector rejects the selector syntax
+  }
+
+  if (decodedFragment.toLowerCase() === "top") {
+    return document.documentElement;
+  }
+
+  return null;
+}
+
 export function normalizeHash(rawHash: string): string {
   if (!rawHash) return "";
-  const clean = rawHash.startsWith("#") ? rawHash.slice(1) : rawHash;
-  return clean.trim().toLowerCase().split("?")[0].split("&")[0];
+  const decoded = safeDecodeFragment(rawHash);
+  return decoded.trim().toLowerCase().split("?")[0].split("&")[0];
 }
 
 /**

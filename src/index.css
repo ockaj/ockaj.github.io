@@ -208,6 +208,11 @@ p {
   outline: none !important;
 }
 
+/* Suppress focus outlines on programmatically focused structural containers */
+[tabindex="-1"]:focus {
+  outline: none !important;
+}
+
 /* Shared highlight pill — used by Navbar, ProcessLibrary, PdfViewerModal tabs */
 .highlight-pill {
   background: linear-gradient(
@@ -942,4 +947,3 @@ p {
   color: var(--color-text-primary);
   white-space: nowrap;
 }
-

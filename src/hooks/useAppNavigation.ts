@@ -15,6 +15,8 @@ import {
   isValidModalHash,
   isTransientModalHash,
   normalizeHash,
+  safeDecodeFragment,
+  findIndicatedElement,
 } from "../utils/sectionResolution";
 import { useIsMobile } from "./useMediaQuery";
 const SECTIONS = Object.keys(LABEL_MAP);
@@ -88,7 +90,9 @@ export function navigateTo(target: string, options?: NavigateToOptions): void {
   const sectionId = resolveSection(target);
   if (!sectionId) return;
 
-  useAppStore.getState().setActiveSection(sectionId);
+  startTransition(() => {
+    useAppStore.getState().setActiveSection(sectionId);
+  });
   setNavigationLock();
 
   const isReduced = window.matchMedia(
@@ -108,6 +112,180 @@ export function navigateTo(target: string, options?: NavigateToOptions): void {
     } else {
       window.history.pushState(window.history.state, "", newHash);
     }
+  }
+}
+
+/**
+ * Synchronize focus to target element for accessibility.
+/**
+ * Scroll to document top.
+ */
+function handleTopNavigation(behavior: ScrollBehavior): void {
+  startTransition(() => {
+    useAppStore.getState().closeModal();
+    useAppStore.getState().setActiveSection("home");
+  });
+  if (typeof window !== "undefined") {
+    window.scrollTo({ top: 0, behavior });
+    if (
+      behavior === "instant" &&
+      typeof requestAnimationFrame !== "undefined"
+    ) {
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, behavior: "instant" });
+      });
+    }
+  }
+}
+
+/**
+ * Navigate to target section.
+ */
+function handleSectionNavigation(
+  sectionId: string,
+  behavior: ScrollBehavior,
+): void {
+  startTransition(() => {
+    useAppStore.getState().closeModal();
+  });
+  navigateTo(sectionId, { behavior, replace: true });
+  const targetElement = findIndicatedElement(sectionId);
+  if (!targetElement) return;
+
+  if (behavior === "instant" && typeof requestAnimationFrame !== "undefined") {
+    requestAnimationFrame(() => {
+      targetElement.scrollIntoView({ behavior: "instant" });
+    });
+  }
+}
+
+/**
+ * Align viewport to parent section of an active modal.
+ */
+function alignParentSection(clean: string, behavior: ScrollBehavior): void {
+  const parentSection = resolveSectionFromHash(clean);
+  if (!parentSection || parentSection === "home") return;
+
+  const alignScroll = () => {
+    const element = document.getElementById(parentSection);
+    if (element) {
+      element.scrollIntoView({ behavior });
+    }
+  };
+  alignScroll();
+  if (behavior === "instant" && typeof requestAnimationFrame !== "undefined") {
+    requestAnimationFrame(alignScroll);
+  }
+}
+
+/**
+ * Handle modal fragments and route changes.
+ */
+function handleModalNavigation(
+  clean: string,
+  isMobile: boolean,
+  behavior: ScrollBehavior,
+): boolean {
+  if (isTransientModalHash(clean)) {
+    startTransition(() => {
+      useAppStore.getState().closeModal();
+    });
+    if (typeof window !== "undefined") {
+      window.history.replaceState(window.history.state, "", "#home");
+    }
+    return true;
+  }
+
+  if (clean === "bpmn") {
+    if (isMobile) {
+      startTransition(() => {
+        useAppStore.getState().closeModal();
+      });
+      if (typeof window !== "undefined") {
+        window.history.replaceState(window.history.state, "", "#home");
+      }
+      return true;
+    }
+    startTransition(() => {
+      useAppStore.getState().openModal("bpmn");
+    });
+    return true;
+  }
+
+  if (isValidModalHash(clean)) {
+    startTransition(() => {
+      useAppStore.getState().openModal(clean);
+    });
+    alignParentSection(clean, behavior);
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Resolve target fragment and apply navigation actions.
+ */
+export function applyHashNavigation(
+  hash: string,
+  isMobile: boolean,
+  behavior: ScrollBehavior = "smooth",
+): void {
+  const clean = normalizeHash(hash);
+  if (!clean) {
+    startTransition(() => {
+      useAppStore.getState().closeModal();
+    });
+    return;
+  }
+
+  const isReduced =
+    typeof window !== "undefined" &&
+    window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  const effectiveBehavior = isReduced ? "instant" : behavior;
+
+  if (clean === "top") {
+    handleTopNavigation(effectiveBehavior);
+    return;
+  }
+
+  const resolvedSection = resolveSection(clean);
+  if (resolvedSection) {
+    handleSectionNavigation(resolvedSection, effectiveBehavior);
+    return;
+  }
+
+  if (handleModalNavigation(clean, isMobile, effectiveBehavior)) {
+    return;
+  }
+
+  const rawDecoded = safeDecodeFragment(hash)
+    .split("?")[0]
+    .split("&")[0]
+    .trim();
+  const indicatedElement =
+    findIndicatedElement(rawDecoded) || findIndicatedElement(clean);
+  if (indicatedElement) {
+    startTransition(() => {
+      useAppStore.getState().closeModal();
+    });
+    indicatedElement.scrollIntoView({ behavior: effectiveBehavior });
+    if (
+      effectiveBehavior === "instant" &&
+      typeof requestAnimationFrame !== "undefined"
+    ) {
+      requestAnimationFrame(() => {
+        indicatedElement.scrollIntoView({ behavior: "instant" });
+      });
+    }
+    return;
+  }
+
+  startTransition(() => {
+    useAppStore.getState().closeModal();
+  });
+  if (typeof window !== "undefined") {
+    window.history.replaceState(window.history.state, "", "#home");
   }
 }
 
@@ -162,6 +340,22 @@ function useScrollSpy(
   }, [isLoading, visibleSectionsRef]);
 }
 
+/**
+ * Register the passive hashchange listener on the window.
+ * Return a function that removes the listener.
+ */
+export function setupHashNavigationListener(isMobile: boolean): () => void {
+  const onHashChange = () => {
+    applyHashNavigation(window.location.hash, isMobile, "smooth");
+  };
+
+  window.addEventListener("hashchange", onHashChange, { passive: true });
+
+  return () => {
+    window.removeEventListener("hashchange", onHashChange);
+  };
+}
+
 export function useNavigation() {
   const isLoading = useAppStore((state) => state.isLoading);
   const isMobile = useIsMobile();
@@ -169,61 +363,10 @@ export function useNavigation() {
 
   useEffect(() => {
     if (isLoading) return;
-    const clean = normalizeHash(window.location.hash);
-    if (!clean) return;
 
-    const resolvedId = resolveSection(clean);
-    if (resolvedId) {
-      navigateTo(resolvedId, { behavior: "instant", replace: true });
-      requestAnimationFrame(() => {
-        document
-          .getElementById(resolvedId)
-          ?.scrollIntoView({ behavior: "instant" });
-      });
-      return;
-    }
+    applyHashNavigation(window.location.hash, isMobile, "instant");
 
-    if (isTransientModalHash(clean)) {
-      startTransition(() => {
-        useAppStore.getState().closeModal();
-      });
-      window.history.replaceState(window.history.state, "", "#home");
-      return;
-    }
-
-    if (clean === "bpmn") {
-      if (!isMobile) {
-        startTransition(() => {
-          useAppStore.getState().openModal("bpmn");
-        });
-      } else {
-        startTransition(() => {
-          useAppStore.getState().closeModal();
-        });
-        window.history.replaceState(window.history.state, "", "#home");
-      }
-      return;
-    }
-
-    if (isValidModalHash(clean)) {
-      startTransition(() => {
-        useAppStore.getState().openModal(clean);
-      });
-      const parentSection = resolveSectionFromHash(clean);
-      if (parentSection && parentSection !== "home") {
-        const alignScroll = () => {
-          const element = document.getElementById(parentSection);
-          if (element) {
-            element.scrollIntoView({ behavior: "instant" });
-          }
-        };
-        alignScroll();
-        requestAnimationFrame(alignScroll);
-      }
-      return;
-    }
-
-    window.history.replaceState(window.history.state, "", "#home");
+    return setupHashNavigationListener(isMobile);
   }, [isLoading, isMobile]);
 
   useScrollSpy(isLoading, visibleSectionsRef);
