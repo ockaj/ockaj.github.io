@@ -1,4 +1,12 @@
-import { useRef, useState, ReactNode, memo } from "react";
+import {
+  createContext,
+  use,
+  useMemo,
+  useCallback,
+  useState,
+  ReactNode,
+  memo,
+} from "react";
 import { Dialog } from "@base-ui/react/dialog";
 import {
   motion,
@@ -6,6 +14,8 @@ import {
   useReducedMotion,
   useDragControls,
   Variants,
+  DragControls,
+  PanInfo,
 } from "motion/react";
 import { X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
@@ -29,6 +39,26 @@ interface DrawerCustom {
   prefersReducedMotion: boolean;
   exitVelocityX?: number;
 }
+
+interface DrawerContextValue {
+  canDrag: boolean;
+  dragControls: DragControls;
+  onClose: () => void;
+}
+
+const DrawerContext = createContext<DrawerContextValue | null>(null);
+
+function useDrawerContext(): DrawerContextValue {
+  const context = use(DrawerContext);
+  if (!context) {
+    throw new Error("Drawer subcomponents must reside within BaseDrawer.");
+  }
+  return context;
+}
+
+const DRAWER_SHEEN_OVERLAY = (
+  <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-28 bg-linear-to-b from-white/5 to-transparent" />
+);
 
 function getVisibleTransition(custom: DrawerCustom) {
   if (custom.prefersReducedMotion) return { duration: 0.15 };
@@ -62,18 +92,85 @@ const drawerVariants: Variants = {
 const DRAG_CONSTRAINTS = { left: 0, right: 0 } as const;
 const DRAG_ELASTIC = { left: 0.05, right: 1 } as const;
 
-const BaseDrawer = memo(function BaseDrawer({
-  open = true,
-  title,
-  icon,
-  onClose,
-  children,
-  maxWidthClass,
-  hashId = "drawer",
-  onExitComplete,
-}: BaseDrawerProps) {
-  const overlayRef = useRef<HTMLDivElement>(null);
+interface DrawerBackdropProps {
+  readonly onClose: () => void;
+}
+
+function DrawerBackdrop({ onClose }: DrawerBackdropProps) {
   const prefersReducedMotion = useReducedMotion();
+  const transition = prefersReducedMotion ? { duration: 0.15 } : SPRING.drawer;
+  const exitTransition = prefersReducedMotion
+    ? { duration: 0.15 }
+    : SPRING.exit;
+
+  return (
+    <Dialog.Backdrop
+      onClick={onClose}
+      render={
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, transition }}
+          exit={{ opacity: 0, transition: exitTransition }}
+          className="fixed inset-0 z-90 overscroll-contain bg-black/70 backdrop-blur-none md:backdrop-blur-sm"
+        />
+      }
+    />
+  );
+}
+
+interface DrawerHeaderProps {
+  readonly title: string;
+  readonly icon?: ReactNode;
+}
+
+function DrawerHeader({ title, icon }: DrawerHeaderProps) {
+  const { canDrag, dragControls } = useDrawerContext();
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!canDrag) return;
+    if ((e.target as HTMLElement).closest("button, a, [role='button']")) {
+      return;
+    }
+    dragControls.start(e);
+  };
+
+  return (
+    <div
+      className={cn(
+        "relative z-30 flex items-center justify-between border-b border-white/10 px-6 pt-safe-6 pb-6 md:pt-6",
+        canDrag && "cursor-grab touch-none select-none active:cursor-grabbing",
+      )}
+      onPointerDown={handlePointerDown}
+    >
+      <Dialog.Title className="flex items-center gap-2 text-sm font-semibold text-text-primary/90">
+        {icon ? icon : null}
+        <span>{title}</span>
+      </Dialog.Title>
+      <Dialog.Close
+        render={
+          <LiquidGlassButton ariaLabel="Close panel" className="size-11 p-0">
+            <X size={16} />
+          </LiquidGlassButton>
+        }
+      />
+    </div>
+  );
+}
+
+function DrawerEdgeDragHandle() {
+  const { canDrag, dragControls } = useDrawerContext();
+  if (!canDrag) return null;
+
+  return (
+    <div
+      className="absolute inset-y-0 left-0 z-40 w-16 cursor-grab touch-none select-none active:cursor-grabbing"
+      aria-hidden="true"
+      onPointerDown={(e) => dragControls.start(e)}
+    />
+  );
+}
+
+function useDrawerDrag(onClose: () => void) {
   const isMobile = useIsMobile();
   const isTouchDevice = useIsTouchDevice();
   const canDrag = isMobile || isTouchDevice;
@@ -82,7 +179,47 @@ const BaseDrawer = memo(function BaseDrawer({
     undefined,
   );
 
+  const handleDragEnd = useCallback(
+    (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      const projectedX =
+        info.offset.x + (info.velocity.x / 1000) * (0.998 / (1 - 0.998));
+      const isDeliberateSwipe = info.offset.x > 60;
+      const reachedThreshold = projectedX > 200 || info.velocity.x > 750;
+      if (isDeliberateSwipe && reachedThreshold) {
+        setExitVelocityX(info.velocity.x);
+        onClose();
+      }
+    },
+    [onClose],
+  );
+
+  return { canDrag, dragControls, exitVelocityX, handleDragEnd };
+}
+
+const BaseDrawer = memo(function BaseDrawer({
+  open = true,
+  title,
+  icon,
+  onClose,
+  children,
+  maxWidthClass = "max-w-2xl",
+  hashId = "drawer",
+  onExitComplete,
+}: BaseDrawerProps) {
+  const prefersReducedMotion = useReducedMotion();
+  const { canDrag, dragControls, exitVelocityX, handleDragEnd } =
+    useDrawerDrag(onClose);
+
   useOverlay(open, onClose, hashId);
+
+  const drawerContextValue = useMemo(
+    () => ({
+      canDrag,
+      dragControls,
+      onClose,
+    }),
+    [canDrag, dragControls, onClose],
+  );
 
   if (typeof document === "undefined") return null;
 
@@ -100,119 +237,46 @@ const BaseDrawer = memo(function BaseDrawer({
       <AnimatePresence onExitComplete={onExitComplete}>
         {open ? (
           <Dialog.Portal keepMounted>
-            {/* Backdrop */}
-            <Dialog.Backdrop
-              onClick={onClose}
-              render={
-                <motion.div
-                  ref={overlayRef}
-                  initial={{ opacity: 0 }}
-                  animate={{
-                    opacity: 1,
-                    transition: prefersReducedMotion
-                      ? { duration: 0.15 }
-                      : SPRING.drawer,
-                  }}
-                  exit={{
-                    opacity: 0,
-                    transition: prefersReducedMotion
-                      ? { duration: 0.15 }
-                      : SPRING.exit,
-                  }}
-                  className="fixed inset-0 z-90 overscroll-contain bg-black/70 backdrop-blur-none md:backdrop-blur-sm"
-                />
-              }
-            />
+            <DrawerContext value={drawerContextValue}>
+              <DrawerBackdrop onClose={onClose} />
 
-            {/* Drawer Body */}
-            <Dialog.Popup
-              render={
-                <motion.div
-                  custom={{
-                    prefersReducedMotion: !!prefersReducedMotion,
-                    exitVelocityX,
-                  }}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                  variants={drawerVariants}
-                  drag={canDrag ? "x" : false}
-                  dragControls={dragControls}
-                  dragListener={false}
-                  dragDirectionLock
-                  dragConstraints={DRAG_CONSTRAINTS}
-                  dragElastic={DRAG_ELASTIC}
-                  onDragEnd={(_e, info) => {
-                    const projectedX =
-                      info.offset.x +
-                      (info.velocity.x / 1000) * (0.998 / (1 - 0.998));
-                    const isDeliberateSwipe = info.offset.x > 60;
-                    const reachedThreshold =
-                      projectedX > 200 || info.velocity.x > 750;
-                    if (isDeliberateSwipe && reachedThreshold) {
-                      setExitVelocityX(info.velocity.x);
-                      onClose();
-                    }
-                  }}
-                  className={cn(
-                    "fixed top-0 right-0 z-100 flex size-full flex-col overflow-hidden overscroll-contain border-l border-white/10 bg-surface shadow-drawer md:bg-surface/90 md:backdrop-blur-2xl",
-                    maxWidthClass || "max-w-2xl",
-                    canDrag && "will-change-transform",
-                  )}
-                />
-              }
-            >
-              <div className="relative flex size-full flex-col">
-                {/* Specular sheen header overlay matching CV modal */}
-                <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-28 bg-linear-to-b from-white/5 to-transparent" />
-
-                {/* Left edge swipe-to-dismiss handle for touch devices */}
-                {canDrag ? (
-                  <div
-                    className="absolute inset-y-0 left-0 z-40 w-16 touch-none cursor-grab select-none active:cursor-grabbing"
-                    aria-hidden="true"
-                    onPointerDown={(e) => dragControls.start(e)}
+              <Dialog.Popup
+                render={
+                  <motion.div
+                    custom={{
+                      prefersReducedMotion: !!prefersReducedMotion,
+                      exitVelocityX,
+                    }}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    variants={drawerVariants}
+                    drag={canDrag ? "x" : false}
+                    dragControls={dragControls}
+                    dragListener={false}
+                    dragDirectionLock
+                    dragConstraints={DRAG_CONSTRAINTS}
+                    dragElastic={DRAG_ELASTIC}
+                    onDragEnd={handleDragEnd}
+                    className={cn(
+                      "fixed top-0 right-0 z-100 flex size-full flex-col overflow-hidden overscroll-contain border-l border-white/10 bg-surface shadow-drawer md:bg-surface/90 md:backdrop-blur-2xl",
+                      maxWidthClass,
+                      canDrag && "will-change-transform",
+                    )}
                   />
-                ) : null}
+                }
+              >
+                <div className="relative flex size-full flex-col">
+                  {DRAWER_SHEEN_OVERLAY}
 
-                {/* Top bar drag handle */}
-                <div
-                  className={cn(
-                    "relative z-30 flex items-center justify-between border-b border-white/10 px-6 pb-6 pt-safe-6 md:pt-6",
-                    canDrag &&
-                      "touch-none cursor-grab select-none active:cursor-grabbing",
-                  )}
-                  onPointerDown={(e) => {
-                    if (!canDrag) return;
-                    if (
-                      (e.target as HTMLElement).closest(
-                        "button, a, [role='button']",
-                      )
-                    ) {
-                      return;
-                    }
-                    dragControls.start(e);
-                  }}
-                >
-                  <Dialog.Title className="flex items-center gap-2 text-sm font-semibold text-text-primary/90">
-                    {icon ? icon : null}
-                    <span>{title}</span>
-                  </Dialog.Title>
-                  <Dialog.Close
-                    render={
-                      <LiquidGlassButton
-                        ariaLabel="Close panel"
-                        className="size-11 p-0"
-                      >
-                        <X size={16} />
-                      </LiquidGlassButton>
-                    }
-                  />
+                  <DrawerEdgeDragHandle />
+
+                  <DrawerHeader title={title} icon={icon} />
+
+                  {children}
                 </div>
-
-                {children}
-              </div>
-            </Dialog.Popup>
+              </Dialog.Popup>
+            </DrawerContext>
           </Dialog.Portal>
         ) : null}
       </AnimatePresence>
