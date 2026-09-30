@@ -250,7 +250,7 @@ Surfaces feature delicate translucent strokes (`1px solid rgba(255, 255, 255, 0.
 ### Cards / Containers
 - **Corner Style:** Rounded rectangles (`rounded-2xl` 16px or `rounded-3xl` 24px).
 - **Background:** Charcoal glass with backdrop filter (`bg-surface/35 backdrop-blur-sm md:backdrop-blur-lg backdrop-saturate-150`).
-- **Interactive Glass (`InteractiveGlass`):** Desktop 3D tilt (maximum 12 degrees), non-reconciling specular rim sheen driven by `useMotionTemplate`, and tap scale compression.
+- **Interactive Glass (`InteractiveGlass`):** Desktop 3D tilt (maximum 12 degrees), non-reconciling specular rim sheen driven by `useTransform` / `useMotionTemplate`, and tap scale compression.
 - **Static Glass (`StaticGlass`):** Stripped of motion listeners and physics overhead for toolbars, mobile controls, and fixed layout shells.
 
 ### Navigation

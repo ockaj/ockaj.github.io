@@ -1,10 +1,16 @@
 "use client";
 
-import { useMemo, useCallback, type CSSProperties } from "react";
+import {
+  useMemo,
+  useCallback,
+  useLayoutEffect,
+  type CSSProperties,
+} from "react";
 import {
   motion,
   useReducedMotion,
-  useMotionTemplate,
+  useMotionValue,
+  useTransform,
   type MotionStyle,
   type MotionValue,
 } from "motion/react";
@@ -87,9 +93,7 @@ function computeTagStyle(
   return {
     WebkitBackfaceVisibility: hasTransform ? "hidden" : undefined,
     backfaceVisibility: hasTransform ? "hidden" : undefined,
-    willChange:
-      style?.willChange ??
-      (hasTransform ? "transform" : undefined),
+    willChange: style?.willChange ?? (hasTransform ? "transform" : undefined),
     x: effectiveMagnetic ? springPullX : undefined,
     y: effectiveMagnetic ? springPullY : undefined,
     rotateX: effectiveTilt ? springTiltX : undefined,
@@ -287,12 +291,23 @@ export default function LiquidGlassDesktop({
   const sheenSize = Math.round(Math.min(Math.max(rawSize, 48), 500));
   const sheenRadius = Math.round(Math.min(Math.max(sheenSize * 1.4, 140), 400));
 
-  const dynamicSheenGradient = useMotionTemplate`radial-gradient(
-    circle ${sheenRadius}px at ${physics.smoothSheenX}px ${physics.smoothSheenY}px,
+  const sheenRadiusMotion = useMotionValue(sheenRadius);
+  useLayoutEffect(() => {
+    sheenRadiusMotion.set(sheenRadius);
+  }, [sheenRadius, sheenRadiusMotion]);
+
+  const dynamicSheenGradient = useTransform(() => {
+    const radius = sheenRadiusMotion.get();
+    const x = physics.smoothSheenX.get();
+    const y = physics.smoothSheenY.get();
+
+    return `radial-gradient(
+    circle ${radius}px at ${x}px ${y}px,
     var(--color-glass-sheen-core) 0%,
     var(--color-glass-sheen-mid) 40%,
     var(--color-glass-sheen-edge) 80%
   )`;
+  });
 
   return (
     <Tag ref={handleRef} {...tagProps}>

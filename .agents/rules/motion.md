@@ -89,6 +89,6 @@ const display = useTransform(count, (v) => String(Math.floor(v)));
 
 - High-frequency pointer tracking must update `MotionValue` signals directly via `.set()`.
 - Never store continuous pointer coordinates in React component state.
-- Use `useMotionTemplate` to bind dynamic CSS gradient strings directly to the DOM style property.
+- Use `useTransform` or `useMotionTemplate` to bind dynamic CSS gradient strings directly to the DOM style property.
 - When pointer enters an element, snap spring coordinates immediately using `spring.jump(value)` on frame 0.
 - Declare `isolation: isolate` on the parent container when rendering `mix-blend-mode` overlays. This prevents ancestor layer invalidation.

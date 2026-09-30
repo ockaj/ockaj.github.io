@@ -48,7 +48,7 @@ Always import named exports from `src/components/LiquidGlass/`. The previous `Li
      `inset -1.5px 0 2px -0.5px var(--color-dispersion-amber)`
    - Flat inactive tab highlights MUST use inset borders (`box-shadow: inset 0 0 0 1px ...`) without CSS borders.
 6. **Non-Reconciling Specular Rim Sheen**:
-   - MUST use `useMotionTemplate` to interpolate radial gradients without React component re-renders.
+   - MUST use `useTransform` or `useMotionTemplate` to interpolate radial gradients without React component re-renders.
    - Pointer tracking MUST update MotionValues directly. Never dispatch React component state on pointer move.
    - The specular highlight MUST be masked to the 1px edge perimeter using `.liquid-glass-rim`. This prevents interior surface blobs.
    - On cursor entry, MUST call `smoothSheenX.jump(localX)` to position coordinates instantly on frame 0.
