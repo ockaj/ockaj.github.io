@@ -7,7 +7,7 @@ import {
   useEffect,
   type MouseEvent,
 } from "react";
-import { useMotionValue, useSpring, useTransform } from "motion/react";
+import { frame, useMotionValue, useSpring, useTransform } from "motion/react";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 import { SPRING } from "../../utils/springConfig";
 import { tilt as tiltConfig } from "./config";
@@ -49,9 +49,11 @@ export function useLiquidGlassPhysics({
   const hasMeasuredRef = useRef(false);
   const settleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const isHoveredRef = useRef(false);
 
   useEffect(() => {
     return () => {
+      isHoveredRef.current = false;
       if (settleTimerRef.current !== null) {
         clearTimeout(settleTimerRef.current);
         settleTimerRef.current = null;
@@ -158,18 +160,28 @@ export function useLiquidGlassPhysics({
   );
 
   const updateMousePositions = useCallback(
-    (e: MouseEvent) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) {
-        liveDimensionsRef.current = { width: rect.width, height: rect.height };
-      }
-      const localX = e.clientX - rect.left;
-      const localY = e.clientY - rect.top;
-      rawMouseX.set(localX);
-      rawMouseY.set(localY);
-      mouseX.set(localX - rect.width / 2);
-      mouseY.set(localY - rect.height / 2);
-      return { localX, localY };
+    (e: MouseEvent, onUpdate?: (localX: number, localY: number) => void) => {
+      const currentTarget = e.currentTarget;
+      const clientX = e.clientX;
+      const clientY = e.clientY;
+
+      frame.read(() => {
+        if (!currentTarget || !isHoveredRef.current) return;
+        const rect = currentTarget.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          liveDimensionsRef.current = {
+            width: rect.width,
+            height: rect.height,
+          };
+        }
+        const localX = clientX - rect.left;
+        const localY = clientY - rect.top;
+        rawMouseX.set(localX);
+        rawMouseY.set(localY);
+        mouseX.set(localX - rect.width / 2);
+        mouseY.set(localY - rect.height / 2);
+        onUpdate?.(localX, localY);
+      });
     },
     [mouseX, mouseY, rawMouseX, rawMouseY],
   );
@@ -177,11 +189,14 @@ export function useLiquidGlassPhysics({
   const handleMouseEnter = useCallback(
     (e: MouseEvent) => {
       if (!interactive) return;
-      const { localX, localY } = updateMousePositions(e);
-      smoothSheenX.jump(localX);
-      smoothSheenY.jump(localY);
-      rawSheenOpacity.set(1);
+      isHoveredRef.current = true;
       setIsHovered(true);
+      updateMousePositions(e, (localX, localY) => {
+        if (!isHoveredRef.current) return;
+        smoothSheenX.jump(localX);
+        smoothSheenY.jump(localY);
+        rawSheenOpacity.set(1);
+      });
     },
     [
       interactive,
@@ -202,6 +217,7 @@ export function useLiquidGlassPhysics({
 
   const handleMouseLeave = useCallback(() => {
     if (!interactive) return;
+    isHoveredRef.current = false;
     rawSheenOpacity.set(0);
     mouseX.set(0);
     mouseY.set(0);

@@ -1,19 +1,10 @@
 import { motion, useTransform, type MotionValue } from "motion/react";
-
-const nodeOpacityAnimate = (active: boolean) => ({ opacity: active ? 1 : 0 });
-const nodeOpacityTransition = { duration: 0.4 };
-
-const nodePulseAnimate = (active: boolean) => ({
-  opacity: active ? [0.7, 1, 0.7] : 0,
-});
-const nodePulseTransition = (active: boolean) => ({
-  opacity: {
-    duration: 1.8,
-    repeat: active ? Infinity : 0,
-    repeatType: "reverse" as const,
-    ease: "easeInOut" as const,
-  },
-});
+import {
+  loadingNodeOpacityAnimate as nodeOpacityAnimate,
+  loadingNodeOpacityTransition as nodeOpacityTransition,
+  loadingNodePulseAnimate as nodePulseAnimate,
+  loadingNodePulseTransition as nodePulseTransition,
+} from "../../utils/motionVariants";
 
 function StaticFilterDefs() {
   return (

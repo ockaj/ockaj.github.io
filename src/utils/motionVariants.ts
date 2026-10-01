@@ -17,11 +17,13 @@ export const cardStaggerVariants = {
     opacity: 0,
     y: prefersReducedMotion ? 0 : 24,
   }),
-  visible: {
+  visible: (prefersReducedMotion: boolean | null) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.35, ease: EASE.out },
-  },
+    transition: prefersReducedMotion
+      ? { duration: 0.15 }
+      : { duration: 0.35, ease: EASE.out },
+  }),
 };
 
 export const drawerContentVariants = {
@@ -83,6 +85,11 @@ export const SECTION_TRANSITION = {
   ease: EASE.out,
 };
 
+export const getBackdropTransition = (prefersReducedMotion: boolean | null) =>
+  prefersReducedMotion
+    ? { duration: 0.15 }
+    : { duration: 0.2, ease: "easeOut" as const };
+
 export const mobileMenuBackdropVariants: Variants = {
   hidden: {
     opacity: 0,
@@ -91,12 +98,12 @@ export const mobileMenuBackdropVariants: Variants = {
   visible: (prefersReducedMotion: boolean | null) => ({
     opacity: 1,
     pointerEvents: "auto",
-    transition: prefersReducedMotion ? { duration: 0.15 } : SPRING.modal,
+    transition: getBackdropTransition(prefersReducedMotion),
   }),
   exit: (prefersReducedMotion: boolean | null) => ({
     opacity: 0,
     pointerEvents: "none",
-    transition: prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
+    transition: getBackdropTransition(prefersReducedMotion),
   }),
 };
 
@@ -147,3 +154,147 @@ export const mobileMenuItemVariants: Variants = {
           },
         },
 };
+
+export const heroContainerVariants: Variants = {
+  hidden: { opacity: 1 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+export const heroNameVariants: Variants = {
+  hidden: (prefersReducedMotion: boolean | null) => ({
+    opacity: 0,
+    y: prefersReducedMotion ? 0 : 28,
+  }),
+  visible: (prefersReducedMotion: boolean | null) => ({
+    opacity: 1,
+    y: 0,
+    transition: prefersReducedMotion ? { duration: 0.15 } : SPRING.hero,
+  }),
+};
+
+export const heroItemVariants: Variants = {
+  hidden: (prefersReducedMotion: boolean | null) => ({
+    opacity: 0,
+    y: prefersReducedMotion ? 0 : 20,
+  }),
+  visible: (prefersReducedMotion: boolean | null) => ({
+    opacity: 1,
+    y: 0,
+    transition: prefersReducedMotion ? { duration: 0.15 } : SPRING.hero,
+  }),
+};
+
+export const heroScrollIndicatorVariants: Variants = {
+  initial: { opacity: 1 },
+  hover: {},
+};
+
+export const heroScrollCircleVariants: Variants = {
+  initial: { stroke: "rgba(255, 255, 255, 0.12)", scale: 1 },
+  animate: {
+    stroke: [
+      "rgba(255, 255, 255, 0.12)",
+      "hsl(244, 75%, 76%)",
+      "rgba(255, 255, 255, 0.12)",
+    ],
+    scale: 1,
+    transition: {
+      stroke: {
+        duration: 1.8,
+        repeat: Infinity,
+        repeatDelay: 0.6,
+        delay: 0,
+        ease: "easeInOut" as const,
+      },
+    },
+  },
+  hover: {
+    stroke: "hsl(244, 75%, 76%)",
+    scale: 1.15,
+    transition: SPRING.hero,
+  },
+};
+
+export const heroScrollLineVariants: Variants = {
+  initial: { stroke: "rgba(255, 255, 255, 0.12)", strokeDashoffset: 0 },
+  animate: {
+    stroke: [
+      "rgba(255, 255, 255, 0.12)",
+      "hsl(244, 75%, 76%)",
+      "rgba(255, 255, 255, 0.12)",
+    ],
+    strokeDashoffset: 0,
+    transition: {
+      stroke: {
+        duration: 1.8,
+        repeat: Infinity,
+        repeatDelay: 0.6,
+        delay: 0.3,
+        ease: "easeInOut" as const,
+      },
+    },
+  },
+  hover: {
+    stroke: "hsl(244, 75%, 76%)",
+    strokeDashoffset: [0, -6],
+    transition: {
+      strokeDashoffset: {
+        ease: "linear" as const,
+        duration: 0.5,
+        repeat: Infinity,
+      },
+    },
+  },
+};
+
+export const heroScrollArrowVariants: Variants = {
+  initial: { stroke: "rgba(255, 255, 255, 0.12)", y: 0 },
+  animate: {
+    stroke: [
+      "rgba(255, 255, 255, 0.12)",
+      "hsl(244, 75%, 76%)",
+      "rgba(255, 255, 255, 0.12)",
+    ],
+    y: 0,
+    transition: {
+      stroke: {
+        duration: 1.8,
+        repeat: Infinity,
+        repeatDelay: 0.6,
+        delay: 0.6,
+        ease: "easeInOut" as const,
+      },
+    },
+  },
+  hover: {
+    stroke: "hsl(244, 75%, 76%)",
+    y: 1.5,
+    transition: {
+      stroke: SPRING.hero,
+      y: SPRING.hero,
+    },
+  },
+};
+
+export const loadingNodeOpacityAnimate = (active: boolean) => ({
+  opacity: active ? 1 : 0,
+});
+export const loadingNodeOpacityTransition = { duration: 0.4 };
+
+export const loadingNodePulseAnimate = (active: boolean) => ({
+  opacity: active ? [0.7, 1, 0.7] : 0,
+});
+export const loadingNodePulseTransition = (active: boolean) => ({
+  opacity: {
+    duration: 1.8,
+    repeat: active ? Infinity : 0,
+    repeatType: "reverse" as const,
+    ease: "easeInOut" as const,
+  },
+});

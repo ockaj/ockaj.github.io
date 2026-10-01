@@ -1,10 +1,16 @@
 import { useRef, memo } from "react";
 import { Dialog } from "@base-ui/react/dialog";
-import { motion, AnimatePresence, useReducedMotion, Variants } from "motion/react";
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+  Variants,
+} from "motion/react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useOverlay } from "../../hooks/useAppNavigation";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { SPRING } from "../../utils/springConfig";
+import { getBackdropTransition } from "../../utils/motionVariants";
 import ZoomableImage from "./ZoomableImage";
 import LightboxControls from "./LightboxControls";
 
@@ -20,7 +26,6 @@ interface ProcessLightboxProps {
   onClose: () => void;
   onExitComplete?: () => void;
 }
-
 
 function getDialogHiddenScale(custom: {
   prefersReducedMotion: boolean;
@@ -137,15 +142,11 @@ function ProcessLightbox({
                   initial={{ opacity: 0 }}
                   animate={{
                     opacity: 1,
-                    transition: prefersReducedMotion
-                      ? { duration: 0.15 }
-                      : SPRING.modal,
+                    transition: getBackdropTransition(prefersReducedMotion),
                   }}
                   exit={{
                     opacity: 0,
-                    transition: prefersReducedMotion
-                      ? { duration: 0.15 }
-                      : SPRING.exit,
+                    transition: getBackdropTransition(prefersReducedMotion),
                   }}
                   className="fixed inset-0 z-90 overscroll-contain bg-black/70 backdrop-blur-none md:backdrop-blur-sm"
                 />
@@ -158,61 +159,65 @@ function ProcessLightbox({
                 render={
                   <motion.div
                     className="pointer-events-auto relative z-10 flex h-dvh max-h-dvh w-full max-w-7xl flex-col overflow-hidden rounded-none border-0 border-white/10 bg-surface shadow-2xl md:aspect-16/10 md:h-auto md:max-h-85vh md:rounded-3xl md:border"
-                custom={{ prefersReducedMotion, isMobile }}
-                variants={dialogVariants}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-                style={DIALOG_POPUP_STYLE}
-              />
-            }
-          >
-            {/* Specular sheen header overlay matching CV modal */}
-            <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-28 bg-linear-to-b from-white/5 to-transparent" />
-            {/* Full Viewport for Diagram (Responsive flex) */}
-            <div
-              ref={containerRef}
-              data-zoomed="false"
-              className="group relative flex w-full flex-1 cursor-default touch-none items-center justify-center overflow-hidden bg-surface p-0 data-[zoomed=true]:cursor-grab data-[zoomed=true]:active:cursor-grabbing md:h-full"
-            >
-              <TransformWrapper
-                initialScale={1}
-                minScale={1}
-                maxScale={10}
-                centerOnInit
-                smooth
-                doubleClick={DOUBLE_CLICK_CONFIG}
-                wheel={WHEEL_CONFIG}
-                zoomAnimation={ZOOM_ANIMATION_CONFIG}
-                onTransform={(_ref, state) => {
-                  const zoomed = state.scale > 1.01;
-                  if (
-                    containerRef.current &&
-                    (containerRef.current.dataset.zoomed === "true") !== zoomed
-                  ) {
-                    containerRef.current.dataset.zoomed = String(zoomed);
-                  }
-                }}
+                    custom={{ prefersReducedMotion, isMobile }}
+                    variants={dialogVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    style={DIALOG_POPUP_STYLE}
+                  />
+                }
               >
-                {/* Floating Island Control Panel inside context to use useControls */}
-                <LightboxControls isMobile={isMobile} />
-
-                <TransformComponent
-                  wrapperClass="w-full h-full flex justify-center items-center cursor-default group-data-[zoomed=true]:cursor-grab group-data-[zoomed=true]:active:cursor-grabbing"
-                  contentClass="w-full h-full flex justify-center items-center cursor-default group-data-[zoomed=true]:cursor-grab group-data-[zoomed=true]:active:cursor-grabbing"
-                  wrapperStyle={TRANSFORM_CONTAINER_STYLE}
-                  contentStyle={TRANSFORM_CONTAINER_STYLE}
+                {/* Specular sheen header overlay matching CV modal */}
+                <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-28 bg-linear-to-b from-white/5 to-transparent" />
+                {/* Full Viewport for Diagram (Responsive flex) */}
+                <div
+                  ref={containerRef}
+                  data-zoomed="false"
+                  className="group relative flex w-full flex-1 cursor-default touch-none items-center justify-center overflow-hidden bg-surface p-0 data-[zoomed=true]:cursor-grab data-[zoomed=true]:active:cursor-grabbing md:h-full"
                 >
-                  <ZoomableImage src={item.image} alt={item.title} />
-                </TransformComponent>
-              </TransformWrapper>
-            </div>
+                  <TransformWrapper
+                    initialScale={1}
+                    minScale={1}
+                    maxScale={10}
+                    centerOnInit
+                    smooth
+                    doubleClick={DOUBLE_CLICK_CONFIG}
+                    wheel={WHEEL_CONFIG}
+                    zoomAnimation={ZOOM_ANIMATION_CONFIG}
+                    onTransform={(_ref, state) => {
+                      const zoomed = state.scale > 1.01;
+                      if (
+                        containerRef.current &&
+                        (containerRef.current.dataset.zoomed === "true") !==
+                          zoomed
+                      ) {
+                        containerRef.current.dataset.zoomed = String(zoomed);
+                      }
+                    }}
+                  >
+                    {/* Floating Island Control Panel inside context to use useControls */}
+                    <LightboxControls isMobile={isMobile} />
 
-            {/* Bottom text info overlay */}
-            <LightboxFooter title={item.title} description={item.description} />
-          </Dialog.Popup>
-        </Dialog.Viewport>
-      </Dialog.Portal>
+                    <TransformComponent
+                      wrapperClass="w-full h-full flex justify-center items-center cursor-default group-data-[zoomed=true]:cursor-grab group-data-[zoomed=true]:active:cursor-grabbing"
+                      contentClass="w-full h-full flex justify-center items-center cursor-default group-data-[zoomed=true]:cursor-grab group-data-[zoomed=true]:active:cursor-grabbing"
+                      wrapperStyle={TRANSFORM_CONTAINER_STYLE}
+                      contentStyle={TRANSFORM_CONTAINER_STYLE}
+                    >
+                      <ZoomableImage src={item.image} alt={item.title} />
+                    </TransformComponent>
+                  </TransformWrapper>
+                </div>
+
+                {/* Bottom text info overlay */}
+                <LightboxFooter
+                  title={item.title}
+                  description={item.description}
+                />
+              </Dialog.Popup>
+            </Dialog.Viewport>
+          </Dialog.Portal>
         ) : null}
       </AnimatePresence>
     </Dialog.Root>

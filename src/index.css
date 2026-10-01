@@ -343,19 +343,18 @@ p {
   .case-study-metric-hover:hover .case-study-metric-hover-desc {
     color: hsl(var(--text)) !important;
   }
-}
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
+  .nav-avatar-retry:hover {
+    transform: scale(1.05);
   }
-  to {
-    opacity: 1;
-  }
-}
 
-.animate-fade-in {
-  animation: fadeIn 400ms cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  .group:hover .hero-cv-icon {
+    transform: scale(1.05);
+  }
+
+  .group:hover .process-tab-label {
+    transform: translateX(0.125rem);
+  }
 }
 
 @keyframes loadingProgressFill {
@@ -528,18 +527,6 @@ p {
   transform: translateZ(0);
 }
 
-@utility grid-rows-open {
-  grid-template-rows: 1fr;
-}
-
-@utility grid-rows-closed {
-  grid-template-rows: 0fr;
-}
-
-@utility transition-accordion {
-  transition-property: grid-template-rows, visibility;
-}
-
 @utility transition-surface {
   transition-property: border-color, background-color, box-shadow;
 }
@@ -550,6 +537,10 @@ p {
 
 @utility transition-slide {
   transition-property: transform, opacity;
+}
+
+@utility accordion-panel-transition {
+  transition-property: height;
 }
 
 @utility will-change-slide {

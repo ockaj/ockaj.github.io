@@ -6,7 +6,6 @@ import {
   useScroll,
   useTransform,
   useMotionValueEvent,
-  Variants,
 } from "motion/react";
 import "slot-text/style.css";
 import { SlotText } from "slot-text/react";
@@ -20,11 +19,20 @@ import { requestIdle, cancelIdle } from "../utils/idleCallback";
 import { loadPdfViewerModal } from "../lazyComponents";
 import { prefetchAsset } from "../utils/quicklink";
 import { SPRING } from "../utils/springConfig";
+import {
+  heroContainerVariants,
+  heroNameVariants,
+  heroItemVariants,
+  heroScrollIndicatorVariants,
+  heroScrollCircleVariants,
+  heroScrollLineVariants,
+  heroScrollArrowVariants,
+} from "../utils/motionVariants";
 
 const CV_BUTTON_ICON = (
   <FileText
     size={16}
-    className="transition-transform duration-200 group-hover:scale-105"
+    className="hero-cv-icon transition-transform duration-200"
   />
 );
 
@@ -98,133 +106,6 @@ function RotatingSpecialization({
   );
 }
 
-const containerVariants = {
-  hidden: { opacity: 1 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const nameVariants = {
-  hidden: (prefersReducedMotion: boolean) => ({
-    opacity: 0,
-    y: prefersReducedMotion ? 0 : 28,
-  }),
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: SPRING.hero,
-  },
-};
-
-const itemVariants = {
-  hidden: (prefersReducedMotion: boolean) => ({
-    opacity: 0,
-    y: prefersReducedMotion ? 0 : 20,
-  }),
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: SPRING.hero,
-  },
-};
-
-const scrollIndicatorVariants: Variants = {
-  initial: { opacity: 1 },
-  hover: {},
-};
-
-const circleVariants: Variants = {
-  initial: { stroke: "rgba(255, 255, 255, 0.12)", scale: 1 },
-  animate: {
-    stroke: [
-      "rgba(255, 255, 255, 0.12)",
-      "hsl(244, 75%, 76%)",
-      "rgba(255, 255, 255, 0.12)",
-    ],
-    scale: 1,
-    transition: {
-      stroke: {
-        duration: 1.8,
-        repeat: Infinity,
-        repeatDelay: 0.6,
-        delay: 0,
-        ease: "easeInOut" as const,
-      },
-    },
-  },
-  hover: {
-    stroke: "hsl(244, 75%, 76%)",
-    scale: 1.15,
-    transition: SPRING.hero,
-  },
-};
-
-const lineVariants: Variants = {
-  initial: { stroke: "rgba(255, 255, 255, 0.12)", strokeDashoffset: 0 },
-  animate: {
-    stroke: [
-      "rgba(255, 255, 255, 0.12)",
-      "hsl(244, 75%, 76%)",
-      "rgba(255, 255, 255, 0.12)",
-    ],
-    strokeDashoffset: 0,
-    transition: {
-      stroke: {
-        duration: 1.8,
-        repeat: Infinity,
-        repeatDelay: 0.6,
-        delay: 0.3,
-        ease: "easeInOut" as const,
-      },
-    },
-  },
-  hover: {
-    stroke: "hsl(244, 75%, 76%)",
-    strokeDashoffset: [0, -6],
-    transition: {
-      strokeDashoffset: {
-        ease: "linear" as const,
-        duration: 0.5,
-        repeat: Infinity,
-      },
-    },
-  },
-};
-
-const arrowVariants: Variants = {
-  initial: { stroke: "rgba(255, 255, 255, 0.12)", y: 0 },
-  animate: {
-    stroke: [
-      "rgba(255, 255, 255, 0.12)",
-      "hsl(244, 75%, 76%)",
-      "rgba(255, 255, 255, 0.12)",
-    ],
-    y: 0,
-    transition: {
-      stroke: {
-        duration: 1.8,
-        repeat: Infinity,
-        repeatDelay: 0.6,
-        delay: 0.6,
-        ease: "easeInOut" as const,
-      },
-    },
-  },
-  hover: {
-    stroke: "hsl(244, 75%, 76%)",
-    y: 1.5,
-    transition: {
-      stroke: SPRING.hero,
-      y: SPRING.hero,
-    },
-  },
-};
-
 interface HeroScrollIndicatorProps {
   prefersReducedMotion: boolean | null;
   isMobile: boolean;
@@ -255,7 +136,7 @@ function HeroScrollIndicatorDesktop({
       aria-label="Scroll process flow"
       className="group hidden cursor-pointer flex-col items-center gap-2.5 rounded-xl select-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none md:absolute md:bottom-8 md:left-1/2 md:z-20 md:flex md:-translate-x-1/2"
       style={{ opacity: scrollOpacity, y: scrollYOffset }}
-      variants={scrollIndicatorVariants}
+      variants={heroScrollIndicatorVariants}
       initial="initial"
       animate={shouldAnimate ? "animate" : undefined}
       whileHover={prefersReducedMotion ? undefined : "hover"}
@@ -283,7 +164,7 @@ function HeroScrollIndicatorDesktop({
           r="3"
           strokeWidth="1.5"
           fill="none"
-          variants={circleVariants}
+          variants={heroScrollCircleVariants}
           style={{ transformOrigin: "12px 6px" }}
         />
 
@@ -295,7 +176,7 @@ function HeroScrollIndicatorDesktop({
           y2="34"
           strokeWidth="1.5"
           strokeDasharray="3 3"
-          variants={lineVariants}
+          variants={heroScrollLineVariants}
         />
 
         {/* Bottom Open Arrowhead (BPMN Message Flow Target) */}
@@ -304,7 +185,7 @@ function HeroScrollIndicatorDesktop({
           strokeWidth="1.5"
           fill="none"
           strokeLinejoin="round"
-          variants={arrowVariants}
+          variants={heroScrollArrowVariants}
           style={{ transformOrigin: "12px 40px" }}
         />
       </svg>
@@ -361,14 +242,14 @@ function Hero() {
     <section className="relative flex min-h-svh w-full items-center justify-center overflow-hidden pt-20 pb-12 md:py-0">
       <motion.div
         custom={prefersReducedMotion}
-        variants={containerVariants}
+        variants={heroContainerVariants}
         initial="hidden"
         animate="visible"
         className="relative z-10 mx-auto flex w-full max-w-350 flex-col items-center px-6 text-center md:items-start md:px-16 md:text-left lg:px-24"
       >
         {/* Eyebrow */}
         <motion.p
-          variants={itemVariants}
+          variants={heroItemVariants}
           className="mb-4 flex items-center gap-2 text-base font-medium text-pretty text-muted/95 md:mb-6"
         >
           {EYEBROW_BADGE}
@@ -377,7 +258,7 @@ function Hero() {
 
         {/* Name */}
         <motion.h1
-          variants={nameVariants}
+          variants={heroNameVariants}
           className="leading-1.1 mb-5 pb-1 font-display text-headline-hero tracking-tight text-balance text-text-primary italic sm:mb-6 sm:pb-2"
         >
           Ondrej Michal Očkaj
@@ -386,7 +267,7 @@ function Hero() {
         {/* Role line */}
         <motion.p
           data-nosnippet
-          variants={itemVariants}
+          variants={heroItemVariants}
           className="mb-4 max-w-full text-base leading-relaxed text-balance text-muted md:text-lg"
         >
           <span className="sr-only">
@@ -408,7 +289,7 @@ function Hero() {
 
         {/* Description */}
         <motion.p
-          variants={itemVariants}
+          variants={heroItemVariants}
           className="mb-10 max-w-md text-base leading-relaxed text-balance text-muted md:mb-12 md:max-w-xl md:text-lg"
         >
           Specializing in process analysis, BPMN modeling, and digital
@@ -417,7 +298,7 @@ function Hero() {
 
         {/* CTA Buttons */}
         <motion.div
-          variants={itemVariants}
+          variants={heroItemVariants}
           className="inline-flex flex-wrap justify-center gap-3 sm:gap-4 md:justify-start"
         >
           <span className="inline-flex">

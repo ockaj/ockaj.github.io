@@ -47,10 +47,10 @@ function ProcessDesktopControls() {
                   </span>
 
                   <div className="relative z-10">
-                    <span className="block font-body text-base font-semibold text-balance whitespace-normal transition-transform duration-300 group-hover:translate-x-0.5">
+                    <span className="process-tab-label block font-body text-base font-semibold text-balance whitespace-normal transition-transform duration-300">
                       {topic.title}
                     </span>
-                    <p className="mt-0.5 text-sm text-muted/90 tabular-nums transition-transform duration-300 group-hover:translate-x-0.5">
+                    <p className="process-tab-label mt-0.5 text-sm text-muted/90 tabular-nums transition-transform duration-300">
                       {topic.metrics ?? topic.category}
                     </p>
                   </div>

@@ -193,7 +193,7 @@ export default function Navbar() {
                       dispatch({ type: "SET_AVATAR_ERROR", error: false });
                     }}
                     title="Click to retry loading avatar"
-                    className="cursor-pointer font-mono text-sm leading-none font-bold tracking-normal text-accent transition-transform duration-200 ease-out select-none hover:scale-105 focus-visible:outline-none"
+                    className="nav-avatar-retry cursor-pointer font-mono text-sm leading-none font-bold tracking-normal text-accent transition-transform duration-200 ease-out select-none focus-visible:outline-none"
                   >
                     OMO
                   </button>

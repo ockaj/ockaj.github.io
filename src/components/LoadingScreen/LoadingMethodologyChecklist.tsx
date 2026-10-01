@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { cn } from "../../utils/cn";
 import { EASE } from "../../utils/springConfig";
 import { BPMN_STEPS } from "./loadingData";
@@ -26,6 +26,11 @@ export default function LoadingMethodologyChecklist({
   activeStepIdx,
   completedSteps,
 }: Readonly<LoadingMethodologyChecklistProps>) {
+  const prefersReducedMotion = useReducedMotion();
+  const collapsedScale = prefersReducedMotion ? 1 : 0.85;
+  const indicatorTransition = prefersReducedMotion
+    ? { duration: 0.15 }
+    : { ease: EASE.out, duration: 0.2 };
   return (
     <div className="flex flex-col items-start gap-3 md:col-span-6">
       <span className="font-sans text-sm font-semibold text-muted/80">
@@ -50,10 +55,10 @@ export default function LoadingMethodologyChecklist({
                   <motion.span
                     initial={false}
                     animate={{
-                      scale: isCompleted ? 1 : 0,
+                      scale: isCompleted ? 1 : collapsedScale,
                       opacity: isCompleted ? 1 : 0,
                     }}
-                    transition={{ ease: EASE.out, duration: 0.4 }}
+                    transition={indicatorTransition}
                     className="absolute inset-0 flex items-center justify-center text-sm font-bold text-accent"
                   >
                     ✓
@@ -61,10 +66,10 @@ export default function LoadingMethodologyChecklist({
                   <motion.span
                     initial={false}
                     animate={{
-                      scale: isActive ? 1 : 0,
+                      scale: isActive ? 1 : collapsedScale,
                       opacity: isActive ? 1 : 0,
                     }}
-                    transition={{ ease: EASE.out, duration: 0.4 }}
+                    transition={indicatorTransition}
                     className="absolute inset-0 flex items-center justify-center"
                   >
                     <span className="relative flex size-1.5">
@@ -77,10 +82,10 @@ export default function LoadingMethodologyChecklist({
                   <motion.span
                     initial={false}
                     animate={{
-                      scale: !isCompleted && !isActive ? 1 : 0,
+                      scale: !isCompleted && !isActive ? 1 : collapsedScale,
                       opacity: !isCompleted && !isActive ? 0.4 : 0,
                     }}
-                    transition={{ ease: EASE.out, duration: 0.4 }}
+                    transition={indicatorTransition}
                     className="absolute inset-0 flex items-center justify-center font-mono text-sm text-muted"
                   >
                     •
@@ -117,7 +122,11 @@ export default function LoadingMethodologyChecklist({
                 <div className="relative h-checklist-slot min-w-0 flex-1 overflow-hidden">
                   <motion.div
                     animate={{ y: -displayIdx * 50 }}
-                    transition={{ ease: [0.16, 1, 0.3, 1], duration: 0.6 }}
+                    transition={
+                      prefersReducedMotion
+                        ? { duration: 0.15 }
+                        : { ease: EASE.out, duration: 0.2 }
+                    }
                     className="flex w-full flex-col"
                   >
                     {BPMN_STEPS.map((step, idx) => (

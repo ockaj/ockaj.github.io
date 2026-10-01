@@ -150,7 +150,7 @@ function Skills() {
             : { opacity: 0, y: prefersReducedMotion ? 0 : 30 }
         }
         whileInView={isBuildMode ? undefined : SECTION_ANIMATE}
-        transition={SPRING.hero}
+        transition={prefersReducedMotion ? { duration: 0.15 } : SPRING.hero}
         viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
         className="relative z-30 pt-10 md:pt-14"
       >

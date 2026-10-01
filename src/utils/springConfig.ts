@@ -95,7 +95,7 @@ export const SPRING = {
   /** Process model diagram & stage crossfade transition */
   stage: {
     type: "spring" as const,
-    duration: 0.45,
+    duration: 0.22,
     bounce: 0.04,
     restDelta: 0.005,
   },

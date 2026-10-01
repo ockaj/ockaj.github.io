@@ -17,10 +17,7 @@ interface FaqItemProps {
   isOpen: boolean;
 }
 
-export const FaqItem = memo(function FaqItem({
-  item,
-  isOpen,
-}: FaqItemProps) {
+export const FaqItem = memo(function FaqItem({ item, isOpen }: FaqItemProps) {
   const prefersReducedMotion = useReducedMotion();
   const isReduced = !!prefersReducedMotion;
 
@@ -83,13 +80,10 @@ export const FaqItem = memo(function FaqItem({
             hiddenUntilFound
             data-no-skeleton={!isOpen ? "" : undefined}
             className={cn(
-              "grid transition-accordion duration-350 ease-expo-out motion-reduce:transition-none",
-              isOpen
-                ? "visible grid-rows-open"
-                : "pointer-events-none invisible grid-rows-closed",
+              "h-(--accordion-panel-height) overflow-hidden accordion-panel-transition duration-350 ease-expo-out",
+              "data-ending-style:h-0 data-starting-style:h-0 motion-reduce:transition-none",
             )}
           >
-          <div className="overflow-hidden">
             <div
               className={cn(
                 "mt-4 border-t border-white/6 pt-4 transition-transform duration-350 ease-expo-out select-text motion-reduce:transition-none",
@@ -125,10 +119,9 @@ export const FaqItem = memo(function FaqItem({
                 </div>
               ) : null}
             </div>
-          </div>
-        </Accordion.Panel>
-      </div>
-    </InteractiveGlass>
-  </Accordion.Item>
-);
+          </Accordion.Panel>
+        </div>
+      </InteractiveGlass>
+    </Accordion.Item>
+  );
 });

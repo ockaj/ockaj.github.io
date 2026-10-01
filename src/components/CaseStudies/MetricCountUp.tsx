@@ -1,12 +1,14 @@
 import { memo, useRef } from "react";
 import { useInView, useReducedMotion } from "motion/react";
 import NumberFlow from "@number-flow/react";
+import { EASE } from "../../utils/springConfig";
 
 interface MetricCountUpProps {
   value: string;
 }
 
 const NUMERIC_REGEX = /[-+]?\d*\.?\d+/;
+const EASING_EXPO_OUT = `cubic-bezier(${EASE.out.join(", ")})`;
 
 const MetricCountUp = memo(function MetricCountUp({
   value,
@@ -42,7 +44,7 @@ const MetricCountUp = memo(function MetricCountUp({
         }}
         transformTiming={{
           duration: prefersReducedMotion ? 0 : 800,
-          easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+          easing: EASING_EXPO_OUT,
         }}
       />
     </span>

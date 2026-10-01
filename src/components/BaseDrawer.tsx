@@ -20,6 +20,7 @@ import {
 import { X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { SPRING } from "../utils/springConfig";
+import { getBackdropTransition } from "../utils/motionVariants";
 import { useIsMobile, useIsTouchDevice } from "../hooks/useMediaQuery";
 import { useOverlay } from "../hooks/useAppNavigation";
 import { cn } from "../utils/cn";
@@ -79,12 +80,12 @@ function getHiddenTransition(custom: DrawerCustom) {
 const drawerVariants: Variants = {
   hidden: (custom: DrawerCustom) => ({
     x: custom.prefersReducedMotion ? 0 : "100%",
-    opacity: custom.prefersReducedMotion ? 0 : 0.9999,
+    ...(custom.prefersReducedMotion ? { opacity: 0 } : {}),
     transition: getHiddenTransition(custom),
   }),
   visible: (custom: DrawerCustom) => ({
     x: 0,
-    opacity: 1,
+    ...(custom.prefersReducedMotion ? { opacity: 1 } : {}),
     transition: getVisibleTransition(custom),
   }),
 };
@@ -98,10 +99,7 @@ interface DrawerBackdropProps {
 
 function DrawerBackdrop({ onClose }: DrawerBackdropProps) {
   const prefersReducedMotion = useReducedMotion();
-  const transition = prefersReducedMotion ? { duration: 0.15 } : SPRING.drawer;
-  const exitTransition = prefersReducedMotion
-    ? { duration: 0.15 }
-    : SPRING.exit;
+  const transition = getBackdropTransition(prefersReducedMotion);
 
   return (
     <Dialog.Backdrop
@@ -110,7 +108,7 @@ function DrawerBackdrop({ onClose }: DrawerBackdropProps) {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1, transition }}
-          exit={{ opacity: 0, transition: exitTransition }}
+          exit={{ opacity: 0, transition }}
           className="fixed inset-0 z-90 overscroll-contain bg-black/70 backdrop-blur-none md:backdrop-blur-sm"
         />
       }

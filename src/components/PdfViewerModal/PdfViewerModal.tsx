@@ -1,10 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useCallback,
-  memo,
-  useReducer,
-} from "react";
+import { useState, useEffect, useCallback, memo, useReducer } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Dialog } from "@base-ui/react/dialog";
 import {
@@ -17,13 +11,15 @@ import {
 } from "lucide-react";
 import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
-import { SPRING } from "../../utils/springConfig";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { useModal } from "../../hooks/useAppNavigation";
 import { prefetchAsset } from "../../utils/quicklink";
 import { requestIdle, cancelIdle } from "../../utils/idleCallback";
 import { cn } from "../../utils/cn";
-import { createModalVariants } from "../../utils/motionVariants";
+import {
+  createModalVariants,
+  getBackdropTransition,
+} from "../../utils/motionVariants";
 import { CV_DATA } from "../../data/cvData";
 import { InteractiveCvView } from "./InteractiveCvView";
 import { pdfReducer } from "./pdfState";
@@ -35,7 +31,6 @@ const MODAL_CONTAINER_STYLE: React.CSSProperties = {
   boxShadow:
     "inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 16px rgba(0, 0, 0, 0.6)",
 };
-
 
 const MODAL_SHEEN_OVERLAY = (
   <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-1/2 bg-linear-to-b from-white/5 to-transparent" />
@@ -344,7 +339,7 @@ const PdfModalBody = memo(function PdfModalBody({
         aria-labelledby="tab-interactive"
         className={
           activeTab === "interactive"
-            ? "custom-cv-scrollbar absolute inset-0 overscroll-contain overflow-y-auto p-6 pb-safe-6 md:p-8 md:pb-8 lg:p-12"
+            ? "custom-cv-scrollbar absolute inset-0 overflow-y-auto overscroll-contain p-6 pb-safe-6 md:p-8 md:pb-8 lg:p-12"
             : "hidden"
         }
       >
@@ -383,15 +378,11 @@ function PdfViewerModal() {
                   initial={{ opacity: 0 }}
                   animate={{
                     opacity: 1,
-                    transition: prefersReducedMotion
-                      ? { duration: 0.15 }
-                      : SPRING.modal,
+                    transition: getBackdropTransition(prefersReducedMotion),
                   }}
                   exit={{
                     opacity: 0,
-                    transition: prefersReducedMotion
-                      ? { duration: 0.15 }
-                      : SPRING.exit,
+                    transition: getBackdropTransition(prefersReducedMotion),
                   }}
                   className="fixed inset-0 z-90 overscroll-contain bg-black/70 backdrop-blur-none md:backdrop-blur-sm"
                 />
@@ -418,7 +409,7 @@ function PdfViewerModal() {
                   {MODAL_SHEEN_OVERLAY}
 
                   {/* Header */}
-                  <div className="relative z-30 flex flex-col items-center justify-between gap-3 border-b border-white/10 px-4 pb-3 pt-safe-4 sm:flex-row md:px-6 md:py-4">
+                  <div className="relative z-30 flex flex-col items-center justify-between gap-3 border-b border-white/10 px-4 pt-safe-4 pb-3 sm:flex-row md:px-6 md:py-4">
                     {/* Title, Avatar & Mobile Action Buttons */}
                     <div className="flex w-full items-center justify-between gap-4 sm:w-auto">
                       <PdfModalTitle />

@@ -50,6 +50,9 @@ function LazySection({
 }: Readonly<LazySectionProps>) {
   const prefersReducedMotion = useReducedMotion();
   const initialStyle = { opacity: 0, y: prefersReducedMotion ? 0 : 30 };
+  const sectionTransition = prefersReducedMotion
+    ? { duration: 0.15 }
+    : SECTION_TRANSITION;
 
   const [hasLoaded, setHasLoaded] = useState(() => isInitialTarget(id));
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -110,7 +113,7 @@ function LazySection({
           initial={initialStyle}
           whileInView={SECTION_ANIMATE}
           viewport={SECTION_VIEWPORT}
-          transition={SECTION_TRANSITION}
+          transition={sectionTransition}
           className={cn(
             "relative z-30 px-6 md:px-10 lg:px-16",
             headerClassName,
@@ -122,7 +125,7 @@ function LazySection({
           initial={initialStyle}
           whileInView={SECTION_ANIMATE}
           viewport={SECTION_VIEWPORT}
-          transition={SECTION_TRANSITION}
+          transition={sectionTransition}
           style={containerStyle}
           className="min-h-(--skeleton-min-h-mob) md:min-h-(--skeleton-min-h-tab) lg:min-h-(--skeleton-min-h-desk) xl:min-h-(--skeleton-min-h-wide)"
         >

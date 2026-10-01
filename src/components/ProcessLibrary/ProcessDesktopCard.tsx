@@ -17,21 +17,21 @@ const defaultTabContentVariants: Variants = {
     x: 0,
     y: props.prefersReducedMotion ? 0 : 10 * (props.direction ?? 1),
     scale: props.prefersReducedMotion ? 1 : 0.99,
-    transition: SPRING.exit,
+    transition: props.prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
   }),
-  visible: {
+  visible: (props: CustomAnimationProps = {}) => ({
     opacity: 1,
     x: 0,
     y: 0,
     scale: 1,
-    transition: SPRING.modal,
-  },
+    transition: props.prefersReducedMotion ? { duration: 0.15 } : SPRING.modal,
+  }),
   exit: (props: CustomAnimationProps = {}) => ({
     opacity: 0,
     x: 0,
     y: props.prefersReducedMotion ? 0 : -10 * (props.direction ?? 1),
     scale: props.prefersReducedMotion ? 1 : 0.99,
-    transition: SPRING.exit,
+    transition: props.prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
   }),
 };
 
@@ -43,12 +43,8 @@ function ProcessDesktopCard({
   tabContentVariants = defaultTabContentVariants,
 }: Readonly<ProcessDesktopCardProps> = {}) {
   const { state, actions } = useProcessLibraryContext();
-  const {
-    activeTopic,
-    activeViewMode,
-    prefersReducedMotion,
-    direction,
-  } = state;
+  const { activeTopic, activeViewMode, prefersReducedMotion, direction } =
+    state;
   const { handleTopicViewModeChange, setLightboxItem } = actions;
   return (
     <div className="flex w-full min-w-0 flex-col justify-center lg:col-span-7">
