@@ -407,7 +407,7 @@ p {
 }
 
 /* Smoothly eased horizontal scroll fade masks for mobile/tablet and vertical masks for desktop (Mobile-First) */
-.process-tabs-mask {
+.process-tabs-mask[data-overflow="true"] {
   --tabs-mask: linear-gradient(
     in oklab to right,
     transparent 0px,
@@ -424,7 +424,7 @@ p {
 }
 
 @media (min-width: 768px) {
-  .process-tabs-mask {
+  .process-tabs-mask[data-overflow="true"] {
     --tabs-mask: linear-gradient(
       in oklab to right,
       transparent 0px,
@@ -440,7 +440,7 @@ p {
 }
 
 @media (min-width: 1024px) {
-  .process-tabs-mask {
+  .process-tabs-mask[data-overflow="true"] {
     --tabs-mask: linear-gradient(
       in oklab to bottom,
       transparent 0px,

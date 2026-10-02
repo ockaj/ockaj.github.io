@@ -1,17 +1,39 @@
-import { memo } from "react";
+import { memo, useRef, useCallback, useLayoutEffect } from "react";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
 import { PROCESS_TOPICS } from "../../data/processItems";
 import { cn } from "../../utils/cn";
 import { useProcessLibraryContext } from "./ProcessLibraryContext";
+import { useResizeObserver } from "../../hooks/useResizeObserver";
 
 function ProcessDesktopControls() {
   const { state, actions } = useProcessLibraryContext();
   const { activeTopicId } = state;
   const { selectTopic } = actions;
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const checkOverflow = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const overflowing = el.scrollHeight > el.clientHeight;
+    const nextValue = overflowing ? "true" : "false";
+    if (el.dataset.overflow !== nextValue) {
+      el.dataset.overflow = nextValue;
+    }
+  }, []);
+
+  useLayoutEffect(() => {
+    checkOverflow();
+  }, [checkOverflow]);
+
+  useResizeObserver(containerRef, checkOverflow);
+
   return (
     <div className="flex w-full flex-col justify-center lg:col-span-5">
       <div className="relative w-full">
-        <div className="no-scrollbar process-tabs-mask -mx-4 max-h-90 overflow-y-auto px-4 py-6">
+        <div
+          ref={containerRef}
+          className="no-scrollbar process-tabs-mask -mx-4 max-h-90 overflow-y-auto px-4 py-6"
+        >
           <Tabs
             value={activeTopicId}
             onChange={selectTopic}
