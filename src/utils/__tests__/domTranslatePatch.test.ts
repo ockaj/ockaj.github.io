@@ -12,7 +12,7 @@ describe("applyDomTranslatePatch", () => {
   afterEach(() => {
     vi.restoreAllMocks();
     if (originalWindow !== undefined) {
-      globalThis.window = originalWindow;
+      (globalThis as { window?: unknown }).window = originalWindow;
     } else {
       delete (globalThis as { window?: unknown }).window;
     }

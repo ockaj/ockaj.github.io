@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import BpmnHotkeyToast from "./BpmnHotkeyToast";
 import BpmnDiagram from "./BpmnDiagram";
+import { getSessionStorageItem, setSessionStorageItem } from "./bpmnStorage";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { navigateTo, useModal } from "../../hooks/useAppNavigation";
 import {
@@ -23,10 +24,7 @@ export default function BpmnOverlay() {
   const typedBufferRef = useRef<string[]>([]);
   const [showHotkeyTip, setShowHotkeyTip] = useState(false);
   const [hasDismissedTip, setHasDismissedTip] = useState(() => {
-    return (
-      typeof window !== "undefined" &&
-      sessionStorage.getItem("bpmn_tip_dismissed") === "true"
-    );
+    return getSessionStorageItem("bpmn_tip_dismissed") === "true";
   });
 
   // Keyboard shortcut listener for 'B-P-M-N'
@@ -53,9 +51,7 @@ export default function BpmnOverlay() {
           typedBufferRef.current = [];
           setShowHotkeyTip(false);
           setHasDismissedTip(true);
-          if (typeof window !== "undefined") {
-            sessionStorage.setItem("bpmn_tip_dismissed", "true");
-          }
+          setSessionStorageItem("bpmn_tip_dismissed", "true");
         }
       } else {
         typedBufferRef.current = [];
@@ -72,9 +68,7 @@ export default function BpmnOverlay() {
 
     const showTipTimer = setTimeout(() => {
       setShowHotkeyTip(true);
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("bpmn_tip_dismissed", "true");
-      }
+      setSessionStorageItem("bpmn_tip_dismissed", "true");
       setHasDismissedTip(true);
     }, 12000);
 
