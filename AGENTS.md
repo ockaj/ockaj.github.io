@@ -44,4 +44,5 @@ Refer to specialized documentation for deep task context:
 - [Motion Implementation](./.agents/rules/motion.md)
 - [Third-Party Library Usage](./.agents/rules/library-usage.md)
 - [Base UI Components](./.agents/rules/base-ui.md)
+- [Token Efficiency & Harness Architecture](./.agents/rules/token-efficiency.md)
 - [All Specialized Rules](./.agents/rules/)
