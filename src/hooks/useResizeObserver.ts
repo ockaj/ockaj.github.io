@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
 
 type ResizeCallback = (entry: ResizeObserverEntry) => void;
 
-const callbacks = new Map<Element, ResizeCallback>();
+const callbacks = new Map<Element, Set<ResizeCallback>>();
 let observerInstance: ResizeObserver | null = null;
 
 const getObserver = () => {
@@ -12,8 +12,12 @@ const getObserver = () => {
       // Use requestAnimationFrame to prevent "ResizeObserver loop limit exceeded" errors
       requestAnimationFrame(() => {
         for (const entry of entries) {
-          const cb = callbacks.get(entry.target);
-          if (cb) cb(entry);
+          const cbs = callbacks.get(entry.target);
+          if (cbs) {
+            for (const cb of cbs) {
+              cb(entry);
+            }
+          }
         }
       });
     });
@@ -36,12 +40,24 @@ export function useResizeObserver<T extends Element = Element>(
     const observer = getObserver();
     if (!observer) return;
 
-    callbacks.set(target, (entry) => savedCallbackRef.current(entry));
-    observer.observe(target);
+    const cb: ResizeCallback = (entry) => savedCallbackRef.current(entry);
+    let cbs = callbacks.get(target);
+    if (!cbs) {
+      cbs = new Set();
+      callbacks.set(target, cbs);
+      observer.observe(target);
+    }
+    cbs.add(cb);
 
     return () => {
-      observer.unobserve(target);
-      callbacks.delete(target);
+      const currentCbs = callbacks.get(target);
+      if (currentCbs) {
+        currentCbs.delete(cb);
+        if (currentCbs.size === 0) {
+          callbacks.delete(target);
+          observer.unobserve(target);
+        }
+      }
     };
   }, [element]);
 }

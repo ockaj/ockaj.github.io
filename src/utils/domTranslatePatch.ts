@@ -6,14 +6,18 @@
  * React reconciliation when React calls insertBefore or removeChild on nodes whose
  * parent references were changed by the browser.
  */
+let isPatched = false;
+
 export function applyDomTranslatePatch(): void {
   if (
+    isPatched ||
     typeof window === "undefined" ||
     typeof Node === "undefined" ||
     !Node.prototype
   ) {
     return;
   }
+  isPatched = true;
 
   const originalRemoveChild = Node.prototype.removeChild;
   Node.prototype.removeChild = function <T extends Node>(

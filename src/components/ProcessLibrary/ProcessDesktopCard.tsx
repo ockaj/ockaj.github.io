@@ -39,9 +39,11 @@ interface ProcessDesktopCardProps {
   tabContentVariants?: Variants;
 }
 
+const DEFAULT_CARD_PROPS: ProcessDesktopCardProps = {};
+
 function ProcessDesktopCard({
   tabContentVariants = defaultTabContentVariants,
-}: Readonly<ProcessDesktopCardProps> = {}) {
+}: Readonly<ProcessDesktopCardProps> = DEFAULT_CARD_PROPS) {
   const { state, actions } = useProcessLibraryContext();
   const { activeTopic, activeViewMode, prefersReducedMotion, direction } =
     state;
