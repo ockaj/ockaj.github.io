@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "optimize-svgs": "svgo -r -f public/BPMN_models",
+    "verify": "npx vitest run --reporter=minimal && npm run typecheck && npm run lint && npm run doctor && npm run knip && npm run build",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",

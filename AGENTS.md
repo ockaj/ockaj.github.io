@@ -6,17 +6,12 @@ Single-page React portfolio showcasing business analysis and process optimizatio
 
 ## Verification Pipeline
 
-Complete all changes before verification. Run this complete command sequence once at the end:
+Verify only when required:
 
-1. `npm test`
-2. `npm run typecheck`
-3. `npm run lint`
-4. `npm run doctor`
-5. `npm run knip`
-6. `npm run build`
+- **Skip verification**: For cosmetic changes (CSS, Tailwind classes, colors, spacing, text, copy, markdown). Finish the turn without running commands.
+- **Run verification**: For logic and code changes (TypeScript, state, dependencies, component structure). Run `npm run verify` once at the end of the task.
 
-Do not execute verification commands between individual file edits.
-Omit this verification pipeline for pure design, styling, and copy changes unless requested.
+Do not run verification between individual file edits.
 
 ---
 

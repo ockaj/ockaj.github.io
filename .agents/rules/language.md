@@ -1,5 +1,6 @@
 ---
-trigger: always_on
+trigger: model_decision
+description: ASD-STE100 Simplified Technical English rules for agent responses, commit messages, and documentation. Use when generating user-facing text, documentation, or commit messages.
 ---
 
 # ASD-STE100 Simplified Technical English
