@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Animation standards: motion/react imports, spring presets, hardware acceleration, and reduced motion.
+description: Animation standards, spring presets, and motion/react guidelines. Use when implementing or updating transitions, gesture animations, or spring physics.
 ---
 
 # Motion Guidelines

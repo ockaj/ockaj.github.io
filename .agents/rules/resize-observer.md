@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Element dimension and boundary observation using the central useResizeObserver hook.
+description: Central useResizeObserver hook usage. Use when measuring DOM element dimensions, observing container size changes, or handling element resize events.
 ---
 
 # Resize Observer Usage

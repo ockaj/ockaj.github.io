@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: UI icons via lucide-react and brand logos via inline SVG paths.
+description: UI icons and brand logo standards. Use when adding or modifying icons, SVG elements, or brand logos in UI components.
 ---
 
 # Icon Library

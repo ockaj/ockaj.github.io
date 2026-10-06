@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Strongly-typed domain interfaces for parsed I/O data instead of loose dictionaries.
+description: Strongly-typed domain interfaces replacing loose Record objects. Use when typing external I/O payloads, storage data, or structured models.
 ---
 
 # Strongly-Typed Domain Data

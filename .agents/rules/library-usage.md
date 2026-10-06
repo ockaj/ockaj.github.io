@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Third-party dependency reuse: check installed package types before creating custom logic.
+description: Third-party package reuse standards. Use when adding UI controls, gestures, or third-party components instead of custom logic.
 ---
 
 # Third-Party Library Usage

@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Build invariants: Tailwind CSS v4 setup and React Compiler rules.
+description: Build invariants for Tailwind CSS v4 tokens and React Compiler memoization. Use when editing styles or optimizing components.
 ---
 
 # Critical Build Invariants

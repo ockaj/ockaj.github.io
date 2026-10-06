@@ -11,8 +11,6 @@ Verify only when required:
 - **Skip verification**: For cosmetic changes (CSS, Tailwind classes, colors, spacing, text, copy, markdown). Finish the turn without running commands.
 - **Run verification**: For logic and code changes (TypeScript, state, dependencies, component structure). Run `npm run verify` once at the end of the task.
 
-Do not run verification between individual file edits.
-
 ---
 
 ## Rules Maintenance

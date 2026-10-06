@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: LiquidGlass surfaces: InteractiveGlass, StaticGlass, LiquidGlassButton, and Tabs primitives.
+description: LiquidGlass design system primitives and physics. Use when creating, styling, or refactoring glass cards, tactile buttons, or sliding tabs.
 ---
 
 # LiquidGlass Primitives & Guidelines

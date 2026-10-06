@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Navigation architecture, Zustand stores, code splitting, WebGL aurora, and module hierarchy.
+description: Architecture, routing, and store state patterns. Use when modifying route sections, global state, overlays, or module boundaries.
 ---
 
 # Codebase Architecture
@@ -12,10 +12,10 @@ Single-page React portfolio (no router) built with React 19, Vite 8, TypeScript 
 ## 1. Navigation & SPA Routing
 
 - **No Router**: Navigation is managed via custom hooks in [`src/hooks/useAppNavigation.ts`](../../src/hooks/useAppNavigation.ts).
-- **Section IDs**: `home`, `work`, `skills`, `processes`, `journal`, `faq`, `contact` — mapped in `LABEL_MAP` and set as `id` attributes on `<div id="home">`, semantic `<section id="...">` shells via `LazySection`, and `<section id="contact">` in `ContactSection.tsx`.
+- **Section IDs**: `home`, `work`, `skills`, `processes`, `journal`, `faq`, and `contact`. They are mapped in `LABEL_MAP` and set on section containers.
 - **Scroll Spy**: `useScrollSpy` uses an `IntersectionObserver` to track the visible section and sync address bar hash via `history.replaceState(state, "", "#<sectionId>")` (wrapped in React 19 `startTransition`).
 - **Programmatic Navigation**: `handleNavClick` scrolls via `scrollIntoView({ behavior: isReduced ? "auto" : "smooth" })` and syncs URL hash using `history.pushState`. Initial hash alignment and modal parent section alignments use `behavior: "instant"`.
-- **Synchronous Scroll Restoration & Anchor Alignment**: [main.tsx](../../src/main.tsx) sets `window.history.scrollRestoration = "manual"` at module scope before `createRoot`, and [index.css](../../src/index.css) sets `html { scroll-behavior: auto; }` to eliminate browser reload scroll races. [useNavigation](../../src/hooks/useAppNavigation.ts) applies `requestAnimationFrame` alignment confirmation on initial load for deep links (`#contact`, `#faq`, etc.) to lock anchor positioning after layout calculations settle.
+- **Synchronous Scroll Restoration & Anchor Alignment**: [main.tsx](../../src/main.tsx) sets `window.history.scrollRestoration = "manual"` at module scope before `createRoot`. [index.css](../../src/index.css) sets `html { scroll-behavior: auto; }` to eliminate browser reload scroll races. [useNavigation](../../src/hooks/useAppNavigation.ts) applies `requestAnimationFrame` alignment confirmation on initial load for deep links (`#contact`, `#faq`, etc.) to lock anchor positioning after layout calculations settle.
 - **Modal & Overlay Hash Sync**: [`useModal`](../../src/hooks/useAppNavigation.ts) and [`useOverlay`](../../src/hooks/useAppNavigation.ts) synchronize modal/drawer visibility with URL hash fragments (`#cv`, `#bpmn`, `#case-study-<id>`, `#article-<id>`, `#lightbox-<id>`). Centralized hash parsing in [`src/utils/sectionResolution.ts`](../../src/utils/sectionResolution.ts) maps modal hashes to their parent sections. On browser reload with an active overlay hash, the parent section hydrates on Frame 1, aligning scroll non-destructively. Invalid deep links and transient menus (`#nav`, `#menu`) dismiss cleanly.
 - **Browser Translation Safety**: [applyDomTranslatePatch](../../src/utils/domTranslatePatch.ts) runs in [main.tsx](../../src/main.tsx) to prevent React reconciliation crashes from Chrome Translate DOM mutations. Complex interactive diagrams and badges must use `className="notranslate"` and `translate="no"`.
 
@@ -55,7 +55,7 @@ Single-page React portfolio (no router) built with React 19, Vite 8, TypeScript 
 - **Universal Modal Hook**: [`useModal(id)`](../../src/hooks/useAppNavigation.ts) combines `activeModal` in Zustand and `useOverlay` to provide `{ isOpen, open, close }` while synchronizing URL hash history.
 - **Implementations**:
   - `BaseDrawer`: Slide-over drawer with swipe-to-dismiss (`drag="x"`).
-  - `PdfViewerModal`: CV viewer modal in [`src/components/PdfViewerModal/PdfViewerModal.tsx`](../../src/components/PdfViewerModal/PdfViewerModal.tsx) with native `<object>` and interactive fallback view. Intentionally preloaded during Hero idle time; defers native PDF `<object>` mount by 350 ms + idle time to protect entry animation frame rate.
+  - `PdfViewerModal`: CV viewer modal in [`src/components/PdfViewerModal/PdfViewerModal.tsx`](../../src/components/PdfViewerModal/PdfViewerModal.tsx) with native `<object>` and interactive fallback view. It preloads during Hero idle time, deferring native mount by 350 ms to preserve frame rate.
   - `BpmnOverlay`: Desktop-only blueprint overlay in [`src/components/Bpmn/BpmnOverlay.tsx`](../../src/components/Bpmn/BpmnOverlay.tsx) (`!isLoading && !isMobile`). `DesktopBpmnOverlay` and `useNavigation` check `useIsMobile()` from [`src/hooks/useMediaQuery.ts`](../../src/hooks/useMediaQuery.ts) (which uses the shared `MediaQueryStore` registry) to dismiss `#bpmn` and redirect to `#home` on mobile.
   - `ProcessLightbox`: Modal image lightbox with `react-zoom-pan-pinch` pan/zoom controls.
   - `Tooltip`: Informational node badges with pure CSS transitions.
