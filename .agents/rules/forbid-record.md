@@ -1,27 +1,27 @@
 ---
 trigger: model_decision
-description: Forbid Record<string, unknown> in favor of strongly-typed domain types parsed at the earliest I/O boundary.
+description: Strongly-typed domain interfaces for parsed I/O data instead of loose dictionaries.
 ---
 
-# Forbid Record<string, unknown>
+# Strongly-Typed Domain Data
 
-Do not use `Record<string, unknown>` anywhere in the codebase.
+Parse external data and dynamic objects into explicit domain types at the earliest I/O boundary.
 
 ## Rules
-- FORBID all usage of `Record<string, unknown>`.
-- MUST convert incoming data to strongly-typed domain types parsed at the earliest time possible, as close to the I/O boundary where the data originated.
-- MUST place or reuse shared domain types in `types.ts` (or component-specific `types.ts`).
+- Define explicit interfaces or types for incoming data instead of using `Record<string, unknown>`.
+- Parse data as close to the originating I/O boundary as possible.
+- Place shared domain types in `types.ts` (or component-specific `types.ts`).
 
 ## Examples
 
-- **Incorrect**:
+- **Anti-pattern**:
   ```typescript
   // Parsing to untyped dictionary away from I/O boundary
   const fm = parse(parts[1]) as Record<string, unknown>;
   const props: Record<string, unknown> = { className, style };
   ```
 
-- **Correct**:
+- **Target Pattern**:
   ```typescript
   // Parsed into strongly-typed domain type at the earliest I/O boundary
   export interface CaseStudyFrontmatter {

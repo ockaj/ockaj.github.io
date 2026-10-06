@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Rules for animations, spring physics, and transitions. Mandates using the /motion skill for all motion implementation.
+description: Animation standards: motion/react imports, spring presets, hardware acceleration, and reduced motion.
 ---
 
 # Motion Guidelines
@@ -9,35 +9,55 @@ This document defines motion rules for animations, transitions, and physics in t
 
 ---
 
-## 1. Mandatory Motion Skill Activation
+## 1. Motion Skill Activation
 
-Whenever creating, modifying, or reviewing animations:
-- You MUST consult the `motion` skill in [`.agents/skills/motion/SKILL.md`](../skills/motion/SKILL.md).
-- Follow the skill instructions for best practices, documentation, easing generation, and performance audits.
-- Use the skill documentation to choose optimal animation approaches before writing custom motion code.
+When creating, modifying, or auditing animations:
+- Consult the `motion` skill in [`.agents/skills/motion/SKILL.md`](../skills/motion/SKILL.md).
+- Follow the skill instructions for easing curves, CSS springs, and performance audits.
 
 ---
 
 ## 2. Core Animation Rules
 
 1. **Import Source**:
-   - Import exclusively from `motion/react` (v13+).
+   - Import animations exclusively from `motion/react` (v13+).
    - Never import from `framer-motion`.
 
-2. **Standard Springs**:
-   - Reuse standardized spring presets from [`src/utils/springConfig.ts`](../../src/utils/springConfig.ts).
-   - Reuse centralized motion variants from [`src/utils/motionVariants.ts`](../../src/utils/motionVariants.ts).
-   - Avoid inline custom spring parameters (stiffness, damping, mass).
-
-3. **Hardware Acceleration**:
-   - Animate only GPU-accelerated properties: `transform`, `opacity`, `scale`, `x`, and `y`.
+2. **Hardware Acceleration**:
+   - Animate GPU-accelerated properties: `transform`, `opacity`, `scale`, `x`, and `y`.
    - Never animate layout properties like `height`, `width`, or `margin` directly.
-   - Use `layout` or `layoutId` props for layout transitions.
+   - Use `layout` or `layoutId` props for layout morphing.
 
-4. **Exit Transitions**:
+3. **Exit Transitions**:
    - Wrap unmounting components in `<AnimatePresence>`.
    - Pass `keepMounted` to `<Dialog.Portal keepMounted>` when animating Base UI dialog exits.
 
-5. **Accessibility**:
-   - Always honor user motion preferences with `useReducedMotion()`.
+4. **Accessibility**:
+   - Honor user motion preferences with `useReducedMotion()`.
    - Provide instantaneous state changes when reduced motion is active.
+
+---
+
+## 3. Standard Springs & Animation Variants
+
+All UI spring animations and transitions reuse standardized configurations:
+
+- Reuse preset physics from the `SPRING` object in [`src/utils/springConfig.ts`](../../src/utils/springConfig.ts).
+- Use `SPRING.modal` and `SPRING.exit` for modal, drawer, and toast transitions.
+- Reuse centralized animation variants from [`src/utils/motionVariants.ts`](../../src/utils/motionVariants.ts).
+- Avoid inline custom spring parameters (`stiffness`, `damping`, `mass`).
+
+### Example
+```typescript
+import { SPRING } from "../utils/springConfig";
+import {
+  SECTION_ANIMATE,
+  SECTION_VIEWPORT,
+  SECTION_TRANSITION,
+} from "../utils/motionVariants";
+
+const drawerVariants = {
+  hidden: { x: "100%", transition: SPRING.drawer },
+  visible: { x: 0, transition: SPRING.drawer },
+};
+```

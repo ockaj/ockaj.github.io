@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Rules and official documentation index for Base UI components (@base-ui/react).
+description: Base UI accessible primitives (@base-ui/react) usage and styling patterns.
 ---
 
 # Base UI Guidelines

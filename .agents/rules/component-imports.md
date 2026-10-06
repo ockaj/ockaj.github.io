@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Component import patterns, default export conventions for React.lazy, LiquidGlass primitive paths, and directory layout conventions.
+description: Component import paths, React.lazy default exports, public feature entry points, and barrel avoidance.
 ---
 
 # Component Import & Export Conventions
@@ -11,30 +11,31 @@ Defines component file locations, export signatures, and directory structures ac
 
 ## 1. Export Patterns for `React.lazy()`
 
-Components code-split through [`src/lazyComponents.ts`](file:///d:/github/ockaj.github.io/src/lazyComponents.ts) must provide an explicit default export.
+Components code-split through [`src/lazyComponents.ts`](../../src/lazyComponents.ts) must provide an explicit default export.
 
 ### Rules
 
-1. **Mandatory Default Export**:
-   - Every file registered in `src/lazyComponents.ts` must export its primary component as `default`.
+1. **Explicit Default Export**:
+   - Every file registered in `src/lazyComponents.ts` exports its primary component as `default`.
    - `React.lazy(() => import(...))` expects `{ default: ComponentType }`.
    - Named exports alone cause runtime chunk loading failures.
 2. **Co-located Chunks**:
-   - Feature drawers and dialogs stay bundled inside their parent section chunk to prevent over-splitting. See [Architecture Guide](file:///d:/github/ockaj.github.io/.agents/rules/architecture.md).
+   - Feature drawers and dialogs stay bundled inside their parent section chunk to prevent over-splitting. See [Architecture Guide](./architecture.md).
 
 ---
 
 ## 2. Prohibition of Runtime Barrels (Vercel Best Practice)
 
-- **FORBID barrel files**: Never create `index.ts` or `public.ts` aggregating runtime component exports (`bundle-barrel-imports`).
-- Direct imports prevent circular dependencies, reduce bundle parse overhead, and avoid eager module evaluation.
+Direct module imports prevent circular dependencies, reduce bundle parse overhead, and avoid eager module evaluation:
+- Do not create runtime barrel files (`index.ts` or `public.ts` aggregating runtime component exports).
+- Import components directly from their designated public module entry points.
 - Pure TypeScript type files (`types.ts`) are permitted because types are erased during compilation with zero bundle cost.
 
 ---
 
 ## 3. Designated Public Entry Points vs. Private Internals
 
-Feature modules encapsulate internal implementation. ESLint (`no-restricted-imports`) strictly blocks imports from private files:
+Feature modules encapsulate internal implementation. ESLint (`no-restricted-imports`) blocks imports from private files:
 
 | Feature Module | Allowed Public Entry Points | Private Internals (Linter Blocks External Imports) |
 |---|---|---|
@@ -58,12 +59,12 @@ Cross-cutting UI primitives live directly in `src/components/` (e.g. `BaseDrawer
 
 Import LiquidGlass primitives via named exports from their specific public modules:
 
-- **Surface Primitives**: Import `InteractiveGlass`, `StaticGlass`, and `LiquidGlassButton` from [`src/components/LiquidGlass/LiquidGlass`](file:///d:/github/ockaj.github.io/src/components/LiquidGlass/LiquidGlass.tsx).
-- **Tab Primitives**: Import `Tabs` and `Tab` from [`src/components/LiquidGlass/LiquidGlassTabs`](file:///d:/github/ockaj.github.io/src/components/LiquidGlass/LiquidGlassTabs.tsx).
-- **Type Definitions**: Import prop types from [`src/components/LiquidGlass/types`](file:///d:/github/ockaj.github.io/src/components/LiquidGlass/types.ts).
-- **Rules**: Never use namespace access (`LiquidGlass.Button`). Never import internal physics hooks, ripples, or overlay files directly from external components.
+- **Surface Primitives**: Import `InteractiveGlass`, `StaticGlass`, and `LiquidGlassButton` from [`src/components/LiquidGlass/LiquidGlass`](../../src/components/LiquidGlass/LiquidGlass.tsx).
+- **Tab Primitives**: Import `Tabs` and `Tab` from [`src/components/LiquidGlass/LiquidGlassTabs`](../../src/components/LiquidGlass/LiquidGlassTabs.tsx).
+- **Type Definitions**: Import prop types from [`src/components/LiquidGlass/types`](../../src/components/LiquidGlass/types.ts).
+- **Encapsulation**: Avoid namespace access (`LiquidGlass.Button`). Import internal physics hooks, ripples, or overlay files only within `src/components/LiquidGlass/`.
 
-For component selection criteria, physics, and props allocation, see [LiquidGlass Rules](file:///d:/github/ockaj.github.io/.agents/rules/liquid-glass.md).
+For component selection criteria, physics, and props allocation, see [LiquidGlass Rules](./liquid-glass.md).
 
 ---
 
@@ -74,12 +75,11 @@ Import Base UI components directly from their specific subpath specifiers:
 - Tooltips: `@base-ui/react/tooltip`.
 - Accordions: `@base-ui/react/accordion` (`Accordion.Root`, `Accordion.Item`, `Accordion.Header`, `Accordion.Trigger`, `Accordion.Panel`).
 
-Always pass `keepMounted` to `<Dialog.Portal keepMounted>` when wrapping with `motion/react` `<AnimatePresence>` for exit transitions.
+Pass `keepMounted` to `<Dialog.Portal keepMounted>` when wrapping with `motion/react` `<AnimatePresence>` for exit transitions. See [Base UI Guidelines](./base-ui.md).
 
 ---
 
 ## 6. Shared Utilities (`cn` and `quicklink`)
 
-- **Class Composition**: Always use `cn(...)` from [`src/utils/cn.ts`](file:///d:/github/ockaj.github.io/src/utils/cn.ts) (`clsx` + `tailwind-merge`) for conditional class composition.
-- **Prefetching**: Always import `prefetchAsset` from [`src/utils/quicklink.ts`](file:///d:/github/ockaj.github.io/src/utils/quicklink.ts). Never import `prefetch` from `"quicklink"` directly because the wrapper deduplicates requests via an in-memory `Set`.
-
+- **Class Composition**: Use `cn(...)` from [`src/utils/cn.ts`](../../src/utils/cn.ts) (`clsx` + `tailwind-merge`) for conditional class composition.
+- **Prefetching**: Import `prefetchAsset` from [`src/utils/quicklink.ts`](../../src/utils/quicklink.ts). Never import `prefetch` from `"quicklink"` directly because the wrapper deduplicates requests via an in-memory `Set`.

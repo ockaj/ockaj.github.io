@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Rules for UI icons (lucide-react) and brand logos (inline SVG paths).
+description: UI icons via lucide-react and brand logos via inline SVG paths.
 ---
 
 # Icon Library
@@ -8,11 +8,11 @@ description: Rules for UI icons (lucide-react) and brand logos (inline SVG paths
 The project relies on `lucide-react` for UI elements and inlined SVG path strings for Brand logos. Do not introduce alternative icon packages or additional brand icon dependencies.
 
 ## Rules
-- MUST use components from `lucide-react` for standard UI icons.
-- MUST use inlined SVG path strings inside custom `<svg>` tags for brand logos (do NOT install additional icon packages like `simple-icons`).
+- Use components from `lucide-react` for standard UI icons.
+- Use inlined SVG path strings inside `<svg>` elements for brand logos. Avoid installing additional icon packages.
 
 ## Examples
-- **Correct**:
+- Standard icon and brand logo usage:
   ```typescript
   import { ArrowUpRight } from "lucide-react";
 

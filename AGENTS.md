@@ -32,12 +32,4 @@ Refer to specialized documentation for deep task context:
 
 - [Product Vision & Requirements](./PRODUCT.md)
 - [Design System & UI Guidelines](./DESIGN.md)
-- [Critical Build Invariants](./.agents/rules/build-invariants.md)
-- [Architecture Guide](./.agents/rules/architecture.md)
-- [Component Imports & Entry Points](./.agents/rules/component-imports.md)
-- [LiquidGlass Primitives](./.agents/rules/liquid-glass.md)
-- [Motion Implementation](./.agents/rules/motion.md)
-- [Third-Party Library Usage](./.agents/rules/library-usage.md)
-- [Base UI Components](./.agents/rules/base-ui.md)
-- [Token Efficiency & Harness Architecture](./.agents/rules/token-efficiency.md)
-- [All Specialized Rules](./.agents/rules/)
+- Specialized rule files in [`.agents/rules/`](./.agents/rules/) (indexed automatically by agent harnesses)
