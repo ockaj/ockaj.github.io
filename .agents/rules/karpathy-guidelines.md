@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Core coding principles for surgical changes and simplicity. Use during code implementation, editing, and refactoring.
+description: Core coding principles for surgical changes, simplicity first, explicit assumptions, and goal-driven verification. Use during code implementation, editing, bug fixing, and refactoring.
 ---
 
 # Karpathy Guidelines

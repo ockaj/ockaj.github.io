@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Base UI accessible primitives (@base-ui/react). Use when implementing or styling dialogs, tooltips, popovers, drawers, or accordions.
+description: Base UI accessible primitives (@base-ui/react). Use when implementing or styling dialogs, tooltips, popovers, drawers, accordions, keepMounted portal exits, or data-starting-style transitions.
 ---
 
 # Base UI Guidelines

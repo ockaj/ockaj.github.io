@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Component import paths, lazy exports, and barrel rules. Use when creating components, splitting code, or modifying feature exports.
+description: Component import paths, React.lazy default exports, public feature entry points, and barrel avoidance. Use when creating components, lazy loading, code splitting, adding module exports, or importing LiquidGlass.
 ---
 
 # Component Import & Export Conventions

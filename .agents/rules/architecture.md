@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Architecture, routing, and store state patterns. Use when modifying route sections, global state, overlays, or module boundaries.
+description: Architecture, SPA routing, Zustand store state, and layer boundaries. Use when modifying route sections, navigation, global state, overlays, WebGL aurora, Boneyard skeletons, or architecture tiers.
 ---
 
 # Codebase Architecture

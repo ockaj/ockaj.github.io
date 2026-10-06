@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: ASD-STE100 Simplified Technical English rules. Use when writing agent responses, commit messages, or technical documentation.
+description: ASD-STE100 Simplified Technical English rules. Use when writing agent responses, commit messages, technical documentation, or PR descriptions.
 ---
 
 # ASD-STE100 Simplified Technical English

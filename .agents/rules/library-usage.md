@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Third-party package reuse standards. Use when adding UI controls, gestures, or third-party components instead of custom logic.
+description: Third-party package reuse standards for react-zoom-pan-pinch, Base UI, motion/react, and quicklink. Use when adding UI controls, gestures, zoom, lightbox, or third-party components instead of custom logic.
 ---
 
 # Third-Party Library Usage

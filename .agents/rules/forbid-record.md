@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Strongly-typed domain interfaces replacing loose Record objects. Use when typing external I/O payloads, storage data, or structured models.
+description: Strongly-typed domain interfaces replacing loose Record objects and untyped dictionaries. Use when typing external I/O payloads, storage data, API responses, or frontmatter models.
 ---
 
 # Strongly-Typed Domain Data

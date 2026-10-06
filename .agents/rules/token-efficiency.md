@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Token efficiency, prompt engineering, and agent harness design rules. Use when creating or editing agent rules, skills, prompts, or tool configurations.
+description: Token efficiency, prompt engineering, and agent harness design rules. Use when creating, auditing, or editing agent rules, skills, prompts, AGENTS.md, or tool configurations.
 ---
 
 # Token Efficiency and Agent Harness Guidelines
