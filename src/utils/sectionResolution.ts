@@ -13,6 +13,10 @@ const SECTION_SET = new Set<string>([
   "contact",
 ]);
 
+const PERCENT_ENCODED_RE = /(?:%[0-9a-fA-F]{2})+/g;
+const CSS_ESCAPE_SPECIAL_RE = /(["\\])/g;
+const DIGITS_ONLY_RE = /^\d+$/;
+
 /**
  * Decode percent-encoded URL fragments safely.
  * Isolates malformed byte sequences to prevent errors.
@@ -24,7 +28,7 @@ export function safeDecodeFragment(rawHash: string): string {
   try {
     return decodeURIComponent(cleanHash);
   } catch {
-    return cleanHash.replace(/(?:%[0-9a-fA-F]{2})+/g, (match) => {
+    return cleanHash.replace(PERCENT_ENCODED_RE, (match) => {
       try {
         return decodeURIComponent(match);
       } catch {
@@ -50,7 +54,7 @@ export function findIndicatedElement(
   const escaped =
     typeof CSS !== "undefined" && typeof CSS.escape === "function"
       ? CSS.escape(decodedFragment)
-      : decodedFragment.replace(/(["\\])/g, "\\$1");
+      : decodedFragment.replace(CSS_ESCAPE_SPECIAL_RE, "\\$1");
   try {
     const legacyAnchor = document.querySelector(`a[name="${escaped}"]`);
     if (legacyAnchor) {
@@ -132,7 +136,7 @@ export function isValidModalHash(hash: string): boolean {
   }
   if (
     clean.startsWith("lightbox-") &&
-    /^\d+$/.test(clean.slice("lightbox-".length))
+    DIGITS_ONLY_RE.test(clean.slice("lightbox-".length))
   ) {
     return true;
   }

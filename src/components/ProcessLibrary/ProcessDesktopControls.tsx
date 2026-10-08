@@ -2,13 +2,15 @@ import { memo, useRef, useCallback, useLayoutEffect } from "react";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
 import { PROCESS_TOPICS } from "../../data/processItems";
 import { cn } from "../../utils/cn";
-import { useProcessLibraryContext } from "./ProcessLibraryContext";
+import {
+  useProcessLibraryState,
+  useProcessLibraryActions,
+} from "./ProcessLibraryContext";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 
 function ProcessDesktopControls() {
-  const { state, actions } = useProcessLibraryContext();
-  const { activeTopicId } = state;
-  const { selectTopic } = actions;
+  const { activeTopicId } = useProcessLibraryState();
+  const { selectTopic } = useProcessLibraryActions();
   const containerRef = useRef<HTMLDivElement>(null);
 
   const checkOverflow = useCallback(() => {

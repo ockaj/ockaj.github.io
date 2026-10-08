@@ -9,7 +9,7 @@ interface LightboxTargetItem {
   type: string;
 }
 
-interface ProcessLibraryState {
+export interface ProcessLibraryState {
   activeTopicId: number;
   activeTopic: ProcessTopic;
   activeViewMode: "source" | "optimized";
@@ -20,7 +20,7 @@ interface ProcessLibraryState {
   prefersReducedMotion: boolean | null;
 }
 
-interface ProcessLibraryActions {
+export interface ProcessLibraryActions {
   selectTopic: (id: number) => void;
   selectPreviousTopic: () => void;
   selectNextTopic: () => void;
@@ -31,19 +31,27 @@ interface ProcessLibraryActions {
   setLightboxItem: (item: LightboxTargetItem) => void;
 }
 
-export interface ProcessLibraryContextValue {
-  state: ProcessLibraryState;
-  actions: ProcessLibraryActions;
-}
+export const ProcessLibraryStateContext =
+  createContext<ProcessLibraryState | null>(null);
 
-export const ProcessLibraryContext =
-  createContext<ProcessLibraryContextValue | null>(null);
+export const ProcessLibraryActionsContext =
+  createContext<ProcessLibraryActions | null>(null);
 
-export function useProcessLibraryContext(): ProcessLibraryContextValue {
-  const context = use(ProcessLibraryContext);
+export function useProcessLibraryState(): ProcessLibraryState {
+  const context = use(ProcessLibraryStateContext);
   if (!context) {
     throw new Error(
-      "useProcessLibraryContext must be used within a ProcessLibraryContext",
+      "useProcessLibraryState must be used within ProcessLibraryStateContext",
+    );
+  }
+  return context;
+}
+
+export function useProcessLibraryActions(): ProcessLibraryActions {
+  const context = use(ProcessLibraryActionsContext);
+  if (!context) {
+    throw new Error(
+      "useProcessLibraryActions must be used within ProcessLibraryActionsContext",
     );
   }
   return context;

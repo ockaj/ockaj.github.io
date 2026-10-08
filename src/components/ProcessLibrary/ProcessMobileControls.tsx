@@ -2,12 +2,14 @@ import { memo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { StaticGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import { PROCESS_TOPICS } from "../../data/processItems";
-import { useProcessLibraryContext } from "./ProcessLibraryContext";
+import {
+  useProcessLibraryState,
+  useProcessLibraryActions,
+} from "./ProcessLibraryContext";
 
 function ProcessMobileControls() {
-  const { state, actions } = useProcessLibraryContext();
-  const { activeTopic, prevDisabled, nextDisabled } = state;
-  const { selectPreviousTopic, selectNextTopic } = actions;
+  const { activeTopic, prevDisabled, nextDisabled } = useProcessLibraryState();
+  const { selectPreviousTopic, selectNextTopic } = useProcessLibraryActions();
   return (
     <div className="flex w-full justify-center">
       <StaticGlass

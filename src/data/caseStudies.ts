@@ -70,13 +70,16 @@ export const parseResults = (raw: unknown): CaseStudyResult[] => {
 
 export const parseTools = (raw: unknown): string[] => {
   if (Array.isArray(raw)) {
-    return raw.map((item) => String(item).trim()).filter(Boolean);
+    return raw.flatMap((item) => {
+      const trimmed = String(item).trim();
+      return trimmed ? [trimmed] : [];
+    });
   }
   if (typeof raw === "string") {
-    return raw
-      .split(",")
-      .map((tool) => tool.trim())
-      .filter(Boolean);
+    return raw.split(",").flatMap((tool) => {
+      const trimmed = tool.trim();
+      return trimmed ? [trimmed] : [];
+    });
   }
   return [];
 };

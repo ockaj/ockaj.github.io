@@ -40,25 +40,18 @@ export interface Article {
 export const ARTICLES: Article[] = Object.values(articleModules)
   .map((mod) => {
     const fm = mod.frontmatter || {};
-    const dateStr = fm.date || "";
-    const timestamp = dateStr ? Date.parse(dateStr) || 0 : 0;
-
     return {
-      article: {
-        id: String(fm.id || mod.id || "article"),
-        title: fm.title || "Untitled",
-        subtitle: fm.subtitle || "",
-        readTime: mod.readTime || fm.readTime || "1 min read",
-        date: dateStr,
-        image: fm.image || "",
-        excerpt: mod.excerpt || fm.excerpt || "",
-        Content: mod.default,
-      },
-      timestamp,
+      id: String(fm.id || mod.id || "article"),
+      title: fm.title || "Untitled",
+      subtitle: fm.subtitle || "",
+      readTime: mod.readTime || fm.readTime || "1 min read",
+      date: fm.date || "",
+      image: fm.image || "",
+      excerpt: mod.excerpt || fm.excerpt || "",
+      Content: mod.default,
     };
   })
-  .sort((a, b) => b.timestamp - a.timestamp)
-  .map((item) => item.article);
+  .sort((a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0));
 
 export const ARTICLES_BY_ID = new Map<string, Article>(
   ARTICLES.map((article) => [article.id, article]),

@@ -3,7 +3,10 @@ import { motion, AnimatePresence, type Variants } from "motion/react";
 import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
 import ProcessCardHeader from "./ProcessCardHeader";
 import ProcessVariantStage from "./ProcessVariantStage";
-import { useProcessLibraryContext } from "./ProcessLibraryContext";
+import {
+  useProcessLibraryState,
+  useProcessLibraryActions,
+} from "./ProcessLibraryContext";
 import { SPRING } from "../../utils/springConfig";
 
 interface CustomAnimationProps {
@@ -44,10 +47,10 @@ const DEFAULT_CARD_PROPS: ProcessDesktopCardProps = {};
 function ProcessDesktopCard({
   tabContentVariants = defaultTabContentVariants,
 }: Readonly<ProcessDesktopCardProps> = DEFAULT_CARD_PROPS) {
-  const { state, actions } = useProcessLibraryContext();
   const { activeTopic, activeViewMode, prefersReducedMotion, direction } =
-    state;
-  const { handleTopicViewModeChange, setLightboxItem } = actions;
+    useProcessLibraryState();
+  const { handleTopicViewModeChange, setLightboxItem } =
+    useProcessLibraryActions();
   return (
     <div className="flex w-full min-w-0 flex-col justify-center lg:col-span-7">
       <AnimatePresence

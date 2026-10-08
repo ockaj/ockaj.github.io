@@ -1,4 +1,4 @@
-import { memo, useState, useCallback } from "react";
+import { memo, useCallback } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowDown } from "lucide-react";
 import { Accordion } from "@base-ui/react/accordion";
@@ -23,8 +23,6 @@ const cardVariants = cardStaggerVariants;
 function Faq() {
   const prefersReducedMotion = useReducedMotion();
 
-  const [openItemIds, setOpenItemIds] = useState<string[]>([]);
-
   const handleScrollToContact = useCallback(() => {
     navigateTo("contact");
   }, []);
@@ -40,22 +38,14 @@ function Faq() {
         viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
         className="flex flex-col gap-4"
       >
-        <Accordion.Root
-          value={openItemIds}
-          onValueChange={setOpenItemIds}
-          multiple
-          className="flex flex-col gap-4"
-        >
+        <Accordion.Root multiple className="flex flex-col gap-4">
           {FAQ_ITEMS.map((item) => (
             <motion.div
               key={item.id}
               variants={cardVariants}
               custom={prefersReducedMotion}
             >
-              <FaqItem
-                item={item}
-                isOpen={openItemIds.includes(item.id)}
-              />
+              <FaqItem item={item} />
             </motion.div>
           ))}
         </Accordion.Root>

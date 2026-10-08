@@ -5,7 +5,10 @@ import { cn } from "../../utils/cn";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 import ProcessCardHeader from "./ProcessCardHeader";
 import ProcessVariantStage from "./ProcessVariantStage";
-import { useProcessLibraryContext } from "./ProcessLibraryContext";
+import {
+  useProcessLibraryState,
+  useProcessLibraryActions,
+} from "./ProcessLibraryContext";
 
 interface ProcessMobileSlideProps {
   topic: ProcessTopic;
@@ -96,9 +99,10 @@ function getTargetScrollOffset(
 }
 
 function ProcessMobileCarousel() {
-  const { state, actions } = useProcessLibraryContext();
-  const { activeTopicId, viewModes, prefersReducedMotion } = state;
-  const { selectTopic, handleTopicViewModeChange, setLightboxItem } = actions;
+  const { activeTopicId, viewModes, prefersReducedMotion } =
+    useProcessLibraryState();
+  const { selectTopic, handleTopicViewModeChange, setLightboxItem } =
+    useProcessLibraryActions();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const isProgrammaticScrollRef = useRef(false);
   const scrollEndTimeoutRef = useRef<number | null>(null);
@@ -232,9 +236,13 @@ function ProcessMobileCarousel() {
 
     container.addEventListener("scroll", handleScroll, { passive: true });
     container.addEventListener("scrollend", handleScrollEnd, { passive: true });
-    container.addEventListener("pointerdown", handleProgrammaticScrollInterruption, {
-      passive: true,
-    });
+    container.addEventListener(
+      "pointerdown",
+      handleProgrammaticScrollInterruption,
+      {
+        passive: true,
+      },
+    );
 
     return () => {
       container.removeEventListener("scroll", handleScroll);

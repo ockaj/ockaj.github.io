@@ -1,5 +1,4 @@
 import { memo, useCallback } from "react";
-import { motion, useReducedMotion } from "motion/react";
 import { ChevronDown, ArrowUpRight } from "lucide-react";
 import { Accordion } from "@base-ui/react/accordion";
 import {
@@ -9,18 +8,13 @@ import {
 import { useAppStore } from "../../store/useAppStore";
 import { navigateTo } from "../../hooks/useAppNavigation";
 import { cn } from "../../utils/cn";
-import { SPRING } from "../../utils/springConfig";
 import type { FaqItem as FaqItemType } from "../../data/faqData";
 
 interface FaqItemProps {
   item: FaqItemType;
-  isOpen: boolean;
 }
 
-export const FaqItem = memo(function FaqItem({ item, isOpen }: FaqItemProps) {
-  const prefersReducedMotion = useReducedMotion();
-  const isReduced = !!prefersReducedMotion;
-
+export const FaqItem = memo(function FaqItem({ item }: FaqItemProps) {
   const handleAction = useCallback((action?: string) => {
     if (!action) return;
     if (action === "cv") {
@@ -46,7 +40,7 @@ export const FaqItem = memo(function FaqItem({ item, isOpen }: FaqItemProps) {
       >
         <div className="p-6 md:p-7">
           <Accordion.Header className="m-0 p-0 font-normal">
-            <Accordion.Trigger className="flex w-full cursor-pointer items-center justify-between gap-4 rounded-lg text-left select-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none">
+            <Accordion.Trigger className="group flex w-full cursor-pointer items-center justify-between gap-4 rounded-lg text-left select-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none">
               <div className="flex flex-col">
                 <span className="font-display text-lg font-normal text-balance text-text-primary transition-colors duration-200 md:text-xl">
                   {item.question}
@@ -62,15 +56,12 @@ export const FaqItem = memo(function FaqItem({ item, isOpen }: FaqItemProps) {
                 magneticStrength={0.03}
                 specularGlow
               >
-                <motion.span
+                <span
                   data-no-skeleton=""
-                  initial={false}
-                  animate={{ rotate: isOpen ? 180 : 0 }}
-                  transition={isReduced ? { duration: 0.1 } : SPRING.snappy}
-                  className="flex items-center justify-center text-text-primary transition-colors duration-200"
+                  className="flex items-center justify-center text-text-primary transition-transform duration-300 ease-out group-data-panel-open:rotate-180 motion-reduce:transition-none"
                 >
                   <ChevronDown size={18} aria-hidden="true" />
-                </motion.span>
+                </span>
               </InteractiveGlass>
             </Accordion.Trigger>
           </Accordion.Header>
@@ -78,18 +69,13 @@ export const FaqItem = memo(function FaqItem({ item, isOpen }: FaqItemProps) {
           <Accordion.Panel
             keepMounted
             hiddenUntilFound
-            data-no-skeleton={!isOpen ? "" : undefined}
+            data-no-skeleton=""
             className={cn(
               "h-(--accordion-panel-height) overflow-hidden accordion-panel-transition duration-350 ease-expo-out",
               "data-ending-style:h-0 data-starting-style:h-0 motion-reduce:transition-none",
             )}
           >
-            <div
-              className={cn(
-                "mt-4 border-t border-white/6 pt-4 transition-transform duration-350 ease-expo-out select-text motion-reduce:transition-none",
-                isOpen ? "translate-y-0" : "-translate-y-2",
-              )}
-            >
+            <div className="mt-4 border-t border-white/6 pt-4 select-text">
               <p className="text-base leading-relaxed text-pretty whitespace-pre-line text-muted select-text">
                 {item.answer}
               </p>
