@@ -115,4 +115,24 @@ export const boundaryConfigs = [
       ],
     },
   },
+  {
+    files: ["src/lazyComponents.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            ...featureBoundaryPatterns,
+            ...generalRestrictedPatterns,
+            {
+              regex:
+                "(?:^|[./])components/(?:ContactSection|Hero|Aurora)(?:\\.tsx?)?$",
+              message:
+                "Architecture Invariant Violation: ContactSection, Hero, and Aurora must remain static imports in App.tsx for Frame 1 skeleton stability. Do not lazy-load them. See .agents/rules/architecture.md.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 ];

@@ -16,7 +16,8 @@
     "test:watch": "vitest",
     "prepare": "husky",
     "knip": "knip",
-    "doctor": "react-doctor --verbose"
+    "doctor": "react-doctor --verbose",
+    "test:e2e": "node scripts/e2e/runner.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -60,6 +61,7 @@
     "husky": "^9.1.7",
     "knip": "^6.40.0",
     "lint-staged": "^17.6.0",
+    "playwright": "^1.61.1",
     "prettier": "^3.9.9",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "react-doctor": "^0.9.17",
@@ -87,6 +89,12 @@
     "@babel/core": "$@babel/core"
   },
   "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown"
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix --max-warnings=0",
+      "prettier --write"
+    ],
+    "*.{json,css,html,md}": [
+      "prettier --write"
+    ]
   }
 }
