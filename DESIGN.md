@@ -264,6 +264,7 @@ Surfaces feature delicate translucent strokes (`1px solid rgba(255, 255, 255, 0.
 ## Do's and Don'ts
 
 ### Do:
+- **Do** build all buttons, cards, containers, and tabs with LiquidGlass primitives. Consult [`.agents/rules/liquid-glass.md`](./.agents/rules/liquid-glass.md).
 - **Do** use `InteractiveGlass` for clickable cards and `StaticGlass` for non-interactive containers.
 - **Do** constrain the primary periwinkle accent (`#9b9cf2`) to active states and focal process milestones.
 - **Do** apply `tabular-nums` to all quantitative metrics, cycle times, and statistical data points.
@@ -272,6 +273,7 @@ Surfaces feature delicate translucent strokes (`1px solid rgba(255, 255, 255, 0.
 - **Do** use `@theme` tokens or native Tailwind scale utilities. The project enforces `tailwindcss/no-arbitrary-value`.
 
 ### Don't:
+- **Don't** create raw HTML `<button>` or unstyled `<div>` cards for interactive UI. Use `LiquidGlassButton` and `InteractiveGlass`.
 - **Don't** use pure pitch black (`#000000`) for dark backgrounds; preserve the obsidian baseline (`#0a0a0a`).
 - **Don't** apply opaque heavy black drop shadows; express depth through translucency and inner specular highlights.
 - **Don't** import removed facade components; import explicit primitives from `src/components/LiquidGlass/`.

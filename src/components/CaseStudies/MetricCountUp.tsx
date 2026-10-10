@@ -7,7 +7,7 @@ interface MetricCountUpProps {
   value: string;
 }
 
-const NUMERIC_REGEX = /[-+]?\d*\.?\d+/;
+const NUMERIC_REGEX = /[-+]?\d[\d,]*(?:\.\d+)?/;
 const EASING_EXPO_OUT = `cubic-bezier(${EASE.out.join(", ")})`;
 
 const MetricCountUp = memo(function MetricCountUp({
@@ -20,11 +20,12 @@ const MetricCountUp = memo(function MetricCountUp({
   });
   const prefersReducedMotion = useReducedMotion();
   const numericPart = NUMERIC_REGEX.exec(value);
-  const target = numericPart ? parseFloat(numericPart[0]) : 0;
+  const cleanedTarget = numericPart ? numericPart[0].replace(/,/g, "") : "";
+  const target = cleanedTarget ? parseFloat(cleanedTarget) : 0;
 
   const displayValue = prefersReducedMotion || isInView ? target : 0;
 
-  if (!numericPart) {
+  if (!numericPart || Number.isNaN(target)) {
     return <span ref={containerRef}>{value}</span>;
   }
 
@@ -40,8 +41,9 @@ const MetricCountUp = memo(function MetricCountUp({
         suffix={suffix}
         format={{
           minimumFractionDigits: target % 1 === 0 ? 0 : 1,
-          maximumFractionDigits: 1,
+          maximumFractionDigits: 2,
         }}
+
         transformTiming={{
           duration: prefersReducedMotion ? 0 : 800,
           easing: EASING_EXPO_OUT,

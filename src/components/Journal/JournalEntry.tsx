@@ -1,5 +1,5 @@
-import { memo } from "react";
-import { Clock, ArrowUpRight } from "lucide-react";
+import { memo, useState } from "react";
+import { Clock, ArrowUpRight, FileText } from "lucide-react";
 import type { Article } from "../../data/articles";
 import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
 
@@ -12,6 +12,8 @@ const JournalEntry = memo(function JournalEntry({
   article,
   onOpen,
 }: EntryProps) {
+  const [imgError, setImgError] = useState(false);
+
   return (
     <InteractiveGlass
       as="article"
@@ -23,24 +25,29 @@ const JournalEntry = memo(function JournalEntry({
       <div className="space-y-4 p-5 md:p-6">
         {/* Thumbnail + title */}
         <div className="flex items-center gap-4">
-          <div className="size-11 shrink-0 overflow-hidden rounded-full border border-white/10 transition-colors duration-300 group-hover:border-accent/30">
-            <img
-              src={article.image}
-              alt=""
-              width={44}
-              height={44}
-              className="size-full object-cover outline-1 -outline-offset-1 outline-white/8"
-              loading="lazy"
-            />
+          <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-white/5 transition-colors duration-300 group-hover:border-accent/30">
+            {imgError || !article.image ? (
+              <FileText size={18} className="text-accent/80" />
+            ) : (
+              <img
+                src={article.image}
+                onError={() => setImgError(true)}
+                alt=""
+                width={44}
+                height={44}
+                className="size-full object-cover outline-1 -outline-offset-1 outline-white/8"
+                loading="lazy"
+              />
+            )}
           </div>
           <div className="min-w-0 flex-1">
-            <span className="block font-display text-xl leading-tight text-balance text-text-primary md:text-2xl">
+            <span className="block font-display text-xl leading-tight text-balance wrap-anywhere text-text-primary md:text-2xl">
               {article.title}
             </span>
           </div>
         </div>
 
-        <p className="line-clamp-3 text-base leading-relaxed text-pretty text-text-primary/80 transition-colors duration-200 group-hover:text-text-primary">
+        <p className="line-clamp-3 text-base leading-relaxed text-pretty wrap-anywhere text-text-primary/80 transition-colors duration-200 group-hover:text-text-primary">
           {article.excerpt}
         </p>
 

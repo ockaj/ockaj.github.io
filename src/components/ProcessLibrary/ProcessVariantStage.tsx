@@ -159,12 +159,13 @@ const ScrollableBadgeList = memo(function ScrollableBadgeList({
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
-      className="no-scrollbar badge-scroll-mask flex w-full cursor-grab flex-nowrap items-center gap-2 overflow-x-auto px-0.5 pt-1 select-none active:cursor-grabbing touch-pan-x overscroll-x-contain focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/50"
+      className="no-scrollbar badge-scroll-mask flex w-full cursor-grab touch-pan-x flex-nowrap items-center gap-2 overflow-x-auto overscroll-x-contain px-0.5 pt-1 select-none focus-visible:ring-1 focus-visible:ring-accent/50 focus-visible:outline-none active:cursor-grabbing"
     >
       {tags.map((tag: string) => (
         <span
           key={tag}
-          className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm whitespace-nowrap text-muted transition-colors hover:border-white/20 hover:text-text-primary"
+          title={tag}
+          className="max-w-70 shrink-0 truncate rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm whitespace-nowrap text-muted transition-colors hover:border-white/20 hover:text-text-primary"
         >
           {tag}
         </span>

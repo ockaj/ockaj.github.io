@@ -439,19 +439,48 @@ p {
   }
 }
 
+@property --tabs-fade-t {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --tabs-fade-b {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 36px;
+}
+
+@keyframes tabs-fade-scroll {
+  0% {
+    --tabs-fade-t: 0px;
+    --tabs-fade-b: 36px;
+  }
+  12% {
+    --tabs-fade-t: 36px;
+  }
+  88% {
+    --tabs-fade-b: 36px;
+  }
+  100% {
+    --tabs-fade-t: 36px;
+    --tabs-fade-b: 0px;
+  }
+}
+
 @media (min-width: 1024px) {
   .process-tabs-mask[data-overflow="true"] {
     --tabs-mask: linear-gradient(
-      in oklab to bottom,
+      to bottom,
       transparent 0px,
-      oklab(0 0 0 / 0.15) 12px,
-      oklab(0 0 0 / 0.6) 26px,
-      oklab(0 0 0) 48px,
-      oklab(0 0 0) calc(100% - 48px),
-      oklab(0 0 0 / 0.6) calc(100% - 26px),
-      oklab(0 0 0 / 0.15) calc(100% - 12px),
+      black var(--tabs-fade-t, 0px),
+      black calc(100% - var(--tabs-fade-b, 36px)),
       transparent 100%
     );
+    mask-image: var(--tabs-mask);
+    -webkit-mask-image: var(--tabs-mask);
+    animation: tabs-fade-scroll linear both;
+    animation-timeline: scroll(self block);
   }
 }
 

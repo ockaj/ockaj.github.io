@@ -1,5 +1,14 @@
-import { memo, useRef, useCallback, useLayoutEffect } from "react";
+import {
+  memo,
+  useRef,
+  useCallback,
+  useLayoutEffect,
+  useState,
+  useMemo,
+} from "react";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
+import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import { ChevronDown } from "lucide-react";
 import { PROCESS_TOPICS } from "../../data/processItems";
 import { cn } from "../../utils/cn";
 import {
@@ -8,10 +17,39 @@ import {
 } from "./ProcessLibraryContext";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 
+const PAGE_SIZE = 10;
+
 function ProcessDesktopControls() {
   const { activeTopicId } = useProcessLibraryState();
   const { selectTopic } = useProcessLibraryActions();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const activeIndex = useMemo(
+    () => PROCESS_TOPICS.findIndex((t) => t.id === activeTopicId),
+    [activeTopicId],
+  );
+
+  const [visibleCount, setVisibleCount] = useState(() =>
+    Math.max(PAGE_SIZE, activeIndex + 1),
+  );
+
+  const effectiveVisibleCount = Math.max(visibleCount, activeIndex + 1);
+
+  const visibleTopics = useMemo(
+    () => PROCESS_TOPICS.slice(0, effectiveVisibleCount),
+    [effectiveVisibleCount],
+  );
+
+  const hasMore = effectiveVisibleCount < PROCESS_TOPICS.length;
+
+  const handleShowMore = useCallback(() => {
+    setVisibleCount((prev) =>
+      Math.min(
+        Math.max(prev, activeIndex + 1) + PAGE_SIZE,
+        PROCESS_TOPICS.length,
+      ),
+    );
+  }, [activeIndex]);
 
   const checkOverflow = useCallback(() => {
     const el = containerRef.current;
@@ -34,7 +72,7 @@ function ProcessDesktopControls() {
       <div className="relative w-full">
         <div
           ref={containerRef}
-          className="no-scrollbar process-tabs-mask -mx-4 max-h-90 overflow-y-auto px-4 py-6"
+          className="no-scrollbar process-tabs-mask -mx-4 max-h-140 overflow-y-auto px-4 py-6"
         >
           <Tabs
             value={activeTopicId}
@@ -45,7 +83,7 @@ function ProcessDesktopControls() {
             highlightClassName="navbar-highlight-flat"
             className="flex w-full flex-col justify-center gap-2.5"
           >
-            {PROCESS_TOPICS.map((topic, idx) => {
+            {visibleTopics.map((topic, idx) => {
               const isActive = activeTopicId === topic.id;
               return (
                 <Tab
@@ -82,6 +120,34 @@ function ProcessDesktopControls() {
               );
             })}
           </Tabs>
+
+          {hasMore ? (
+            <div className="flex justify-center pt-3">
+              <LiquidGlassButton
+                type="button"
+                onClick={handleShowMore}
+                roundedClass="rounded-full"
+                className="group/more-btn flex min-h-10 cursor-pointer items-center justify-center px-5 py-2.5 text-xs font-semibold whitespace-nowrap text-text-primary shadow-sm transition-colors"
+                ariaLabel="Show more process topics"
+                magnetic
+                tilt
+                magneticStrength={0.02}
+                specularGlow
+              >
+                <span className="flex items-center gap-1.5">
+                  <span>
+                    Show more ({PROCESS_TOPICS.length - effectiveVisibleCount}{" "}
+                    remaining)
+                  </span>
+                  <ChevronDown
+                    size={14}
+                    aria-hidden="true"
+                    className="shrink-0 transition-transform duration-300 ease-out group-hover/more-btn:translate-y-0.5"
+                  />
+                </span>
+              </LiquidGlassButton>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

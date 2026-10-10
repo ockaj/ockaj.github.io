@@ -11,12 +11,11 @@ import {
   ExternalLink,
   Globe,
 } from "lucide-react";
-import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import { LiquidGlassButton, StaticGlass } from "../LiquidGlass/LiquidGlass";
 import { cn } from "../../utils/cn";
 import { type CvDataLanguageSection } from "../../data/cvData";
 import { useAppStore } from "../../store/useAppStore";
 
-const WHITESPACE_REGEX = /\s+/g;
 const PHONE_PREFIX_REGEX = /^[+\d]/;
 
 function BulletList({
@@ -31,12 +30,287 @@ function BulletList({
           className="flex items-start gap-1.5 text-sm text-pretty text-muted"
         >
           <span className="mt-0.5 shrink-0 text-accent">•</span>
-          <span>{bullet}</span>
+          <span className="wrap-anywhere">{bullet}</span>
         </li>
       ))}
     </ul>
   );
 }
+
+interface CvSectionProps<T> {
+  data: T;
+  lang: "en" | "sk";
+}
+
+const CvExperienceSection = memo(function CvExperienceSection({
+  data,
+  lang,
+}: Readonly<CvSectionProps<CvDataLanguageSection["experience"]>>) {
+  return (
+    <section className="space-y-4">
+      <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
+        <Briefcase size={16} className="text-accent" />
+        {data.title}
+      </h2>
+      {data.items.length === 0 ? (
+        <StaticGlass
+          roundedClass="rounded-xl"
+          className="w-full p-5 text-center text-muted"
+        >
+          <p className="text-sm">
+            {lang === "sk"
+              ? "Žiadne záznamy o praxi."
+              : "No work experience entries available."}
+          </p>
+        </StaticGlass>
+      ) : (
+        <div className="space-y-6">
+          {data.items.map((job) => (
+            <div
+              key={`${job.company}-${job.role}`}
+              className="relative pl-6 before:absolute before:top-1.5 before:bottom-0 before:left-1.5 before:w-px before:bg-stroke/60"
+            >
+              <div className="absolute top-1 left-0 z-10 size-3.5 rounded-full border-2 border-accent bg-bg shadow-sm" />
+
+              <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <h3 className="text-base leading-tight font-semibold text-balance text-text-primary">
+                    {job.role}
+                  </h3>
+                  <p className="text-sm text-pretty text-muted">
+                    {job.company}
+                  </p>
+                </div>
+                <span className="rounded-xl border border-accent/15 bg-accent/5 px-2.5 py-0.5 text-xs font-semibold text-accent uppercase tabular-nums">
+                  {job.period}
+                </span>
+              </div>
+              <ul className="mt-3 list-none space-y-2">
+                {job.bullets.map((bullet) => (
+                  <li
+                    key={bullet}
+                    className="flex items-start gap-2 text-sm leading-relaxed text-pretty text-muted/90"
+                  >
+                    <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-accent/60" />
+                    <span>{bullet}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+});
+
+const CvEducationSection = memo(function CvEducationSection({
+  data,
+  lang,
+}: Readonly<CvSectionProps<CvDataLanguageSection["education"]>>) {
+  return (
+    <section className="space-y-4">
+      <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
+        <GraduationCap size={16} className="text-accent" />
+        {data.title}
+      </h2>
+      {data.items.length === 0 ? (
+        <StaticGlass
+          roundedClass="rounded-xl"
+          className="w-full p-5 text-center text-muted"
+        >
+          <p className="text-sm">
+            {lang === "sk"
+              ? "Žiadne záznamy o vzdelaní."
+              : "No education records available."}
+          </p>
+        </StaticGlass>
+      ) : (
+        <div className="space-y-6">
+          {data.items.map((edu) => (
+            <div
+              key={`${edu.school}-${edu.degree}`}
+              className="relative pl-6 before:absolute before:top-1.5 before:bottom-0 before:left-1.5 before:w-px before:bg-stroke/60 last:before:hidden"
+            >
+              <div className="absolute top-1 left-0 z-10 size-3.5 rounded-full border-2 border-accent bg-bg" />
+
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <h3 className="text-base leading-tight font-semibold text-balance text-text-primary">
+                    {edu.degree}
+                  </h3>
+                  <p className="text-sm text-pretty text-muted">{edu.school}</p>
+                </div>
+                <span className="rounded-xl bg-white/5 px-2.5 py-0.5 font-mono text-xs text-muted tabular-nums">
+                  {edu.period}
+                </span>
+              </div>
+
+              {edu.details ? (
+                <div className="mt-3 rounded-lg border border-white/5 bg-white/5 p-3.5">
+                  <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-balance text-text-primary">
+                    <span className="h-3 w-1 rounded bg-accent" />
+                    {edu.details.thesisTitle}
+                  </p>
+                  <BulletList
+                    bullets={edu.details.bullets}
+                    className="list-none space-y-1.5 text-sm leading-relaxed"
+                  />
+                </div>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+});
+
+const CvCertificatesSection = memo(function CvCertificatesSection({
+  data,
+  lang,
+}: Readonly<
+  CvSectionProps<NonNullable<CvDataLanguageSection["certificates"]>>
+>) {
+  return (
+    <section className="space-y-4">
+      <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
+        <Award size={16} className="text-accent" />
+        {data.title}
+      </h2>
+      {data.items.length === 0 ? (
+        <StaticGlass
+          roundedClass="rounded-xl"
+          className="w-full p-4 text-center text-muted"
+        >
+          <p className="text-sm">
+            {lang === "sk"
+              ? "Žiadne certifikáty."
+              : "No certificates available."}
+          </p>
+        </StaticGlass>
+      ) : (
+        <div className="space-y-6">
+          {data.items.map((cert) => (
+            <div
+              key={`${cert.issuer}-${cert.name}`}
+              className="relative pl-6 before:absolute before:top-1.5 before:bottom-0 before:left-1.5 before:w-px before:bg-stroke/60 last:before:hidden"
+            >
+              <div className="absolute top-1 left-0 z-10 size-3.5 rounded-full border-2 border-accent bg-bg" />
+
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <h3 className="text-base leading-tight font-semibold text-balance text-text-primary">
+                    {cert.name}
+                  </h3>
+                  <p className="text-sm text-pretty text-muted">
+                    {cert.issuer}
+                  </p>
+                </div>
+                <span className="rounded-xl bg-white/5 px-2.5 py-0.5 font-mono text-xs text-muted tabular-nums">
+                  {cert.date}
+                </span>
+              </div>
+
+              {cert.bullets && cert.bullets.length > 0 ? (
+                <BulletList
+                  bullets={cert.bullets}
+                  className="text-sm leading-relaxed"
+                />
+              ) : null}
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+});
+
+const CvSkillsSection = memo(function CvSkillsSection({
+  data,
+  lang,
+}: Readonly<CvSectionProps<CvDataLanguageSection["skills"]>>) {
+  return (
+    <div className="space-y-6 rounded-2xl border border-white/5 bg-white/5 p-5">
+      <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
+        <Globe size={16} className="text-accent" />
+        {data.title}
+      </h2>
+
+      {data.categories.length === 0 ? (
+        <StaticGlass
+          roundedClass="rounded-xl"
+          className="w-full p-4 text-center text-muted"
+        >
+          <p className="text-sm">
+            {lang === "sk" ? "Žiadne zručnosti." : "No skills listed."}
+          </p>
+        </StaticGlass>
+      ) : (
+        <div className="space-y-4">
+          {data.categories.map((cat) => (
+            <div key={cat.name} className="space-y-2">
+              <h3 className="text-sm font-semibold text-balance text-accent">
+                {cat.name}
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {cat.items.map((skill) => (
+                  <span
+                    key={skill}
+                    className="rounded-xl border border-white/5 bg-white/5 px-3 py-1 text-sm text-muted/95 transition-colors select-none hover:bg-white/8 hover:text-text-primary"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+});
+
+const CvLanguagesSection = memo(function CvLanguagesSection({
+  data,
+  lang,
+}: Readonly<CvSectionProps<CvDataLanguageSection["languages"]>>) {
+  return (
+    <div className="space-y-4 rounded-2xl border border-white/5 bg-white/5 p-5">
+      <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
+        <Languages size={16} className="text-accent" />
+        {data.title}
+      </h2>
+
+      {data.items.length === 0 ? (
+        <StaticGlass
+          roundedClass="rounded-xl"
+          className="w-full p-4 text-center text-muted"
+        >
+          <p className="text-sm">
+            {lang === "sk" ? "Žiadne jazyky." : "No languages listed."}
+          </p>
+        </StaticGlass>
+      ) : (
+        <div className="space-y-2.5">
+          {data.items.map((langItem) => (
+            <div
+              key={langItem.name}
+              className="flex items-center justify-between text-sm"
+            >
+              <span className="font-normal text-text-primary">
+                {langItem.name}
+              </span>
+              <span className="rounded-xl border border-accent/10 bg-accent/10 px-2.5 py-0.5 font-mono text-xs font-semibold text-accent">
+                {langItem.level}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+});
 
 interface InteractiveCvViewProps {
   activeCv: CvDataLanguageSection;
@@ -59,40 +333,40 @@ export const InteractiveCvView = memo(function InteractiveCvView({
               {lang === "en" ? "Active Resume" : "Aktívny Životopis"}
             </span>
           </div>
-          <h1 className="mb-1 font-display text-3xl text-balance text-text-primary md:text-4xl">
+          <h1 className="mb-1 font-display text-3xl text-balance wrap-break-word text-text-primary md:text-4xl">
             {activeCv.title}
           </h1>
-          <p className="font-body text-base font-normal text-pretty text-text-primary/95">
+          <p className="font-body text-base font-normal text-pretty wrap-break-word text-text-primary/95">
             {activeCv.role}
           </p>
 
           {/* Contacts */}
           <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted tabular-nums">
             <span className="flex items-center gap-1.5">
-              <MapPin size={14} className="text-accent/65" />
-              {activeCv.location}
+              <MapPin size={14} className="shrink-0 text-accent/65" />
+              <span className="break-all">{activeCv.location}</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <Mail size={12} className="text-accent/65" />
+              <Mail size={12} className="shrink-0 text-accent/65" />
               <a
                 href={`mailto:${activeCv.email}`}
-                className="transition-colors hover:text-text-primary"
+                className="break-all transition-colors hover:text-text-primary"
               >
                 {activeCv.email}
               </a>
             </span>
             {activeCv.phone ? (
               <span className="flex items-center gap-1.5">
-                <Phone size={12} className="text-accent/65" />
+                <Phone size={12} className="shrink-0 text-accent/65" />
                 {PHONE_PREFIX_REGEX.test(activeCv.phone) ? (
                   <a
-                    href={`tel:${activeCv.phone.replace(WHITESPACE_REGEX, "")}`}
-                    className="transition-colors hover:text-text-primary"
+                    href={`tel:${activeCv.phone.replace(/[^\d+]/g, "")}`}
+                    className="break-all transition-colors hover:text-text-primary"
                   >
                     {activeCv.phone}
                   </a>
                 ) : (
-                  <span>{activeCv.phone}</span>
+                  <span className="break-all">{activeCv.phone}</span>
                 )}
               </span>
             ) : null}
@@ -139,189 +413,17 @@ export const InteractiveCvView = memo(function InteractiveCvView({
             </p>
           </section>
 
-          {/* Experience Section */}
-          <section className="space-y-4">
-            <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
-              <Briefcase size={16} className="text-accent" />
-              {activeCv.experience.title}
-            </h2>
-            <div className="space-y-6">
-              {activeCv.experience.items.map((job) => (
-                <div
-                  key={`${job.company}-${job.role}`}
-                  className="relative pl-6 before:absolute before:top-1.5 before:bottom-0 before:left-1.5 before:w-px before:bg-stroke/60"
-                >
-                  <div className="absolute top-1 left-0 z-10 size-3.5 rounded-full border-2 border-accent bg-bg shadow-sm" />
-
-                  <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <h3 className="text-base leading-tight font-semibold text-balance text-text-primary">
-                        {job.role}
-                      </h3>
-                      <p className="text-sm text-pretty text-muted">
-                        {job.company}
-                      </p>
-                    </div>
-                    <span className="rounded-xl border border-accent/15 bg-accent/5 px-2.5 py-0.5 text-xs font-semibold text-accent uppercase tabular-nums">
-                      {job.period}
-                    </span>
-                  </div>
-                  <ul className="mt-3 list-none space-y-2">
-                    {job.bullets.map((bullet) => (
-                      <li
-                        key={bullet}
-                        className="flex items-start gap-2 text-sm leading-relaxed text-pretty text-muted/90"
-                      >
-                        <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-accent/60" />
-                        <span>{bullet}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Education Section */}
-          <section className="space-y-4">
-            <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
-              <GraduationCap size={16} className="text-accent" />
-              {activeCv.education.title}
-            </h2>
-            <div className="space-y-6">
-              {activeCv.education.items.map((edu) => (
-                <div
-                  key={`${edu.school}-${edu.degree}`}
-                  className="relative pl-6 before:absolute before:top-1.5 before:bottom-0 before:left-1.5 before:w-px before:bg-stroke/60 last:before:hidden"
-                >
-                  <div className="absolute top-1 left-0 z-10 size-3.5 rounded-full border-2 border-accent bg-bg" />
-
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <h3 className="text-base leading-tight font-semibold text-balance text-text-primary">
-                        {edu.degree}
-                      </h3>
-                      <p className="text-sm text-pretty text-muted">
-                        {edu.school}
-                      </p>
-                    </div>
-                    <span className="rounded-xl bg-white/5 px-2.5 py-0.5 font-mono text-xs text-muted tabular-nums">
-                      {edu.period}
-                    </span>
-                  </div>
-
-                  {edu.details ? (
-                    <div className="mt-3 rounded-lg border border-white/5 bg-white/5 p-3.5">
-                      <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-balance text-text-primary">
-                        <span className="h-3 w-1 rounded bg-accent" />
-                        {edu.details.thesisTitle}
-                      </p>
-                      <BulletList
-                        bullets={edu.details.bullets}
-                        className="list-none space-y-1.5 text-sm leading-relaxed"
-                      />
-                    </div>
-                  ) : null}
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Certificates Section */}
+          <CvExperienceSection data={activeCv.experience} lang={lang} />
+          <CvEducationSection data={activeCv.education} lang={lang} />
           {activeCv.certificates ? (
-            <section className="space-y-4">
-              <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
-                <Award size={16} className="text-accent" />
-                {activeCv.certificates.title}
-              </h2>
-              <div className="space-y-6">
-                {activeCv.certificates.items.map((cert) => (
-                  <div
-                    key={`${cert.issuer}-${cert.name}`}
-                    className="relative pl-6 before:absolute before:top-1.5 before:bottom-0 before:left-1.5 before:w-px before:bg-stroke/60 last:before:hidden"
-                  >
-                    <div className="absolute top-1 left-0 z-10 size-3.5 rounded-full border-2 border-accent bg-bg" />
-
-                    <div className="flex flex-wrap items-start justify-between gap-2">
-                      <div>
-                        <h3 className="text-base leading-tight font-semibold text-balance text-text-primary">
-                          {cert.name}
-                        </h3>
-                        <p className="text-sm text-pretty text-muted">
-                          {cert.issuer}
-                        </p>
-                      </div>
-                      <span className="rounded-xl bg-white/5 px-2.5 py-0.5 font-mono text-xs text-muted tabular-nums">
-                        {cert.date}
-                      </span>
-                    </div>
-
-                    {cert.bullets && cert.bullets.length > 0 ? (
-                      <BulletList
-                        bullets={cert.bullets}
-                        className="text-sm leading-relaxed"
-                      />
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            </section>
+            <CvCertificatesSection data={activeCv.certificates} lang={lang} />
           ) : null}
         </div>
 
         {/* Right: Skills & Languages */}
         <div className="space-y-8">
-          {/* Skills Block */}
-          <div className="space-y-6 rounded-2xl border border-white/5 bg-white/5 p-5">
-            <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
-              <Globe size={16} className="text-accent" />
-              {activeCv.skills.title}
-            </h2>
-
-            <div className="space-y-4">
-              {activeCv.skills.categories.map((cat) => (
-                <div key={cat.name} className="space-y-2">
-                  <h3 className="text-sm font-semibold text-balance text-accent">
-                    {cat.name}
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {cat.items.map((skill) => (
-                      <span
-                        key={skill}
-                        className="rounded-xl border border-white/5 bg-white/5 px-3 py-1 text-sm text-muted/95 transition-colors select-none hover:bg-white/8 hover:text-text-primary"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Languages Block */}
-          <div className="space-y-4 rounded-2xl border border-white/5 bg-white/5 p-5">
-            <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
-              <Languages size={16} className="text-accent" />
-              {activeCv.languages.title}
-            </h2>
-
-            <div className="space-y-2.5">
-              {activeCv.languages.items.map((langItem) => (
-                <div
-                  key={langItem.name}
-                  className="flex items-center justify-between text-sm"
-                >
-                  <span className="font-normal text-text-primary">
-                    {langItem.name}
-                  </span>
-                  <span className="rounded-xl border border-accent/10 bg-accent/10 px-2.5 py-0.5 font-mono text-xs font-semibold text-accent">
-                    {langItem.level}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <CvSkillsSection data={activeCv.skills} lang={lang} />
+          <CvLanguagesSection data={activeCv.languages} lang={lang} />
 
           {/* Mobile Warning Notice */}
           <div className="space-y-2 rounded-lg border border-accent/20 bg-accent/5 p-4 text-center md:hidden">

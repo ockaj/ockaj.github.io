@@ -100,7 +100,7 @@ function LazySection({
     };
   }, [id, hasLoaded]);
 
-  const containerStyle = getSkeletonStyle(bonesName);
+  const containerStyle = hasLoaded ? undefined : getSkeletonStyle(bonesName);
 
   return (
     <section
@@ -127,7 +127,10 @@ function LazySection({
           viewport={SECTION_VIEWPORT}
           transition={sectionTransition}
           style={containerStyle}
-          className="min-h-(--skeleton-min-h-mob) md:min-h-(--skeleton-min-h-tab) lg:min-h-(--skeleton-min-h-desk) xl:min-h-(--skeleton-min-h-wide)"
+          className={cn(
+            !hasLoaded &&
+              "min-h-(--skeleton-min-h-mob) md:min-h-(--skeleton-min-h-tab) lg:min-h-(--skeleton-min-h-desk) xl:min-h-(--skeleton-min-h-wide)",
+          )}
         >
           {hasLoaded ? (
             <BoneSuspense

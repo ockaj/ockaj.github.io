@@ -31,3 +31,15 @@ Refer to specialized documentation for deep task context:
 - [Product Vision & Requirements](./PRODUCT.md)
 - [Design System & UI Guidelines](./DESIGN.md)
 - Specialized rule files in [`.agents/rules/`](./.agents/rules/) (indexed automatically by agent harnesses)
+
+---
+
+## UI Primitives
+
+Use LiquidGlass primitives for all user interface surfaces:
+- Buttons and links: `LiquidGlassButton`
+- Clickable cards and interactive surfaces: `InteractiveGlass`
+- Containers, shells, and toolbars: `StaticGlass`
+- Filter bars and segmented controls: `Tabs`
+
+Consult [`.agents/rules/liquid-glass.md`](./.agents/rules/liquid-glass.md).

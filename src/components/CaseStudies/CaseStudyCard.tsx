@@ -36,9 +36,10 @@ const CaseStudyCard = memo(function CaseStudyCard({
 
             {/* Title */}
             <div>
-              <span className="mb-1 line-clamp-2 block font-display text-xl text-balance text-text-primary md:text-2xl">
+              <span className="mb-1 line-clamp-2 block font-display text-xl text-balance wrap-break-word text-text-primary md:text-2xl">
                 {study.title}
               </span>
+
               <p className="text-base leading-relaxed text-pretty text-muted">
                 {study.subtitle}
               </p>
@@ -72,7 +73,7 @@ const CaseStudyCard = memo(function CaseStudyCard({
             <div className="space-y-3">
               {study.results.map((result) => (
                 <div
-                  key={result.metric}
+                  key={`${result.metric}::${result.description}`}
                   className="case-study-metric-hover flex items-baseline gap-3"
                 >
                   <span className="case-study-metric-hover-val font-display text-xl tracking-tight text-accent tabular-nums md:text-3xl">

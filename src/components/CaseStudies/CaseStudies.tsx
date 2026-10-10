@@ -8,6 +8,7 @@ import {
 import { useAppStore } from "../../store/useAppStore";
 import CaseStudyCard from "./CaseStudyCard";
 import CaseStudyDrawer from "./CaseStudyDrawer";
+import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
 import { isBoneyardBuild } from "../../utils/boneyard";
 import {
   containerStaggerVariants,
@@ -64,24 +65,35 @@ function CaseStudies() {
   return (
     <>
       <div className="px-6 md:px-10 lg:px-16">
-        <motion.div
-          custom={prefersReducedMotion}
-          className="space-y-6 md:space-y-8"
-          variants={containerVariants}
-          initial={isBuildMode ? "visible" : "hidden"}
-          whileInView={isBuildMode ? undefined : "visible"}
-          viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
-        >
-          {CASE_STUDIES.map((study) => (
-            <motion.div
-              key={study.id}
-              variants={cardVariants}
-              custom={prefersReducedMotion}
-            >
-              <CaseStudyCard study={study} onOpen={handleOpenStudy} />
-            </motion.div>
-          ))}
-        </motion.div>
+        {CASE_STUDIES.length === 0 ? (
+          <InteractiveGlass
+            as="div"
+            roundedClass="rounded-2xl"
+            className="flex min-h-60 w-full flex-col items-center justify-center p-8 text-center text-muted sm:min-h-72"
+            tilt
+          >
+            <p className="text-base">No case studies currently available.</p>
+          </InteractiveGlass>
+        ) : (
+          <motion.div
+            custom={prefersReducedMotion}
+            className="space-y-6 md:space-y-8"
+            variants={containerVariants}
+            initial={isBuildMode ? "visible" : "hidden"}
+            whileInView={isBuildMode ? undefined : "visible"}
+            viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
+          >
+            {CASE_STUDIES.map((study) => (
+              <motion.div
+                key={study.id}
+                variants={cardVariants}
+                custom={prefersReducedMotion}
+              >
+                <CaseStudyCard study={study} onOpen={handleOpenStudy} />
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
       </div>
 
       {/* Drawer */}

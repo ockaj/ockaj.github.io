@@ -19,7 +19,7 @@ export function getLightboxTopicId(modal: string | null): number | null {
 }
 
 export function getInitialProcessTopicId(modal: string | null): number {
-  return getLightboxTopicId(modal) ?? PROCESS_TOPICS[0].id;
+  return getLightboxTopicId(modal) ?? PROCESS_TOPICS[0]?.id ?? 0;
 }
 
 interface ProcessTopicController {
@@ -73,9 +73,12 @@ export function useProcessTopicController(
   }, [selectTopic]);
 
   const activeTopic = PROCESS_TOPIC_MAP.get(activeTopicId) ?? PROCESS_TOPICS[0];
-  const prevDisabled = activeTopicId === PROCESS_TOPICS[0].id;
+  const prevDisabled =
+    PROCESS_TOPICS.length === 0 || activeTopicId === PROCESS_TOPICS[0].id;
   const nextDisabled =
+    PROCESS_TOPICS.length === 0 ||
     activeTopicId === PROCESS_TOPICS[PROCESS_TOPICS.length - 1].id;
+
   const actions = useMemo(
     () => ({ selectTopic, selectPreviousTopic, selectNextTopic }),
     [selectTopic, selectPreviousTopic, selectNextTopic],

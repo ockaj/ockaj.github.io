@@ -7,6 +7,7 @@ import {
 } from "../../data/processItems";
 import { useAppStore } from "../../store/useAppStore";
 import ProcessLightbox from "../ProcessLightbox/ProcessLightbox";
+import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
 import { prefetchAsset } from "../../utils/quicklink";
 import { requestIdle, cancelIdle } from "../../utils/idleCallback";
 import { isConnectionConstrained } from "../../utils/connection";
@@ -124,10 +125,12 @@ function ProcessLibrary() {
     setDisplayedLightboxItem(null);
   }, []);
 
-  const activeViewMode = viewModes[activeTopic.id] || "source";
+  const activeViewMode = activeTopic
+    ? viewModes[activeTopic.id] || "source"
+    : "source";
 
   useEffect(() => {
-    if (isConnectionConstrained()) return;
+    if (PROCESS_ITEMS.length === 0 || isConnectionConstrained()) return;
 
     const handle = requestIdle(
       () => {
@@ -177,6 +180,23 @@ function ProcessLibrary() {
     ],
   );
 
+  if (PROCESS_TOPICS.length === 0 || !activeTopic) {
+    return (
+      <div className="px-6 md:px-10 lg:px-16">
+        <InteractiveGlass
+          as="div"
+          roundedClass="rounded-2xl"
+          className="flex min-h-60 w-full flex-col items-center justify-center p-8 text-center text-muted sm:min-h-72"
+          tilt
+        >
+          <p className="text-base font-medium">
+            No process models currently available.
+          </p>
+        </InteractiveGlass>
+      </div>
+    );
+  }
+
   return (
     <ProcessLibraryActionsContext value={actionsValue}>
       <ProcessLibraryStateContext value={stateValue}>
@@ -187,7 +207,7 @@ function ProcessLibrary() {
             initial={isBuildMode ? "visible" : "hidden"}
             whileInView={isBuildMode ? undefined : "visible"}
             viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
-            className="relative z-20 grid grid-cols-1 items-stretch gap-5 sm:gap-6 md:gap-8 lg:grid-cols-12 lg:gap-12"
+            className="relative z-20 grid grid-cols-1 items-stretch gap-5 sm:gap-6 md:gap-8 lg:min-h-160 lg:grid-cols-12 lg:gap-12"
           >
             {isDesktop ? (
               <>

@@ -18,7 +18,7 @@ const defaultTabContentVariants: Variants = {
   hidden: (props: CustomAnimationProps = {}) => ({
     opacity: 0,
     x: 0,
-    y: props.prefersReducedMotion ? 0 : 10 * (props.direction ?? 1),
+    y: 0,
     scale: props.prefersReducedMotion ? 1 : 0.99,
     transition: props.prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
   }),
@@ -32,7 +32,7 @@ const defaultTabContentVariants: Variants = {
   exit: (props: CustomAnimationProps = {}) => ({
     opacity: 0,
     x: 0,
-    y: props.prefersReducedMotion ? 0 : -10 * (props.direction ?? 1),
+    y: 0,
     scale: props.prefersReducedMotion ? 1 : 0.99,
     transition: props.prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
   }),
@@ -68,12 +68,12 @@ function ProcessDesktopCard({
           animate="visible"
           exit="exit"
           variants={tabContentVariants}
-          className="flex size-full flex-col"
+          className="flex w-full flex-col"
         >
           <InteractiveGlass
             as="div"
             roundedClass="rounded-2xl"
-            className="size-full touch-pan-y flex-col items-stretch justify-start p-8 text-left"
+            className="w-full touch-pan-y flex-col items-stretch justify-start p-8 text-left"
             tilt
           >
             <ProcessCardHeader

@@ -42,7 +42,7 @@ export const FaqItem = memo(function FaqItem({ item }: FaqItemProps) {
           <Accordion.Header className="m-0 p-0 font-normal">
             <Accordion.Trigger className="group flex w-full cursor-pointer items-center justify-between gap-4 rounded-lg text-left select-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none">
               <div className="flex flex-col">
-                <span className="font-display text-lg font-normal text-balance text-text-primary transition-colors duration-200 md:text-xl">
+                <span className="font-display text-lg font-normal text-balance wrap-anywhere text-text-primary transition-colors duration-200 md:text-xl">
                   {item.question}
                 </span>
               </div>
@@ -76,7 +76,7 @@ export const FaqItem = memo(function FaqItem({ item }: FaqItemProps) {
             )}
           >
             <div className="mt-4 border-t border-white/6 pt-4 select-text">
-              <p className="text-base leading-relaxed text-pretty whitespace-pre-line text-muted select-text">
+              <p className="text-base leading-relaxed text-pretty wrap-anywhere whitespace-pre-line text-muted select-text">
                 {item.answer}
               </p>
 

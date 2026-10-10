@@ -38,17 +38,30 @@ function Faq() {
         viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
         className="flex flex-col gap-4"
       >
-        <Accordion.Root multiple className="flex flex-col gap-4">
-          {FAQ_ITEMS.map((item) => (
-            <motion.div
-              key={item.id}
-              variants={cardVariants}
-              custom={prefersReducedMotion}
-            >
-              <FaqItem item={item} />
-            </motion.div>
-          ))}
-        </Accordion.Root>
+        {FAQ_ITEMS.length === 0 ? (
+          <InteractiveGlass
+            as="div"
+            roundedClass="rounded-2xl"
+            className="flex min-h-48 w-full flex-col items-center justify-center p-8 text-center text-muted sm:min-h-56"
+            tilt
+          >
+            <p className="text-base">
+              No frequently asked questions currently available.
+            </p>
+          </InteractiveGlass>
+        ) : (
+          <Accordion.Root multiple className="flex flex-col gap-4">
+            {FAQ_ITEMS.map((item) => (
+              <motion.div
+                key={item.id}
+                variants={cardVariants}
+                custom={prefersReducedMotion}
+              >
+                <FaqItem item={item} />
+              </motion.div>
+            ))}
+          </Accordion.Root>
+        )}
 
         {/* Editorial Transition Card */}
         <motion.div variants={cardVariants} custom={prefersReducedMotion}>

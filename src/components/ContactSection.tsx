@@ -66,7 +66,7 @@ function ContactSection() {
               <div className="flex w-full max-w-sm justify-center sm:w-auto sm:max-w-none">
                 <LiquidGlassButton
                   href={`mailto:${CONTACT_EMAIL}`}
-                  className="group/email-btn w-full justify-center px-6 py-3.5 whitespace-nowrap sm:w-auto sm:px-8 sm:py-4"
+                  className="group/email-btn w-full justify-center px-4 py-3.5 text-xs sm:w-auto sm:px-8 sm:py-4 sm:text-base sm:whitespace-nowrap"
                   ariaLabel="Send email"
                   magnetic
                   tilt
@@ -74,11 +74,13 @@ function ContactSection() {
                   specularGlow
                 >
                   <span className="flex w-full items-center justify-center gap-2">
-                    <span>{CONTACT_EMAIL}</span>
+                    <span className="break-all sm:break-normal">
+                      {CONTACT_EMAIL}
+                    </span>
                     <ArrowUpRight
                       aria-hidden="true"
                       size={16}
-                      className="transition-transform duration-300 group-hover/email-btn:translate-x-0.5 group-hover/email-btn:-translate-y-0.5"
+                      className="shrink-0 transition-transform duration-300 group-hover/email-btn:translate-x-0.5 group-hover/email-btn:-translate-y-0.5"
                     />
                   </span>
                 </LiquidGlassButton>

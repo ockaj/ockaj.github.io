@@ -211,7 +211,7 @@ export default function Navbar() {
                 )}
               </span>
 
-              <span className="text-sm leading-none font-semibold whitespace-nowrap">
+              <span className="xs:max-w-none max-w-35 truncate text-sm leading-none font-semibold whitespace-nowrap">
                 Ondrej Michal Očkaj
               </span>
             </Tab>

@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: LiquidGlass primitives (InteractiveGlass, StaticGlass, LiquidGlassButton, Tabs). Use when building glass surfaces, tactile buttons, or specular sheen.
+description: UI primitives (LiquidGlassButton, InteractiveGlass, StaticGlass, Tabs). Use when creating or modifying buttons, cards, containers, tabs, badges, or clickable UI surfaces.
 ---
 
 # LiquidGlass Primitives & Guidelines
@@ -22,14 +22,25 @@ Import named exports directly from `src/components/LiquidGlass/`.
 | `LiquidGlassButton` | `src/components/LiquidGlass/LiquidGlass` | Tactile interactive buttons and anchor links | Pre-configured `InteractiveGlass` with `as={href ? "a" : "button"}`, `springScale={true}`, magnetic pull, and keyboard accessibility. |
 | `Tabs`, `Tab` | `src/components/LiquidGlass/LiquidGlassTabs` | Segmented controls, filter bars, view switchers | Sliding highlight pill with spring physics, 2 variants (`"capsule"` and `"segmented"`), and keyboard navigation. |
 
+### Anti-Patterns and Prohibitions
+
+| Prohibited Pattern | Required Pattern | Reason |
+|---|---|---|
+| `<button className="...">` | `<LiquidGlassButton>` | Standard buttons lack physical spring recoil and magnetic feedback. |
+| `<a href="..." className="...">` (CTA) | `<LiquidGlassButton href="...">` | CTAs require consistent glass styling and keyboard accessibility. |
+| `<div className="... rounded-2xl border ...">` (Card) | `<InteractiveGlass as="article">` | Cards require 3D desktop tilt and specular highlight edges. |
+| `<div className="... border ...">` (Toolbar) | `<StaticGlass>` | Glass toolbars require unified blur, depth, and inset borders. |
+| Custom tab buttons | `<Tabs>` and `<Tab>` | Tabs require shared spring-animated highlight pills. |
+
 ---
 
 ## 2. Rules & Constraints
 
 1. **Explicit Primitive Selection**:
-   - Use `StaticGlass` for layout shells and non-interactive containers.
-   - Use `InteractiveGlass` for clickable cards, interactive items, or surfaces with physics.
-   - Use `LiquidGlassButton` for standalone button and link triggers.
+   - Replace standard HTML `<button>` elements with `LiquidGlassButton` for standalone buttons and links.
+   - Replace standard card `<div>` elements with `InteractiveGlass` for clickable cards and interactive surfaces.
+   - Use `StaticGlass` for layout shells, fixed toolbars, and non-interactive containers.
+   - Use `Tabs` and `Tab` for segmented controls, filter bars, and view switchers.
 2. **Named Imports**:
    - Use named imports: `import { InteractiveGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";`
    - Avoid namespace-style access (`LiquidGlass.Button`).

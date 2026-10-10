@@ -2,7 +2,7 @@ import { memo } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Activity, FileText } from "lucide-react";
 import type { CaseStudyDetail } from "../../data/caseStudies";
-import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import { LiquidGlassButton, StaticGlass } from "../LiquidGlass/LiquidGlass";
 import BaseDrawer from "../BaseDrawer";
 import {
   drawerContentVariants,
@@ -45,7 +45,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
         variants={drawerContentVariants}
         initial="hidden"
         animate="visible"
-        className="flex-1 touch-pan-y overscroll-contain space-y-8 overflow-y-auto p-6 pb-safe-6 select-text md:p-8 md:pb-8"
+        className="flex-1 touch-pan-y space-y-8 overflow-y-auto overscroll-contain p-6 pb-safe-6 select-text md:p-8 md:pb-8"
       >
         {/* Header */}
         <motion.div variants={drawerItemVariants}>
@@ -81,108 +81,132 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
           <h3 className="border-b border-white/10 pb-1.5 text-lg font-semibold text-balance text-text-primary/90">
             Proven operations impact
           </h3>
-          <div className="grid grid-cols-3 gap-3">
-            {study.results.map((res) => (
-              <div
-                key={res.metric}
-                className="rounded-xl border border-white/5 bg-white/2 p-3 text-center"
-              >
-                <p className="font-display text-xl tracking-tight text-accent tabular-nums md:text-2xl">
-                  <MetricCountUp value={res.metric} />
-                </p>
-                <p className="mt-1 text-sm leading-relaxed text-pretty text-muted">
-                  {res.description}
-                </p>
-              </div>
-            ))}
-          </div>
+          {study.results.length > 0 ? (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+              {study.results.map((res) => (
+                <div
+                  key={`${res.metric}::${res.description}`}
+                  className="rounded-xl border border-white/5 bg-white/2 p-3 text-center"
+                >
+                  <p className="font-display text-xl tracking-tight text-accent tabular-nums md:text-2xl">
+                    <MetricCountUp value={res.metric} />
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-pretty text-muted">
+                    {res.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <StaticGlass
+              roundedClass="rounded-xl"
+              className="w-full p-4 text-center text-muted"
+            >
+              <p className="text-sm">
+                Operational impact metrics will be published upon project
+                conclusion.
+              </p>
+            </StaticGlass>
+          )}
         </motion.div>
 
         {/* AS-IS vs TO-BE comparison */}
-        <motion.div variants={drawerItemVariants} className="space-y-4">
-          <h3 className="border-b border-white/10 pb-1.5 text-lg font-semibold text-balance text-text-primary/90">
-            Process modeling & auditing
-          </h3>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {/* AS-IS */}
-            <div className="rounded-2xl border border-red-500/10 bg-red-500/2 p-4">
-              <div className="mb-3 flex items-center gap-2 text-sm font-bold tracking-wider text-red-400 uppercase">
-                <div className="size-1.5 rounded-full bg-red-400" />
-                <span>Legacy Source Materials</span>
-              </div>
-              <ul className="space-y-3">
-                {study.asIsFlow.map((step) => (
-                  <li
-                    key={step}
-                    className="flex gap-2 text-sm leading-relaxed text-muted"
-                  >
-                    <span className="shrink-0 text-red-400/80">✕</span>
-                    <span className="text-pretty">{step}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+        {study.asIsFlow.length > 0 || study.toBeFlow.length > 0 ? (
+          <motion.div variants={drawerItemVariants} className="space-y-4">
+            <h3 className="border-b border-white/10 pb-1.5 text-lg font-semibold text-balance text-text-primary/90">
+              Process modeling & auditing
+            </h3>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {/* AS-IS */}
+              {study.asIsFlow.length > 0 ? (
+                <div className="rounded-2xl border border-red-500/10 bg-red-500/2 p-4">
+                  <div className="mb-3 flex items-center gap-2 text-sm font-bold tracking-wider text-red-400 uppercase">
+                    <div className="size-1.5 rounded-full bg-red-400" />
+                    <span>Legacy Source Materials</span>
+                  </div>
+                  <ul className="space-y-3">
+                    {study.asIsFlow.map((step) => (
+                      <li
+                        key={step}
+                        className="flex gap-2 text-sm leading-relaxed text-muted"
+                      >
+                        <span className="shrink-0 text-red-400/80">✕</span>
+                        <span className="text-pretty">{step}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
 
-            {/* TO-BE */}
-            <div className="rounded-2xl border border-emerald-500/10 bg-emerald-500/2 p-4">
-              <div className="mb-3 flex items-center gap-2 text-sm font-bold tracking-wider text-emerald-400 uppercase">
-                <div className="size-1.5 rounded-full bg-emerald-400" />
-                <span>BPMN Process Modeling</span>
-              </div>
-              <ul className="space-y-3">
-                {study.toBeFlow.map((step) => (
-                  <li
-                    key={step}
-                    className="flex gap-2 text-sm leading-relaxed text-text-primary/95"
-                  >
-                    <span className="shrink-0 text-emerald-400">✓</span>
-                    <span className="text-pretty">{step}</span>
-                  </li>
-                ))}
-              </ul>
+              {/* TO-BE */}
+              {study.toBeFlow.length > 0 ? (
+                <div className="rounded-2xl border border-emerald-500/10 bg-emerald-500/2 p-4">
+                  <div className="mb-3 flex items-center gap-2 text-sm font-bold tracking-wider text-emerald-400 uppercase">
+                    <div className="size-1.5 rounded-full bg-emerald-400" />
+                    <span>BPMN Process Modeling</span>
+                  </div>
+                  <ul className="space-y-3">
+                    {study.toBeFlow.map((step) => (
+                      <li
+                        key={step}
+                        className="flex gap-2 text-sm leading-relaxed text-text-primary/95"
+                      >
+                        <span className="shrink-0 text-emerald-400">✓</span>
+                        <span className="text-pretty">{step}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        ) : null}
 
         {/* Methodology & Timeline */}
-        <motion.div
-          variants={drawerItemVariants}
-          className="grid grid-cols-1 gap-6 md:grid-cols-2"
-        >
-          <div className="space-y-3">
-            <h4 className="border-b border-white/10 pb-1.5 text-base font-semibold text-balance text-text-primary/90">
-              Methodology
-            </h4>
-            <ul className="space-y-2">
-              {study.methodology.map((meth) => (
-                <li
-                  key={meth}
-                  className="flex items-center gap-2 text-sm leading-relaxed text-muted"
-                >
-                  <span className="size-1 rounded-full bg-accent/60" />
-                  <span className="text-pretty">{meth}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {study.methodology.length > 0 || study.deliverables.length > 0 ? (
+          <motion.div
+            variants={drawerItemVariants}
+            className="grid grid-cols-1 gap-6 md:grid-cols-2"
+          >
+            {study.methodology.length > 0 ? (
+              <div className="space-y-3">
+                <h4 className="border-b border-white/10 pb-1.5 text-base font-semibold text-balance text-text-primary/90">
+                  Methodology
+                </h4>
+                <ul className="space-y-2">
+                  {study.methodology.map((meth) => (
+                    <li
+                      key={meth}
+                      className="flex items-center gap-2 text-sm leading-relaxed text-muted"
+                    >
+                      <span className="size-1 rounded-full bg-accent/60" />
+                      <span className="text-pretty">{meth}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
 
-          <div className="space-y-3">
-            <h4 className="border-b border-white/10 pb-1.5 text-base font-semibold text-balance text-text-primary/90">
-              Key deliverables
-            </h4>
-            <ul className="space-y-2">
-              {study.deliverables.map((del) => (
-                <li
-                  key={del}
-                  className="flex items-center gap-2 text-sm leading-relaxed text-text-primary/80"
-                >
-                  <FileText size={13} className="shrink-0 text-accent" />
-                  <span className="text-pretty">{del}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </motion.div>
+            {study.deliverables.length > 0 ? (
+              <div className="space-y-3">
+                <h4 className="border-b border-white/10 pb-1.5 text-base font-semibold text-balance text-text-primary/90">
+                  Key deliverables
+                </h4>
+                <ul className="space-y-2">
+                  {study.deliverables.map((del) => (
+                    <li
+                      key={del}
+                      className="flex items-center gap-2 text-sm leading-relaxed text-text-primary/80"
+                    >
+                      <FileText size={13} className="shrink-0 text-accent" />
+                      <span className="text-pretty">{del}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </motion.div>
+        ) : null}
 
         {/* CTA / Close */}
         <motion.div
