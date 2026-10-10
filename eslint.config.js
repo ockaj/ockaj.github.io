@@ -87,5 +87,19 @@ export default tseslint.config(
       globals: globals.node,
     },
   },
+  {
+    extends: [js.configs.recommended],
+    files: ["scripts/e2e/**/*.{js,mjs}"],
+    languageOptions: {
+      ecmaVersion: 2023,
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+      },
+    },
+    rules: {
+      "no-empty": ["error", { allowEmptyCatch: true }],
+    },
+  },
   eslintConfigPrettier,
 );

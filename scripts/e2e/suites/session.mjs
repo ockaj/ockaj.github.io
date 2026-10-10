@@ -11,7 +11,9 @@ export async function run({ page, urls, record, sleep }) {
     try {
       localStorage.clear();
       sessionStorage.clear();
-    } catch {}
+    } catch {
+      // Ignored: storage might be restricted
+    }
   });
   await page.reload({ waitUntil: "domcontentloaded" });
 
@@ -28,7 +30,9 @@ export async function run({ page, urls, record, sleep }) {
   await page.evaluate(() => {
     try {
       localStorage.setItem("portfolio_loaded", "true");
-    } catch {}
+    } catch {
+      // Ignored: storage might be restricted
+    }
   });
   await page.reload({ waitUntil: "domcontentloaded" });
 
@@ -51,7 +55,9 @@ export async function run({ page, urls, record, sleep }) {
         },
         configurable: true,
       });
-    } catch {}
+    } catch {
+      // Ignored: redefine may fail in strict environments
+    }
   });
 
   await page.reload({ waitUntil: "domcontentloaded" });
