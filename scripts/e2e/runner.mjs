@@ -156,6 +156,12 @@ async function main() {
     if (server) {
       await server.httpServer?.close();
     }
+    if (consoleErrors.length > 0) {
+      console.error("\n❌ Browser console errors detected:", consoleErrors);
+    }
+    if (pageErrors.length > 0) {
+      console.error("\n❌ Page runtime errors detected:", pageErrors);
+    }
     const hasFailures =
       testResults.some((r) => !r.passed) ||
       pageErrors.length > 0 ||

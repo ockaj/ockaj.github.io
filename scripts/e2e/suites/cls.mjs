@@ -25,7 +25,7 @@ export async function run({ page, urls, record, sleep }) {
 
   const skipButton = page.locator("button:has-text('Skip')");
   if (await skipButton.isVisible({ timeout: 2000 }).catch(() => false)) {
-    await skipButton.click();
+    await skipButton.click({ force: true }).catch(() => {});
   }
   await page.waitForSelector("#main-content", { timeout: 8000 });
   await sleep(1000);
@@ -50,3 +50,4 @@ export async function run({ page, urls, record, sleep }) {
   const contactCls = await page.evaluate(() => window.__clsScore);
   record("Deep Link Anchor Jump CLS < 0.05", contactCls < 0.05, `CLS: ${contactCls.toFixed(4)}`);
 }
+

@@ -10,7 +10,7 @@ export async function run({ page, urls, record, sleep }) {
 
   const skipButton = page.locator("button:has-text('Skip')");
   if (await skipButton.isVisible({ timeout: 2000 }).catch(() => false)) {
-    await skipButton.click();
+    await skipButton.click({ force: true }).catch(() => {});
   }
   await page.waitForSelector("#main-content", { timeout: 8000 });
   await sleep(1000);
