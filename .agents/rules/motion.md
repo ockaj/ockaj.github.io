@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Animation standards, spring presets (SPRING object), and motion/react guidelines. Use when implementing or updating transitions, spring physics, gesture animations, hardware acceleration, or reduced motion.
+description: Motion/react transitions, spring physics presets, and reduced-motion states. Use when animating components, gestures, or layout morphs.
 ---
 
 # Motion Guidelines
@@ -21,7 +21,6 @@ When creating, modifying, or auditing animations:
 
 1. **Import Source**:
    - Import animations exclusively from `motion/react` (v13+).
-   - Never import from `framer-motion`.
 
 2. **Hardware Acceleration**:
    - Animate GPU-accelerated properties: `transform`, `opacity`, `scale`, `x`, and `y`.

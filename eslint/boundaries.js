@@ -57,6 +57,14 @@ const featureBoundaryPatterns = [
   },
 ];
 
+const generalRestrictedPatterns = [
+  {
+    regex: "^framer-motion$",
+    message:
+      "Build Invariant Violation: Import animations exclusively from 'motion/react' or 'motion'. See .agents/rules/motion.md.",
+  },
+];
+
 export const boundaryConfigs = [
   {
     files: ["**/*.{ts,tsx}"],
@@ -64,7 +72,7 @@ export const boundaryConfigs = [
       "no-restricted-imports": [
         "error",
         {
-          patterns: featureBoundaryPatterns,
+          patterns: [...featureBoundaryPatterns, ...generalRestrictedPatterns],
         },
       ],
     },
@@ -77,6 +85,7 @@ export const boundaryConfigs = [
         {
           patterns: [
             ...featureBoundaryPatterns,
+            ...generalRestrictedPatterns,
             {
               regex: "(?:^|[./])(?:hooks|store|components)/",
               message:
@@ -95,6 +104,7 @@ export const boundaryConfigs = [
         {
           patterns: [
             ...featureBoundaryPatterns,
+            ...generalRestrictedPatterns,
             {
               regex: "(?:^|[./])components/",
               message:
