@@ -570,6 +570,7 @@ p {
 
 @utility accordion-panel-transition {
   transition-property: height;
+  contain: paint layout;
 }
 
 @utility will-change-slide {
@@ -667,7 +668,7 @@ p {
 
 .liquid-glass-sheen {
   pointer-events: none;
-  will-change: background;
+  will-change: transform;
 }
 
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {

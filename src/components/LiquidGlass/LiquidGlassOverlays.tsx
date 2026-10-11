@@ -25,11 +25,15 @@ export function InnerBorderOverlay({
 
 export function DesktopEffectsOverlay({
   roundedClass,
-  sheenGradient,
+  sheenRadius,
+  sheenX,
+  sheenY,
   sheenOpacity,
 }: Readonly<{
   roundedClass: string;
-  sheenGradient: MotionValue<string>;
+  sheenRadius: number;
+  sheenX: MotionValue<number>;
+  sheenY: MotionValue<number>;
   sheenOpacity: MotionValue<number>;
 }>) {
   return (
@@ -45,11 +49,16 @@ export function DesktopEffectsOverlay({
     >
       <motion.span
         className={cn(
-          "liquid-glass-sheen pointer-events-none absolute inset-0",
+          "liquid-glass-sheen pointer-events-none absolute top-0 left-0",
           roundedClass,
         )}
         style={{
-          background: sheenGradient,
+          width: sheenRadius * 2,
+          height: sheenRadius * 2,
+          x: sheenX,
+          y: sheenY,
+          background:
+            "radial-gradient(circle closest-side, var(--color-glass-sheen-core) 0%, var(--color-glass-sheen-mid) 40%, var(--color-glass-sheen-edge) 80%)",
         }}
         aria-hidden="true"
       />

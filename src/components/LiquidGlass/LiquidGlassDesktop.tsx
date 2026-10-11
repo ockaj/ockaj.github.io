@@ -1,15 +1,9 @@
 "use client";
 
-import {
-  useMemo,
-  useCallback,
-  useLayoutEffect,
-  type CSSProperties,
-} from "react";
+import { useMemo, useCallback, type CSSProperties } from "react";
 import {
   motion,
   useReducedMotion,
-  useMotionValue,
   useTransform,
   type MotionStyle,
   type MotionValue,
@@ -291,23 +285,8 @@ export default function LiquidGlassDesktop({
   const sheenSize = Math.round(Math.min(Math.max(rawSize, 48), 500));
   const sheenRadius = Math.round(Math.min(Math.max(sheenSize * 1.4, 140), 400));
 
-  const sheenRadiusMotion = useMotionValue(sheenRadius);
-  useLayoutEffect(() => {
-    sheenRadiusMotion.set(sheenRadius);
-  }, [sheenRadius, sheenRadiusMotion]);
-
-  const dynamicSheenGradient = useTransform(() => {
-    const radius = sheenRadiusMotion.get();
-    const x = physics.smoothSheenX.get();
-    const y = physics.smoothSheenY.get();
-
-    return `radial-gradient(
-    circle ${radius}px at ${x}px ${y}px,
-    var(--color-glass-sheen-core) 0%,
-    var(--color-glass-sheen-mid) 40%,
-    var(--color-glass-sheen-edge) 80%
-  )`;
-  });
+  const sheenX = useTransform(physics.smoothSheenX, (x) => x - sheenRadius);
+  const sheenY = useTransform(physics.smoothSheenY, (y) => y - sheenRadius);
 
   return (
     <Tag ref={handleRef} {...tagProps}>
@@ -319,7 +298,9 @@ export default function LiquidGlassDesktop({
       {rendersFullEffects ? (
         <DesktopEffectsOverlay
           roundedClass={roundedClass}
-          sheenGradient={dynamicSheenGradient}
+          sheenRadius={sheenRadius}
+          sheenX={sheenX}
+          sheenY={sheenY}
           sheenOpacity={physics.sheenOpacity}
         />
       ) : null}
