@@ -141,7 +141,7 @@ function DrawerHeader({ title, icon }: DrawerHeaderProps) {
       onPointerDown={handlePointerDown}
     >
       <Dialog.Title className="flex items-center gap-2 text-sm font-semibold text-text-primary/90">
-        {icon ? icon : null}
+        {icon ? <span className="flex items-center">{icon}</span> : null}
         <span>{title}</span>
       </Dialog.Title>
       <Dialog.Close
