@@ -1,7 +1,7 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { ARTICLES, ARTICLES_BY_ID, type Article } from "../../data/articles";
-import { useAppStore } from "../../store/useAppStore";
+import { ARTICLES, ARTICLES_BY_ID } from "../../data/articles";
+import { useEntityModal } from "../../hooks/useEntityModal";
 import JournalEntry from "./JournalEntry";
 import JournalDrawer from "./JournalDrawer";
 import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
@@ -19,45 +19,7 @@ const cardVariants = cardStaggerVariants;
 
 function Journal() {
   const prefersReducedMotion = useReducedMotion();
-  const activeArticleId = useAppStore((state) =>
-    state.activeModal?.startsWith("article-")
-      ? state.activeModal.slice("article-".length)
-      : null,
-  );
-
-  const selectedArticle = activeArticleId
-    ? (ARTICLES_BY_ID.get(activeArticleId) ?? null)
-    : null;
-
-  const [prevArticle, setPrevArticle] = useState(selectedArticle);
-  const [displayedArticle, setDisplayedArticle] = useState(selectedArticle);
-
-  if (selectedArticle !== prevArticle) {
-    setPrevArticle(selectedArticle);
-    if (selectedArticle !== null) {
-      setDisplayedArticle(selectedArticle);
-    }
-  }
-
-  // Dismiss non-existent journal article deep links (e.g. #article-invalid)
-  useEffect(() => {
-    if (activeArticleId && !selectedArticle) {
-      useAppStore.getState().closeModal();
-      window.history.replaceState(window.history.state, "", "#journal");
-    }
-  }, [activeArticleId, selectedArticle]);
-
-  const handleOpenArticle = useCallback((article: Article) => {
-    useAppStore.getState().openModal(`article-${article.id}`);
-  }, []);
-
-  const handleCloseArticle = useCallback(() => {
-    useAppStore.getState().closeModal();
-  }, []);
-
-  const handleExitComplete = useCallback(() => {
-    setDisplayedArticle(null);
-  }, []);
+  const modal = useEntityModal("article", ARTICLES_BY_ID);
 
   return (
     <>
@@ -88,7 +50,7 @@ function Journal() {
                 variants={cardVariants}
                 custom={prefersReducedMotion}
               >
-                <JournalEntry article={article} onOpen={handleOpenArticle} />
+                <JournalEntry article={article} onOpen={modal.open} />
               </motion.div>
             ))}
           </motion.div>
@@ -96,12 +58,7 @@ function Journal() {
       </div>
 
       {/* Drawer */}
-      <JournalDrawer
-        open={Boolean(selectedArticle)}
-        article={displayedArticle}
-        onClose={handleCloseArticle}
-        onExitComplete={handleExitComplete}
-      />
+      <JournalDrawer article={modal.displayed} {...modal.drawerProps} />
     </>
   );
 }

@@ -11,6 +11,7 @@ import * as runtimeSuite from "./suites/runtime.mjs";
 import * as bpmnSuite from "./suites/bpmn.mjs";
 import * as sessionSuite from "./suites/session.mjs";
 import * as a11ySuite from "./suites/a11y.mjs";
+import * as drawerSuite from "./suites/drawer.mjs";
 
 const ALL_SUITES = [
   clsSuite,
@@ -21,6 +22,7 @@ const ALL_SUITES = [
   bpmnSuite,
   sessionSuite,
   a11ySuite,
+  drawerSuite,
 ];
 
 const PORT = 4173;

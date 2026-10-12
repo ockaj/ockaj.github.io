@@ -1,11 +1,7 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import {
-  CASE_STUDIES,
-  CASE_STUDIES_BY_ID,
-  type CaseStudyDetail,
-} from "../../data/caseStudies";
-import { useAppStore } from "../../store/useAppStore";
+import { CASE_STUDIES, CASE_STUDIES_BY_ID } from "../../data/caseStudies";
+import { useEntityModal } from "../../hooks/useEntityModal";
 import CaseStudyCard from "./CaseStudyCard";
 import CaseStudyDrawer from "./CaseStudyDrawer";
 import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
@@ -22,45 +18,7 @@ const cardVariants = cardStaggerVariants;
 
 function CaseStudies() {
   const prefersReducedMotion = useReducedMotion();
-  const activeStudyId = useAppStore((state) =>
-    state.activeModal?.startsWith("case-study-")
-      ? state.activeModal.slice("case-study-".length)
-      : null,
-  );
-
-  const selectedStudy = activeStudyId
-    ? (CASE_STUDIES_BY_ID.get(activeStudyId) ?? null)
-    : null;
-
-  const [prevStudy, setPrevStudy] = useState(selectedStudy);
-  const [displayedStudy, setDisplayedStudy] = useState(selectedStudy);
-
-  if (selectedStudy !== prevStudy) {
-    setPrevStudy(selectedStudy);
-    if (selectedStudy !== null) {
-      setDisplayedStudy(selectedStudy);
-    }
-  }
-
-  // Dismiss non-existent case study deep links (e.g. #case-study-999)
-  useEffect(() => {
-    if (activeStudyId && !selectedStudy) {
-      useAppStore.getState().closeModal();
-      window.history.replaceState(window.history.state, "", "#work");
-    }
-  }, [activeStudyId, selectedStudy]);
-
-  const handleOpenStudy = useCallback((study: CaseStudyDetail) => {
-    useAppStore.getState().openModal(`case-study-${study.id}`);
-  }, []);
-
-  const handleCloseStudy = useCallback(() => {
-    useAppStore.getState().closeModal();
-  }, []);
-
-  const handleExitComplete = useCallback(() => {
-    setDisplayedStudy(null);
-  }, []);
+  const modal = useEntityModal("case-study", CASE_STUDIES_BY_ID);
 
   return (
     <>
@@ -89,7 +47,7 @@ function CaseStudies() {
                 variants={cardVariants}
                 custom={prefersReducedMotion}
               >
-                <CaseStudyCard study={study} onOpen={handleOpenStudy} />
+                <CaseStudyCard study={study} onOpen={modal.open} />
               </motion.div>
             ))}
           </motion.div>
@@ -97,12 +55,7 @@ function CaseStudies() {
       </div>
 
       {/* Drawer */}
-      <CaseStudyDrawer
-        open={Boolean(selectedStudy)}
-        study={displayedStudy}
-        onClose={handleCloseStudy}
-        onExitComplete={handleExitComplete}
-      />
+      <CaseStudyDrawer study={modal.displayed} {...modal.drawerProps} />
     </>
   );
 }

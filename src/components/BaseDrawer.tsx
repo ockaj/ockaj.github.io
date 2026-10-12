@@ -80,12 +80,12 @@ function getHiddenTransition(custom: DrawerCustom) {
 const drawerVariants: Variants = {
   hidden: (custom: DrawerCustom) => ({
     x: custom.prefersReducedMotion ? 0 : "100%",
-    ...(custom.prefersReducedMotion ? { opacity: 0 } : {}),
+    opacity: 0,
     transition: getHiddenTransition(custom),
   }),
   visible: (custom: DrawerCustom) => ({
     x: 0,
-    ...(custom.prefersReducedMotion ? { opacity: 1 } : {}),
+    opacity: 1,
     transition: getVisibleTransition(custom),
   }),
 };
@@ -93,11 +93,8 @@ const drawerVariants: Variants = {
 const DRAG_CONSTRAINTS = { left: 0, right: 0 } as const;
 const DRAG_ELASTIC = { left: 0.05, right: 1 } as const;
 
-interface DrawerBackdropProps {
-  readonly onClose: () => void;
-}
-
-function DrawerBackdrop({ onClose }: DrawerBackdropProps) {
+function DrawerBackdrop() {
+  const { onClose } = useDrawerContext();
   const prefersReducedMotion = useReducedMotion();
   const transition = getBackdropTransition(prefersReducedMotion);
 
@@ -236,7 +233,7 @@ const BaseDrawer = memo(function BaseDrawer({
         {open ? (
           <Dialog.Portal keepMounted>
             <DrawerContext value={drawerContextValue}>
-              <DrawerBackdrop onClose={onClose} />
+              <DrawerBackdrop />
 
               <Dialog.Popup
                 render={
