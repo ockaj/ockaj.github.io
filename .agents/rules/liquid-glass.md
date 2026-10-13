@@ -53,9 +53,10 @@ Import named exports directly from `src/components/LiquidGlass/`.
    - Use `variant="segmented"` for segmented controls and card selectors. Follow concentric geometry ($R_{inner} = R_{outer} - \text{padding}$, e.g. outer `rounded-xl` with `p-1.25` container padding and inner `rounded-lg`).
 5. **Border Geometry & Chromatic Dispersion**:
    - Use inset box shadows instead of external 1px border strokes across glass elements.
-   - Glass surfaces and active highlight pills include prismatic chromatic dispersion margins:
-     `inset 1.5px 0 2px -0.5px var(--color-dispersion-cyan)`
-     `inset -1.5px 0 2px -0.5px var(--color-dispersion-amber)`
+   - Glass surfaces employ dual-vertical (12 & 6 o'clock) specular rims: key light on top (`inset 0 1px ...`) and ground bounce reflection on bottom (`inset 0 -1px ...`).
+   - Glass surfaces and active highlight pills include vertical prismatic chromatic dispersion margins:
+     `inset 0 1.5px 2px -0.5px var(--color-dispersion-cyan)`
+     `inset 0 -1.5px 2px -0.5px var(--color-dispersion-amber)`
    - Flat inactive tab highlights use inset borders (`box-shadow: inset 0 0 0 1px ...`) without CSS borders.
 6. **Non-Reconciling Specular Rim Sheen**:
    - Use `useTransform` or `useMotionTemplate` to interpolate radial gradients without React component re-renders.
