@@ -24,7 +24,7 @@
     "@number-flow/react": "^0.6.2",
     "clsx": "^2.1.1",
     "lucide-react": "^1.55.0",
-    "motion": "^14.1.0",
+    "motion": "^14.2.0",
     "ogl": "^1.0.11",
     "quicklink": "^3.0.2",
     "react": "^19.3.0",

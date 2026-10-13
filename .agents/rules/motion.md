@@ -23,8 +23,8 @@ When creating, modifying, or auditing animations:
    - Import animations exclusively from `motion/react` (v13+).
 
 2. **Hardware Acceleration**:
-   - Animate GPU-accelerated properties: `transform`, `opacity`, `scale`, `x`, and `y`.
-   - Never animate layout properties like `height`, `width`, or `margin` directly.
+   - Animate compositor-accelerated properties: `opacity` and independent transforms (`x`, `y`, `scale`, `scaleX`, `scaleY`, `rotate`). Motion 14.2+ runs independent transforms directly on the GPU compositor.
+   - Never animate layout geometry properties like `height`, `width`, `top`, `left`, or `margin` directly.
    - Use `layout` or `layoutId` props for layout morphing.
 
 3. **Exit Transitions**:
