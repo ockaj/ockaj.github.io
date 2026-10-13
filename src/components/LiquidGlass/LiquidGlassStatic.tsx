@@ -82,6 +82,12 @@ export function StaticGlass({
           borderActiveClasses,
           roundedClass,
         )}
+      />
+      <span
+        className={cn(
+          "liquid-glass-vertical-rim pointer-events-none absolute inset-0 z-0 transition-surface duration-300 ease-out",
+          roundedClass,
+        )}
         style={innerGlassStyle}
       />
       <ContentTag className={contentClasses}>{children}</ContentTag>

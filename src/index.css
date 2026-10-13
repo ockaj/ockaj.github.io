@@ -673,6 +673,31 @@ p {
   will-change: transform;
 }
 
+.liquid-glass-vertical-rim {
+  --mask-vertical-rim: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.88) 14%,
+    rgba(0, 0, 0, 0.66) 28%,
+    rgba(0, 0, 0, 0.46) 40%,
+    rgba(0, 0, 0, 0.38) 48%,
+    rgba(0, 0, 0, 0.38) 52%,
+    rgba(0, 0, 0, 0.46) 60%,
+    rgba(0, 0, 0, 0.66) 72%,
+    rgba(0, 0, 0, 0.88) 86%,
+    rgba(0, 0, 0, 1) 100%
+  );
+  -webkit-mask-image: var(--mask-vertical-rim);
+  mask-image: var(--mask-vertical-rim);
+}
+
+@media (prefers-contrast: more) {
+  .liquid-glass-vertical-rim {
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+}
+
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
   .liquid-glass-sheen,
   .liquid-glass-rim {

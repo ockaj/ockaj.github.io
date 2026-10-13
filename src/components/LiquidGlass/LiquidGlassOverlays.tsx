@@ -12,14 +12,22 @@ export function InnerBorderOverlay({
   style: CSSProperties;
 }>) {
   return (
-    <span
-      className={cn(
-        "pointer-events-none absolute inset-0 z-0 transition-surface duration-300 ease-out",
-        borderActiveClasses,
-        roundedClass,
-      )}
-      style={style}
-    />
+    <>
+      <span
+        className={cn(
+          "pointer-events-none absolute inset-0 z-0 transition-surface duration-300 ease-out",
+          borderActiveClasses,
+          roundedClass,
+        )}
+      />
+      <span
+        className={cn(
+          "liquid-glass-vertical-rim pointer-events-none absolute inset-0 z-0 transition-surface duration-300 ease-out",
+          roundedClass,
+        )}
+        style={style}
+      />
+    </>
   );
 }
 
