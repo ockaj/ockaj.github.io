@@ -59,8 +59,7 @@ Import named exports directly from `src/components/LiquidGlass/`.
      `inset 0 -1.5px 2px -0.5px var(--color-dispersion-amber)`
    - Flat inactive tab highlights use inset borders (`box-shadow: inset 0 0 0 1px ...`) without CSS borders.
 6. **Non-Reconciling Specular Rim Sheen**:
-   - Use `useTransform` or `useMotionTemplate` to interpolate radial gradients without React component re-renders.
+   - Use `useTransform` with MotionValue inputs to interpolate reactive inset specular box shadows directly without React component re-renders or compiler bailouts.
    - Pointer tracking updates MotionValues directly without dispatching React component state on pointer move.
-   - The specular highlight masks to the 1px edge perimeter using `.liquid-glass-rim` to prevent interior surface blobs.
-   - On cursor entry, call `smoothSheenX.jump(localX)` to position coordinates instantly on frame 0.
+   - The specular highlight renders as a reactive inset bevel (`.liquid-glass-specular-bevel`) that shifts toward the cursor angle without any mask-composite exclude stencil cuts, rubber gaskets, or interior surface blobs.
    - Glass containers declare `isolation: isolate` (via Tailwind `isolate`) to bound visual blending to the element.

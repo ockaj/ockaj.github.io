@@ -278,32 +278,32 @@ export default function LiquidGlassDesktop({
     domProps,
   );
 
-  const minDim = Math.min(physics.dimensions.width, physics.dimensions.height);
-  const maxDim = Math.max(physics.dimensions.width, physics.dimensions.height);
-  // Anisotropic power law: 70% shortest dimension, 30% longest dimension
-  const rawSize = Math.pow(minDim, 0.7) * Math.pow(maxDim, 0.3) * 1.15;
-  const sheenSize = Math.round(Math.min(Math.max(rawSize, 48), 500));
-  const sheenRadius = Math.round(Math.min(Math.max(sheenSize * 1.4, 140), 400));
-
-  const sheenX = useTransform(physics.smoothSheenX, (x) => x - sheenRadius);
-  const sheenY = useTransform(physics.smoothSheenY, (y) => y - sheenRadius);
+  const reactiveBoxShadow = useTransform(() => {
+    const x = physics.springX.get();
+    const y = physics.springY.get();
+    const halfW = Math.max(physics.dimensions.width / 2, 1);
+    const halfH = Math.max(physics.dimensions.height / 2, 1);
+    const normX = Math.max(-1, Math.min(1, x / halfW));
+    const normY = Math.max(-1, Math.min(1, y / halfH));
+    const ix = (-normX * 1.2).toFixed(2);
+    const iy = (-normY * 1.2).toFixed(2);
+    return `inset ${ix}px ${iy}px 2px oklch(100% 0 0 / 0.18), inset ${ix}px ${iy}px 6px oklch(100% 0 0 / 0.08)`;
+  });
 
   return (
     <Tag ref={handleRef} {...tagProps}>
+      {rendersFullEffects ? (
+        <DesktopEffectsOverlay
+          roundedClass={roundedClass}
+          boxShadow={reactiveBoxShadow}
+          opacity={physics.sheenOpacity}
+        />
+      ) : null}
       <InnerBorderOverlay
         borderActiveClasses={borderActiveClasses}
         roundedClass={roundedClass}
         style={innerGlassStyle}
       />
-      {rendersFullEffects ? (
-        <DesktopEffectsOverlay
-          roundedClass={roundedClass}
-          sheenRadius={sheenRadius}
-          sheenX={sheenX}
-          sheenY={sheenY}
-          sheenOpacity={physics.sheenOpacity}
-        />
-      ) : null}
       {rendersRipple ? (
         <Ripple
           rippleX={rippleX}

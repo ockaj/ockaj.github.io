@@ -656,21 +656,9 @@ p {
   );
 }
 
-.liquid-glass-rim {
-  padding: 1px;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-}
-
-.liquid-glass-sheen {
+.liquid-glass-specular-bevel {
   pointer-events: none;
-  will-change: transform;
+  will-change: opacity, box-shadow;
 }
 
 .liquid-glass-vertical-rim {
@@ -699,8 +687,7 @@ p {
 }
 
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  .liquid-glass-sheen,
-  .liquid-glass-rim {
+  .liquid-glass-specular-bevel {
     display: none !important;
   }
 }
