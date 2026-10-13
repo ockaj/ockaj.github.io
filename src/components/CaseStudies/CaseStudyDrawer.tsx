@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { Activity, FileText } from "lucide-react";
 import type { CaseStudyDetail } from "../../data/caseStudies";
 import { LiquidGlassButton, StaticGlass } from "../LiquidGlass/LiquidGlass";
@@ -11,6 +11,7 @@ import {
 import { CONTACT_EMAIL } from "../../constants/contact";
 import { mdxComponents } from "../../utils/mdxComponents";
 import MetricCountUp from "./MetricCountUp";
+import { usePrefersReducedMotion } from "../../hooks/useMediaQuery";
 
 interface DrawerProps {
   open: boolean;
@@ -25,7 +26,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
   onClose,
   onExitComplete,
 }: DrawerProps) {
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   if (!study) return null;
 

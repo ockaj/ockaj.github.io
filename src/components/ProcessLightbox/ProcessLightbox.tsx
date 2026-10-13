@@ -3,11 +3,10 @@ import { Dialog } from "@base-ui/react/dialog";
 import {
   motion,
   AnimatePresence,
-  useReducedMotion,
 } from "motion/react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useOverlay } from "../../hooks/useAppNavigation";
-import { useIsMobile } from "../../hooks/useMediaQuery";
+import { useIsMobile, usePrefersReducedMotion } from "../../hooks/useMediaQuery";
 import {
   modalVariants,
   getBackdropTransition,
@@ -88,7 +87,7 @@ function ProcessLightbox({
   onClose,
   onExitComplete,
 }: Readonly<ProcessLightboxProps>) {
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   // Close lightbox on back swipe / browser back button
   useOverlay(open, onClose, item ? `lightbox-${item.id}` : "lightbox");

@@ -1,12 +1,12 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { Dialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import BpmnHotkeyToast from "./BpmnHotkeyToast";
 import BpmnDiagram from "./BpmnDiagram";
 import { getSessionStorageItem, setSessionStorageItem } from "./bpmnStorage";
-import { useIsMobile } from "../../hooks/useMediaQuery";
+import { useIsMobile, usePrefersReducedMotion } from "../../hooks/useMediaQuery";
 import { navigateTo, useModal } from "../../hooks/useAppNavigation";
 import {
   modalVariants,
@@ -17,7 +17,7 @@ const BPMN_KEYS = new Set(["b", "p", "m", "n"]);
 
 export default function BpmnOverlay() {
   const isMobile = useIsMobile();
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const { isOpen, open, close } = useModal("bpmn");
   const typedBufferRef = useRef<string[]>([]);
   const [showHotkeyTip, setShowHotkeyTip] = useState(false);

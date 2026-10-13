@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { BookOpen, MessageSquare } from "lucide-react";
 import type { Article } from "../../data/articles";
 import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
@@ -10,6 +10,7 @@ import {
 } from "../../utils/motionVariants";
 import { CONTACT_EMAIL } from "../../constants/contact";
 import { mdxComponents } from "../../utils/mdxComponents";
+import { usePrefersReducedMotion } from "../../hooks/useMediaQuery";
 
 interface DrawerProps {
   open: boolean;
@@ -24,7 +25,7 @@ const JournalDrawer = memo(function JournalDrawer({
   onClose,
   onExitComplete,
 }: DrawerProps) {
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   if (!article) return null;
 

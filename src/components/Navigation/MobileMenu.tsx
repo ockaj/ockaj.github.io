@@ -1,11 +1,12 @@
 import { memo, useEffect, useMemo } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
 import {
   mobileMenuBackdropVariants,
   mobileMenuPanelVariants,
   mobileMenuItemVariants,
 } from "../../utils/motionVariants";
+import { usePrefersReducedMotion } from "../../hooks/useMediaQuery";
 
 const HIGHLIGHT_STYLE = {
   boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.15)",
@@ -31,7 +32,7 @@ function MobileMenu({
   onClose,
   onChange,
 }: Readonly<MobileMenuProps>) {
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const isMotionReduced = !!prefersReducedMotion;
 
   const allLinks = useMemo<readonly NavLinkItem[]>(

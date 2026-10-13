@@ -1,7 +1,8 @@
 import { memo, useRef } from "react";
-import { useInView, useReducedMotion } from "motion/react";
+import { useInView } from "motion/react";
 import NumberFlow from "@number-flow/react";
 import { EASE } from "../../utils/springConfig";
+import { usePrefersReducedMotion } from "../../hooks/useMediaQuery";
 
 interface MetricCountUpProps {
   value: string;
@@ -18,7 +19,7 @@ const MetricCountUp = memo(function MetricCountUp({
     once: true,
     margin: "0px 0px -40px 0px",
   });
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const numericPart = NUMERIC_REGEX.exec(value);
   const cleanedTarget = numericPart ? numericPart[0].replace(/,/g, "") : "";
   const target = cleanedTarget ? parseFloat(cleanedTarget) : 0;

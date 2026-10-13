@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, memo, useReducer } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { Dialog } from "@base-ui/react/dialog";
 import {
   X,
@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
-import { useIsMobile } from "../../hooks/useMediaQuery";
+import { useIsMobile, usePrefersReducedMotion } from "../../hooks/useMediaQuery";
 import { useModal } from "../../hooks/useAppNavigation";
 import { prefetchAsset } from "../../utils/quicklink";
 import { requestIdle, cancelIdle } from "../../utils/idleCallback";
@@ -357,7 +357,7 @@ function PdfViewerModal() {
     handleTabChange,
     handleOpenChange,
   } = usePdfViewerModalController();
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   return (
     <Dialog.Root

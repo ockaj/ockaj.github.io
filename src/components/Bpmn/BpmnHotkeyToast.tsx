@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { FocusEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { X } from "lucide-react";
 import {
   InteractiveGlass,
@@ -10,6 +10,7 @@ import BpmnNodeBadge from "./BpmnNodeBadge";
 import { PauseableTimer } from "./pauseableTimer";
 import { SPRING } from "../../utils/springConfig";
 import { REDUCED_MOTION_TRANSITION } from "../../utils/motionVariants";
+import { usePrefersReducedMotion } from "../../hooks/useMediaQuery";
 
 export interface BpmnHotkeyToastProps {
   readonly onDismiss: () => void;
@@ -22,7 +23,7 @@ export default function BpmnHotkeyToast({
   onDismiss,
   durationMs = DEFAULT_DURATION_MS,
 }: Readonly<BpmnHotkeyToastProps>) {
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const onDismissRef = useRef(onDismiss);
   const timerRef = useRef<PauseableTimer | null>(null);
 

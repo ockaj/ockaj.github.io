@@ -11,7 +11,6 @@ import { Dialog } from "@base-ui/react/dialog";
 import {
   motion,
   AnimatePresence,
-  useReducedMotion,
   useDragControls,
   Variants,
   DragControls,
@@ -24,7 +23,11 @@ import {
   getBackdropTransition,
   REDUCED_MOTION_TRANSITION,
 } from "../utils/motionVariants";
-import { useIsMobile, useIsTouchDevice } from "../hooks/useMediaQuery";
+import {
+  useIsMobile,
+  useIsTouchDevice,
+  usePrefersReducedMotion,
+} from "../hooks/useMediaQuery";
 import { useOverlay } from "../hooks/useAppNavigation";
 import { cn } from "../utils/cn";
 
@@ -98,7 +101,7 @@ const DRAG_ELASTIC = { left: 0.05, right: 1 } as const;
 
 function DrawerBackdrop() {
   const { onClose } = useDrawerContext();
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const transition = getBackdropTransition(prefersReducedMotion);
 
   return (
@@ -204,7 +207,7 @@ const BaseDrawer = memo(function BaseDrawer({
   hashId = "drawer",
   onExitComplete,
 }: BaseDrawerProps) {
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const { canDrag, dragControls, exitVelocityX, handleDragEnd } =
     useDrawerDrag(onClose);
 

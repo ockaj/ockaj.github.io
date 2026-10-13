@@ -80,3 +80,5 @@ export function useMediaQuery(query: string): boolean {
 export const useIsMobile = () => !useMediaQuery("(min-width: 768px)");
 export const useIsDesktop = () => useMediaQuery("(min-width: 1024px)");
 export const useIsTouchDevice = () => useMediaQuery("(pointer: coarse)");
+export const usePrefersReducedMotion = () =>
+  useMediaQuery("(prefers-reduced-motion: reduce)");
