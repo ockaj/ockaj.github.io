@@ -9,6 +9,7 @@ import BpmnNodeBadge from "./components/Bpmn/BpmnNodeBadge";
 import LazySection from "./components/LazySection";
 import Aurora from "./components/Aurora/Aurora";
 import ContactSection from "./components/ContactSection";
+import Footer from "./components/Footer";
 
 import { useIsMobile } from "./hooks/useMediaQuery";
 import { useNavigation } from "./hooks/useAppNavigation";
@@ -167,6 +168,7 @@ function App() {
           </LazySection>
 
           <ContactSection />
+          <Footer />
 
           {hasCvMounted ? (
             <Suspense fallback={null}>

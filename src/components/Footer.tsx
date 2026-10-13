@@ -15,9 +15,9 @@ function Footer() {
   const currentYear = CURRENT_YEAR;
 
   return (
-    <footer className="relative z-10 mx-auto w-full max-w-300 px-6 pb-safe-8 md:px-10 md:pb-safe-12 lg:px-16">
-      <div className="mb-6 h-px w-full bg-white/5" />
-      <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+    <footer className="relative z-10 mx-auto w-full max-w-300 px-6 pb-safe-5 md:px-10 md:pb-safe-8 lg:px-16">
+      <div className="mb-4 h-px w-full bg-white/5 md:mb-5" />
+      <div className="flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-4">
         {/* Copyright */}
         <div className="flex items-center gap-4 select-none">
           <p

@@ -122,7 +122,6 @@ img {
 
 html {
   -webkit-text-size-adjust: 100%;
-  overscroll-behavior-y: none;
   scroll-behavior: auto;
   scrollbar-gutter: stable;
   scrollbar-width: thin;

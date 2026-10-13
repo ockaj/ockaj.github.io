@@ -3,7 +3,6 @@ import { motion, useReducedMotion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import BpmnNodeBadge from "./Bpmn/BpmnNodeBadge";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
-import Footer from "./Footer";
 import { CONTACT_EMAIL } from "../constants/contact";
 
 import {
@@ -32,9 +31,9 @@ function ContactSection() {
   return (
     <section
       id="contact"
-      className="relative flex min-h-svh w-full items-center justify-center"
+      className="relative flex w-full flex-col items-center justify-center py-20 md:py-32"
     >
-      <div className="relative z-10">
+      <div className="relative z-10 w-full">
         <motion.div
           initial={initialStyle}
           whileInView={SECTION_ANIMATE}
@@ -60,13 +59,13 @@ function ContactSection() {
           viewport={SECTION_VIEWPORT}
           transition={SECTION_TRANSITION}
         >
-          <div className="mx-auto mb-16 max-w-300 px-6 text-center md:mb-20 md:px-10 lg:px-16">
+          <div className="mx-auto max-w-300 px-6 text-center md:px-10 lg:px-16">
             <div className="mx-auto flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap sm:gap-6">
               {/* Email button wrapper */}
               <div className="flex w-full max-w-sm justify-center sm:w-auto sm:max-w-none">
                 <LiquidGlassButton
                   href={`mailto:${CONTACT_EMAIL}`}
-                  className="group/email-btn w-full justify-center px-4 py-3.5 text-xs sm:w-auto sm:px-8 sm:py-4 sm:text-base sm:whitespace-nowrap"
+                  className="group/email-btn w-full justify-center px-4 py-3.5 text-sm sm:w-auto sm:px-8 sm:py-4 sm:text-base sm:whitespace-nowrap"
                   ariaLabel="Send email"
                   magnetic
                   tilt
@@ -123,9 +122,6 @@ function ContactSection() {
             </div>
           </div>
         </motion.div>
-      </div>
-      <div className="absolute bottom-0 w-full">
-        <Footer />
       </div>
     </section>
   );
