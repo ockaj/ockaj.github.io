@@ -20,7 +20,10 @@ import {
 import { X } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
 import { SPRING } from "../utils/springConfig";
-import { getBackdropTransition } from "../utils/motionVariants";
+import {
+  getBackdropTransition,
+  REDUCED_MOTION_TRANSITION,
+} from "../utils/motionVariants";
 import { useIsMobile, useIsTouchDevice } from "../hooks/useMediaQuery";
 import { useOverlay } from "../hooks/useAppNavigation";
 import { cn } from "../utils/cn";
@@ -62,12 +65,12 @@ const DRAWER_SHEEN_OVERLAY = (
 );
 
 function getVisibleTransition(custom: DrawerCustom) {
-  if (custom.prefersReducedMotion) return { duration: 0.15 };
+  if (custom.prefersReducedMotion) return REDUCED_MOTION_TRANSITION;
   return SPRING.drawer;
 }
 
 function getHiddenTransition(custom: DrawerCustom) {
-  if (custom.prefersReducedMotion) return { duration: 0.15 };
+  if (custom.prefersReducedMotion) return REDUCED_MOTION_TRANSITION;
   if (custom.exitVelocityX !== undefined && custom.exitVelocityX > 0) {
     return {
       ...SPRING.exit,

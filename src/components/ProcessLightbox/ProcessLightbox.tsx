@@ -4,13 +4,14 @@ import {
   motion,
   AnimatePresence,
   useReducedMotion,
-  Variants,
 } from "motion/react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useOverlay } from "../../hooks/useAppNavigation";
 import { useIsMobile } from "../../hooks/useMediaQuery";
-import { SPRING } from "../../utils/springConfig";
-import { getBackdropTransition } from "../../utils/motionVariants";
+import {
+  modalVariants,
+  getBackdropTransition,
+} from "../../utils/motionVariants";
 import ZoomableImage from "./ZoomableImage";
 import LightboxControls from "./LightboxControls";
 
@@ -27,41 +28,18 @@ interface ProcessLightboxProps {
   onExitComplete?: () => void;
 }
 
-function getDialogHiddenScale(custom: {
-  prefersReducedMotion: boolean;
-  isMobile: boolean;
-}) {
-  if (custom.prefersReducedMotion) return 1;
-  return custom.isMobile ? 0.92 : 0.96;
-}
-
-function getDialogVisibleTransition(custom: {
-  prefersReducedMotion: boolean;
-  isMobile: boolean;
-}) {
-  if (custom.prefersReducedMotion) return { duration: 0.15 };
-  return SPRING.modal;
-}
-
-const dialogVariants: Variants = {
-  hidden: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
-    scale: getDialogHiddenScale(custom),
-    opacity: 0,
-    transition: custom.prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
-  }),
-  visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
-    scale: 1,
-    opacity: 1,
-    transition: getDialogVisibleTransition(custom),
-  }),
-};
-
 const DOUBLE_CLICK_CONFIG = {
   mode: "toggle" as const,
   step: 1.5,
   animationTime: 200,
   animationType: "easeOut" as const,
 };
+const DOUBLE_CLICK_REDUCED_CONFIG = {
+  mode: "toggle" as const,
+  step: 1.5,
+  animationTime: 0,
+};
+const ZOOM_REDUCED_CONFIG = { disabled: true };
 const WHEEL_CONFIG = { step: 0.00125 };
 const ZOOM_ANIMATION_CONFIG = {
   disabled: false,
@@ -160,7 +138,7 @@ function ProcessLightbox({
                   <motion.div
                     className="pointer-events-auto relative z-10 flex h-dvh max-h-dvh w-full max-w-7xl flex-col overflow-hidden rounded-none border-0 border-white/10 bg-surface shadow-2xl md:aspect-16/10 md:h-auto md:max-h-85vh md:rounded-3xl md:border"
                     custom={{ prefersReducedMotion, isMobile }}
-                    variants={dialogVariants}
+                    variants={modalVariants}
                     initial="hidden"
                     animate="visible"
                     exit="hidden"
@@ -181,10 +159,18 @@ function ProcessLightbox({
                     minScale={1}
                     maxScale={10}
                     centerOnInit
-                    smooth
-                    doubleClick={DOUBLE_CLICK_CONFIG}
+                    smooth={!prefersReducedMotion}
+                    doubleClick={
+                      prefersReducedMotion
+                        ? DOUBLE_CLICK_REDUCED_CONFIG
+                        : DOUBLE_CLICK_CONFIG
+                    }
                     wheel={WHEEL_CONFIG}
-                    zoomAnimation={ZOOM_ANIMATION_CONFIG}
+                    zoomAnimation={
+                      prefersReducedMotion
+                        ? ZOOM_REDUCED_CONFIG
+                        : ZOOM_ANIMATION_CONFIG
+                    }
                     onTransform={(_ref, state) => {
                       const zoomed = state.scale > 1.01;
                       if (

@@ -17,7 +17,7 @@ import { prefetchAsset } from "../../utils/quicklink";
 import { requestIdle, cancelIdle } from "../../utils/idleCallback";
 import { cn } from "../../utils/cn";
 import {
-  createModalVariants,
+  modalVariants,
   getBackdropTransition,
 } from "../../utils/motionVariants";
 import { CV_DATA } from "../../data/cvData";
@@ -25,9 +25,8 @@ import { InteractiveCvView } from "./InteractiveCvView";
 import { pdfReducer } from "./pdfState";
 import { useAppStore } from "../../store/useAppStore";
 
-const modalVariants = createModalVariants(-10);
 const MODAL_CONTAINER_STYLE: React.CSSProperties = {
-  transformOrigin: "center top",
+  transformOrigin: "center center",
   boxShadow:
     "inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 16px rgba(0, 0, 0, 0.6)",
 };

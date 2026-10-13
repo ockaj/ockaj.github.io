@@ -9,6 +9,7 @@ import {
 import BpmnNodeBadge from "./BpmnNodeBadge";
 import { PauseableTimer } from "./pauseableTimer";
 import { SPRING } from "../../utils/springConfig";
+import { REDUCED_MOTION_TRANSITION } from "../../utils/motionVariants";
 
 export interface BpmnHotkeyToastProps {
   readonly onDismiss: () => void;
@@ -85,20 +86,24 @@ export default function BpmnHotkeyToast({
       aria-atomic="true"
       initial={{
         opacity: 0,
-        y: prefersReducedMotion ? 0 : 30,
+        y: prefersReducedMotion ? 0 : 20,
         scale: prefersReducedMotion ? 1 : 0.95,
       }}
       animate={{
         opacity: 1,
         y: 0,
         scale: 1,
-        transition: prefersReducedMotion ? { duration: 0.15 } : SPRING.modal,
+        transition: prefersReducedMotion
+          ? REDUCED_MOTION_TRANSITION
+          : SPRING.modal,
       }}
       exit={{
         opacity: 0,
         y: prefersReducedMotion ? 0 : 20,
         scale: prefersReducedMotion ? 1 : 0.95,
-        transition: prefersReducedMotion ? { duration: 0.15 } : SPRING.exit,
+        transition: prefersReducedMotion
+          ? REDUCED_MOTION_TRANSITION
+          : SPRING.exit,
       }}
       className="pointer-events-auto fixed right-6 bottom-6 z-40 hidden max-w-sm text-sm md:block"
       onPointerEnter={handlePointerEnter}

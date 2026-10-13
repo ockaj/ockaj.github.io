@@ -9,11 +9,9 @@ import { getSessionStorageItem, setSessionStorageItem } from "./bpmnStorage";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { navigateTo, useModal } from "../../hooks/useAppNavigation";
 import {
-  createModalVariants,
+  modalVariants,
   getBackdropTransition,
 } from "../../utils/motionVariants";
-
-const bpmnModalVariants = createModalVariants(15);
 
 const BPMN_KEYS = new Set(["b", "p", "m", "n"]);
 
@@ -142,9 +140,10 @@ export default function BpmnOverlay() {
                       initial="hidden"
                       animate="visible"
                       exit="hidden"
-                      variants={bpmnModalVariants}
+                      variants={modalVariants}
                       className="pointer-events-auto relative z-10 flex size-full flex-col overflow-hidden rounded-none border-0 bg-surface/95 shadow-2xl backdrop-blur-2xl md:h-90vh md:max-w-85vw md:rounded-3xl md:border md:border-white/10 2xl:max-w-340"
                       style={{
+                        transformOrigin: "center center",
                         boxShadow:
                           "inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 20px rgba(0, 0, 0, 0.6)",
                       }}

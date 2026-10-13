@@ -1,7 +1,12 @@
-import type { Variants, Transition } from "motion/react";
+import type { Variants } from "motion/react";
 import { EASE, SPRING } from "./springConfig";
 
 /** Standardized Motion Stagger & Viewport animation variants across section components */
+
+export const REDUCED_MOTION_TRANSITION = {
+  duration: 0.15,
+  ease: "easeOut" as const,
+} as const;
 
 export const containerStaggerVariants = (staggerDelay = 0.08) => ({
   hidden: {},
@@ -21,19 +26,21 @@ export const cardStaggerVariants = {
     opacity: 1,
     y: 0,
     transition: prefersReducedMotion
-      ? { duration: 0.15 }
+      ? REDUCED_MOTION_TRANSITION
       : { duration: 0.35, ease: EASE.out },
   }),
 };
 
 export const drawerContentVariants = {
   hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.04,
-      delayChildren: 0.05,
-    },
-  },
+  visible: (prefersReducedMotion: boolean | null) => ({
+    transition: prefersReducedMotion
+      ? { staggerChildren: 0, delayChildren: 0 }
+      : {
+          staggerChildren: 0.04,
+          delayChildren: 0.05,
+        },
+  }),
 };
 
 export const drawerItemVariants = {
@@ -41,14 +48,16 @@ export const drawerItemVariants = {
     opacity: 0,
     y: prefersReducedMotion ? 0 : 10,
   }),
-  visible: {
+  visible: (prefersReducedMotion: boolean | null) => ({
     opacity: 1,
     y: 0,
-    transition: SPRING.exit,
-  },
+    transition: prefersReducedMotion
+      ? REDUCED_MOTION_TRANSITION
+      : SPRING.exit,
+  }),
 };
 
-export const createModalVariants = (yOffset = 15): Variants => ({
+export const modalVariants: Variants = {
   hidden: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => {
     let scale = 0.95;
     if (custom.prefersReducedMotion) {
@@ -59,24 +68,21 @@ export const createModalVariants = (yOffset = 15): Variants => ({
     return {
       opacity: 0,
       scale,
-      y: custom.prefersReducedMotion ? 0 : yOffset,
+      y: 0,
       transition: custom.prefersReducedMotion
-        ? { duration: 0.15 }
+        ? REDUCED_MOTION_TRANSITION
         : SPRING.exit,
     };
   },
-  visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => {
-    const transition: Transition = custom.prefersReducedMotion
-      ? { duration: 0.15 }
-      : SPRING.modal;
-    return {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition,
-    };
-  },
-});
+  visible: (custom: { prefersReducedMotion: boolean; isMobile: boolean }) => ({
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: custom.prefersReducedMotion
+      ? REDUCED_MOTION_TRANSITION
+      : SPRING.modal,
+  }),
+};
 
 export const SECTION_ANIMATE = { opacity: 1, y: 0 };
 export const SECTION_VIEWPORT = { once: true, margin: "0px 0px -40px 0px" };
@@ -87,7 +93,7 @@ export const SECTION_TRANSITION = {
 
 export const getBackdropTransition = (prefersReducedMotion: boolean | null) =>
   prefersReducedMotion
-    ? { duration: 0.15 }
+    ? REDUCED_MOTION_TRANSITION
     : { duration: 0.2, ease: "easeOut" as const };
 
 export const mobileMenuBackdropVariants: Variants = {
@@ -121,7 +127,7 @@ export const mobileMenuPanelVariants: Variants = {
     scale: 1,
     opacity: 1,
     transition: prefersReducedMotion
-      ? { duration: 0.15 }
+      ? REDUCED_MOTION_TRANSITION
       : {
           ...SPRING.drawer,
           staggerChildren: 0.035,
@@ -130,7 +136,7 @@ export const mobileMenuPanelVariants: Variants = {
   }),
   exit: (prefersReducedMotion: boolean | null) =>
     prefersReducedMotion
-      ? { opacity: 0, transition: { duration: 0.15 } }
+      ? { opacity: 0, transition: REDUCED_MOTION_TRANSITION }
       : {
           y: -6,
           scale: 0.98,
@@ -144,7 +150,7 @@ export const mobileMenuItemVariants: Variants = {
     prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -4 },
   visible: (prefersReducedMotion: boolean | null) =>
     prefersReducedMotion
-      ? { opacity: 1, transition: { duration: 0.15 } }
+      ? { opacity: 1, transition: REDUCED_MOTION_TRANSITION }
       : {
           opacity: 1,
           y: 0,
@@ -174,7 +180,7 @@ export const heroNameVariants: Variants = {
   visible: (prefersReducedMotion: boolean | null) => ({
     opacity: 1,
     y: 0,
-    transition: prefersReducedMotion ? { duration: 0.15 } : SPRING.hero,
+    transition: prefersReducedMotion ? REDUCED_MOTION_TRANSITION : SPRING.hero,
   }),
 };
 
@@ -186,7 +192,7 @@ export const heroItemVariants: Variants = {
   visible: (prefersReducedMotion: boolean | null) => ({
     opacity: 1,
     y: 0,
-    transition: prefersReducedMotion ? { duration: 0.15 } : SPRING.hero,
+    transition: prefersReducedMotion ? REDUCED_MOTION_TRANSITION : SPRING.hero,
   }),
 };
 

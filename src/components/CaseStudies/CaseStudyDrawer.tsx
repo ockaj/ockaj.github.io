@@ -48,7 +48,10 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
         className="flex-1 touch-pan-y space-y-8 overflow-y-auto overscroll-contain p-6 pb-safe-6 select-text md:p-8 md:pb-8"
       >
         {/* Header */}
-        <motion.div variants={drawerItemVariants}>
+        <motion.div
+          variants={drawerItemVariants}
+          custom={prefersReducedMotion}
+        >
           <div className="mb-2 flex items-center gap-2">
             <span className="size-1.5 rounded-full bg-accent" />
             <span className="text-sm font-bold tracking-wider text-accent uppercase">
@@ -64,7 +67,11 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
         </motion.div>
 
         {/* Core Info */}
-        <motion.div variants={drawerItemVariants} className="space-y-4">
+        <motion.div
+          variants={drawerItemVariants}
+          custom={prefersReducedMotion}
+          className="space-y-4"
+        >
           <h3 className="border-b border-white/10 pb-1.5 text-lg font-semibold text-balance text-text-primary/90">
             Client profile
           </h3>
@@ -77,7 +84,11 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
         </motion.div>
 
         {/* Results Grid */}
-        <motion.div variants={drawerItemVariants} className="space-y-4">
+        <motion.div
+          variants={drawerItemVariants}
+          custom={prefersReducedMotion}
+          className="space-y-4"
+        >
           <h3 className="border-b border-white/10 pb-1.5 text-lg font-semibold text-balance text-text-primary/90">
             Proven operations impact
           </h3>
@@ -112,7 +123,11 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
 
         {/* AS-IS vs TO-BE comparison */}
         {study.asIsFlow.length > 0 || study.toBeFlow.length > 0 ? (
-          <motion.div variants={drawerItemVariants} className="space-y-4">
+          <motion.div
+            variants={drawerItemVariants}
+            custom={prefersReducedMotion}
+            className="space-y-4"
+          >
             <h3 className="border-b border-white/10 pb-1.5 text-lg font-semibold text-balance text-text-primary/90">
               Process modeling & auditing
             </h3>
@@ -166,6 +181,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
         {study.methodology.length > 0 || study.deliverables.length > 0 ? (
           <motion.div
             variants={drawerItemVariants}
+            custom={prefersReducedMotion}
             className="grid grid-cols-1 gap-6 md:grid-cols-2"
           >
             {study.methodology.length > 0 ? (
@@ -211,6 +227,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
         {/* CTA / Close */}
         <motion.div
           variants={drawerItemVariants}
+          custom={prefersReducedMotion}
           className="flex items-center justify-between gap-4 border-t border-white/5 pt-6"
         >
           <LiquidGlassButton

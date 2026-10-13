@@ -31,9 +31,10 @@ When creating, modifying, or auditing animations:
    - Wrap unmounting components in `<AnimatePresence>`.
    - Pass `keepMounted` to `<Dialog.Portal keepMounted>` when animating Base UI dialog exits.
 
-4. **Accessibility**:
+4. **Accessibility & Reduced Motion**:
    - Honor user motion preferences with `useReducedMotion()`.
-   - Provide instantaneous state changes when reduced motion is active.
+   - Provide non-vestibular 150ms opacity cross-fades via `REDUCED_MOTION_TRANSITION`.
+   - Suppress child item stagger delays and spring bounce when reduced motion is active.
 
 ---
 
@@ -44,19 +45,16 @@ All UI spring animations and transitions reuse standardized configurations:
 - Reuse preset physics from the `SPRING` object in [`src/utils/springConfig.ts`](../../src/utils/springConfig.ts).
 - Use `SPRING.modal` and `SPRING.exit` for modal, drawer, and toast transitions.
 - Reuse centralized animation variants from [`src/utils/motionVariants.ts`](../../src/utils/motionVariants.ts).
+- Center modals (`PdfViewerModal`, `BpmnOverlay`, `ProcessLightbox`) must reuse `modalVariants` with `y: 0` and `transformOrigin: "center center"`.
+- Drawer child containers using `drawerItemVariants` must pass `custom={prefersReducedMotion}`.
 - Avoid inline custom spring parameters (`stiffness`, `damping`, `mass`).
 
 ### Example
 ```typescript
 import { SPRING } from "../utils/springConfig";
 import {
-  SECTION_ANIMATE,
-  SECTION_VIEWPORT,
-  SECTION_TRANSITION,
+  modalVariants,
+  REDUCED_MOTION_TRANSITION,
+  getBackdropTransition,
 } from "../utils/motionVariants";
-
-const drawerVariants = {
-  hidden: { x: "100%", transition: SPRING.drawer },
-  visible: { x: 0, transition: SPRING.drawer },
-};
 ```
