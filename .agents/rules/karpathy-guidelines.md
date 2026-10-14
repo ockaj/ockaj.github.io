@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Core coding principles for surgical changes, simplicity first, explicit assumptions, and goal-driven verification. Use during code implementation, editing, bug fixing, and refactoring.
+description: Behavioral guidelines to reduce common LLM coding mistakes. Use when writing, reviewing, or refactoring code to avoid overcomplication, make surgical changes, surface assumptions, and define verifiable success criteria.
 ---
 
 # Karpathy Guidelines

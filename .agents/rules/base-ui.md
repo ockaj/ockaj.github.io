@@ -37,7 +37,6 @@ Source: https://base-ui.com/llms.txt
 
 - [Accordion](https://base-ui.com/react/components/accordion.md): Collapsible panels with headings (used in FAQ).
 - [Dialog](https://base-ui.com/react/components/dialog.md): Accessible modal dialog primitive (used in modals and lightboxes).
-- [Drawer](https://base-ui.com/react/components/drawer.md): Slide-over drawer primitive with swipe gestures (used in BaseDrawer).
 - [Popover](https://base-ui.com/react/components/popover.md): Anchored popup container primitive.
 - [Tooltip](https://base-ui.com/react/components/tooltip.md): Informational hover tooltip primitive.
 
