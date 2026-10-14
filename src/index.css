@@ -91,8 +91,6 @@
   --muted: 0 0% 80%;
   --stroke: 0 0% 12%;
   --accent: 244 75% 76%;
-  --color-dispersion-cyan: oklch(85% 0.12 215 / 0.08);
-  --color-dispersion-amber: oklch(85% 0.14 75 / 0.06);
   --mask-vertical-rim: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0.8) 0%,
@@ -208,7 +206,7 @@ p {
 }
 
 .font-display {
-  font-family: "Libre Caslon Condensed", serif;
+  font-family: var(--font-display);
   letter-spacing: -0.02em;
   font-optical-sizing: auto;
 }
@@ -686,14 +684,6 @@ p {
   mask-image: var(--mask-vertical-rim);
 }
 
-@media (prefers-contrast: more) {
-  .liquid-glass-vertical-rim,
-  .highlight-pill {
-    -webkit-mask-image: none !important;
-    mask-image: none !important;
-  }
-}
-
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
   .liquid-glass-specular-bevel {
     display: none !important;
@@ -723,6 +713,12 @@ p {
 }
 
 @media (prefers-contrast: more) {
+  .liquid-glass-vertical-rim,
+  .highlight-pill {
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+
   .navbar-capsule,
   .highlight-pill,
   .backdrop-blur-sm,
