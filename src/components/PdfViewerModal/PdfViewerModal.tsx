@@ -11,7 +11,10 @@ import {
 } from "lucide-react";
 import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
-import { useIsMobile, usePrefersReducedMotion } from "../../hooks/useMediaQuery";
+import {
+  useIsMobile,
+  usePrefersReducedMotion,
+} from "../../hooks/useMediaQuery";
 import { useModal } from "../../hooks/useAppNavigation";
 import { prefetchAsset } from "../../utils/quicklink";
 import { requestIdle, cancelIdle } from "../../utils/idleCallback";
@@ -20,6 +23,7 @@ import {
   modalVariants,
   getBackdropTransition,
 } from "../../utils/motionVariants";
+import { EASE } from "../../utils/springConfig";
 import { CV_DATA } from "../../data/cvData";
 import { InteractiveCvView } from "./InteractiveCvView";
 import { pdfReducer } from "./pdfState";
@@ -163,20 +167,55 @@ const PdfModalMobileActions = memo(function PdfModalMobileActions() {
   );
 });
 
-const PdfModalDesktopActions = memo(function PdfModalDesktopActions() {
+interface PdfModalDesktopActionsProps {
+  activeTab: "pdf" | "interactive";
+}
+
+const PdfModalDesktopActions = memo(function PdfModalDesktopActions({
+  activeTab,
+}: PdfModalDesktopActionsProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
+
   return (
     <div className="hidden items-center gap-2 sm:flex">
-      <PdfModalDownloadButton size={14} />
+      <AnimatePresence mode="popLayout">
+        {activeTab === "pdf" ? (
+          <motion.div
+            key="pdf-actions"
+            initial={{
+              opacity: 0,
+              scale: prefersReducedMotion ? 1 : 0.92,
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              transition: prefersReducedMotion
+                ? { duration: 0.15 }
+                : { duration: 0.2, ease: EASE.out },
+            }}
+            exit={{
+              opacity: 0,
+              scale: prefersReducedMotion ? 1 : 0.92,
+              transition: prefersReducedMotion
+                ? { duration: 0.15 }
+                : { duration: 0.14, ease: EASE.exit },
+            }}
+            className="flex items-center gap-2"
+          >
+            <PdfModalDownloadButton size={14} />
 
-      <LiquidGlassButton
-        href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="size-11 p-3"
-        ariaLabel="Open CV PDF in new tab"
-      >
-        <ExternalLink size={14} className="text-text-primary" />
-      </LiquidGlassButton>
+            <LiquidGlassButton
+              href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="size-11 p-3"
+              ariaLabel="Open CV PDF in new tab"
+            >
+              <ExternalLink size={14} className="text-text-primary" />
+            </LiquidGlassButton>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
 
       <PdfModalCloseButton />
     </div>
@@ -425,7 +464,7 @@ function PdfViewerModal() {
                     />
 
                     {/* Desktop Action Buttons */}
-                    <PdfModalDesktopActions />
+                    <PdfModalDesktopActions activeTab={activeTab} />
                   </div>
 
                   {/* Viewer Body Content */}

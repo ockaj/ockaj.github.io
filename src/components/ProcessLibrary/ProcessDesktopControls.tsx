@@ -6,6 +6,7 @@ import {
   useState,
   useMemo,
 } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
 import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import { ChevronDown } from "lucide-react";
@@ -16,10 +17,13 @@ import {
   useProcessLibraryActions,
 } from "./ProcessLibraryContext";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
+import { usePrefersReducedMotion } from "../../hooks/useMediaQuery";
+import { EASE } from "../../utils/springConfig";
 
 const PAGE_SIZE = 10;
 
 function ProcessDesktopControls() {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const { activeTopicId } = useProcessLibraryState();
   const { selectTopic } = useProcessLibraryActions();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -121,33 +125,46 @@ function ProcessDesktopControls() {
             })}
           </Tabs>
 
-          {hasMore ? (
-            <div className="flex justify-center pt-3">
-              <LiquidGlassButton
-                type="button"
-                onClick={handleShowMore}
-                roundedClass="rounded-full"
-                className="group/more-btn flex min-h-10 cursor-pointer items-center justify-center px-5 py-2.5 text-xs font-semibold whitespace-nowrap text-text-primary shadow-sm transition-colors"
-                ariaLabel="Show more process topics"
-                magnetic
-                tilt
-                magneticStrength={0.02}
-                specularGlow
+          <AnimatePresence>
+            {hasMore ? (
+              <motion.div
+                layout
+                key="show-more-button"
+                exit={{
+                  opacity: 0,
+                  scale: prefersReducedMotion ? 1 : 0.96,
+                  transition: prefersReducedMotion
+                    ? { duration: 0.15 }
+                    : { duration: 0.16, ease: EASE.exit },
+                }}
+                className="flex justify-center pt-3"
               >
-                <span className="flex items-center gap-1.5">
-                  <span>
-                    Show more ({PROCESS_TOPICS.length - effectiveVisibleCount}{" "}
-                    remaining)
+                <LiquidGlassButton
+                  type="button"
+                  onClick={handleShowMore}
+                  roundedClass="rounded-full"
+                  className="group/more-btn flex min-h-10 cursor-pointer items-center justify-center px-5 py-2.5 text-xs font-semibold whitespace-nowrap text-text-primary shadow-sm transition-colors"
+                  ariaLabel="Show more process topics"
+                  magnetic
+                  tilt
+                  magneticStrength={0.02}
+                  specularGlow
+                >
+                  <span className="flex items-center gap-1.5">
+                    <span>
+                      Show more ({PROCESS_TOPICS.length - effectiveVisibleCount}{" "}
+                      remaining)
+                    </span>
+                    <ChevronDown
+                      size={14}
+                      aria-hidden="true"
+                      className="shrink-0 transition-transform duration-300 ease-out group-hover/more-btn:translate-y-0.5"
+                    />
                   </span>
-                  <ChevronDown
-                    size={14}
-                    aria-hidden="true"
-                    className="shrink-0 transition-transform duration-300 ease-out group-hover/more-btn:translate-y-0.5"
-                  />
-                </span>
-              </LiquidGlassButton>
-            </div>
-          ) : null}
+                </LiquidGlassButton>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
         </div>
       </div>
     </div>
