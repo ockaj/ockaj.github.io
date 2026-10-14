@@ -80,7 +80,7 @@ function MobileMenu({
             style={{
               transformOrigin: "top",
               boxShadow:
-                "inset 0 1px 1px rgba(255, 255, 255, 0.15), inset 1.5px 0 2px -0.5px var(--color-dispersion-cyan), inset -1.5px 0 2px -0.5px var(--color-dispersion-amber), 0 20px 40px -15px rgba(0, 0, 0, 0.7)",
+                "inset 0 1px 1px rgba(255, 255, 255, 0.15), inset 0 1.5px 2px -0.5px var(--color-dispersion-cyan), inset 0 -1.5px 2px -0.5px var(--color-dispersion-amber), 0 20px 40px -15px rgba(0, 0, 0, 0.7)",
             }}
             id="mobile-nav-panel"
             aria-label="Mobile Navigation"
