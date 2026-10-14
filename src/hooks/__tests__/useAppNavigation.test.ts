@@ -3,6 +3,11 @@ import { useAppStore } from "../../store/useAppStore";
 import {
   applyHashNavigation,
   setupHashNavigationListener,
+  checkIsAtDocumentBottom,
+  commitScrollSpyHash,
+  safeReplaceState,
+  safePushState,
+  navigateTo,
 } from "../useAppNavigation";
 
 interface MockElementOptions {
@@ -323,6 +328,161 @@ describe("useAppNavigation", () => {
         handlers[0],
       );
       expect(eventListeners["hashchange"]).toHaveLength(0);
+    });
+  });
+
+  describe("checkIsAtDocumentBottom", () => {
+    it("returns true when exactly at the bottom of the document", () => {
+      expect(checkIsAtDocumentBottom(5000, 747, 5747)).toBe(true);
+    });
+
+    it("returns true when within tolerance of the document bottom", () => {
+      // 5000 + 747 = 5747, scrollHeight = 5750, tolerance = 4 (delta = 3)
+      expect(checkIsAtDocumentBottom(5000, 747, 5750, 4)).toBe(true);
+    });
+
+    it("returns false when not at the bottom of the document", () => {
+      expect(checkIsAtDocumentBottom(2000, 700, 5000)).toBe(false);
+    });
+  });
+
+  describe("commitScrollSpyHash", () => {
+    it("returns false and does not call replaceState when isNavigating is true", () => {
+      const result = commitScrollSpyHash("#contact", true);
+      expect(result).toBe(false);
+      expect(window.history.replaceState).not.toHaveBeenCalled();
+    });
+
+    it("returns false when pendingHash is null", () => {
+      const result = commitScrollSpyHash(null, false);
+      expect(result).toBe(false);
+      expect(window.history.replaceState).not.toHaveBeenCalled();
+    });
+
+    it("returns false when window.location.hash already equals pendingHash", () => {
+      windowHash = "#contact";
+      const result = commitScrollSpyHash("#contact", false);
+      expect(result).toBe(false);
+      expect(window.history.replaceState).not.toHaveBeenCalled();
+    });
+
+    it("returns false and does not replace hash when a modal is active", () => {
+      useAppStore.getState().openModal("cv");
+      windowHash = "#cv";
+
+      const result = commitScrollSpyHash("#contact", false);
+      expect(result).toBe(false);
+      expect(window.history.replaceState).not.toHaveBeenCalled();
+    });
+
+    it("updates history and returns true for valid new section hash", () => {
+      windowHash = "#skills";
+      const result = commitScrollSpyHash("#contact", false);
+
+      expect(result).toBe(true);
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        null,
+        "",
+        "#contact",
+      );
+      expect(windowHash).toBe("#contact");
+    });
+
+    it("catches SecurityError from replaceState defensively without throwing", () => {
+      windowHash = "#skills";
+      // Simulate WebKit 100-calls rate limit SecurityError
+      vi.mocked(window.history.replaceState).mockImplementationOnce(() => {
+        throw new Error("SecurityError: DOM Exception 18");
+      });
+
+      let result: boolean | undefined;
+      expect(() => {
+        result = commitScrollSpyHash("#contact", false);
+      }).not.toThrow();
+      expect(result).toBe(false);
+    });
+  });
+
+  describe("safeReplaceState and safePushState", () => {
+    it("safeReplaceState updates history and returns true", () => {
+      const result = safeReplaceState("#skills");
+      expect(result).toBe(true);
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        null,
+        "",
+        "#skills",
+      );
+      expect(windowHash).toBe("#skills");
+    });
+
+    it("safeReplaceState catches SecurityError and returns false", () => {
+      vi.mocked(window.history.replaceState).mockImplementationOnce(() => {
+        throw new Error("SecurityError: DOM Exception 18");
+      });
+      const result = safeReplaceState("#skills");
+      expect(result).toBe(false);
+    });
+
+    it("safePushState updates history and returns true", () => {
+      const result = safePushState("#work");
+      expect(result).toBe(true);
+      expect(window.history.pushState).toHaveBeenCalledWith(null, "", "#work");
+      expect(windowHash).toBe("#work");
+    });
+
+    it("safePushState catches SecurityError and returns false", () => {
+      vi.mocked(window.history.pushState).mockImplementationOnce(() => {
+        throw new Error("SecurityError: DOM Exception 18");
+      });
+      const result = safePushState("#work");
+      expect(result).toBe(false);
+    });
+
+    it("navigateTo uses safe history helpers and does not throw on SecurityError", () => {
+      vi.mocked(window.history.pushState).mockImplementationOnce(() => {
+        throw new Error("SecurityError: DOM Exception 18");
+      });
+
+      expect(() => {
+        navigateTo("skills");
+      }).not.toThrow();
+      expect(useAppStore.getState().activeSection).toBe("skills");
+    });
+
+    it("passes custom state when provided to safeReplaceState and safePushState", () => {
+      const customState = { view: "compact" };
+      expect(safeReplaceState("#skills", customState)).toBe(true);
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        customState,
+        "",
+        "#skills",
+      );
+
+      expect(safePushState("#work", customState)).toBe(true);
+      expect(window.history.pushState).toHaveBeenCalledWith(
+        customState,
+        "",
+        "#work",
+      );
+    });
+
+    it("catches SecurityError thrown during history.state property access", () => {
+      vi.spyOn(window.history, "state", "get").mockImplementationOnce(() => {
+        throw new Error("SecurityError: DOM Exception 18");
+      });
+      expect(safeReplaceState("#skills")).toBe(false);
+
+      vi.spyOn(window.history, "state", "get").mockImplementationOnce(() => {
+        throw new Error("SecurityError: DOM Exception 18");
+      });
+      expect(safePushState("#work")).toBe(false);
+    });
+
+    it("returns false in SSR environments without window or history API", () => {
+      // @ts-expect-error simulate SSR
+      globalThis.window = undefined;
+      expect(safeReplaceState("#skills")).toBe(false);
+      expect(safePushState("#skills")).toBe(false);
     });
   });
 });

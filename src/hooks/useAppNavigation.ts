@@ -79,6 +79,33 @@ function setNavigationLock(duration = 1000): void {
   }
 }
 
+export function safeReplaceState(url: string, state?: unknown): boolean {
+  if (typeof window === "undefined" || !window.history?.replaceState)
+    return false;
+  try {
+    const historyState =
+      state !== undefined ? state : (window.history.state ?? null);
+    window.history.replaceState(historyState, "", url);
+    return true;
+  } catch {
+    // Defensively catch WebKit SecurityError DOM Exception 18 if quota is saturated
+    return false;
+  }
+}
+
+export function safePushState(url: string, state?: unknown): boolean {
+  if (typeof window === "undefined" || !window.history?.pushState) return false;
+  try {
+    const historyState =
+      state !== undefined ? state : (window.history.state ?? null);
+    window.history.pushState(historyState, "", url);
+    return true;
+  } catch {
+    // Defensively catch WebKit SecurityError DOM Exception 18 if quota is saturated
+    return false;
+  }
+}
+
 export interface NavigateToOptions {
   behavior?: ScrollBehavior;
   replace?: boolean;
@@ -108,9 +135,9 @@ export function navigateTo(target: string, options?: NavigateToOptions): void {
   const newHash = `#${sectionId}`;
   if (window.location.hash !== newHash) {
     if (options?.replace) {
-      window.history.replaceState(window.history.state, "", newHash);
+      safeReplaceState(newHash);
     } else {
-      window.history.pushState(window.history.state, "", newHash);
+      safePushState(newHash);
     }
   }
 }
@@ -190,9 +217,7 @@ function handleModalNavigation(
     startTransition(() => {
       useAppStore.getState().closeModal();
     });
-    if (typeof window !== "undefined") {
-      window.history.replaceState(window.history.state, "", "#home");
-    }
+    safeReplaceState("#home");
     return true;
   }
 
@@ -201,9 +226,7 @@ function handleModalNavigation(
       startTransition(() => {
         useAppStore.getState().closeModal();
       });
-      if (typeof window !== "undefined") {
-        window.history.replaceState(window.history.state, "", "#home");
-      }
+      safeReplaceState("#home");
       return true;
     }
     startTransition(() => {
@@ -284,20 +307,97 @@ export function applyHashNavigation(
   startTransition(() => {
     useAppStore.getState().closeModal();
   });
-  if (typeof window !== "undefined") {
-    window.history.replaceState(window.history.state, "", "#home");
-  }
+  safeReplaceState("#home");
 }
 
-function useScrollSpy(
-  isLoading: boolean,
-  visibleSectionsRef: React.RefObject<Set<string>>,
-) {
+export function checkIsAtDocumentBottom(
+  scrollY: number,
+  innerHeight: number,
+  scrollHeight: number,
+  tolerance = 4,
+): boolean {
+  return Math.ceil(scrollY + innerHeight) >= scrollHeight - tolerance;
+}
+
+export function commitScrollSpyHash(
+  pendingHash: string | null,
+  isNavigatingFlag: boolean,
+): boolean {
+  if (isNavigatingFlag || !pendingHash) return false;
+
+  const currentHash =
+    typeof window !== "undefined" ? window.location.hash.substring(1) : "";
+  const isModalActive =
+    (!!currentHash && !SECTIONS_SET.has(currentHash)) ||
+    selectIsAnyModalOpen(useAppStore.getState());
+
+  if (
+    typeof window !== "undefined" &&
+    window.location.hash !== pendingHash &&
+    !isModalActive
+  ) {
+    return safeReplaceState(pendingHash);
+  }
+
+  return false;
+}
+
+function useScrollSpy(isLoading: boolean) {
+  const pendingHashRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (isLoading) return;
 
-    const visibleSections = visibleSectionsRef.current;
-    if (!visibleSections) return;
+    const visibleSections = new Set<string>();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const commitPendingHash = () => {
+      if (isNavigating) {
+        pendingHashRef.current = null;
+        return;
+      }
+
+      if (typeof window !== "undefined") {
+        const isAtBottom = checkIsAtDocumentBottom(
+          window.scrollY,
+          window.innerHeight,
+          document.documentElement.scrollHeight,
+        );
+
+        if (isAtBottom && SECTIONS.length > 0) {
+          const lastSection = SECTIONS[SECTIONS.length - 1];
+          if (useAppStore.getState().activeSection !== lastSection) {
+            startTransition(() => {
+              useAppStore.getState().setActiveSection(lastSection);
+            });
+          }
+          pendingHashRef.current = `#${lastSection}`;
+        }
+      }
+
+      commitScrollSpyHash(pendingHashRef.current, isNavigating);
+      pendingHashRef.current = null;
+    };
+
+    const handleScrollSettle = () => {
+      clearTimeout(timer);
+      timer = undefined;
+      commitPendingHash();
+    };
+
+    const handleScroll = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        handleScrollSettle();
+      }, 150);
+    };
+
+    if ("onscrollend" in window) {
+      window.addEventListener("scrollend", handleScrollSettle, {
+        passive: true,
+      });
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -313,22 +413,16 @@ function useScrollSpy(
 
         const targetId = SECTIONS.findLast((id) => visibleSections.has(id));
         if (targetId) {
-          startTransition(() => {
-            useAppStore.getState().setActiveSection(targetId);
-          });
-
-          const newHash = `#${targetId}`;
-          const currentHash = window.location.hash.substring(1);
-          const isModalActive =
-            (!!currentHash && !SECTIONS_SET.has(currentHash)) ||
-            selectIsAnyModalOpen(useAppStore.getState());
-
-          if (window.location.hash !== newHash && !isModalActive) {
-            window.history.replaceState(window.history.state, "", newHash);
+          if (useAppStore.getState().activeSection !== targetId) {
+            startTransition(() => {
+              useAppStore.getState().setActiveSection(targetId);
+            });
           }
+
+          pendingHashRef.current = `#${targetId}`;
         }
       },
-      { rootMargin: "-25% 0px -55% 0px" },
+      { rootMargin: "-80px 0px -50% 0px" },
     );
 
     for (const id of SECTIONS) {
@@ -336,8 +430,13 @@ function useScrollSpy(
       if (element) observer.observe(element);
     }
 
-    return () => observer.disconnect();
-  }, [isLoading, visibleSectionsRef]);
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scrollend", handleScrollSettle);
+    };
+  }, [isLoading]);
 }
 
 /**
@@ -359,7 +458,6 @@ export function setupHashNavigationListener(isMobile: boolean): () => void {
 export function useNavigation() {
   const isLoading = useAppStore((state) => state.isLoading);
   const isMobile = useIsMobile();
-  const visibleSectionsRef = useRef(new Set<string>());
 
   useEffect(() => {
     if (isLoading) return;
@@ -369,7 +467,7 @@ export function useNavigation() {
     return setupHashNavigationListener(isMobile);
   }, [isLoading, isMobile]);
 
-  useScrollSpy(isLoading, visibleSectionsRef);
+  useScrollSpy(isLoading);
 
   return { navigateTo };
 }
@@ -399,7 +497,7 @@ export function useOverlay(
 
     if (window.location.hash !== targetHash) {
       previousHashRef.current = window.location.hash || "#home";
-      window.history.pushState(window.history.state, "", targetHash);
+      safePushState(targetHash);
     }
 
     const handleHashSync = () => {
@@ -421,7 +519,7 @@ export function useOverlay(
         const fallbackHash = previousSection
           ? `#${previousSection}`
           : `#${parentSection}`;
-        window.history.replaceState(window.history.state, "", fallbackHash);
+        safeReplaceState(fallbackHash);
       }
     };
   }, [isOpen, hashId]);
