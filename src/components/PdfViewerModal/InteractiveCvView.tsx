@@ -1,16 +1,5 @@
 import { memo } from "react";
-import {
-  Mail,
-  Phone,
-  MapPin,
-  Briefcase,
-  GraduationCap,
-  Sparkles,
-  Languages,
-  Award,
-  ExternalLink,
-  Globe,
-} from "lucide-react";
+import { Mail, Phone, MapPin, Languages } from "lucide-react";
 import { LiquidGlassButton, StaticGlass } from "../LiquidGlass/LiquidGlass";
 import { cn } from "../../utils/cn";
 import { type CvDataLanguageSection } from "../../data/cvData";
@@ -20,16 +9,16 @@ const PHONE_PREFIX_REGEX = /^[+\d]/;
 
 function BulletList({
   bullets,
-  className = "mt-3 list-none space-y-1.5",
+  className = "list-none space-y-2",
 }: Readonly<{ bullets: readonly string[]; className?: string }>) {
   return (
     <ul className={className}>
       {bullets.map((bullet) => (
         <li
           key={bullet}
-          className="flex items-start gap-1.5 text-sm text-pretty text-muted"
+          className="flex items-start gap-2.5 text-sm leading-relaxed text-pretty text-muted/90"
         >
-          <span className="mt-0.5 shrink-0 text-accent">•</span>
+          <span className="mt-2 size-1 shrink-0 rounded-full bg-accent/70" />
           <span className="wrap-anywhere">{bullet}</span>
         </li>
       ))}
@@ -42,63 +31,63 @@ interface CvSectionProps<T> {
   lang: "en" | "sk";
 }
 
+function parseSkillItem(raw: string): { title: string; subtitle?: string } {
+  const parenStart = raw.indexOf(" (");
+  if (parenStart !== -1 && raw.endsWith(")")) {
+    return {
+      title: raw.slice(0, parenStart).trim(),
+      subtitle: raw.slice(parenStart + 2, -1).trim(),
+    };
+  }
+  return { title: raw.trim() };
+}
+
 const CvExperienceSection = memo(function CvExperienceSection({
   data,
   lang,
 }: Readonly<CvSectionProps<CvDataLanguageSection["experience"]>>) {
   return (
-    <section className="space-y-4">
-      <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
-        <Briefcase size={16} className="text-accent" />
+    <section className="space-y-3">
+      <h2 className="text-sm font-semibold tracking-wider text-muted uppercase">
         {data.title}
       </h2>
       {data.items.length === 0 ? (
         <StaticGlass
-          roundedClass="rounded-xl"
-          className="w-full p-5 text-center text-muted"
+          roundedClass="rounded-2xl"
+          className="w-full block text-left"
         >
-          <p className="text-sm">
-            {lang === "sk"
-              ? "Žiadne záznamy o praxi."
-              : "No work experience entries available."}
-          </p>
+          <div className="p-5 md:p-6 text-center text-muted">
+            <p className="text-sm">
+              {lang === "sk"
+                ? "Žiadne záznamy o praxi."
+                : "No work experience entries available."}
+            </p>
+          </div>
         </StaticGlass>
       ) : (
-        <div className="space-y-6">
-          {data.items.map((job) => (
-            <div
-              key={`${job.company}-${job.role}`}
-              className="relative pl-6 before:absolute before:top-1.5 before:bottom-0 before:left-1.5 before:w-px before:bg-stroke/60"
-            >
-              <div className="absolute top-1 left-0 z-10 size-3.5 rounded-full border-2 border-accent bg-bg shadow-sm" />
-
-              <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <h3 className="text-base leading-tight font-semibold text-balance text-text-primary">
-                    {job.role}
-                  </h3>
-                  <p className="text-sm text-pretty text-muted">
-                    {job.company}
-                  </p>
+        <StaticGlass roundedClass="rounded-2xl" className="w-full block text-left">
+          <div className="p-5 md:p-6 space-y-6">
+            {data.items.map((job, idx) => (
+              <div
+                key={`${job.company}-${job.role}`}
+                className={idx > 0 ? "border-t border-white/5 pt-6" : ""}
+              >
+                <div className="mb-3 space-y-1">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+                    <h3 className="text-base font-semibold leading-tight text-balance text-text-primary md:text-lg">
+                      {job.role}
+                    </h3>
+                    <span className="text-sm text-muted tabular-nums shrink-0">
+                      {job.period}
+                    </span>
+                  </div>
+                  <p className="text-sm text-pretty text-muted md:text-base">{job.company}</p>
                 </div>
-                <span className="rounded-xl border border-accent/15 bg-accent/5 px-2.5 py-0.5 text-xs font-semibold text-accent uppercase tabular-nums">
-                  {job.period}
-                </span>
+                <BulletList bullets={job.bullets} />
               </div>
-              <ul className="mt-3 list-none space-y-2">
-                {job.bullets.map((bullet) => (
-                  <li
-                    key={bullet}
-                    className="flex items-start gap-2 text-sm leading-relaxed text-pretty text-muted/90"
-                  >
-                    <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-accent/60" />
-                    <span>{bullet}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </StaticGlass>
       )}
     </section>
   );
@@ -109,58 +98,55 @@ const CvEducationSection = memo(function CvEducationSection({
   lang,
 }: Readonly<CvSectionProps<CvDataLanguageSection["education"]>>) {
   return (
-    <section className="space-y-4">
-      <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
-        <GraduationCap size={16} className="text-accent" />
+    <section className="space-y-3">
+      <h2 className="text-sm font-semibold tracking-wider text-muted uppercase">
         {data.title}
       </h2>
       {data.items.length === 0 ? (
         <StaticGlass
-          roundedClass="rounded-xl"
-          className="w-full p-5 text-center text-muted"
+          roundedClass="rounded-2xl"
+          className="w-full block text-left"
         >
-          <p className="text-sm">
-            {lang === "sk"
-              ? "Žiadne záznamy o vzdelaní."
-              : "No education records available."}
-          </p>
+          <div className="p-5 md:p-6 text-center text-muted">
+            <p className="text-sm">
+              {lang === "sk"
+                ? "Žiadne záznamy o vzdelaní."
+                : "No education records available."}
+            </p>
+          </div>
         </StaticGlass>
       ) : (
-        <div className="space-y-6">
-          {data.items.map((edu) => (
-            <div
-              key={`${edu.school}-${edu.degree}`}
-              className="relative pl-6 before:absolute before:top-1.5 before:bottom-0 before:left-1.5 before:w-px before:bg-stroke/60 last:before:hidden"
-            >
-              <div className="absolute top-1 left-0 z-10 size-3.5 rounded-full border-2 border-accent bg-bg" />
-
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <h3 className="text-base leading-tight font-semibold text-balance text-text-primary">
-                    {edu.degree}
-                  </h3>
-                  <p className="text-sm text-pretty text-muted">{edu.school}</p>
+        <StaticGlass roundedClass="rounded-2xl" className="w-full block text-left">
+          <div className="p-5 md:p-6 space-y-6">
+            {data.items.map((edu, idx) => (
+              <div
+                key={`${edu.school}-${edu.degree}`}
+                className={idx > 0 ? "border-t border-white/5 pt-6" : ""}
+              >
+                <div className="space-y-1">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+                    <h3 className="text-base font-semibold leading-tight text-balance text-text-primary md:text-lg">
+                      {edu.degree}
+                    </h3>
+                    <span className="text-sm text-muted tabular-nums shrink-0">
+                      {edu.period}
+                    </span>
+                  </div>
+                  <p className="text-sm text-pretty text-muted md:text-base">{edu.school}</p>
                 </div>
-                <span className="rounded-xl bg-white/5 px-2.5 py-0.5 font-mono text-xs text-muted tabular-nums">
-                  {edu.period}
-                </span>
+
+                {edu.details ? (
+                  <div className="mt-3.5 space-y-2 pl-4 sm:pl-5">
+                    <p className="text-sm font-medium text-balance text-text-primary/95 md:text-base">
+                      {edu.details.thesisTitle}
+                    </p>
+                    <BulletList bullets={edu.details.bullets} />
+                  </div>
+                ) : null}
               </div>
-
-              {edu.details ? (
-                <div className="mt-3 rounded-lg border border-white/5 bg-white/5 p-3.5">
-                  <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-balance text-text-primary">
-                    <span className="h-3 w-1 rounded bg-accent" />
-                    {edu.details.thesisTitle}
-                  </p>
-                  <BulletList
-                    bullets={edu.details.bullets}
-                    className="list-none space-y-1.5 text-sm leading-relaxed"
-                  />
-                </div>
-              ) : null}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </StaticGlass>
       )}
     </section>
   );
@@ -173,54 +159,52 @@ const CvCertificatesSection = memo(function CvCertificatesSection({
   CvSectionProps<NonNullable<CvDataLanguageSection["certificates"]>>
 >) {
   return (
-    <section className="space-y-4">
-      <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
-        <Award size={16} className="text-accent" />
+    <section className="space-y-3">
+      <h2 className="text-sm font-semibold tracking-wider text-muted uppercase">
         {data.title}
       </h2>
       {data.items.length === 0 ? (
         <StaticGlass
-          roundedClass="rounded-xl"
-          className="w-full p-4 text-center text-muted"
+          roundedClass="rounded-2xl"
+          className="w-full block text-left"
         >
-          <p className="text-sm">
-            {lang === "sk"
-              ? "Žiadne certifikáty."
-              : "No certificates available."}
-          </p>
+          <div className="p-5 md:p-6 text-center text-muted">
+            <p className="text-sm">
+              {lang === "sk"
+                ? "Žiadne certifikáty."
+                : "No certificates available."}
+            </p>
+          </div>
         </StaticGlass>
       ) : (
-        <div className="space-y-6">
-          {data.items.map((cert) => (
-            <div
-              key={`${cert.issuer}-${cert.name}`}
-              className="relative pl-6 before:absolute before:top-1.5 before:bottom-0 before:left-1.5 before:w-px before:bg-stroke/60 last:before:hidden"
-            >
-              <div className="absolute top-1 left-0 z-10 size-3.5 rounded-full border-2 border-accent bg-bg" />
-
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <h3 className="text-base leading-tight font-semibold text-balance text-text-primary">
-                    {cert.name}
-                  </h3>
-                  <p className="text-sm text-pretty text-muted">
-                    {cert.issuer}
-                  </p>
+        <StaticGlass roundedClass="rounded-2xl" className="w-full block text-left">
+          <div className="p-5 md:p-6 space-y-6">
+            {data.items.map((cert, idx) => (
+              <div
+                key={`${cert.issuer}-${cert.name}`}
+                className={idx > 0 ? "border-t border-white/5 pt-6" : ""}
+              >
+                <div className="space-y-1">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+                    <h3 className="text-base font-semibold leading-tight text-balance text-text-primary md:text-lg">
+                      {cert.name}
+                    </h3>
+                    <span className="text-sm text-muted tabular-nums shrink-0">
+                      {cert.date}
+                    </span>
+                  </div>
+                  <p className="text-sm text-pretty text-muted md:text-base">{cert.issuer}</p>
                 </div>
-                <span className="rounded-xl bg-white/5 px-2.5 py-0.5 font-mono text-xs text-muted tabular-nums">
-                  {cert.date}
-                </span>
-              </div>
 
-              {cert.bullets && cert.bullets.length > 0 ? (
-                <BulletList
-                  bullets={cert.bullets}
-                  className="text-sm leading-relaxed"
-                />
-              ) : null}
-            </div>
-          ))}
-        </div>
+                {cert.bullets && cert.bullets.length > 0 ? (
+                  <div className="mt-3.5">
+                    <BulletList bullets={cert.bullets} />
+                  </div>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </StaticGlass>
       )}
     </section>
   );
@@ -231,43 +215,58 @@ const CvSkillsSection = memo(function CvSkillsSection({
   lang,
 }: Readonly<CvSectionProps<CvDataLanguageSection["skills"]>>) {
   return (
-    <div className="space-y-6 rounded-2xl border border-white/5 bg-white/5 p-5">
-      <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
-        <Globe size={16} className="text-accent" />
+    <section className="space-y-3">
+      <h2 className="text-sm font-semibold tracking-wider text-muted uppercase">
         {data.title}
       </h2>
-
-      {data.categories.length === 0 ? (
-        <StaticGlass
-          roundedClass="rounded-xl"
-          className="w-full p-4 text-center text-muted"
-        >
-          <p className="text-sm">
-            {lang === "sk" ? "Žiadne zručnosti." : "No skills listed."}
-          </p>
-        </StaticGlass>
-      ) : (
-        <div className="space-y-4">
-          {data.categories.map((cat) => (
-            <div key={cat.name} className="space-y-2">
-              <h3 className="text-sm font-semibold text-balance text-accent">
-                {cat.name}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {cat.items.map((skill) => (
-                  <span
-                    key={skill}
-                    className="rounded-xl border border-white/5 bg-white/5 px-3 py-1 text-sm text-muted/95 transition-colors select-none hover:bg-white/8 hover:text-text-primary"
-                  >
-                    {skill}
-                  </span>
-                ))}
+      <StaticGlass
+        roundedClass="rounded-2xl"
+        className="w-full block text-left"
+      >
+        <div className="p-5 md:p-6 space-y-5">
+          {data.categories.length === 0 ? (
+            <p className="text-sm text-muted">
+              {lang === "sk" ? "Žiadne zručnosti." : "No skills listed."}
+            </p>
+          ) : (
+            data.categories.map((cat, idx) => (
+              <div
+                key={cat.name}
+                className={cn("space-y-2.5", idx > 0 && "border-t border-white/5 pt-5")}
+              >
+                <h3 className="text-sm font-semibold tracking-wide text-text-primary">
+                  {cat.name}
+                </h3>
+                <ul className="space-y-1.5">
+                  {cat.items.map((skill) => {
+                    const { title, subtitle } = parseSkillItem(skill);
+                    return (
+                      <li
+                        key={skill}
+                        className="group flex items-start gap-2.5 text-sm leading-relaxed text-pretty text-muted/90 transition-colors duration-150 hover:text-text-primary"
+                      >
+                        <span className="mt-2 size-1 shrink-0 rounded-full bg-accent/70 transition-transform duration-150 group-hover:scale-125 group-hover:bg-accent" />
+                        <span className="flex-1 wrap-anywhere">
+                          <span>{title}</span>
+                          {subtitle ? (
+                            <>
+                              <span className="mx-1.5 text-white/20 select-none">·</span>
+                              <span className="text-muted/70 transition-colors duration-150 group-hover:text-muted">
+                                {subtitle}
+                              </span>
+                            </>
+                          ) : null}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
-      )}
-    </div>
+      </StaticGlass>
+    </section>
   );
 });
 
@@ -276,39 +275,81 @@ const CvLanguagesSection = memo(function CvLanguagesSection({
   lang,
 }: Readonly<CvSectionProps<CvDataLanguageSection["languages"]>>) {
   return (
-    <div className="space-y-4 rounded-2xl border border-white/5 bg-white/5 p-5">
-      <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
-        <Languages size={16} className="text-accent" />
+    <section className="space-y-3">
+      <h2 className="text-sm font-semibold tracking-wider text-muted uppercase">
         {data.title}
       </h2>
-
-      {data.items.length === 0 ? (
-        <StaticGlass
-          roundedClass="rounded-xl"
-          className="w-full p-4 text-center text-muted"
-        >
-          <p className="text-sm">
-            {lang === "sk" ? "Žiadne jazyky." : "No languages listed."}
-          </p>
-        </StaticGlass>
-      ) : (
-        <div className="space-y-2.5">
-          {data.items.map((langItem) => (
-            <div
-              key={langItem.name}
-              className="flex items-center justify-between text-sm"
-            >
-              <span className="font-normal text-text-primary">
-                {langItem.name}
-              </span>
-              <span className="rounded-xl border border-accent/10 bg-accent/10 px-2.5 py-0.5 font-mono text-xs font-semibold text-accent">
-                {langItem.level}
-              </span>
+      <StaticGlass
+        roundedClass="rounded-2xl"
+        className="w-full block text-left"
+      >
+        <div className="p-5 md:p-6">
+          {data.items.length === 0 ? (
+            <p className="text-sm text-muted">
+              {lang === "sk" ? "Žiadne jazyky." : "No languages listed."}
+            </p>
+          ) : (
+            <div className="divide-y divide-white/5">
+              {data.items.map((langItem) => (
+                <div
+                  key={langItem.name}
+                  className="flex items-center justify-between py-3 first:pt-0 last:pb-0 text-sm"
+                >
+                  <span className="font-medium text-text-primary">
+                    {langItem.name}
+                  </span>
+                  <span className="font-medium text-accent/90 tabular-nums">
+                    {langItem.level}
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
-      )}
-    </div>
+      </StaticGlass>
+    </section>
+  );
+});
+
+const CONTACT_PILL_CLASS =
+  "inline-flex h-8 items-center px-3.5 text-sm font-normal text-muted";
+
+interface CvPhoneContactProps {
+  phone: string;
+}
+
+const CvPhoneContact = memo(function CvPhoneContact({
+  phone,
+}: CvPhoneContactProps) {
+  if (!phone) return null;
+
+  if (PHONE_PREFIX_REGEX.test(phone)) {
+    return (
+      <LiquidGlassButton
+        href={`tel:${phone.replace(/[^\d+]/g, "")}`}
+        className={cn(
+          CONTACT_PILL_CLASS,
+          "transition-colors hover:text-text-primary",
+        )}
+        innerClassName="inline-flex items-center gap-1.5 font-normal"
+        ariaLabel={`Call ${phone}`}
+      >
+        <Phone size={14} className="shrink-0 text-accent" />
+        <span className="whitespace-nowrap">{phone}</span>
+      </LiquidGlassButton>
+    );
+  }
+
+  return (
+    <StaticGlass
+      as="span"
+      roundedClass="rounded-full"
+      className={CONTACT_PILL_CLASS}
+      innerClassName="inline-flex items-center gap-1.5 font-normal"
+    >
+      <Phone size={14} className="shrink-0 text-accent" />
+      <span className="whitespace-nowrap">{phone}</span>
+    </StaticGlass>
   );
 });
 
@@ -322,95 +363,97 @@ export const InteractiveCvView = memo(function InteractiveCvView({
   lang,
 }: InteractiveCvViewProps) {
   return (
-    <div className="mx-auto max-w-4xl space-y-10 pb-12">
-      {/* CV Heading Card */}
-      <div className="relative flex flex-col items-start justify-between gap-6 overflow-hidden rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur-md md:flex-row md:items-center md:p-8">
-        <div className="pointer-events-none absolute inset-0 z-0 bg-linear-to-tr from-accent/5 to-transparent" />
+    <div className="mx-auto max-w-4xl space-y-8 pb-12">
+      {/* Dossier Header Card */}
+      <StaticGlass
+        roundedClass="rounded-2xl"
+        className="w-full block text-left"
+      >
+        <div className="p-6 md:p-8">
+          <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+            <div className="space-y-1.5">
+              <h1 className="font-display text-3xl tracking-tight text-balance wrap-break-word text-text-primary md:text-4xl">
+                {activeCv.title}
+              </h1>
+              <p className="font-body text-sm font-normal text-pretty wrap-break-word text-muted md:text-base">
+                {activeCv.role}
+              </p>
 
-        <div className="relative z-10">
-          <div className="mb-2 flex items-center gap-2">
-            <span className="rounded-xl bg-accent/10 px-2.5 py-0.5 text-sm font-semibold tracking-wider text-accent uppercase">
-              {lang === "en" ? "Active Resume" : "Aktívny Životopis"}
-            </span>
-          </div>
-          <h1 className="mb-1 font-display text-3xl text-balance wrap-break-word text-text-primary md:text-4xl">
-            {activeCv.title}
-          </h1>
-          <p className="font-body text-base font-normal text-pretty wrap-break-word text-text-primary/95">
-            {activeCv.role}
-          </p>
+              {/* Contacts Strip */}
+              <div className="pt-3 flex flex-wrap items-center gap-2 text-sm text-muted tabular-nums">
+                <StaticGlass
+                  as="span"
+                  roundedClass="rounded-full"
+                  className={CONTACT_PILL_CLASS}
+                  innerClassName="inline-flex items-center gap-1.5 font-normal"
+                >
+                  <MapPin size={14} className="shrink-0 text-accent" />
+                  <span className="whitespace-nowrap">{activeCv.location}</span>
+                </StaticGlass>
 
-          {/* Contacts */}
-          <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted tabular-nums">
-            <span className="flex items-center gap-1.5">
-              <MapPin size={14} className="shrink-0 text-accent/65" />
-              <span className="break-all">{activeCv.location}</span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Mail size={12} className="shrink-0 text-accent/65" />
-              <a
-                href={`mailto:${activeCv.email}`}
-                className="break-all transition-colors hover:text-text-primary"
-              >
-                {activeCv.email}
-              </a>
-            </span>
-            {activeCv.phone ? (
-              <span className="flex items-center gap-1.5">
-                <Phone size={12} className="shrink-0 text-accent/65" />
-                {PHONE_PREFIX_REGEX.test(activeCv.phone) ? (
-                  <a
-                    href={`tel:${activeCv.phone.replace(/[^\d+]/g, "")}`}
-                    className="break-all transition-colors hover:text-text-primary"
-                  >
-                    {activeCv.phone}
-                  </a>
-                ) : (
-                  <span className="break-all">{activeCv.phone}</span>
+                <LiquidGlassButton
+                  href={`mailto:${activeCv.email}`}
+                  className={cn(
+                    CONTACT_PILL_CLASS,
+                    "transition-colors hover:text-text-primary",
+                  )}
+                  innerClassName="inline-flex items-center gap-1.5 font-normal"
+                  ariaLabel={`Email ${activeCv.email}`}
+                >
+                  <Mail size={14} className="shrink-0 text-accent" />
+                  <span className="whitespace-nowrap">{activeCv.email}</span>
+                </LiquidGlassButton>
+
+                <CvPhoneContact phone={activeCv.phone} />
+              </div>
+            </div>
+
+            {/* Language Toggler */}
+            <div className="flex items-center gap-1.5 self-start md:self-auto">
+              <LiquidGlassButton
+                onClick={() => useAppStore.getState().setCvLang("en")}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold",
+                  lang === "en" ? "text-accent" : "text-muted",
                 )}
-              </span>
-            ) : null}
+              >
+                <Languages size={14} />
+                EN
+              </LiquidGlassButton>
+              <LiquidGlassButton
+                onClick={() => useAppStore.getState().setCvLang("sk")}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold",
+                  lang === "sk" ? "text-accent" : "text-muted",
+                )}
+              >
+                <Languages size={14} />
+                SK
+              </LiquidGlassButton>
+            </div>
           </div>
         </div>
-
-        {/* Language Toggler */}
-        <div className="relative z-10 flex items-center gap-1.5 self-start md:self-auto">
-          <LiquidGlassButton
-            onClick={() => useAppStore.getState().setCvLang("en")}
-            className={cn(
-              "flex items-center gap-1 px-3 py-1.5 text-sm font-semibold",
-              lang === "en" ? "text-accent" : "text-muted",
-            )}
-          >
-            <Languages size={11} />
-            EN
-          </LiquidGlassButton>
-          <LiquidGlassButton
-            onClick={() => useAppStore.getState().setCvLang("sk")}
-            className={cn(
-              "flex items-center gap-1 px-3 py-1.5 text-sm font-semibold",
-              lang === "sk" ? "text-accent" : "text-muted",
-            )}
-          >
-            <Languages size={11} />
-            SK
-          </LiquidGlassButton>
-        </div>
-      </div>
+      </StaticGlass>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        {/* Left: Summary, Experience, Education */}
-        <div className="space-y-10 lg:col-span-2">
+        {/* Left Column: Summary, Experience, Education, Certificates */}
+        <div className="space-y-8 lg:col-span-2">
           {/* Profile Section */}
           <section className="space-y-3">
-            <h2 className="flex items-center gap-2 border-b border-white/5 pb-2 text-lg font-semibold text-balance text-text-primary">
-              <Sparkles size={16} className="text-accent" />
+            <h2 className="text-sm font-semibold tracking-wider text-muted uppercase">
               {activeCv.profile.title}
             </h2>
-            <p className="font-body text-sm leading-relaxed text-pretty text-muted">
-              {activeCv.profile.text}
-            </p>
+            <StaticGlass
+              roundedClass="rounded-2xl"
+              className="w-full block text-left"
+            >
+              <div className="p-5 md:p-6">
+                <p className="font-body text-sm leading-relaxed text-pretty text-text-primary/90 md:text-base">
+                  {activeCv.profile.text}
+                </p>
+              </div>
+            </StaticGlass>
           </section>
 
           <CvExperienceSection data={activeCv.experience} lang={lang} />
@@ -420,27 +463,10 @@ export const InteractiveCvView = memo(function InteractiveCvView({
           ) : null}
         </div>
 
-        {/* Right: Skills & Languages */}
+        {/* Right Column: Skills & Languages */}
         <div className="space-y-8">
           <CvSkillsSection data={activeCv.skills} lang={lang} />
           <CvLanguagesSection data={activeCv.languages} lang={lang} />
-
-          {/* Mobile Warning Notice */}
-          <div className="space-y-2 rounded-lg border border-accent/20 bg-accent/5 p-4 text-center md:hidden">
-            <p className="text-sm text-pretty text-muted">
-              PDF view is optimized for desktop viewports. To read the official
-              document, you can open or download the PDF below.
-            </p>
-            <a
-              href="/cv/Ondrej_Michal_Ockaj_CV.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent transition-colors hover:text-text-primary"
-            >
-              <ExternalLink size={12} />
-              Open PDF Document
-            </a>
-          </div>
         </div>
       </div>
     </div>

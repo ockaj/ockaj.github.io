@@ -195,43 +195,45 @@ const PdfModalTabs = memo(function PdfModalTabs({
   isMobile,
 }: PdfModalTabsProps) {
   return (
-    <Tabs
-      value={activeTab}
-      onChange={onTabChange}
-      layoutId="active-viewer-tab"
-      highlightClassName="navbar-highlight-flat"
-      className="isolate flex transform-gpu items-center gap-0.5 overflow-hidden rounded-full border border-white/5 bg-white/3 p-2"
-    >
-      <Tab
-        id="tab-pdf"
-        value="pdf"
-        aria-controls="tabpanel-pdf"
-        className={cn(
-          "relative z-10 rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset",
-          activeTab === "pdf"
-            ? "text-text-primary"
-            : "text-muted hover:text-text-primary",
-        )}
+    <div className="hidden sm:flex">
+      <Tabs
+        value={activeTab}
+        onChange={onTabChange}
+        layoutId="active-viewer-tab"
+        highlightClassName="navbar-highlight-flat"
+        className="isolate flex transform-gpu items-center gap-0.5 overflow-hidden rounded-full border border-white/5 bg-white/3 p-2"
       >
-        <span>{isMobile ? "PDF File ↗" : "PDF Document"}</span>
-      </Tab>
-      <Tab
-        id="tab-interactive"
-        value="interactive"
-        aria-controls="tabpanel-interactive"
-        className={cn(
-          "relative z-10 rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset",
-          activeTab === "interactive"
-            ? "text-text-primary"
-            : "text-muted hover:text-text-primary",
-        )}
-      >
-        <span className="flex items-center gap-1">
-          <Sparkles size={11} className="text-accent" />
-          <span>{isMobile ? "Interactive" : "Interactive CV"}</span>
-        </span>
-      </Tab>
-    </Tabs>
+        <Tab
+          id="tab-pdf"
+          value="pdf"
+          aria-controls="tabpanel-pdf"
+          className={cn(
+            "relative z-10 rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset",
+            activeTab === "pdf"
+              ? "text-text-primary"
+              : "text-muted hover:text-text-primary",
+          )}
+        >
+          <span>{isMobile ? "PDF File ↗" : "PDF Document"}</span>
+        </Tab>
+        <Tab
+          id="tab-interactive"
+          value="interactive"
+          aria-controls="tabpanel-interactive"
+          className={cn(
+            "relative z-10 rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200 select-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset",
+            activeTab === "interactive"
+              ? "text-text-primary"
+              : "text-muted hover:text-text-primary",
+          )}
+        >
+          <span className="flex items-center gap-1">
+            <Sparkles size={11} className="text-accent" />
+            <span>{isMobile ? "Interactive" : "Interactive CV"}</span>
+          </span>
+        </Tab>
+      </Tabs>
+    </div>
   );
 });
 
@@ -338,7 +340,7 @@ const PdfModalBody = memo(function PdfModalBody({
         aria-labelledby="tab-interactive"
         className={
           activeTab === "interactive"
-            ? "custom-cv-scrollbar absolute inset-0 overflow-y-auto overscroll-contain p-6 pb-safe-6 md:p-8 md:pb-8 lg:p-12"
+            ? "custom-cv-scrollbar absolute inset-0 overflow-y-auto overscroll-contain p-4 pb-safe-6 sm:p-6 md:p-8 md:pb-8 lg:p-12"
             : "hidden"
         }
       >
