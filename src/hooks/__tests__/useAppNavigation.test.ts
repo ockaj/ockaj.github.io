@@ -292,6 +292,15 @@ describe("useAppNavigation", () => {
       globalThis.requestAnimationFrame = originalRaf;
     });
 
+    it("does not attach scrollend early unlock on instant navigation but attaches on smooth navigation", () => {
+      applyHashNavigation("#skills", false, "instant");
+      expect(eventListeners["scrollend"] ?? []).toHaveLength(0);
+      expect(eventListeners["wheel"] ?? []).toHaveLength(1);
+
+      applyHashNavigation("#work", false, "smooth");
+      expect(eventListeners["scrollend"] ?? []).toHaveLength(1);
+    });
+
     it("closes modal on empty fragment without modifying history", () => {
       useAppStore.getState().openModal("cv");
       applyHashNavigation("", false, "smooth");

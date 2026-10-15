@@ -20,6 +20,7 @@ import {
 } from "../utils/sectionResolution";
 import { useIsMobile, isReducedMotionPreferred } from "./useMediaQuery";
 const SECTIONS = Object.keys(LABEL_MAP);
+const LAST_SECTION = SECTIONS.at(-1);
 
 let isClosingOverlayViaPopstate = false;
 
@@ -32,7 +33,10 @@ let isNavigating = false;
 let scrollEndCleanup: (() => void) | null = null;
 let navigationTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
-function setNavigationLock(duration = 1000): void {
+function setNavigationLock(
+  duration = 1000,
+  behavior: ScrollBehavior = "smooth",
+): void {
   isNavigating = true;
 
   if (scrollEndCleanup) {
@@ -61,10 +65,12 @@ function setNavigationLock(duration = 1000): void {
       unlock();
     };
 
-    window.addEventListener("scrollend", onScrollEnd, {
-      once: true,
-      passive: true,
-    });
+    if (behavior === "smooth") {
+      window.addEventListener("scrollend", onScrollEnd, {
+        once: true,
+        passive: true,
+      });
+    }
     window.addEventListener("wheel", unlock, { once: true, passive: true });
     window.addEventListener("touchstart", unlock, {
       once: true,
@@ -72,7 +78,9 @@ function setNavigationLock(duration = 1000): void {
     });
 
     scrollEndCleanup = () => {
-      window.removeEventListener("scrollend", onScrollEnd);
+      if (behavior === "smooth") {
+        window.removeEventListener("scrollend", onScrollEnd);
+      }
       window.removeEventListener("wheel", unlock);
       window.removeEventListener("touchstart", unlock);
     };
@@ -121,11 +129,12 @@ export function navigateTo(target: string, options?: NavigateToOptions): void {
   startTransition(() => {
     useAppStore.getState().setActiveSection(sectionId);
   });
-  setNavigationLock();
 
   const isReduced = isReducedMotionPreferred();
   const scrollBehavior =
     options?.behavior ?? (isReduced ? "instant" : "smooth");
+
+  setNavigationLock(1000, scrollBehavior);
 
   document
     .getElementById(sectionId)
@@ -318,6 +327,17 @@ export function checkIsAtDocumentBottom(
   return Math.ceil(scrollY + innerHeight) >= scrollHeight - tolerance;
 }
 
+function isViewportAtBottom(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    checkIsAtDocumentBottom(
+      window.scrollY,
+      window.innerHeight,
+      document.documentElement.scrollHeight,
+    )
+  );
+}
+
 export function commitScrollSpyHash(
   pendingHash: string | null,
   isNavigatingFlag: boolean,
@@ -355,22 +375,13 @@ function useScrollSpy(isLoading: boolean) {
         return;
       }
 
-      if (typeof window !== "undefined") {
-        const isAtBottom = checkIsAtDocumentBottom(
-          window.scrollY,
-          window.innerHeight,
-          document.documentElement.scrollHeight,
-        );
-
-        if (isAtBottom && SECTIONS.length > 0) {
-          const lastSection = SECTIONS[SECTIONS.length - 1];
-          if (useAppStore.getState().activeSection !== lastSection) {
-            startTransition(() => {
-              useAppStore.getState().setActiveSection(lastSection);
-            });
-          }
-          pendingHashRef.current = `#${lastSection}`;
+      if (LAST_SECTION && isViewportAtBottom()) {
+        if (useAppStore.getState().activeSection !== LAST_SECTION) {
+          startTransition(() => {
+            useAppStore.getState().setActiveSection(LAST_SECTION);
+          });
         }
+        pendingHashRef.current = `#${LAST_SECTION}`;
       }
 
       commitScrollSpyHash(pendingHashRef.current, isNavigating);
@@ -409,7 +420,13 @@ function useScrollSpy(isLoading: boolean) {
 
         if (isNavigating) return;
 
-        const targetId = SECTIONS.findLast((id) => visibleSections.has(id));
+        const intersectedId = SECTIONS.findLast((id) =>
+          visibleSections.has(id),
+        );
+        const targetId =
+          LAST_SECTION && intersectedId !== LAST_SECTION && isViewportAtBottom()
+            ? LAST_SECTION
+            : intersectedId;
         if (targetId) {
           if (useAppStore.getState().activeSection !== targetId) {
             startTransition(() => {

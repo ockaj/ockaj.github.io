@@ -1,4 +1,13 @@
-import { memo, useState, useEffect, useRef, type ReactNode } from "react";
+import {
+  memo,
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useEffectEvent,
+  useCallback,
+  useRef,
+  type ReactNode,
+} from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Skeleton, BoneSuspense } from "boneyard-js/react";
 import type { SnapshotConfig } from "boneyard-js";
@@ -28,6 +37,12 @@ const DEFAULT_SNAPSHOT_CONFIG: SnapshotConfig = {
   excludeSelectors: ["[data-no-skeleton]"],
 };
 
+const INITIAL_STYLE_MOTION = { opacity: 0, y: 30 };
+const INITIAL_STYLE_REDUCED = { opacity: 0, y: 0 };
+const REDUCED_SECTION_TRANSITION = { duration: 0.15 };
+
+type SectionLoadPhase = "idle" | "loading" | "ready";
+
 function isInitialTarget(id: string): boolean {
   if (isBoneyardBuild()) return true;
   if (typeof window === "undefined") return false;
@@ -40,6 +55,27 @@ function isInitialTarget(id: string): boolean {
   }
 }
 
+function getInitialLoadPhase(id: string): SectionLoadPhase {
+  if (isBoneyardBuild()) return "ready";
+  return isInitialTarget(id) ? "loading" : "idle";
+}
+
+function SuspenseContentBoundary({
+  onReady,
+  children,
+}: Readonly<{
+  onReady: () => void;
+  children: ReactNode;
+}>) {
+  const notifyReady = useEffectEvent(onReady);
+
+  useLayoutEffect(() => {
+    notifyReady();
+  }, []);
+
+  return children;
+}
+
 function LazySection({
   id,
   header,
@@ -49,13 +85,23 @@ function LazySection({
   snapshotConfig = DEFAULT_SNAPSHOT_CONFIG,
 }: Readonly<LazySectionProps>) {
   const prefersReducedMotion = useReducedMotion();
-  const initialStyle = { opacity: 0, y: prefersReducedMotion ? 0 : 30 };
+  const initialStyle = prefersReducedMotion
+    ? INITIAL_STYLE_REDUCED
+    : INITIAL_STYLE_MOTION;
   const sectionTransition = prefersReducedMotion
-    ? { duration: 0.15 }
+    ? REDUCED_SECTION_TRANSITION
     : SECTION_TRANSITION;
 
-  const [hasLoaded, setHasLoaded] = useState(() => isInitialTarget(id));
+  const [loadPhase, setLoadPhase] = useState<SectionLoadPhase>(() =>
+    getInitialLoadPhase(id),
+  );
+  const hasLoaded = loadPhase !== "idle";
+  const isContentReady = loadPhase === "ready";
   const sectionRef = useRef<HTMLElement | null>(null);
+
+  const handleContentReady = useCallback(() => {
+    setLoadPhase("ready");
+  }, []);
 
   useEffect(() => {
     if (hasLoaded) return;
@@ -74,7 +120,7 @@ function LazySection({
           idleId = requestIdle(
             () => {
               idleId = null;
-              setHasLoaded(true);
+              setLoadPhase((prev) => (prev === "idle" ? "loading" : prev));
             },
             { timeout: 1000 },
           );
@@ -87,7 +133,7 @@ function LazySection({
 
     const unsubscribe = useAppStore.subscribe((state) => {
       if (state.activeSection === id) {
-        setHasLoaded(true);
+        setLoadPhase((prev) => (prev === "idle" ? "loading" : prev));
       }
     });
 
@@ -100,7 +146,9 @@ function LazySection({
     };
   }, [id, hasLoaded]);
 
-  const containerStyle = hasLoaded ? undefined : getSkeletonStyle(bonesName);
+  const containerStyle = isContentReady
+    ? undefined
+    : getSkeletonStyle(bonesName);
 
   return (
     <section
@@ -128,8 +176,8 @@ function LazySection({
           transition={sectionTransition}
           style={containerStyle}
           className={cn(
-            !hasLoaded &&
-              "min-h-(--skeleton-min-h-mob) md:min-h-(--skeleton-min-h-tab) lg:min-h-(--skeleton-min-h-desk) xl:min-h-(--skeleton-min-h-wide)",
+            !isContentReady &&
+              "min-h-(--skeleton-min-h-mob) [overflow-anchor:none] md:min-h-(--skeleton-min-h-tab) lg:min-h-(--skeleton-min-h-desk) xl:min-h-(--skeleton-min-h-wide)",
           )}
         >
           {hasLoaded ? (
@@ -138,7 +186,9 @@ function LazySection({
               select="viewport"
               snapshotConfig={snapshotConfig}
             >
-              {children}
+              <SuspenseContentBoundary onReady={handleContentReady}>
+                {children}
+              </SuspenseContentBoundary>
             </BoneSuspense>
           ) : (
             <Skeleton
