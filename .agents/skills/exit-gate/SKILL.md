@@ -39,7 +39,9 @@ Inspect and run the unit test suite for every modified domain module, hook, or s
 
 ## Step 4: Run the Deterministic Gate (`npm run gate`)
 
-Execute `npm run gate` (`node scripts/verify-gate.mjs`) and inspect raw `stdout` and `stderr`. Fix every reported violation at its root cause in source code rather than suppressing rules.
+Execute `npm run gate` in the terminal and evaluate the result:
+- When `npm run gate` exits `0` (**green**): proceed directly to Step 5.
+- When `npm run gate` reports violations: repair each issue directly at the reported source file and line number shown in the terminal output, then rerun `npm run gate`.
 
 **Completion criterion:** `npm run gate` exits `0` (**green**) with zero reported violations across all source files, test suites, and rule docs.
 

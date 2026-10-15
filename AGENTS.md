@@ -10,7 +10,7 @@ Verify only when required:
 
 - **Skip verification**: For cosmetic changes (CSS, Tailwind classes, colors, spacing, text, copy, markdown). Finish the turn without running commands.
 - **Run verification**: For logic and code changes (TypeScript, state, dependencies, component structure). Run `npm run verify` once at the end of the task.
-- **Exit gate**: Before finishing logic, state, routing, overlay, or config edits, run [`.agents/skills/exit-gate/SKILL.md`](./.agents/skills/exit-gate/SKILL.md).
+- **Exit gate**: Before finishing logic, state, routing, overlay, or config edits, run `npm run gate` in the terminal and rely strictly on its exit code and output. If gate checks fail or remediation guidance is needed, consult [`.agents/skills/exit-gate/SKILL.md`](./.agents/skills/exit-gate/SKILL.md).
 
 ---
 
