@@ -6,7 +6,6 @@ import {
   useCallback,
   useMemo,
   type CSSProperties,
-  type PointerEvent,
 } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
@@ -113,8 +112,7 @@ export default function LiquidGlassMobile(
       WebkitBackfaceVisibility: effectiveSpringScale ? "hidden" : undefined,
       backfaceVisibility: effectiveSpringScale ? "hidden" : undefined,
       willChange:
-        style?.willChange ??
-        (effectiveSpringScale ? "transform" : undefined),
+        style?.willChange ?? (effectiveSpringScale ? "transform" : undefined),
       ...style,
     };
   }, [effectiveSpringScale, style]);
@@ -123,26 +121,19 @@ export default function LiquidGlassMobile(
   const tapScaleX = 1 + tapDeltaX / width;
   const tapScaleY = scaleVertical.tap.mobile;
 
-  const handlePointerDownWrapper = useCallback(
-    (e: PointerEvent<HTMLElement>) => {
-      handlePointerDown(e);
-    },
-    [handlePointerDown],
-  );
-
   const sharedAnimationProps = useMemo(
     () => ({
       whileTap: effectiveSpringScale
         ? { scaleX: tapScaleX, scaleY: tapScaleY }
         : undefined,
       transition: effectiveSpringScale ? SCALE_TRANSITION : undefined,
-      onPointerDown: handlePointerDownWrapper,
+      onPointerDown: handlePointerDown,
     }),
-    [effectiveSpringScale, handlePointerDownWrapper, tapScaleX, tapScaleY],
+    [effectiveSpringScale, handlePointerDown, tapScaleX, tapScaleY],
   );
 
   const { isInline, contentClasses } = getContentTagAndClasses(
-    as,
+    href ? "a" : as,
     innerClassName,
   );
   const ContentTag = isInline ? "span" : "div";

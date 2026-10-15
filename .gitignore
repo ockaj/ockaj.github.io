@@ -40,7 +40,8 @@ dist-ssr/
 stats.html
 
 # Local agent skills, critique, and cache directories
-.agents/skills/
+.agents/skills/*
+!.agents/skills/exit-gate/
 skills-lock.json
 .impeccable/
 cache/

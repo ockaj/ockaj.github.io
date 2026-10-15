@@ -15,10 +15,6 @@ export default defineConfig({
         ],
         rules: ["react-doctor/no-giant-component"],
       },
-      {
-        files: ["src/hooks/usePreloadComponents.ts"],
-        rules: ["react-doctor/async-await-in-loop"],
-      },
     ],
   },
 });

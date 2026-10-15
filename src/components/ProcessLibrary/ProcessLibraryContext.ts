@@ -13,7 +13,7 @@ export interface ProcessLibraryState {
   activeTopicId: number;
   activeTopic: ProcessTopic;
   activeViewMode: "source" | "optimized";
-  viewModes: Record<number, "source" | "optimized">;
+  viewModes: { readonly [topicId: number]: "source" | "optimized" | undefined };
   direction: number;
   prevDisabled: boolean;
   nextDisabled: boolean;

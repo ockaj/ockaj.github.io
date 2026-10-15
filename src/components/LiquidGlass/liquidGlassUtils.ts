@@ -111,7 +111,7 @@ const SEMANTIC_CONTAINERS = new Set([
   "main",
 ]);
 
-export const TAG_MAP: Record<string, ElementType> = {
+export const TAG_MAP: { readonly [tag: string]: ElementType | undefined } = {
   a: motion.a,
   button: motion.button,
   div: motion.div,

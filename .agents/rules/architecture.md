@@ -25,7 +25,7 @@ Single-page React portfolio (no router) built with React 19, Vite 8, TypeScript 
 
 - **App Store**: [`src/store/useAppStore.ts`](../../src/store/useAppStore.ts) is a Zustand store managing `{ isLoading, hasCvMounted, activeSection, activeModal, cvLang }`. `activeModal: string | null` acts as the single source of truth for all modal and drawer overlays. `getInitialActiveModal()` initializes state directly from `window.location.hash` using `normalizeHash()` and `isValidModalHash()`.
 - **Selector Isolation**: Landmark sections subscribe only to narrow, derived selectors (e.g. `state.activeModal?.startsWith("case-study-")` or `selectIsAnyModalOpen`) to prevent cascade re-renders across landmark sections when overlays open or close.
-- **Zero-Flash Initial Load**: `getInitialLoading()` checks `sessionStorage.getItem("portfolio_loaded")` to bypass the loading screen on repeat visits within the same session.
+- **Zero-Flash Initial Load**: `getInitialLoading()` checks `localStorage.getItem("portfolio_loaded")` to bypass the loading screen on repeat visits.
 - **Boneyard Suspense Integration**: Skips loading screen during Boneyard CLI capture (`isBoneyardBuild()`).
 
 ---

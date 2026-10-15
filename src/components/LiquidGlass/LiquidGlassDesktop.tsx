@@ -256,7 +256,7 @@ export default function LiquidGlassDesktop({
   );
 
   const { isInline, contentClasses } = getContentTagAndClasses(
-    as,
+    href ? "a" : as,
     innerClassName,
   );
   const ContentTag = isInline ? "span" : "div";

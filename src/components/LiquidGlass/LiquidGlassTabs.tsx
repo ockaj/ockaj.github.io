@@ -325,9 +325,11 @@ const handleTabKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
   const tabs = Array.from(
     e.currentTarget
       .closest('[role="tablist"]')
-      ?.querySelectorAll('[role="tab"]') ?? [],
+      ?.querySelectorAll('[role="tab"]:not(:disabled)') ?? [],
   );
+  if (tabs.length === 0) return;
   const idx = tabs.indexOf(e.currentTarget);
+  if (idx === -1) return;
   let nextIdx: number;
 
   if (e.key === "ArrowRight" || e.key === "ArrowDown") {

@@ -104,9 +104,15 @@ export const CASE_STUDIES: CaseStudyDetail[] = Object.values(
 ).map((mod) => {
   const fm = mod.frontmatter || {};
 
-  let id: number | string =
-    fm.id !== undefined && fm.id !== "" ? fm.id : (mod.id ?? "case-study");
-  if (typeof id === "string" && !isNaN(Number(id))) id = Number(id);
+  const rawId =
+    fm.id !== undefined && String(fm.id).trim() !== ""
+      ? fm.id
+      : (mod.id ?? "case-study");
+  const trimmedId = typeof rawId === "string" ? rawId.trim() : rawId;
+  const id: number | string =
+    typeof trimmedId === "string" && !Number.isNaN(Number(trimmedId))
+      ? Number(trimmedId)
+      : String(trimmedId).toLowerCase();
 
   return {
     id,

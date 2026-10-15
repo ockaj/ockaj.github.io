@@ -41,17 +41,19 @@ export const ARTICLES: Article[] = Object.values(articleModules)
   .map((mod) => {
     const fm = mod.frontmatter || {};
     return {
-      id: String(fm.id || mod.id || "article"),
+      id: String(fm.id || mod.id || "article")
+        .trim()
+        .toLowerCase(),
       title: fm.title || "Untitled",
       subtitle: fm.subtitle || "",
-      readTime: mod.readTime || fm.readTime || "1 min read",
+      readTime: fm.readTime || mod.readTime || "1 min read",
       date: fm.date || "",
       image: fm.image || "",
-      excerpt: mod.excerpt || fm.excerpt || "",
+      excerpt: fm.excerpt || mod.excerpt || "",
       Content: mod.default,
     };
   })
-  .sort((a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0));
+  .toSorted((a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0));
 
 export const ARTICLES_BY_ID = new Map<string, Article>(
   ARTICLES.map((article) => [article.id, article]),

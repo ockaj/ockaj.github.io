@@ -17,13 +17,6 @@ export const SPRING = {
     damping: 24,
     mass: 0.6,
   },
-  /** Micro-interactions like accordion chevrons, toggles & layout morphs */
-  snappy: {
-    type: "spring" as const,
-    stiffness: 480,
-    damping: 32,
-    mass: 0.5,
-  },
   /** Drawers sliding in from edge (Smooth 350ms physical spring) */
   drawer: {
     type: "spring" as const,
@@ -79,18 +72,6 @@ export const SPRING = {
   glassOpacity: {
     damping: 20,
     stiffness: 120,
-  },
-  glassLag: {
-    damping: 38,
-    stiffness: 110,
-    mass: 1.0,
-  },
-  /** Mobile swipe initial entrance nudge */
-  nudge: {
-    type: "spring" as const,
-    stiffness: 320,
-    damping: 18,
-    mass: 0.8,
   },
   /** Process model diagram & stage crossfade transition */
   stage: {

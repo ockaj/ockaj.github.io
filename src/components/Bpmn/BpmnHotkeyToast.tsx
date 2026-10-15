@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 import type { FocusEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
 import { motion } from "motion/react";
 import { X } from "lucide-react";
@@ -24,18 +24,14 @@ export default function BpmnHotkeyToast({
   durationMs = DEFAULT_DURATION_MS,
 }: Readonly<BpmnHotkeyToastProps>) {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const onDismissRef = useRef(onDismiss);
+  const onExpire = useEffectEvent(onDismiss);
   const timerRef = useRef<PauseableTimer | null>(null);
-
-  useEffect(() => {
-    onDismissRef.current = onDismiss;
-  });
 
   useEffect(() => {
     const timer = new PauseableTimer({
       durationMs,
       onExpire: () => {
-        onDismissRef.current();
+        onExpire();
       },
     });
     timerRef.current = timer;
@@ -71,13 +67,13 @@ export default function BpmnHotkeyToast({
     if (e.key === "Escape") {
       e.stopPropagation();
       timerRef.current?.dispose();
-      onDismissRef.current();
+      onDismiss();
     }
   };
 
   const handleDismissClick = () => {
     timerRef.current?.dispose();
-    onDismissRef.current();
+    onDismiss();
   };
 
   return (

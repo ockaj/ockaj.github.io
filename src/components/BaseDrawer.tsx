@@ -171,7 +171,7 @@ function DrawerEdgeDragHandle() {
   );
 }
 
-function useDrawerDrag(onClose: () => void) {
+function useDrawerDrag(open: boolean, onClose: () => void) {
   const isMobile = useIsMobile();
   const isTouchDevice = useIsTouchDevice();
   const canDrag = isMobile || isTouchDevice;
@@ -179,6 +179,14 @@ function useDrawerDrag(onClose: () => void) {
   const [exitVelocityX, setExitVelocityX] = useState<number | undefined>(
     undefined,
   );
+  const [prevOpen, setPrevOpen] = useState(open);
+
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (open && exitVelocityX !== undefined) {
+      setExitVelocityX(undefined);
+    }
+  }
 
   const handleDragEnd = useCallback(
     (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
@@ -208,8 +216,10 @@ const BaseDrawer = memo(function BaseDrawer({
   onExitComplete,
 }: BaseDrawerProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const { canDrag, dragControls, exitVelocityX, handleDragEnd } =
-    useDrawerDrag(onClose);
+  const { canDrag, dragControls, exitVelocityX, handleDragEnd } = useDrawerDrag(
+    open,
+    onClose,
+  );
 
   useOverlay(open, onClose, hashId);
 

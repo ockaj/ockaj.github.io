@@ -22,6 +22,10 @@ export function getInitialProcessTopicId(modal: string | null): number {
   return getLightboxTopicId(modal) ?? PROCESS_TOPICS[0]?.id ?? 0;
 }
 
+export function getProcessTopicIndex(id: number): number {
+  return PROCESS_TOPIC_INDEX_MAP.get(id) ?? 0;
+}
+
 interface ProcessTopicController {
   activeTopicId: number;
   activeTopic: ProcessTopic;
@@ -36,10 +40,10 @@ interface ProcessTopicController {
 }
 
 export function useProcessTopicController(
-  initialTopicId: number,
+  initialTopicId: number | (() => number),
 ): ProcessTopicController {
-  const [activeTopicId, setActiveTopicId] = useState(() => initialTopicId);
-  const activeTopicIdRef = useRef(initialTopicId);
+  const [activeTopicId, setActiveTopicId] = useState(initialTopicId);
+  const activeTopicIdRef = useRef(activeTopicId);
   const [direction, setDirection] = useState(1);
 
   const selectTopic = useCallback((id: number) => {

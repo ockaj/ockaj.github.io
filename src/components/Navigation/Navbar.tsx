@@ -1,10 +1,10 @@
-import { useEffect, useCallback, useReducer, useRef } from "react";
+import { useEffect, useCallback, useState, useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Menu, X } from "lucide-react";
 import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
 import { useIsMobile } from "../../hooks/useMediaQuery";
-import { useOverlay, navigateTo } from "../../hooks/useAppNavigation";
+import { useModal, navigateTo } from "../../hooks/useAppNavigation";
 import { useAppStore } from "../../store/useAppStore";
 import { cn } from "../../utils/cn";
 import { SPRING } from "../../utils/springConfig";
@@ -17,30 +17,6 @@ const NAV_LINKS = [
   { id: "journal", label: "Journal" },
   { id: "faq", label: "FAQ" },
 ] as const;
-
-interface NavbarState {
-  scrolled: boolean;
-  isOpen: boolean;
-  avatarError: boolean;
-}
-
-type NavbarAction =
-  | { type: "SET_SCROLLED"; scrolled: boolean }
-  | { type: "SET_IS_OPEN"; isOpen: boolean }
-  | { type: "SET_AVATAR_ERROR"; error: boolean };
-
-function navbarReducer(state: NavbarState, action: NavbarAction): NavbarState {
-  switch (action.type) {
-    case "SET_SCROLLED":
-      return { ...state, scrolled: action.scrolled };
-    case "SET_IS_OPEN":
-      return { ...state, isOpen: action.isOpen };
-    case "SET_AVATAR_ERROR":
-      return { ...state, avatarError: action.error };
-    default:
-      return state;
-  }
-}
 
 function getCloseIconAnim(isOpen: boolean, isMotionReduced: boolean) {
   if (isMotionReduced) {
@@ -70,38 +46,23 @@ export default function Navbar() {
   const capsuleRef = useRef<HTMLDivElement>(null);
 
   const active = useAppStore((state) => state.activeSection);
+  const {
+    isOpen: isNavModalOpen,
+    open: openNavModal,
+    close: closeNavModal,
+  } = useModal("nav");
+  const isOpen = isMobile && isNavModalOpen;
 
-  const [state, dispatch] = useReducer(navbarReducer, {
-    scrolled: false,
-    isOpen: false,
-    avatarError: false,
-  });
-
-  const { scrolled, isOpen, avatarError } = state;
+  const [scrolled, setScrolled] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
 
   const isScrollingRef = useRef(false);
 
-  // Synchronize modal state with store when mobile menu opens or closes
   useEffect(() => {
-    if (isMobile && isOpen) {
-      useAppStore.getState().openModal("nav");
-      return () => {
-        if (useAppStore.getState().activeModal === "nav") {
-          useAppStore.getState().closeModal();
-        }
-      };
+    if (!isMobile && isNavModalOpen) {
+      closeNavModal();
     }
-    if (!isMobile && isOpen) {
-      dispatch({ type: "SET_IS_OPEN", isOpen: false });
-    }
-  }, [isMobile, isOpen]);
-
-  // Lock background scroll and integrate with browser history when mobile menu is open
-  useOverlay(
-    isMobile && isOpen,
-    () => dispatch({ type: "SET_IS_OPEN", isOpen: false }),
-    "nav",
-  );
+  }, [isMobile, isNavModalOpen, closeNavModal]);
 
   useEffect(() => {
     if (!isMobile) return;
@@ -132,23 +93,31 @@ export default function Navbar() {
     const sentinel = localSentinelRef.current;
     if (!sentinel) return;
     const observer = new IntersectionObserver(
-      ([entry]) =>
-        dispatch({ type: "SET_SCROLLED", scrolled: !entry.isIntersecting }),
+      ([entry]) => setScrolled(!entry.isIntersecting),
       { threshold: 0 },
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
   }, []);
 
-  const handleClose = useCallback(
-    () => dispatch({ type: "SET_IS_OPEN", isOpen: false }),
-    [],
-  );
+  const handleToggle = useCallback(() => {
+    if (isOpen) {
+      closeNavModal();
+    } else {
+      openNavModal();
+    }
+  }, [isOpen, closeNavModal, openNavModal]);
 
-  const handleNav = useCallback((id: string) => {
-    dispatch({ type: "SET_IS_OPEN", isOpen: false });
-    navigateTo(id);
-  }, []);
+  const handleNav = useCallback(
+    (id: string) => {
+      if (id === "home") {
+        setAvatarError(false);
+      }
+      closeNavModal();
+      navigateTo(id);
+    },
+    [closeNavModal],
+  );
 
   return (
     <>
@@ -186,23 +155,13 @@ export default function Navbar() {
             >
               <span className="relative z-10 flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/5 bg-bg">
                 {avatarError ? (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      dispatch({ type: "SET_AVATAR_ERROR", error: false });
-                    }}
-                    title="Click to retry loading avatar"
-                    className="nav-avatar-retry cursor-pointer font-mono text-sm leading-none font-bold tracking-normal text-accent transition-transform duration-200 ease-out select-none focus-visible:outline-none"
-                  >
+                  <span className="font-mono text-sm leading-none font-bold tracking-normal text-accent select-none">
                     OMO
-                  </button>
+                  </span>
                 ) : (
                   <img
                     src="https://avatars.githubusercontent.com/u/36997301?v=4&s=24"
-                    onError={() =>
-                      dispatch({ type: "SET_AVATAR_ERROR", error: true })
-                    }
+                    onError={() => setAvatarError(true)}
                     alt="Ondrej Michal Ockaj"
                     width="24"
                     height="24"
@@ -246,7 +205,7 @@ export default function Navbar() {
           <div className="flex md:hidden">
             <LiquidGlassButton
               type="button"
-              onClick={() => dispatch({ type: "SET_IS_OPEN", isOpen: !isOpen })}
+              onClick={handleToggle}
               aria-label={isOpen ? "Close menu" : "Open menu"}
               aria-expanded={isOpen}
               aria-controls="mobile-nav-panel"
@@ -284,7 +243,7 @@ export default function Navbar() {
             isOpen={isOpen}
             active={active}
             navLinks={NAV_LINKS}
-            onClose={handleClose}
+            onClose={closeNavModal}
             onChange={handleNav}
           />
         ) : null}

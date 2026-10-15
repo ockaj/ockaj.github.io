@@ -7,6 +7,7 @@ import {
   mobileMenuItemVariants,
 } from "../../utils/motionVariants";
 import { usePrefersReducedMotion } from "../../hooks/useMediaQuery";
+import { useAppStore } from "../../store/useAppStore";
 
 const HIGHLIGHT_STYLE = {
   boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.15)",
@@ -46,8 +47,21 @@ function MobileMenu({
 
   useEffect(() => {
     document.documentElement.toggleAttribute("data-mobile-nav-open", isOpen);
-    return () =>
+    if (!isOpen) {
+      return () =>
+        document.documentElement.removeAttribute("data-mobile-nav-open");
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        useAppStore.getState().closeModal();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
       document.documentElement.removeAttribute("data-mobile-nav-open");
+    };
   }, [isOpen]);
 
   return (

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo, useReducer } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Dialog } from "@base-ui/react/dialog";
 import {
@@ -26,7 +26,6 @@ import {
 import { EASE } from "../../utils/springConfig";
 import { CV_DATA } from "../../data/cvData";
 import { InteractiveCvView } from "./InteractiveCvView";
-import { pdfReducer } from "./pdfState";
 import { useAppStore } from "../../store/useAppStore";
 
 const MODAL_CONTAINER_STYLE: React.CSSProperties = {
@@ -38,72 +37,6 @@ const MODAL_CONTAINER_STYLE: React.CSSProperties = {
 const MODAL_SHEEN_OVERLAY = (
   <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-1/2 bg-linear-to-b from-white/5 to-transparent" />
 );
-
-function usePdfModalDialog() {
-  const { isOpen, close } = useModal("cv");
-
-  useEffect(() => {
-    if (isOpen) {
-      prefetchAsset("/cv/Ondrej_Michal_Ockaj_CV.pdf");
-    }
-  }, [isOpen]);
-
-  const handleOpenChange = useCallback(
-    (open: boolean) => {
-      if (!open) {
-        close();
-      }
-    },
-    [close],
-  );
-
-  return {
-    isOpen,
-    handleClose: close,
-    handleOpenChange,
-  };
-}
-
-function usePdfViewerState(isMobile: boolean) {
-  const [state, dispatch] = useReducer(pdfReducer, {
-    activeTab: "interactive",
-  });
-
-  const { activeTab } = state;
-
-  const handleTabChange = useCallback(
-    (tab: "pdf" | "interactive") => {
-      if (isMobile && tab === "pdf") {
-        window.open(
-          "/cv/Ondrej_Michal_Ockaj_CV.pdf",
-          "_blank",
-          "noopener,noreferrer",
-        );
-        return;
-      }
-      dispatch({ type: "CHANGE_TAB", tab });
-    },
-    [isMobile],
-  );
-
-  return {
-    dispatch,
-    activeTab,
-    handleTabChange,
-  };
-}
-
-function usePdfViewerModalController() {
-  const isMobile = useIsMobile();
-  const dialog = usePdfModalDialog();
-  const viewer = usePdfViewerState(isMobile);
-
-  return {
-    isMobile,
-    ...dialog,
-    ...viewer,
-  };
-}
 
 const PdfModalTitle = memo(function PdfModalTitle() {
   return (
@@ -160,7 +93,7 @@ function PdfModalDownloadButton({ size }: Readonly<{ size: number }>) {
 
 const PdfModalMobileActions = memo(function PdfModalMobileActions() {
   return (
-    <div className="flex items-center gap-2.5 sm:hidden">
+    <div className="flex items-center gap-2.5 md:hidden">
       <PdfModalDownloadButton size={15} />
       <PdfModalCloseButton />
     </div>
@@ -177,7 +110,7 @@ const PdfModalDesktopActions = memo(function PdfModalDesktopActions({
   const prefersReducedMotion = usePrefersReducedMotion();
 
   return (
-    <div className="hidden items-center gap-2 sm:flex">
+    <div className="hidden items-center gap-2 md:flex">
       <AnimatePresence mode="popLayout">
         {activeTab === "pdf" ? (
           <motion.div
@@ -225,16 +158,14 @@ const PdfModalDesktopActions = memo(function PdfModalDesktopActions({
 interface PdfModalTabsProps {
   activeTab: "pdf" | "interactive";
   onTabChange: (tab: "pdf" | "interactive") => void;
-  isMobile: boolean;
 }
 
 const PdfModalTabs = memo(function PdfModalTabs({
   activeTab,
   onTabChange,
-  isMobile,
 }: PdfModalTabsProps) {
   return (
-    <div className="hidden sm:flex">
+    <div className="hidden md:flex">
       <Tabs
         value={activeTab}
         onChange={onTabChange}
@@ -253,7 +184,7 @@ const PdfModalTabs = memo(function PdfModalTabs({
               : "text-muted hover:text-text-primary",
           )}
         >
-          <span>{isMobile ? "PDF File ↗" : "PDF Document"}</span>
+          <span>PDF Document</span>
         </Tab>
         <Tab
           id="tab-interactive"
@@ -268,7 +199,7 @@ const PdfModalTabs = memo(function PdfModalTabs({
         >
           <span className="flex items-center gap-1">
             <Sparkles size={11} className="text-accent" />
-            <span>{isMobile ? "Interactive" : "Interactive CV"}</span>
+            <span>Interactive CV</span>
           </span>
         </Tab>
       </Tabs>
@@ -317,7 +248,7 @@ const PdfDocumentPanel = memo(function PdfDocumentPanel({
       className={isActive ? "absolute inset-0 flex flex-col" : "hidden"}
     >
       {pdfLoading ? (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-bg/80">
+        <div className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-bg/80">
           <div className="animate-spin">
             <Loader2 className="text-accent" size={32} />
           </div>
@@ -331,6 +262,7 @@ const PdfDocumentPanel = memo(function PdfDocumentPanel({
           className="relative z-10 size-full border-0"
           title="Ondrej Michal Ockaj CV"
           onLoad={handlePdfLoaded}
+          onError={handlePdfLoaded}
         >
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-bg/85 p-4 text-center">
             <p className="text-sm text-muted">
@@ -355,12 +287,7 @@ const CV_SK_VIEW = <InteractiveCvView activeCv={CV_DATA.sk} lang="sk" />;
 
 const InteractiveCvContent = memo(function InteractiveCvContent() {
   const cvLang = useAppStore((state) => state.cvLang);
-  return (
-    <>
-      <div className={cvLang === "en" ? "block" : "hidden"}>{CV_EN_VIEW}</div>
-      <div className={cvLang === "sk" ? "block" : "hidden"}>{CV_SK_VIEW}</div>
-    </>
-  );
+  return cvLang === "en" ? CV_EN_VIEW : CV_SK_VIEW;
 });
 
 interface PdfModalBodyProps {
@@ -390,15 +317,27 @@ const PdfModalBody = memo(function PdfModalBody({
 });
 
 function PdfViewerModal() {
-  const {
-    isOpen,
-    handleClose,
-    isMobile,
-    activeTab,
-    handleTabChange,
-    handleOpenChange,
-  } = usePdfViewerModalController();
+  const isMobile = useIsMobile();
   const prefersReducedMotion = usePrefersReducedMotion();
+  const { isOpen, close } = useModal("cv");
+  const [activeTab, setActiveTab] = useState<"pdf" | "interactive">(
+    "interactive",
+  );
+
+  useEffect(() => {
+    if (isOpen) {
+      prefetchAsset("/cv/Ondrej_Michal_Ockaj_CV.pdf");
+    }
+  }, [isOpen]);
+
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        close();
+      }
+    },
+    [close],
+  );
 
   return (
     <Dialog.Root
@@ -412,7 +351,7 @@ function PdfViewerModal() {
           <Dialog.Portal keepMounted>
             {/* Backdrop */}
             <Dialog.Backdrop
-              onClick={handleClose}
+              onClick={close}
               render={
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -449,9 +388,9 @@ function PdfViewerModal() {
                   {MODAL_SHEEN_OVERLAY}
 
                   {/* Header */}
-                  <div className="relative z-30 flex flex-col items-center justify-between gap-3 border-b border-white/10 px-4 pt-safe-4 pb-3 sm:flex-row md:px-6 md:py-4">
+                  <div className="relative z-30 flex flex-col items-center justify-between gap-3 border-b border-white/10 px-4 pt-safe-4 pb-3 md:flex-row md:px-6 md:py-4">
                     {/* Title, Avatar & Mobile Action Buttons */}
-                    <div className="flex w-full items-center justify-between gap-4 sm:w-auto">
+                    <div className="flex w-full items-center justify-between gap-4 md:w-auto">
                       <PdfModalTitle />
                       <PdfModalMobileActions />
                     </div>
@@ -459,8 +398,7 @@ function PdfViewerModal() {
                     {/* Tab Selector */}
                     <PdfModalTabs
                       activeTab={activeTab}
-                      onTabChange={handleTabChange}
-                      isMobile={isMobile}
+                      onTabChange={setActiveTab}
                     />
 
                     {/* Desktop Action Buttons */}

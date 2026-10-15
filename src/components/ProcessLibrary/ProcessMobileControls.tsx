@@ -6,10 +6,12 @@ import {
   useProcessLibraryState,
   useProcessLibraryActions,
 } from "./ProcessLibraryContext";
+import { getProcessTopicIndex } from "./useProcessTopicController";
 
 function ProcessMobileControls() {
   const { activeTopic, prevDisabled, nextDisabled } = useProcessLibraryState();
   const { selectPreviousTopic, selectNextTopic } = useProcessLibraryActions();
+  const activePosition = getProcessTopicIndex(activeTopic.id) + 1;
   return (
     <div className="flex w-full justify-center">
       <StaticGlass
@@ -30,7 +32,7 @@ function ProcessMobileControls() {
 
         <span className="flex items-center gap-1 px-1.5 font-body text-sm leading-none tabular-nums select-none">
           <span className="font-bold text-accent">
-            {String(activeTopic.id).padStart(2, "0")}
+            {String(activePosition).padStart(2, "0")}
           </span>
           <span className="font-medium text-muted/40">/</span>
           <span className="font-medium text-muted/60">

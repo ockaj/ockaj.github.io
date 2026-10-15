@@ -41,14 +41,14 @@ Feature modules encapsulate internal implementation. ESLint (`no-restricted-impo
 |---|---|---|
 | `CaseStudies` | `CaseStudies/CaseStudies` | `CaseStudyCard`, `CaseStudyDrawer`, `MetricCountUp` |
 | `Journal` | `Journal/Journal` | `JournalDrawer`, `JournalEntry` |
-| `ProcessLibrary` | `ProcessLibrary/ProcessLibrary` | `ProcessCardHeader`, `ProcessDesktopCard`, `ProcessDesktopControls`, `ProcessMobileCarousel`, `ProcessMobileControls`, `ProcessVariantStage`, `ProcessLibraryContext` |
+| `ProcessLibrary` | `ProcessLibrary/ProcessLibrary` | `ProcessCardHeader`, `ProcessDesktopCard`, `ProcessDesktopControls`, `ProcessMobileCarousel`, `ProcessMobileControls`, `ProcessVariantStage`, `ProcessLibraryContext`, `useProcessTopicController` |
 | `ProcessLightbox` | `ProcessLightbox/ProcessLightbox` | `LightboxControls`, `ZoomableImage` |
 | `Faq` | `Faq/Faq` | `FaqItem` |
 | `Aurora` | `Aurora/Aurora` | `AuroraFallback` |
 | `LoadingScreen` | `LoadingScreen/LoadingScreen` | `LoadingBpmnDiagram`, `loadingData`, `LoadingMethodologyChecklist` |
 | `Navigation` | `Navigation/Navbar` | `MobileMenu` |
-| `PdfViewerModal` | `PdfViewerModal/PdfViewerModal` | `InteractiveCvView`, `pdfState` |
-| `Bpmn` | `Bpmn/BpmnOverlay`, `Bpmn/BpmnNodeBadge` | `BpmnDiagram`, `BpmnHotkeyToast`, `pauseableTimer` |
+| `PdfViewerModal` | `PdfViewerModal/PdfViewerModal` | `InteractiveCvView` |
+| `Bpmn` | `Bpmn/BpmnOverlay`, `Bpmn/BpmnNodeBadge` | `BpmnDiagram`, `BpmnHotkeyToast`, `bpmnStorage`, `pauseableTimer` |
 | `LiquidGlass` | `LiquidGlass/LiquidGlass`, `LiquidGlass/LiquidGlassTabs`, `LiquidGlass/types` | `config`, `liquidGlassUtils`, `Ripple`, `useRipple`, `useLiquidGlassPhysics`, `LiquidGlassDesktop`, `LiquidGlassMobile`, `LiquidGlassOverlays`, `LiquidGlassStatic` |
 
 Cross-cutting UI primitives live directly in `src/components/` (e.g. `BaseDrawer.tsx`, `Tooltip.tsx`, `LazySection.tsx`).

@@ -59,12 +59,25 @@ function subscribeMediaQuery(query: string, callback: () => void): () => void {
 }
 
 function getMediaQuerySnapshot(query: string): boolean {
-  const store = getOrCreateStore(query);
-  return store ? store.mql.matches : false;
+  const existing = stores.get(query);
+  if (existing) {
+    return existing.mql.matches;
+  }
+  if (
+    typeof window === "undefined" ||
+    typeof window.matchMedia !== "function"
+  ) {
+    return false;
+  }
+  return Boolean(window.matchMedia(query)?.matches);
 }
 
 function getServerSnapshot(): boolean {
   return false;
+}
+
+export function isReducedMotionPreferred(): boolean {
+  return getMediaQuerySnapshot("(prefers-reduced-motion: reduce)");
 }
 
 export function useMediaQuery(query: string): boolean {

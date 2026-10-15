@@ -1,19 +1,18 @@
 import { memo } from "react";
 import { ArrowUp } from "lucide-react";
 import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
+import { isReducedMotionPreferred } from "../hooks/useMediaQuery";
 
 function scrollToTop(): void {
-  const isMotionReduced =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  window.scrollTo({ top: 0, behavior: isMotionReduced ? "auto" : "smooth" });
+  window.scrollTo({
+    top: 0,
+    behavior: isReducedMotionPreferred() ? "auto" : "smooth",
+  });
 }
 
 const CURRENT_YEAR = new Date().getFullYear();
 
 function Footer() {
-  const currentYear = CURRENT_YEAR;
-
   return (
     <footer className="relative z-10 mx-auto w-full max-w-300 px-6 pb-safe-5 md:px-10 md:pb-safe-8 lg:px-16">
       <div className="mb-4 h-px w-full bg-white/5 md:mb-5" />
@@ -24,7 +23,7 @@ function Footer() {
             className="text-sm text-pretty text-muted"
             suppressHydrationWarning
           >
-            © {currentYear} Ondrej Michal Očkaj
+            © {CURRENT_YEAR} Ondrej Michal Očkaj
           </p>
         </div>
 

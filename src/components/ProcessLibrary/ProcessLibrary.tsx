@@ -6,6 +6,7 @@ import {
   PROCESS_ITEMS_BY_ID,
 } from "../../data/processItems";
 import { useAppStore } from "../../store/useAppStore";
+import { useEntityModal } from "../../hooks/useEntityModal";
 import ProcessLightbox from "../ProcessLightbox/ProcessLightbox";
 import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
 import { prefetchAsset } from "../../utils/quicklink";
@@ -45,22 +46,21 @@ const INITIAL_TOPIC_IMAGES = new Set(
 function ProcessLibrary() {
   const isDesktop = useIsDesktop();
   const prefersReducedMotion = useReducedMotion();
-  const activeLightboxId = useAppStore((state) =>
-    state.activeModal?.startsWith("lightbox-")
-      ? state.activeModal.slice("lightbox-".length)
-      : null,
-  );
+  const {
+    open: openLightbox,
+    displayed: displayedLightboxItem,
+    drawerProps: lightboxDrawerProps,
+  } = useEntityModal("lightbox", PROCESS_ITEMS_BY_ID);
 
-  const [initialTopicId] = useState(() =>
+  const topicController = useProcessTopicController(() =>
     getInitialProcessTopicId(useAppStore.getState().activeModal),
   );
-  const topicController = useProcessTopicController(initialTopicId);
   const { activeTopicId, activeTopic, direction, prevDisabled, nextDisabled } =
     topicController;
 
-  const [viewModes, setViewModes] = useState<
-    Record<number, "source" | "optimized">
-  >(() => {
+  const [viewModes, setViewModes] = useState<{
+    readonly [topicId: number]: "source" | "optimized" | undefined;
+  }>(() => {
     const modal = useAppStore.getState().activeModal;
     if (modal?.startsWith("lightbox-")) {
       const id = Number(modal.slice("lightbox-".length));
@@ -80,50 +80,6 @@ function ProcessLibrary() {
     },
     [],
   );
-
-  const lightboxItem = activeLightboxId
-    ? (PROCESS_ITEMS_BY_ID.get(Number(activeLightboxId)) ?? null)
-    : null;
-
-  const [prevLightboxItem, setPrevLightboxItem] = useState(lightboxItem);
-  const [displayedLightboxItem, setDisplayedLightboxItem] =
-    useState(lightboxItem);
-
-  if (lightboxItem !== prevLightboxItem) {
-    setPrevLightboxItem(lightboxItem);
-    if (lightboxItem !== null) {
-      setDisplayedLightboxItem(lightboxItem);
-    }
-  }
-
-  // Dismiss non-existent process lightbox deep links (e.g. #lightbox-999)
-  useEffect(() => {
-    if (activeLightboxId && !lightboxItem) {
-      useAppStore.getState().closeModal();
-      window.history.replaceState(window.history.state, "", "#processes");
-    }
-  }, [activeLightboxId, lightboxItem]);
-
-  const handleOpenLightbox = useCallback(
-    (item: {
-      id: number;
-      title: string;
-      description: string;
-      image: string;
-      type: string;
-    }) => {
-      useAppStore.getState().openModal(`lightbox-${item.id}`);
-    },
-    [],
-  );
-
-  const handleCloseLightbox = useCallback(() => {
-    useAppStore.getState().closeModal();
-  }, []);
-
-  const handleExitComplete = useCallback(() => {
-    setDisplayedLightboxItem(null);
-  }, []);
 
   const activeViewMode = activeTopic
     ? viewModes[activeTopic.id] || "source"
@@ -152,9 +108,9 @@ function ProcessLibrary() {
     () => ({
       ...topicController.actions,
       handleTopicViewModeChange,
-      setLightboxItem: handleOpenLightbox,
+      setLightboxItem: openLightbox,
     }),
-    [topicController.actions, handleTopicViewModeChange, handleOpenLightbox],
+    [topicController.actions, handleTopicViewModeChange, openLightbox],
   );
 
   const stateValue = useMemo<ProcessLibraryState>(
@@ -230,10 +186,8 @@ function ProcessLibrary() {
         </div>
 
         <ProcessLightbox
-          open={Boolean(lightboxItem)}
           item={displayedLightboxItem}
-          onClose={handleCloseLightbox}
-          onExitComplete={handleExitComplete}
+          {...lightboxDrawerProps}
         />
       </ProcessLibraryStateContext>
     </ProcessLibraryActionsContext>

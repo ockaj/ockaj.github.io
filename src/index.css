@@ -364,10 +364,6 @@ p {
     color: hsl(var(--text)) !important;
   }
 
-  .nav-avatar-retry:hover {
-    transform: scale(1.05);
-  }
-
   .group:hover .hero-cv-icon {
     transform: scale(1.05);
   }
@@ -426,39 +422,7 @@ p {
   initial-value: 1;
 }
 
-/* Smoothly eased horizontal scroll fade masks for mobile/tablet and vertical masks for desktop (Mobile-First) */
-.process-tabs-mask[data-overflow="true"] {
-  --tabs-mask: linear-gradient(
-    in oklab to right,
-    transparent 0px,
-    oklab(0 0 0 / 0.15) 8px,
-    oklab(0 0 0 / 0.6) 18px,
-    oklab(0 0 0) 32px,
-    oklab(0 0 0) calc(100% - 36px),
-    oklab(0 0 0 / 0.6) calc(100% - 20px),
-    oklab(0 0 0 / 0.15) calc(100% - 10px),
-    transparent 100%
-  );
-  mask-image: var(--tabs-mask);
-  -webkit-mask-image: var(--tabs-mask);
-}
-
-@media (min-width: 768px) {
-  .process-tabs-mask[data-overflow="true"] {
-    --tabs-mask: linear-gradient(
-      in oklab to right,
-      transparent 0px,
-      oklab(0 0 0 / 0.15) 12px,
-      oklab(0 0 0 / 0.6) 26px,
-      oklab(0 0 0) 48px,
-      oklab(0 0 0) calc(100% - 52px),
-      oklab(0 0 0 / 0.6) calc(100% - 28px),
-      oklab(0 0 0 / 0.15) calc(100% - 12px),
-      transparent 100%
-    );
-  }
-}
-
+/* Smoothly eased vertical scroll fade masks for desktop process tabs */
 @property --tabs-fade-t {
   syntax: "<length>";
   inherits: false;
@@ -546,30 +510,6 @@ p {
   -webkit-mask-image: var(--badge-mask-gradient);
   animation: scroll-fade-inline linear both;
   animation-timeline: scroll(self inline);
-}
-
-/* Elegant scrollbar for process tabs */
-.process-tabs-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) rgba(255, 255, 255, 0.02);
-}
-
-.process-tabs-scrollbar::-webkit-scrollbar {
-  height: 3px;
-}
-
-.process-tabs-scrollbar::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 10px;
-}
-
-.process-tabs-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-}
-
-.process-tabs-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--accent));
 }
 
 @utility transform-gpu {

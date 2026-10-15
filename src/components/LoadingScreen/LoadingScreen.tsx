@@ -1,11 +1,9 @@
 import { useEffect, useState, useRef, memo } from "react";
+import { motion, useMotionValue, useTransform } from "motion/react";
 import {
-  motion,
-  useReducedMotion,
-  useMotionValue,
-  useTransform,
-} from "motion/react";
-import { useIsMobile } from "../../hooks/useMediaQuery";
+  useIsMobile,
+  usePrefersReducedMotion,
+} from "../../hooks/useMediaQuery";
 import LoadingBpmnDiagram, { type LoadingNodeId } from "./LoadingBpmnDiagram";
 import LoadingMethodologyChecklist from "./LoadingMethodologyChecklist";
 import { BPMN_STEPS } from "./loadingData";
@@ -92,9 +90,9 @@ function StaticLoadingBackground() {
 }
 
 function LoadingScreen({ onComplete }: Readonly<LoadingScreenProps>) {
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const isMobile = useIsMobile();
-  const initialVal = prefersReducedMotion === true ? 100 : 0;
+  const initialVal = prefersReducedMotion ? 100 : 0;
   const count = useMotionValue(initialVal);
   const startTimeRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -136,6 +134,7 @@ function LoadingScreen({ onComplete }: Readonly<LoadingScreenProps>) {
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
     if (prefersReducedMotion) {
+      count.set(100);
       if (!doneRef.current) {
         doneRef.current = true;
         timeoutId = setTimeout(onComplete, 150);

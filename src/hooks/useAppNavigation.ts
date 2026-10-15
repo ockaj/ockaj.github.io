@@ -1,6 +1,6 @@
 import {
   useEffect,
-  useLayoutEffect,
+  useEffectEvent,
   useRef,
   useCallback,
   startTransition,
@@ -18,9 +18,10 @@ import {
   safeDecodeFragment,
   findIndicatedElement,
 } from "../utils/sectionResolution";
-import { useIsMobile } from "./useMediaQuery";
+import { useIsMobile, isReducedMotionPreferred } from "./useMediaQuery";
 const SECTIONS = Object.keys(LABEL_MAP);
-const SECTIONS_SET = new Set(SECTIONS);
+
+let isClosingOverlayViaPopstate = false;
 
 function resolveSection(target: string): string | null {
   const clean = normalizeHash(target);
@@ -122,9 +123,7 @@ export function navigateTo(target: string, options?: NavigateToOptions): void {
   });
   setNavigationLock();
 
-  const isReduced = window.matchMedia(
-    "(prefers-reduced-motion: reduce)",
-  ).matches;
+  const isReduced = isReducedMotionPreferred();
   const scrollBehavior =
     options?.behavior ?? (isReduced ? "instant" : "smooth");
 
@@ -142,8 +141,6 @@ export function navigateTo(target: string, options?: NavigateToOptions): void {
   }
 }
 
-/**
- * Synchronize focus to target element for accessibility.
 /**
  * Scroll to document top.
  */
@@ -192,6 +189,10 @@ function handleSectionNavigation(
 function alignParentSection(clean: string, behavior: ScrollBehavior): void {
   const parentSection = resolveSectionFromHash(clean);
   if (!parentSection || parentSection === "home") return;
+
+  startTransition(() => {
+    useAppStore.getState().setActiveSection(parentSection);
+  });
 
   const alignScroll = () => {
     const element = document.getElementById(parentSection);
@@ -262,9 +263,7 @@ export function applyHashNavigation(
     return;
   }
 
-  const isReduced =
-    typeof window !== "undefined" &&
-    window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  const isReduced = isReducedMotionPreferred();
   const effectiveBehavior = isReduced ? "instant" : behavior;
 
   if (clean === "top") {
@@ -325,15 +324,14 @@ export function commitScrollSpyHash(
 ): boolean {
   if (isNavigatingFlag || !pendingHash) return false;
 
-  const currentHash =
-    typeof window !== "undefined" ? window.location.hash.substring(1) : "";
+  const currentHash = typeof window !== "undefined" ? window.location.hash : "";
   const isModalActive =
-    (!!currentHash && !SECTIONS_SET.has(currentHash)) ||
+    isValidModalHash(currentHash) ||
     selectIsAnyModalOpen(useAppStore.getState());
 
   if (
     typeof window !== "undefined" &&
-    window.location.hash !== pendingHash &&
+    currentHash !== pendingHash &&
     !isModalActive
   ) {
     return safeReplaceState(pendingHash);
@@ -445,6 +443,16 @@ function useScrollSpy(isLoading: boolean) {
  */
 export function setupHashNavigationListener(isMobile: boolean): () => void {
   const onHashChange = () => {
+    if (isClosingOverlayViaPopstate) {
+      isClosingOverlayViaPopstate = false;
+      const targetSection = resolveSection(window.location.hash);
+      if (
+        targetSection &&
+        targetSection === useAppStore.getState().activeSection
+      ) {
+        return;
+      }
+    }
     applyHashNavigation(window.location.hash, isMobile, "smooth");
   };
 
@@ -483,11 +491,7 @@ export function useOverlay(
   onClose: OverlayCallback,
   hashId = "modal",
 ) {
-  const onCloseRef = useRef(onClose);
-  useLayoutEffect(() => {
-    onCloseRef.current = onClose;
-  });
-
+  const onOverlayClose = useEffectEvent(onClose);
   const previousHashRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -502,7 +506,11 @@ export function useOverlay(
 
     const handleHashSync = () => {
       if (window.location.hash !== targetHash) {
-        onCloseRef.current();
+        isClosingOverlayViaPopstate = true;
+        queueMicrotask(() => {
+          isClosingOverlayViaPopstate = false;
+        });
+        onOverlayClose();
       }
     };
 

@@ -69,6 +69,24 @@ Second paragraph.`;
       expect(code).toContain("First paragraph");
       expect(code).toContain("Second paragraph");
     });
+
+    it("falls back safely when markdown body is empty or path stem is missing", async () => {
+      const compiled = await compile(
+        { value: "" },
+        {
+          remarkPlugins: [
+            remarkFrontmatter,
+            [remarkMdxFrontmatter, { name: "frontmatter" }],
+            remarkGfm,
+            remarkMdxMetadata,
+          ],
+        },
+      );
+      const code = String(compiled);
+      expect(code).toContain('id = "article"');
+      expect(code).toContain('readTime = "1 min read"');
+      expect(code).toContain('excerpt = ""');
+    });
   });
 
   describe("ARTICLES and ARTICLES_BY_ID exports", () => {

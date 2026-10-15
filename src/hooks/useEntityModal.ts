@@ -7,6 +7,7 @@ import {
 } from "react";
 import { useAppStore } from "../store/useAppStore";
 import { resolveSectionFromHash } from "../utils/sectionResolution";
+import { safeReplaceState } from "./useAppNavigation";
 
 interface IdentifiableEntity {
   readonly id: string | number;
@@ -29,7 +30,7 @@ export interface EntityModalResult<T> {
   readonly isOpen: boolean;
   readonly selected: T | null;
   readonly displayed: T | null;
-  readonly open: (target: T | string | number) => void;
+  readonly open: (target: T | IdentifiableEntity | string | number) => void;
   readonly close: () => void;
   readonly onExitComplete: () => void;
   readonly drawerProps: DrawerBindings;
@@ -112,7 +113,7 @@ export function useEntityModal<
   lookup: EntityLookup<T, TId>,
   options?: EntityModalOptions,
 ): EntityModalResult<T> {
-  const normalizedPrefix = useMemo(() => normalizePrefix(prefix), [prefix]);
+  const normalizedPrefix = normalizePrefix(prefix);
 
   // Subscribe to the derived entity identifier to prevent re-renders on unrelated store mutations
   const activeId = useAppStore((state) => {
@@ -145,18 +146,16 @@ export function useEntityModal<
   useEffect(() => {
     if (activeId && !selected) {
       useAppStore.getState().closeModal();
-      if (typeof window !== "undefined") {
-        const targetHash = resolveEntityFallbackHash(
-          normalizedPrefix,
-          fallbackHash,
-        );
-        window.history.replaceState(window.history.state, "", targetHash);
-      }
+      const targetHash = resolveEntityFallbackHash(
+        normalizedPrefix,
+        fallbackHash,
+      );
+      safeReplaceState(targetHash);
     }
   }, [activeId, selected, fallbackHash, normalizedPrefix]);
 
   const open = useCallback(
-    (target: T | string | number) => {
+    (target: T | IdentifiableEntity | string | number) => {
       const modalId = formatEntityModalId(normalizedPrefix, target);
       if (!modalId) return;
 

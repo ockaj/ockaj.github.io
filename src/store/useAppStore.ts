@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { isBoneyardBuild } from "../utils/boneyard";
+import { isReducedMotionPreferred } from "../hooks/useMediaQuery";
 import {
   resolveSectionFromHash,
   isValidModalHash,
@@ -7,7 +8,7 @@ import {
   normalizeHash,
 } from "../utils/sectionResolution";
 
-export const LABEL_MAP: Record<string, string> = {
+export const LABEL_MAP: { readonly [sectionId: string]: string } = {
   home: "Home",
   work: "Case Studies",
   skills: "Skills",
@@ -35,13 +36,7 @@ export const selectIsAnyModalOpen = (state: AppState): boolean =>
   state.activeModal !== null;
 
 const getInitialLoading = (): boolean => {
-  if (isBoneyardBuild()) {
-    return false;
-  }
-  if (
-    typeof window !== "undefined" &&
-    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
-  ) {
+  if (isBoneyardBuild() || isReducedMotionPreferred()) {
     return false;
   }
   try {
@@ -77,13 +72,13 @@ const getInitialActiveModal = (): string | null => {
   }
 };
 
+const initialModal = getInitialActiveModal();
+
 export const useAppStore = create<AppState>((set) => ({
   isLoading: getInitialLoading(),
-  hasCvMounted:
-    typeof window !== "undefined" &&
-    window.location.hash.toLowerCase().startsWith("#cv"),
+  hasCvMounted: initialModal === "cv",
   activeSection: getInitialActiveSection(),
-  activeModal: getInitialActiveModal(),
+  activeModal: initialModal,
   cvLang: "en",
   completeLoading: () => {
     try {

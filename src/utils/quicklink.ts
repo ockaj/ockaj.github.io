@@ -11,6 +11,6 @@ export function prefetchAsset(url: string): void {
   prefetchedSet.add(url);
 
   void prefetch(url).catch(() => {
-    // Silently ignore prefetch errors
+    prefetchedSet.delete(url);
   });
 }

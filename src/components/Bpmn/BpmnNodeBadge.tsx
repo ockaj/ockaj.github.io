@@ -112,7 +112,7 @@ type BpmnType =
   | "conditional-flow"
   | "default-flow";
 
-const SPECIFIC_BPMN_DESCRIPTIONS: Record<string, string> = {
+const SPECIFIC_BPMN_DESCRIPTIONS: { [type: string]: string | undefined } = {
   "start-event-none": "BPMN None Start Event: Shows where the workflow begins.",
   "end-event-none": "BPMN None End Event: Shows where the workflow finishes.",
   task: "BPMN Task: A single action or step that needs to be done.",
@@ -138,14 +138,17 @@ const SPECIFIC_BPMN_DESCRIPTIONS: Record<string, string> = {
 };
 
 function getBpmnDescription(type: BpmnType): string {
-  if (SPECIFIC_BPMN_DESCRIPTIONS[type]) {
-    return SPECIFIC_BPMN_DESCRIPTIONS[type];
+  const cached = SPECIFIC_BPMN_DESCRIPTIONS[type];
+  if (cached) {
+    return cached;
   }
   const formatted = type
     .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
-  return `BPMN ${formatted} symbol.`;
+  const description = `BPMN ${formatted} symbol.`;
+  SPECIFIC_BPMN_DESCRIPTIONS[type] = description;
+  return description;
 }
 
 interface BpmnNodeBadgeProps {

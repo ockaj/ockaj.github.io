@@ -106,11 +106,6 @@ function RotatingSpecialization({
   );
 }
 
-interface HeroScrollIndicatorProps {
-  prefersReducedMotion: boolean | null;
-  isMobile: boolean;
-}
-
 function HeroScrollIndicatorDesktop({
   prefersReducedMotion,
 }: {
@@ -123,9 +118,7 @@ function HeroScrollIndicatorDesktop({
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     const past = latest > 150;
-    if (past !== isPastThreshold) {
-      setIsPastThreshold(past);
-    }
+    setIsPastThreshold((prev) => (prev === past ? prev : past));
   });
 
   const shouldAnimate = !prefersReducedMotion && !isPastThreshold;
@@ -193,21 +186,13 @@ function HeroScrollIndicatorDesktop({
   );
 }
 
-function HeroScrollIndicator({
-  prefersReducedMotion,
-  isMobile,
-}: Readonly<HeroScrollIndicatorProps>) {
-  if (isMobile) return null;
-  return (
-    <HeroScrollIndicatorDesktop prefersReducedMotion={prefersReducedMotion} />
-  );
-}
-
 function Hero() {
   const prefersReducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
 
   useEffect(() => {
+    if (useAppStore.getState().hasCvMounted) return;
+
     const handle = requestIdle(
       () => {
         useAppStore.getState().mountCv();
@@ -332,10 +317,11 @@ function Hero() {
         </motion.div>
       </motion.div>
 
-      <HeroScrollIndicator
-        prefersReducedMotion={prefersReducedMotion}
-        isMobile={isMobile}
-      />
+      {!isMobile ? (
+        <HeroScrollIndicatorDesktop
+          prefersReducedMotion={prefersReducedMotion}
+        />
+      ) : null}
     </section>
   );
 }

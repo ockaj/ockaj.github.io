@@ -6,7 +6,10 @@ import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import BpmnHotkeyToast from "./BpmnHotkeyToast";
 import BpmnDiagram from "./BpmnDiagram";
 import { getSessionStorageItem, setSessionStorageItem } from "./bpmnStorage";
-import { useIsMobile, usePrefersReducedMotion } from "../../hooks/useMediaQuery";
+import {
+  useIsMobile,
+  usePrefersReducedMotion,
+} from "../../hooks/useMediaQuery";
 import { navigateTo, useModal } from "../../hooks/useAppNavigation";
 import {
   modalVariants,
@@ -21,9 +24,6 @@ export default function BpmnOverlay() {
   const { isOpen, open, close } = useModal("bpmn");
   const typedBufferRef = useRef<string[]>([]);
   const [showHotkeyTip, setShowHotkeyTip] = useState(false);
-  const [hasDismissedTip, setHasDismissedTip] = useState(() => {
-    return getSessionStorageItem("bpmn_tip_dismissed") === "true";
-  });
 
   // Keyboard shortcut listener for 'B-P-M-N'
   useEffect(() => {
@@ -48,7 +48,6 @@ export default function BpmnOverlay() {
           open();
           typedBufferRef.current = [];
           setShowHotkeyTip(false);
-          setHasDismissedTip(true);
           setSessionStorageItem("bpmn_tip_dismissed", "true");
         }
       } else {
@@ -62,18 +61,23 @@ export default function BpmnOverlay() {
 
   // Show a brief toast notification on how to trigger if user spends time on the site (once per session)
   useEffect(() => {
-    if (isMobile || hasDismissedTip || isOpen) return;
+    if (
+      isMobile ||
+      isOpen ||
+      getSessionStorageItem("bpmn_tip_dismissed") === "true"
+    ) {
+      return;
+    }
 
     const showTipTimer = setTimeout(() => {
       setShowHotkeyTip(true);
       setSessionStorageItem("bpmn_tip_dismissed", "true");
-      setHasDismissedTip(true);
     }, 12000);
 
     return () => {
       clearTimeout(showTipTimer);
     };
-  }, [isMobile, hasDismissedTip, isOpen]);
+  }, [isMobile, isOpen]);
 
   const handleDismissToast = useCallback(() => {
     setShowHotkeyTip(false);

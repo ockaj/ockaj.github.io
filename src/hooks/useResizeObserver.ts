@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
+import { useEffect, useEffectEvent, type RefObject } from "react";
 
 type ResizeCallback = (entry: ResizeObserverEntry) => void;
 
@@ -29,10 +29,7 @@ export function useResizeObserver<T extends Element = Element>(
   element: T | null | RefObject<T | null>,
   callback: ResizeCallback,
 ) {
-  const savedCallbackRef = useRef(callback);
-  useLayoutEffect(() => {
-    savedCallbackRef.current = callback;
-  });
+  const onResize = useEffectEvent(callback);
 
   useEffect(() => {
     const target = element && "current" in element ? element.current : element;
@@ -40,7 +37,7 @@ export function useResizeObserver<T extends Element = Element>(
     const observer = getObserver();
     if (!observer) return;
 
-    const cb: ResizeCallback = (entry) => savedCallbackRef.current(entry);
+    const cb: ResizeCallback = (entry) => onResize(entry);
     let cbs = callbacks.get(target);
     if (!cbs) {
       cbs = new Set();

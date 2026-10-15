@@ -54,9 +54,9 @@ const CvExperienceSection = memo(function CvExperienceSection({
       {data.items.length === 0 ? (
         <StaticGlass
           roundedClass="rounded-2xl"
-          className="w-full block text-left"
+          className="block w-full text-left"
         >
-          <div className="p-5 md:p-6 text-center text-muted">
+          <div className="p-5 text-center text-muted md:p-6">
             <p className="text-sm">
               {lang === "sk"
                 ? "Žiadne záznamy o praxi."
@@ -65,8 +65,11 @@ const CvExperienceSection = memo(function CvExperienceSection({
           </div>
         </StaticGlass>
       ) : (
-        <StaticGlass roundedClass="rounded-2xl" className="w-full block text-left">
-          <div className="p-5 md:p-6 space-y-6">
+        <StaticGlass
+          roundedClass="rounded-2xl"
+          className="block w-full text-left"
+        >
+          <div className="space-y-6 p-5 md:p-6">
             {data.items.map((job, idx) => (
               <div
                 key={`${job.company}-${job.role}`}
@@ -74,14 +77,16 @@ const CvExperienceSection = memo(function CvExperienceSection({
               >
                 <div className="mb-3 space-y-1">
                   <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-                    <h3 className="text-base font-semibold leading-tight text-balance text-text-primary md:text-lg">
+                    <h3 className="text-base leading-tight font-semibold text-balance text-text-primary md:text-lg">
                       {job.role}
                     </h3>
-                    <span className="text-sm text-muted tabular-nums shrink-0">
+                    <span className="shrink-0 text-sm text-muted tabular-nums">
                       {job.period}
                     </span>
                   </div>
-                  <p className="text-sm text-pretty text-muted md:text-base">{job.company}</p>
+                  <p className="text-sm text-pretty text-muted md:text-base">
+                    {job.company}
+                  </p>
                 </div>
                 <BulletList bullets={job.bullets} />
               </div>
@@ -105,9 +110,9 @@ const CvEducationSection = memo(function CvEducationSection({
       {data.items.length === 0 ? (
         <StaticGlass
           roundedClass="rounded-2xl"
-          className="w-full block text-left"
+          className="block w-full text-left"
         >
-          <div className="p-5 md:p-6 text-center text-muted">
+          <div className="p-5 text-center text-muted md:p-6">
             <p className="text-sm">
               {lang === "sk"
                 ? "Žiadne záznamy o vzdelaní."
@@ -116,8 +121,11 @@ const CvEducationSection = memo(function CvEducationSection({
           </div>
         </StaticGlass>
       ) : (
-        <StaticGlass roundedClass="rounded-2xl" className="w-full block text-left">
-          <div className="p-5 md:p-6 space-y-6">
+        <StaticGlass
+          roundedClass="rounded-2xl"
+          className="block w-full text-left"
+        >
+          <div className="space-y-6 p-5 md:p-6">
             {data.items.map((edu, idx) => (
               <div
                 key={`${edu.school}-${edu.degree}`}
@@ -125,14 +133,16 @@ const CvEducationSection = memo(function CvEducationSection({
               >
                 <div className="space-y-1">
                   <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-                    <h3 className="text-base font-semibold leading-tight text-balance text-text-primary md:text-lg">
+                    <h3 className="text-base leading-tight font-semibold text-balance text-text-primary md:text-lg">
                       {edu.degree}
                     </h3>
-                    <span className="text-sm text-muted tabular-nums shrink-0">
+                    <span className="shrink-0 text-sm text-muted tabular-nums">
                       {edu.period}
                     </span>
                   </div>
-                  <p className="text-sm text-pretty text-muted md:text-base">{edu.school}</p>
+                  <p className="text-sm text-pretty text-muted md:text-base">
+                    {edu.school}
+                  </p>
                 </div>
 
                 {edu.details ? (
@@ -166,9 +176,9 @@ const CvCertificatesSection = memo(function CvCertificatesSection({
       {data.items.length === 0 ? (
         <StaticGlass
           roundedClass="rounded-2xl"
-          className="w-full block text-left"
+          className="block w-full text-left"
         >
-          <div className="p-5 md:p-6 text-center text-muted">
+          <div className="p-5 text-center text-muted md:p-6">
             <p className="text-sm">
               {lang === "sk"
                 ? "Žiadne certifikáty."
@@ -177,8 +187,11 @@ const CvCertificatesSection = memo(function CvCertificatesSection({
           </div>
         </StaticGlass>
       ) : (
-        <StaticGlass roundedClass="rounded-2xl" className="w-full block text-left">
-          <div className="p-5 md:p-6 space-y-6">
+        <StaticGlass
+          roundedClass="rounded-2xl"
+          className="block w-full text-left"
+        >
+          <div className="space-y-6 p-5 md:p-6">
             {data.items.map((cert, idx) => (
               <div
                 key={`${cert.issuer}-${cert.name}`}
@@ -186,14 +199,16 @@ const CvCertificatesSection = memo(function CvCertificatesSection({
               >
                 <div className="space-y-1">
                   <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-                    <h3 className="text-base font-semibold leading-tight text-balance text-text-primary md:text-lg">
+                    <h3 className="text-base leading-tight font-semibold text-balance text-text-primary md:text-lg">
                       {cert.name}
                     </h3>
-                    <span className="text-sm text-muted tabular-nums shrink-0">
+                    <span className="shrink-0 text-sm text-muted tabular-nums">
                       {cert.date}
                     </span>
                   </div>
-                  <p className="text-sm text-pretty text-muted md:text-base">{cert.issuer}</p>
+                  <p className="text-sm text-pretty text-muted md:text-base">
+                    {cert.issuer}
+                  </p>
                 </div>
 
                 {cert.bullets && cert.bullets.length > 0 ? (
@@ -221,9 +236,9 @@ const CvSkillsSection = memo(function CvSkillsSection({
       </h2>
       <StaticGlass
         roundedClass="rounded-2xl"
-        className="w-full block text-left"
+        className="block w-full text-left"
       >
-        <div className="p-5 md:p-6 space-y-5">
+        <div className="space-y-5 p-5 md:p-6">
           {data.categories.length === 0 ? (
             <p className="text-sm text-muted">
               {lang === "sk" ? "Žiadne zručnosti." : "No skills listed."}
@@ -232,7 +247,10 @@ const CvSkillsSection = memo(function CvSkillsSection({
             data.categories.map((cat, idx) => (
               <div
                 key={cat.name}
-                className={cn("space-y-2.5", idx > 0 && "border-t border-white/5 pt-5")}
+                className={cn(
+                  "space-y-2.5",
+                  idx > 0 && "border-t border-white/5 pt-5",
+                )}
               >
                 <h3 className="text-sm font-semibold tracking-wide text-text-primary">
                   {cat.name}
@@ -250,7 +268,9 @@ const CvSkillsSection = memo(function CvSkillsSection({
                           <span>{title}</span>
                           {subtitle ? (
                             <>
-                              <span className="mx-1.5 text-white/20 select-none">·</span>
+                              <span className="mx-1.5 text-white/20 select-none">
+                                ·
+                              </span>
                               <span className="text-muted/70 transition-colors duration-150 group-hover:text-muted">
                                 {subtitle}
                               </span>
@@ -281,7 +301,7 @@ const CvLanguagesSection = memo(function CvLanguagesSection({
       </h2>
       <StaticGlass
         roundedClass="rounded-2xl"
-        className="w-full block text-left"
+        className="block w-full text-left"
       >
         <div className="p-5 md:p-6">
           {data.items.length === 0 ? (
@@ -293,7 +313,7 @@ const CvLanguagesSection = memo(function CvLanguagesSection({
               {data.items.map((langItem) => (
                 <div
                   key={langItem.name}
-                  className="flex items-center justify-between py-3 first:pt-0 last:pb-0 text-sm"
+                  className="flex items-center justify-between py-3 text-sm first:pt-0 last:pb-0"
                 >
                   <span className="font-medium text-text-primary">
                     {langItem.name}
@@ -367,7 +387,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
       {/* Dossier Header Card */}
       <StaticGlass
         roundedClass="rounded-2xl"
-        className="w-full block text-left"
+        className="block w-full text-left"
       >
         <div className="p-6 md:p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
@@ -380,7 +400,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
               </p>
 
               {/* Contacts Strip */}
-              <div className="pt-3 flex flex-wrap items-center gap-2 text-sm text-muted tabular-nums">
+              <div className="flex flex-wrap items-center gap-2 pt-3 text-sm text-muted tabular-nums">
                 <StaticGlass
                   as="span"
                   roundedClass="rounded-full"
@@ -412,6 +432,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
             <div className="flex items-center gap-1.5 self-start md:self-auto">
               <LiquidGlassButton
                 onClick={() => useAppStore.getState().setCvLang("en")}
+                aria-pressed={lang === "en"}
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold",
                   lang === "en" ? "text-accent" : "text-muted",
@@ -422,6 +443,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
               </LiquidGlassButton>
               <LiquidGlassButton
                 onClick={() => useAppStore.getState().setCvLang("sk")}
+                aria-pressed={lang === "sk"}
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold",
                   lang === "sk" ? "text-accent" : "text-muted",
@@ -446,7 +468,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
             </h2>
             <StaticGlass
               roundedClass="rounded-2xl"
-              className="w-full block text-left"
+              className="block w-full text-left"
             >
               <div className="p-5 md:p-6">
                 <p className="font-body text-sm leading-relaxed text-pretty text-text-primary/90 md:text-base">

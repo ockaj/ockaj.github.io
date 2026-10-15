@@ -221,6 +221,7 @@ describe("useAppNavigation", () => {
       applyHashNavigation("#case-study-logistics", false, "smooth");
 
       expect(useAppStore.getState().activeModal).toBe("case-study-logistics");
+      expect(useAppStore.getState().activeSection).toBe("work");
       expect(mockWorkSection.scrollIntoView).toHaveBeenCalledWith({
         behavior: "smooth",
       });
@@ -385,6 +386,16 @@ describe("useAppNavigation", () => {
         "",
         "#contact",
       );
+      expect(windowHash).toBe("#contact");
+    });
+
+    it("does not lock out scrollspy when current hash is #top or an uppercase section hash", () => {
+      windowHash = "#top";
+      expect(commitScrollSpyHash("#work", false)).toBe(true);
+      expect(windowHash).toBe("#work");
+
+      windowHash = "#SKILLS";
+      expect(commitScrollSpyHash("#contact", false)).toBe(true);
       expect(windowHash).toBe("#contact");
     });
 

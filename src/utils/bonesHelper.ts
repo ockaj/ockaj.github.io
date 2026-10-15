@@ -1,6 +1,5 @@
 import type { CSSProperties } from "react";
 import _case_studies from "../bones/case-studies.bones.json";
-import _contact from "../bones/contact.bones.json";
 import _faq from "../bones/faq.bones.json";
 import _journal from "../bones/journal.bones.json";
 import _processes from "../bones/processes.bones.json";
@@ -19,9 +18,12 @@ type BonesDoc = {
   };
 };
 
-const BONES_MAP: { [key: string]: BonesDoc } = {
+type SkeletonStylesMap = {
+  readonly [key: string]: CSSProperties;
+};
+
+const BONES_MAP: { readonly [key: string]: BonesDoc } = {
   "case-studies": _case_studies,
-  contact: _contact,
   faq: _faq,
   journal: _journal,
   processes: _processes,
@@ -37,7 +39,7 @@ function getSkeletonHeights(name: string): SkeletonHeights {
   return { mob, tab, desk, wide };
 }
 
-const SKELETON_STYLES_MAP: Record<string, CSSProperties> = Object.fromEntries(
+const SKELETON_STYLES_MAP: SkeletonStylesMap = Object.fromEntries(
   Object.keys(BONES_MAP).map((name) => {
     const { mob, tab, desk, wide } = getSkeletonHeights(name);
     const style: CSSProperties = {
@@ -54,17 +56,4 @@ const EMPTY_STYLE: CSSProperties = {};
 
 export function getSkeletonStyle(name: string): CSSProperties {
   return SKELETON_STYLES_MAP[name] ?? EMPTY_STYLE;
-}
-
-declare global {
-  interface Window {
-    __BONEYARD_BUILD?: boolean;
-  }
-}
-
-/**
- * Helper to check if the app is currently running in Boneyard skeleton capture mode.
- */
-export function isBoneyardBuild(): boolean {
-  return typeof window !== "undefined" && Boolean(window.__BONEYARD_BUILD);
 }
