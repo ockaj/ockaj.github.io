@@ -1,8 +1,17 @@
-import { memo, useEffect, useRef } from "react";
+import { memo, useEffect, useRef, useCallback } from "react";
+import {
+  motion,
+  useMotionValue,
+  useInView,
+  animate,
+  type MotionValue,
+} from "motion/react";
 import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
 import { PROCESS_TOPICS, type ProcessTopic } from "../../data/processItems";
 import { cn } from "../../utils/cn";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
+import { SPRING } from "../../utils/springConfig";
+import { isBoneyardBuild } from "../../utils/boneyard";
 import ProcessCardHeader from "./ProcessCardHeader";
 import ProcessVariantStage from "./ProcessVariantStage";
 import {
@@ -24,6 +33,7 @@ interface ProcessMobileSlideProps {
     image: string;
     type: string;
   }) => void;
+  nudgeX?: MotionValue<number>;
 }
 
 const ProcessMobileSlide = memo(function ProcessMobileSlide({
@@ -34,6 +44,7 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
   cardViewMode,
   onViewModeChange,
   setLightboxItem,
+  nudgeX,
 }: Readonly<ProcessMobileSlideProps>) {
   let motionClass = "opacity-100 [transform:scale(1)]";
   if (!isActive) {
@@ -55,29 +66,34 @@ const ProcessMobileSlide = memo(function ProcessMobileSlide({
         motionClass,
       )}
     >
-      <InteractiveGlass
-        as="div"
-        roundedClass="rounded-2xl"
-        className="size-full flex-col items-stretch justify-start p-5 text-left sm:p-7 md:p-8"
-        innerClassName="flex flex-col flex-1 min-h-0"
+      <motion.div
+        style={nudgeX ? { x: nudgeX } : undefined}
+        className="flex size-full flex-col"
       >
-        <ProcessCardHeader
-          topicId={topic.id}
-          title={topic.source.title}
-          viewMode={cardViewMode}
-          onViewModeChange={onViewModeChange}
-          isMobile
-        />
+        <InteractiveGlass
+          as="div"
+          roundedClass="rounded-2xl"
+          className="size-full flex-col items-stretch justify-start p-5 text-left sm:p-7 md:p-8"
+          innerClassName="flex flex-col flex-1 min-h-0"
+        >
+          <ProcessCardHeader
+            topicId={topic.id}
+            title={topic.source.title}
+            viewMode={cardViewMode}
+            onViewModeChange={onViewModeChange}
+            isMobile
+          />
 
-        {/* Zero-Unmount Layer Staged Content */}
-        <ProcessVariantStage
-          topic={topic}
-          activeViewMode={cardViewMode}
-          setLightboxItem={setLightboxItem}
-          isFirstSlide={idx === 0}
-          badges={false}
-        />
-      </InteractiveGlass>
+          {/* Zero-Unmount Layer Staged Content */}
+          <ProcessVariantStage
+            topic={topic}
+            activeViewMode={cardViewMode}
+            setLightboxItem={setLightboxItem}
+            isFirstSlide={idx === 0}
+            badges={false}
+          />
+        </InteractiveGlass>
+      </motion.div>
     </div>
   );
 });
@@ -109,6 +125,63 @@ function ProcessMobileCarousel() {
   const isUserScrollingRef = useRef(false);
   const scrollFrameRef = useRef<number | null>(null);
   const isInitialMountRef = useRef(true);
+
+  // Initial swipe affordance entrance nudge
+  const nudgeX = useMotionValue(0);
+  const isInView = useInView(containerRef, {
+    once: true,
+    amount: 0.35,
+  });
+  const hasNudgedRef = useRef(false);
+
+  const interruptNudge = useCallback(() => {
+    hasNudgedRef.current = true;
+    nudgeX.stop();
+    if (nudgeX.get() !== 0) {
+      nudgeX.set(0);
+    }
+  }, [nudgeX]);
+
+  useEffect(() => {
+    if (activeTopicId !== PROCESS_TOPICS[0].id) {
+      interruptNudge();
+      return;
+    }
+    if (
+      isBoneyardBuild() ||
+      !isInView ||
+      prefersReducedMotion ||
+      hasNudgedRef.current
+    ) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      if (
+        hasNudgedRef.current ||
+        (containerRef.current && containerRef.current.scrollLeft > 2)
+      ) {
+        return;
+      }
+      hasNudgedRef.current = true;
+
+      animate(nudgeX, -28, {
+        duration: 0.22,
+        ease: "easeOut",
+        onComplete: () => {
+          animate(nudgeX, 0, SPRING.nudge);
+        },
+      });
+    }, 400);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      nudgeX.stop();
+      if (nudgeX.get() !== 0) {
+        nudgeX.set(0);
+      }
+    };
+  }, [activeTopicId, isInView, prefersReducedMotion, nudgeX, interruptNudge]);
 
   // Smoothly scroll the snap container when activeTopicId changes externally
   useEffect(() => {
@@ -207,6 +280,7 @@ function ProcessMobileCarousel() {
 
     const handleScroll = () => {
       if (isProgrammaticScrollRef.current) return;
+      interruptNudge();
       isUserScrollingRef.current = true;
       if (scrollFrameRef.current !== null) return;
 
@@ -231,6 +305,7 @@ function ProcessMobileCarousel() {
     };
 
     const handleProgrammaticScrollInterruption = () => {
+      interruptNudge();
       resetProgrammaticScroll();
     };
 
@@ -260,7 +335,7 @@ function ProcessMobileCarousel() {
         scrollFrameRef.current = null;
       }
     };
-  }, [selectTopic]);
+  }, [selectTopic, interruptNudge]);
 
   return (
     <div className="col-span-1 flex w-full min-w-0 flex-col justify-center">
@@ -279,6 +354,7 @@ function ProcessMobileCarousel() {
               onViewModeChange={handleTopicViewModeChange}
               setLightboxItem={setLightboxItem}
               prefersReducedMotion={prefersReducedMotion}
+              nudgeX={!prefersReducedMotion && idx <= 1 ? nudgeX : undefined}
             />
           ))}
         </div>

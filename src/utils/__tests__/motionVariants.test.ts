@@ -39,7 +39,10 @@ describe("motionVariants invariant specifications", () => {
       expect(visibleReduced.transition).toEqual(REDUCED_MOTION_TRANSITION);
 
       const visibleNormal = cardStaggerVariants.visible(false);
-      expect(visibleNormal.transition).toEqual({ duration: 0.35, ease: EASE.out });
+      expect(visibleNormal.transition).toEqual({
+        duration: 0.35,
+        ease: EASE.out,
+      });
     });
 
     it("disables drawer stagger delays under reduced motion", () => {
@@ -72,22 +75,34 @@ describe("motionVariants invariant specifications", () => {
       }) => { opacity: number; scale: number; y: number };
 
       // Reduced motion forces scale: 1
-      const reducedState = hiddenFn({ prefersReducedMotion: true, isMobile: false });
+      const reducedState = hiddenFn({
+        prefersReducedMotion: true,
+        isMobile: false,
+      });
       expect(reducedState.scale).toBe(1);
       expect(reducedState.opacity).toBe(0);
 
       // Desktop normal uses scale: 0.95
-      const desktopState = hiddenFn({ prefersReducedMotion: false, isMobile: false });
+      const desktopState = hiddenFn({
+        prefersReducedMotion: false,
+        isMobile: false,
+      });
       expect(desktopState.scale).toBeCloseTo(0.95, 2);
 
       // Mobile normal uses scale: 0.96
-      const mobileState = hiddenFn({ prefersReducedMotion: false, isMobile: true });
+      const mobileState = hiddenFn({
+        prefersReducedMotion: false,
+        isMobile: true,
+      });
       expect(mobileState.scale).toBeCloseTo(0.96, 2);
     });
 
     it("backdrop transition respects reduced motion", () => {
       expect(getBackdropTransition(true)).toEqual(REDUCED_MOTION_TRANSITION);
-      expect(getBackdropTransition(false)).toEqual({ duration: 0.2, ease: "easeOut" });
+      expect(getBackdropTransition(false)).toEqual({
+        duration: 0.2,
+        ease: "easeOut",
+      });
     });
 
     it("mobileMenuPanelVariants handles reduced motion cleanly", () => {
@@ -98,15 +113,22 @@ describe("motionVariants invariant specifications", () => {
       expect(hiddenFn(true)).toEqual({ opacity: 0 });
       expect(hiddenFn(false)).toEqual({ y: -6, scale: 0.98, opacity: 0 });
 
-      const exitFn = mobileMenuPanelVariants.exit as (
-        rm: boolean | null,
-      ) => { opacity: number; transition: unknown; y?: number };
+      const exitFn = mobileMenuPanelVariants.exit as (rm: boolean | null) => {
+        opacity: number;
+        transition: unknown;
+        y?: number;
+      };
 
-      expect(exitFn(true)).toEqual({ opacity: 0, transition: REDUCED_MOTION_TRANSITION });
+      expect(exitFn(true)).toEqual({
+        opacity: 0,
+        transition: REDUCED_MOTION_TRANSITION,
+      });
     });
 
     it("mobileMenuItemVariants handles y translations and reduced motion", () => {
-      const hiddenFn = mobileMenuItemVariants.hidden as (rm: boolean | null) => {
+      const hiddenFn = mobileMenuItemVariants.hidden as (
+        rm: boolean | null,
+      ) => {
         opacity: number;
         y?: number;
       };
@@ -138,6 +160,15 @@ describe("motionVariants invariant specifications", () => {
 
       expect(loadingNodePulseAnimate(true)).toEqual({ opacity: [0.7, 1, 0.7] });
       expect(loadingNodePulseAnimate(false)).toEqual({ opacity: 0 });
+    });
+
+    it("exports mobile swipe initial entrance nudge spring physics", () => {
+      expect(SPRING.nudge).toEqual({
+        type: "spring",
+        stiffness: 320,
+        damping: 18,
+        mass: 0.8,
+      });
     });
   });
 });

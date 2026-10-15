@@ -73,6 +73,13 @@ export const SPRING = {
     damping: 20,
     stiffness: 120,
   },
+  /** Mobile swipe initial entrance nudge */
+  nudge: {
+    type: "spring" as const,
+    stiffness: 320,
+    damping: 18,
+    mass: 0.8,
+  },
   /** Process model diagram & stage crossfade transition */
   stage: {
     type: "spring" as const,
