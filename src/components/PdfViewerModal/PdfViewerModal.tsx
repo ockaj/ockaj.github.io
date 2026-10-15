@@ -282,12 +282,9 @@ const PdfDocumentPanel = memo(function PdfDocumentPanel({
   );
 });
 
-const CV_EN_VIEW = <InteractiveCvView activeCv={CV_DATA.en} lang="en" />;
-const CV_SK_VIEW = <InteractiveCvView activeCv={CV_DATA.sk} lang="sk" />;
-
 const InteractiveCvContent = memo(function InteractiveCvContent() {
   const cvLang = useAppStore((state) => state.cvLang);
-  return cvLang === "en" ? CV_EN_VIEW : CV_SK_VIEW;
+  return <InteractiveCvView activeCv={CV_DATA[cvLang]} lang={cvLang} />;
 });
 
 interface PdfModalBodyProps {

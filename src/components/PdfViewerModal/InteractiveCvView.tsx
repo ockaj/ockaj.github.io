@@ -1,8 +1,12 @@
-import { memo } from "react";
+import { memo, useCallback } from "react";
+import { motion, LayoutGroup } from "motion/react";
 import { Mail, Phone, MapPin, Languages } from "lucide-react";
 import { LiquidGlassButton, StaticGlass } from "../LiquidGlass/LiquidGlass";
+import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
+import { usePrefersReducedMotion } from "../../hooks/useMediaQuery";
+import { SPRING } from "../../utils/springConfig";
 import { cn } from "../../utils/cn";
-import { type CvDataLanguageSection } from "../../data/cvData";
+import { CV_DATA, type CvDataLanguageSection } from "../../data/cvData";
 import { useAppStore } from "../../store/useAppStore";
 
 const PHONE_PREFIX_REGEX = /^[+\d]/;
@@ -334,14 +338,42 @@ const CvLanguagesSection = memo(function CvLanguagesSection({
 const CONTACT_PILL_CLASS =
   "inline-flex h-8 items-center px-3.5 text-sm font-normal text-muted";
 
+const CV_LANGS = ["en", "sk"] as const;
+const REDUCED_MOTION_TRANSITION = { duration: 0.15 } as const;
+
 interface CvPhoneContactProps {
   phone: string;
+  lang: "en" | "sk";
+  prefersReducedMotion: boolean | null;
 }
 
 const CvPhoneContact = memo(function CvPhoneContact({
   phone,
+  lang,
+  prefersReducedMotion,
 }: CvPhoneContactProps) {
   if (!phone) return null;
+
+  const directionMultiplier = lang === "sk" ? 1 : -1;
+  const xOffset = prefersReducedMotion ? 0 : 6 * directionMultiplier;
+  const textTransition = prefersReducedMotion
+    ? REDUCED_MOTION_TRANSITION
+    : SPRING.stage;
+
+  const phoneText = (
+    <motion.span
+      key={phone}
+      initial={{
+        opacity: 0,
+        x: xOffset,
+      }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={textTransition}
+      className="inline-block whitespace-nowrap"
+    >
+      {phone}
+    </motion.span>
+  );
 
   if (PHONE_PREFIX_REGEX.test(phone)) {
     return (
@@ -355,7 +387,7 @@ const CvPhoneContact = memo(function CvPhoneContact({
         ariaLabel={`Call ${phone}`}
       >
         <Phone size={14} className="shrink-0 text-accent" />
-        <span className="whitespace-nowrap">{phone}</span>
+        {phoneText}
       </LiquidGlassButton>
     );
   }
@@ -368,7 +400,7 @@ const CvPhoneContact = memo(function CvPhoneContact({
       innerClassName="inline-flex items-center gap-1.5 font-normal"
     >
       <Phone size={14} className="shrink-0 text-accent" />
-      <span className="whitespace-nowrap">{phone}</span>
+      {phoneText}
     </StaticGlass>
   );
 });
@@ -382,6 +414,19 @@ export const InteractiveCvView = memo(function InteractiveCvView({
   activeCv,
   lang,
 }: InteractiveCvViewProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  const handleLangChange = useCallback((val: string | number) => {
+    useAppStore.getState().setCvLang(val as "en" | "sk");
+  }, []);
+
+  const directionMultiplier = lang === "sk" ? 1 : -1;
+  const roleXOffset = prefersReducedMotion ? 0 : 8 * directionMultiplier;
+  const locationXOffset = prefersReducedMotion ? 0 : 6 * directionMultiplier;
+  const headerTransition = prefersReducedMotion
+    ? REDUCED_MOTION_TRANSITION
+    : SPRING.stage;
+
   return (
     <div className="mx-auto max-w-4xl space-y-8 pb-12">
       {/* Dossier Header Card */}
@@ -395,101 +440,195 @@ export const InteractiveCvView = memo(function InteractiveCvView({
               <h1 className="font-display text-3xl tracking-tight text-balance wrap-break-word text-text-primary md:text-4xl">
                 {activeCv.title}
               </h1>
-              <p className="font-body text-sm font-normal text-pretty wrap-break-word text-muted md:text-base">
+              <motion.p
+                key={activeCv.role}
+                initial={{
+                  opacity: 0,
+                  x: roleXOffset,
+                }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={headerTransition}
+                className="font-body text-sm font-normal text-pretty wrap-break-word text-muted md:text-base"
+              >
                 {activeCv.role}
-              </p>
+              </motion.p>
 
               {/* Contacts Strip */}
-              <div className="flex flex-wrap items-center gap-2 pt-3 text-sm text-muted tabular-nums">
-                <StaticGlass
-                  as="span"
-                  roundedClass="rounded-full"
-                  className={CONTACT_PILL_CLASS}
-                  innerClassName="inline-flex items-center gap-1.5 font-normal"
-                >
-                  <MapPin size={14} className="shrink-0 text-accent" />
-                  <span className="whitespace-nowrap">{activeCv.location}</span>
-                </StaticGlass>
+              <LayoutGroup id="cv-contact-strip">
+                <div className="flex flex-wrap items-center gap-2 pt-3 text-sm text-muted tabular-nums">
+                  <motion.span
+                    layout={!prefersReducedMotion}
+                    transition={headerTransition}
+                    className="inline-flex"
+                  >
+                    <StaticGlass
+                      as="span"
+                      roundedClass="rounded-full"
+                      className={CONTACT_PILL_CLASS}
+                      innerClassName="inline-flex items-center gap-1.5 font-normal"
+                    >
+                      <MapPin size={14} className="shrink-0 text-accent" />
+                      <motion.span
+                        key={activeCv.location}
+                        initial={{
+                          opacity: 0,
+                          x: locationXOffset,
+                        }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={headerTransition}
+                        className="inline-block whitespace-nowrap"
+                      >
+                        {activeCv.location}
+                      </motion.span>
+                    </StaticGlass>
+                  </motion.span>
 
-                <LiquidGlassButton
-                  href={`mailto:${activeCv.email}`}
-                  className={cn(
-                    CONTACT_PILL_CLASS,
-                    "transition-colors hover:text-text-primary",
-                  )}
-                  innerClassName="inline-flex items-center gap-1.5 font-normal"
-                  ariaLabel={`Email ${activeCv.email}`}
-                >
-                  <Mail size={14} className="shrink-0 text-accent" />
-                  <span className="whitespace-nowrap">{activeCv.email}</span>
-                </LiquidGlassButton>
+                  <motion.span
+                    layout={!prefersReducedMotion}
+                    transition={headerTransition}
+                    className="inline-flex"
+                  >
+                    <LiquidGlassButton
+                      href={`mailto:${activeCv.email}`}
+                      className={cn(
+                        CONTACT_PILL_CLASS,
+                        "transition-colors hover:text-text-primary",
+                      )}
+                      innerClassName="inline-flex items-center gap-1.5 font-normal"
+                      ariaLabel={`Email ${activeCv.email}`}
+                    >
+                      <Mail size={14} className="shrink-0 text-accent" />
+                      <motion.span
+                        key={lang}
+                        initial={{
+                          opacity: 0,
+                          x: locationXOffset,
+                        }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={headerTransition}
+                        className="inline-block whitespace-nowrap"
+                      >
+                        {activeCv.email}
+                      </motion.span>
+                    </LiquidGlassButton>
+                  </motion.span>
 
-                <CvPhoneContact phone={activeCv.phone} />
-              </div>
+                  <motion.span
+                    layout={!prefersReducedMotion}
+                    transition={headerTransition}
+                    className="inline-flex"
+                  >
+                    <CvPhoneContact
+                      phone={activeCv.phone}
+                      lang={lang}
+                      prefersReducedMotion={prefersReducedMotion}
+                    />
+                  </motion.span>
+                </div>
+              </LayoutGroup>
             </div>
 
             {/* Language Toggler */}
-            <div className="flex items-center gap-1.5 self-start md:self-auto">
-              <LiquidGlassButton
-                onClick={() => useAppStore.getState().setCvLang("en")}
-                aria-pressed={lang === "en"}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold",
-                  lang === "en" ? "text-accent" : "text-muted",
-                )}
+            <div className="flex items-center self-start md:self-auto">
+              <Tabs
+                value={lang}
+                onChange={handleLangChange}
+                layoutId="cv-language-pill"
+                variant="segmented"
+                roundedClass="rounded-xl"
+                className="isolate inline-flex transform-gpu items-center rounded-xl bg-surface/80 p-1.25 shadow-inset-border backdrop-blur-md select-none"
+                highlightClassName="navbar-highlight-flat"
               >
-                <Languages size={14} />
-                EN
-              </LiquidGlassButton>
-              <LiquidGlassButton
-                onClick={() => useAppStore.getState().setCvLang("sk")}
-                aria-pressed={lang === "sk"}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold",
-                  lang === "sk" ? "text-accent" : "text-muted",
-                )}
-              >
-                <Languages size={14} />
-                SK
-              </LiquidGlassButton>
+                <Tab
+                  value="en"
+                  roundedClass="rounded-lg"
+                  className="relative flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+                  activeClassName="font-semibold text-text-primary"
+                >
+                  <Languages size={14} />
+                  <span>EN</span>
+                </Tab>
+                <Tab
+                  value="sk"
+                  roundedClass="rounded-lg"
+                  className="relative flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+                  activeClassName="font-semibold text-text-primary"
+                >
+                  <Languages size={14} />
+                  <span>SK</span>
+                </Tab>
+              </Tabs>
             </div>
           </div>
         </div>
       </StaticGlass>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        {/* Left Column: Summary, Experience, Education, Certificates */}
-        <div className="space-y-8 lg:col-span-2">
-          {/* Profile Section */}
-          <section className="space-y-3">
-            <h2 className="text-sm font-semibold tracking-wider text-muted uppercase">
-              {activeCv.profile.title}
-            </h2>
-            <StaticGlass
-              roundedClass="rounded-2xl"
-              className="block w-full text-left"
+      {/* Main Content Grid Stage */}
+      <div className="grid w-full grid-cols-1 grid-rows-1">
+        {CV_LANGS.map((gridLang) => {
+          const isSelected = lang === gridLang;
+          const data = CV_DATA[gridLang];
+          const offsetDirection = gridLang === "sk" ? 1 : -1;
+          const xOffset = prefersReducedMotion ? 0 : 14 * offsetDirection;
+          const activeSpring = isSelected ? SPRING.stage : SPRING.stageExit;
+          const stageTransition = prefersReducedMotion
+            ? REDUCED_MOTION_TRANSITION
+            : activeSpring;
+
+          return (
+            <motion.div
+              key={gridLang}
+              aria-hidden={!isSelected}
+              inert={!isSelected}
+              initial={false}
+              animate={
+                isSelected ? { opacity: 1, x: 0 } : { opacity: 0, x: xOffset }
+              }
+              transition={stageTransition}
+              className={cn(
+                "col-start-1 row-start-1 w-full",
+                isSelected ? "pointer-events-auto" : "pointer-events-none",
+              )}
             >
-              <div className="p-5 md:p-6">
-                <p className="font-body text-sm leading-relaxed text-pretty text-text-primary/90 md:text-base">
-                  {activeCv.profile.text}
-                </p>
+              <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                {/* Left Column: Summary, Experience, Education, Certificates */}
+                <div className="space-y-8 lg:col-span-2">
+                  {/* Profile Section */}
+                  <section className="space-y-3">
+                    <h2 className="text-sm font-semibold tracking-wider text-muted uppercase">
+                      {data.profile.title}
+                    </h2>
+                    <StaticGlass
+                      roundedClass="rounded-2xl"
+                      className="block w-full text-left"
+                    >
+                      <div className="p-5 md:p-6">
+                        <p className="font-body text-sm leading-relaxed text-pretty text-text-primary/90 md:text-base">
+                          {data.profile.text}
+                        </p>
+                      </div>
+                    </StaticGlass>
+                  </section>
+
+                  <CvExperienceSection data={data.experience} lang={gridLang} />
+                  <CvEducationSection data={data.education} lang={gridLang} />
+                  {data.certificates ? (
+                    <CvCertificatesSection
+                      data={data.certificates}
+                      lang={gridLang}
+                    />
+                  ) : null}
+                </div>
+
+                {/* Right Column: Skills & Languages */}
+                <div className="space-y-8">
+                  <CvSkillsSection data={data.skills} lang={gridLang} />
+                  <CvLanguagesSection data={data.languages} lang={gridLang} />
+                </div>
               </div>
-            </StaticGlass>
-          </section>
-
-          <CvExperienceSection data={activeCv.experience} lang={lang} />
-          <CvEducationSection data={activeCv.education} lang={lang} />
-          {activeCv.certificates ? (
-            <CvCertificatesSection data={activeCv.certificates} lang={lang} />
-          ) : null}
-        </div>
-
-        {/* Right Column: Skills & Languages */}
-        <div className="space-y-8">
-          <CvSkillsSection data={activeCv.skills} lang={lang} />
-          <CvLanguagesSection data={activeCv.languages} lang={lang} />
-        </div>
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );
