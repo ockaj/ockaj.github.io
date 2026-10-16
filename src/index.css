@@ -537,6 +537,10 @@ p {
   will-change: transform, opacity;
 }
 
+@utility grid-cols-header {
+  grid-template-columns: 1fr auto 1fr;
+}
+
 .skill-bullet {
   transition:
     clip-path 200ms cubic-bezier(0, 0, 0.2, 1),

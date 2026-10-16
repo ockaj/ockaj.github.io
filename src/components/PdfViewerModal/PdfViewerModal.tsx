@@ -110,7 +110,7 @@ const PdfModalDesktopActions = memo(function PdfModalDesktopActions({
   const prefersReducedMotion = usePrefersReducedMotion();
 
   return (
-    <div className="hidden items-center gap-2 md:flex">
+    <div className="hidden items-center gap-2 md:flex md:justify-self-end">
       <AnimatePresence mode="popLayout">
         {activeTab === "pdf" ? (
           <motion.div
@@ -165,7 +165,7 @@ const PdfModalTabs = memo(function PdfModalTabs({
   onTabChange,
 }: PdfModalTabsProps) {
   return (
-    <div className="hidden md:flex">
+    <div className="hidden md:flex md:justify-self-center">
       <Tabs
         value={activeTab}
         onChange={onTabChange}
@@ -385,9 +385,9 @@ function PdfViewerModal() {
                   {MODAL_SHEEN_OVERLAY}
 
                   {/* Header */}
-                  <div className="relative z-30 flex flex-col items-center justify-between gap-3 border-b border-white/10 px-4 pt-safe-4 pb-3 md:flex-row md:px-6 md:py-4">
+                  <div className="relative z-30 flex flex-col items-center justify-between gap-3 border-b border-white/10 px-4 pt-safe-4 pb-3 md:grid md:grid-cols-header md:items-center md:px-6 md:py-4">
                     {/* Title, Avatar & Mobile Action Buttons */}
-                    <div className="flex w-full items-center justify-between gap-4 md:w-auto">
+                    <div className="flex w-full items-center justify-between gap-4 md:w-auto md:justify-self-start">
                       <PdfModalTitle />
                       <PdfModalMobileActions />
                     </div>
