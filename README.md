@@ -19,7 +19,7 @@ A high-end, premium interactive portfolio showcasing Ondrej Michal Očkaj's skil
 - **Framework & Core**: React 19, TypeScript, Vite 8
 - **UI Components & Materials**: Base UI (`@base-ui/react`), LiquidGlass tactile primitives
 - **Styling**: Tailwind CSS v4, custom theme tokens
-- **Graphics & Motion**: WebGL Aurora (`ogl`), `motion/react` (v13+), NumberFlow (`@number-flow/react`)
+- **Graphics & Motion**: WebGL Aurora (WebGL2), `motion/react` (v13+), NumberFlow (`@number-flow/react`)
 - **State Management**: Zustand 5 with URL hash synchronization
 - **Asset Processing**: `lightningcss` (CSS transformer), SVGO (SVG optimizer), `boneyard-js` (build-time skeleton generation)
 - **Content**: Build-time Vite Markdown plugin (`micromark` + GFM) for zero-runtime article compilation

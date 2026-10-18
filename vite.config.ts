@@ -54,10 +54,6 @@ export default defineConfig(({ mode }) => ({
         codeSplitting: {
           groups: [
             {
-              name: "vendor-ogl",
-              test: /node_modules[\\/]ogl/,
-            },
-            {
               name: "vendor-motion",
               test: /node_modules[\\/]motion/,
             },

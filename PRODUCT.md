@@ -34,7 +34,7 @@ Junior Business & Process Analyst bridging rigorous formal notation (BPMN 2.0, A
 - Deep-link overlay routing via URL hash (`#cv`, `#case-study-1`, `#article-bpmn-traps`, `#article-process-modeling-languages`, `#lightbox-<id>`, `#bpmn`, `#nav`, `#menu`).
 - Headless Base UI modal dialogs and drawer primitives with non-blocking exit springs and scroll lock coordination.
 - Tactile LiquidGlass primitives (`InteractiveGlass`, `StaticGlass`, `LiquidGlassButton`, `Tabs`, `Tab`) with cursor-following specular glow, spring recoil, and 3D tilt.
-- WebGL background aurora effect (OGL) with hardware GPU validation and `@media (prefers-reduced-motion: reduce)` vector SVG fallback (`AuroraFallback.tsx`).
+- WebGL background aurora effect (WebGL2) with hardware GPU validation and `@media (prefers-reduced-motion: reduce)` vector SVG fallback (`AuroraFallback.tsx`).
 - Dual-language interactive CV viewer (`InteractiveCvView.tsx`) rendering structured English and Slovak data, alongside direct PDF download.
 - Markdown technical journal articles compiled to static HTML at build time with frontmatter metadata.
 - Static architecture: Hosted on GitHub Pages with zero backend services and zero dynamic databases.

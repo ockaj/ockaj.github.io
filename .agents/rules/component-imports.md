@@ -44,7 +44,7 @@ Feature modules encapsulate internal implementation. ESLint (`no-restricted-impo
 | `ProcessLibrary` | `ProcessLibrary/ProcessLibrary` | `ProcessCardHeader`, `ProcessDesktopCard`, `ProcessDesktopControls`, `ProcessMobileCarousel`, `ProcessMobileControls`, `ProcessVariantStage`, `ProcessLibraryContext`, `useProcessTopicController` |
 | `ProcessLightbox` | `ProcessLightbox/ProcessLightbox` | `LightboxControls`, `ZoomableImage` |
 | `Faq` | `Faq/Faq` | `FaqItem` |
-| `Aurora` | `Aurora/Aurora` | `AuroraFallback` |
+| `Aurora` | `Aurora/Aurora` | `AuroraFallback`, `auroraUtils` |
 | `LoadingScreen` | `LoadingScreen/LoadingScreen` | `LoadingBpmnDiagram`, `loadingData`, `LoadingMethodologyChecklist` |
 | `Navigation` | `Navigation/Navbar` | `MobileMenu` |
 | `PdfViewerModal` | `PdfViewerModal/PdfViewerModal` | `InteractiveCvView` |

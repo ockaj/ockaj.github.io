@@ -75,7 +75,7 @@ Single-page React portfolio (no router) built with React 19, Vite 8, TypeScript 
 
 - **BPMN Meta-Diagram**: [`BpmnDiagram.tsx`](../../src/components/Bpmn/BpmnDiagram.tsx) pure SVG process flow with full keyboard navigation (`Enter`/`Space`), clickable task nodes, and hotkey buffer activation (`'B-P-M-N'`).
 - **BPMN Process Stage Canvas**: `ProcessVariantStage.tsx` uses a natural panoramic `aspect-[16/9]` canvas without forced pixel height clamps, eliminating empty letterboxing bars. `ProcessDesktopCard.tsx` uses `justify-start` to maintain a compact, cohesive editorial card without empty black voids.
-- **WebGL Aurora**: [`Aurora.tsx`](../../src/components/Aurora/Aurora.tsx) renders organic GLSL noise shaders using `ogl`. Automatically validated via W3C hardware GPU capability check (`failIfMajorPerformanceCaveat: true`), throttled (~30fps on mobile), capped in DPR (1.5 on desktop, 1.0 on mobile), paused on hidden tabs, and gracefully falls back to [`AuroraFallback.tsx`](../../src/components/Aurora/AuroraFallback.tsx) on context loss or unsupported devices.
+- **WebGL Aurora**: [`Aurora.tsx`](../../src/components/Aurora/Aurora.tsx) renders organic GLSL noise shaders using native WebGL2. Automatically validated via W3C hardware GPU capability check (`failIfMajorPerformanceCaveat: true`), throttled (~30fps on mobile), capped in DPR (1.5 on desktop, 1.0 on mobile), paused on hidden tabs, and gracefully falls back to [`AuroraFallback.tsx`](../../src/components/Aurora/AuroraFallback.tsx) on context loss or unsupported devices.
 
 ---
 
