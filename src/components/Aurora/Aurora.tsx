@@ -138,7 +138,9 @@ void main() {
   float u = frag.x / uResolution.x;
   float X = (frag.x - uResolution.x * 0.5) / uResolution.y;
   float t = uTime;
-  float reach = uPointer.z * exp(-pow((X - uPointer.x) / 0.38, 2.0));
+  float delta = X - uPointer.x;
+  float reach = uPointer.z * exp(-pow(delta / 0.55, 2.0));
+  float lateral = delta * reach * 0.16;
 
   vec3 glow = vec3(0.0);
   float cover = 0.0;
@@ -147,11 +149,10 @@ void main() {
     float layer = float(k);
     float seed = layer * 13.7;
     float pace = t * (1.0 - layer * 0.18);
-    float warp = snoise(vec2(X * 0.45 * uScale + pace * 0.02 + seed, pace * 0.05 + seed));
+    float warp = snoise(vec2(X * 0.45 * uScale + pace * 0.02 + seed + lateral, pace * 0.05 + seed));
     float wave = snoise(vec2(X * 0.75 * uScale + warp * 0.35 - pace * 0.03 + seed, pace * 0.07 - seed)) * 0.72
       + snoise(vec2(X * 1.6 * uScale + warp * 0.5 + pace * 0.04 - seed, pace * 0.1 + seed * 0.5)) * 0.28;
     float hem = uHeight + layer * 0.07 + wave * 0.15 * uAmplitude;
-    hem += reach * 0.08 * (layer < 0.5 ? 1.0 : 0.4);
     hem = mix(-0.25, hem, uReveal);
 
     float soft = (0.04 + uBlend * 0.16) * (1.0 + layer * 0.9);
@@ -160,8 +161,7 @@ void main() {
     float high = 0.26 + soft * 0.6;
     float body = pow(smootherstep(low, high, rise), 1.5 + uGlow * 0.6);
     float lobes = 0.86 + 0.14 * snoise(vec2(X * 0.9 * uScale - pace * 0.025 + seed, y * 0.3 + pace * 0.04));
-    float alpha = body * lobes * (layer < 0.5 ? 1.0 : 0.32 / layer);
-    alpha = clamp(alpha * (1.0 + reach * 0.25 * smootherstep(0.9, 0.0, abs(y - hem))), 0.0, 1.0);
+    float alpha = clamp(body * lobes * (layer < 0.5 ? 1.0 : 0.32 / layer), 0.0, 1.0);
 
     vec3 tint = ramp(u + 0.05 * sin(pace * 0.08 + layer * 2.3) + layer * 0.1 + max(rise, 0.0) * 0.05);
     glow = 1.0 - (1.0 - glow) * (1.0 - tint * alpha);
