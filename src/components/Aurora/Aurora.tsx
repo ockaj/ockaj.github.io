@@ -471,6 +471,7 @@ function useAuroraCanvas(
         updatePalette(stops);
       }
 
+      const isMob = isMobileRef.current;
       const speed = propsRef.current.speed ?? 3.2;
       const timeUniform =
         propsRef.current.time !== undefined
@@ -485,17 +486,22 @@ function useAuroraCanvas(
           MAX_LAYERS,
         );
       } else {
-        resolvedLayers = isMobileRef.current ? 1 : 2;
+        resolvedLayers = isMob ? 1 : 2;
       }
+
+      const resolvedHeight = propsRef.current.height ?? (isMob ? 0.62 : 0.52);
+      const resolvedScale = propsRef.current.scale ?? (isMob ? 1.35 : 1.0);
+      const resolvedAmplitude =
+        propsRef.current.amplitude ?? (isMob ? 1.35 : 1.5);
 
       activeGl.uniform2f(uniforms.uResolution, canvas.width, canvas.height);
       activeGl.uniform1f(uniforms.uTime, timeUniform);
       activeGl.uniform3fv(uniforms.uStops, palette);
       activeGl.uniform1i(uniforms.uStopCount, stopCount);
-      activeGl.uniform1f(uniforms.uAmplitude, propsRef.current.amplitude ?? 1.5);
+      activeGl.uniform1f(uniforms.uAmplitude, resolvedAmplitude);
       activeGl.uniform1f(uniforms.uBlend, propsRef.current.blend ?? 0.65);
-      activeGl.uniform1f(uniforms.uHeight, propsRef.current.height ?? 0.52);
-      activeGl.uniform1f(uniforms.uScale, propsRef.current.scale ?? 1.0);
+      activeGl.uniform1f(uniforms.uHeight, resolvedHeight);
+      activeGl.uniform1f(uniforms.uScale, resolvedScale);
       activeGl.uniform1f(uniforms.uGlow, propsRef.current.glow ?? 0.5);
       activeGl.uniform1f(
         uniforms.uBrightness,
@@ -829,9 +835,7 @@ function Aurora(props: Readonly<AuroraProps>) {
           <AuroraCanvas
             colorStops={DEFAULT_COLOR_STOPS}
             speed={3.2}
-            amplitude={1.5}
             blend={0.65}
-            height={0.52}
             glow={0.5}
             {...props}
           />
