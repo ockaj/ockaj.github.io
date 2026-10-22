@@ -32,6 +32,42 @@ declare global {
   }
 }
 
+// ============================================================================
+// AURORA TUNABLES — Edit visual, motion, and responsive settings here
+// ============================================================================
+const AURORA_CONFIG = {
+  colorStops: DEFAULT_COLOR_STOPS,
+  speed: 3.2,
+  blend: 0.65,
+  glow: 0.5,
+  brightness: 1.0,
+  opacity: 1.0,
+  mouseInteraction: true,
+  intro: true,
+  introSeconds: INTRO_SECONDS, // 2.4s
+
+  desktop: {
+    height: 0.52,
+    scale: 1.0,
+    amplitude: 1.5,
+    layers: 2,
+    maxDpr: 1.5,
+    targetFps: 0,
+  },
+
+  mobile: {
+    height: 0.62,
+    scale: 1.35,
+    amplitude: 1.35,
+    layers: 1,
+    maxDpr: 1.0,
+    targetFps: 30,
+  },
+} as const;
+
+const NO_VIEW_TRANSITION_STYLE = { viewTransitionName: "none" } as const;
+const FALLBACK_ELEMENT = <AuroraFallback />;
+
 const VERTEX_SHADER = `#version 300 es
 in vec2 aPosition;
 void main() {
@@ -245,9 +281,7 @@ function compileShader(
   return null;
 }
 
-function createAuroraProgram(
-  gl: WebGL2RenderingContext,
-): AuroraProgram | null {
+function createAuroraProgram(gl: WebGL2RenderingContext): AuroraProgram | null {
   const vertex = compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
   const fragment = compileShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
   const program = gl.createProgram();
@@ -346,6 +380,7 @@ function useAuroraCanvas(
   const isMobileRef = useRef(isMobile);
   const triggerRef = useRef<(() => void) | null>(null);
   const pauseRef = useRef<(() => void) | null>(null);
+  const markDirtyRef = useRef<(() => void) | null>(null);
   const [isContextLost, setIsContextLost] = useState(false);
   const isContextLostRef = useRef(false);
   const resizeRef = useRef<((entry: ResizeObserverEntry) => void) | null>(null);
@@ -354,6 +389,10 @@ function useAuroraCanvas(
     propsRef.current = props;
     prefersReducedMotionRef.current = prefersReducedMotion;
     isMobileRef.current = isMobile;
+    markDirtyRef.current?.();
+    if (prefersReducedMotion && !props.paused) {
+      triggerRef.current?.();
+    }
   });
 
   useEffect(() => {
@@ -406,9 +445,12 @@ function useAuroraCanvas(
 
     const initialW = ctn.clientWidth || window.innerWidth || 1;
     const initialH = ctn.clientHeight || window.innerHeight || 1;
+    const initialPreset = isMobileRef.current
+      ? AURORA_CONFIG.mobile
+      : AURORA_CONFIG.desktop;
     const initialDpr = Math.min(
       window.devicePixelRatio || 1.0,
-      isMobileRef.current ? 1.0 : 1.5,
+      initialPreset.maxDpr,
     );
     canvas.width = Math.max(1, Math.round(initialW * initialDpr));
     canvas.height = Math.max(1, Math.round(initialH * initialDpr));
@@ -416,6 +458,10 @@ function useAuroraCanvas(
     const palette = new Float32Array(MAX_STOPS * 3);
     let stopCount = 0;
     let prevStops: readonly string[] | null = null;
+    let configDirty = true;
+    markDirtyRef.current = () => {
+      configDirty = true;
+    };
 
     const updatePalette = (stops: readonly string[]) => {
       const normalized = normalizeStops(stops);
@@ -439,7 +485,7 @@ function useAuroraCanvas(
       py: 0.5,
       reach: 0,
       reveal: getInitialReveal(
-        propsRef.current.intro,
+        propsRef.current.intro ?? AURORA_CONFIG.intro,
         prefersReducedMotionRef.current,
         propsRef.current.paused,
       ),
@@ -465,53 +511,62 @@ function useAuroraCanvas(
       activateProgram(activeGl, program);
       activeGl.bindVertexArray(quadData.vao);
 
-      const stops = propsRef.current.colorStops ?? DEFAULT_COLOR_STOPS;
+      const stops = propsRef.current.colorStops ?? AURORA_CONFIG.colorStops;
       if (!areStopsEqual(stops, prevStops)) {
         prevStops = stops;
         updatePalette(stops);
+        configDirty = true;
       }
 
-      const isMob = isMobileRef.current;
-      const speed = propsRef.current.speed ?? 3.2;
+      if (configDirty) {
+        configDirty = false;
+        const preset = isMobileRef.current
+          ? AURORA_CONFIG.mobile
+          : AURORA_CONFIG.desktop;
+        const resolvedLayers =
+          propsRef.current.layers !== undefined
+            ? clamp(Math.round(propsRef.current.layers), 1, MAX_LAYERS)
+            : preset.layers;
+        const resolvedHeight = propsRef.current.height ?? preset.height;
+        const resolvedScale = propsRef.current.scale ?? preset.scale;
+        const resolvedAmplitude =
+          propsRef.current.amplitude ?? preset.amplitude;
+
+        activeGl.uniform2f(uniforms.uResolution, canvas.width, canvas.height);
+        activeGl.uniform3fv(uniforms.uStops, palette);
+        activeGl.uniform1i(uniforms.uStopCount, stopCount);
+        activeGl.uniform1f(uniforms.uAmplitude, resolvedAmplitude);
+        activeGl.uniform1f(
+          uniforms.uBlend,
+          propsRef.current.blend ?? AURORA_CONFIG.blend,
+        );
+        activeGl.uniform1f(uniforms.uHeight, resolvedHeight);
+        activeGl.uniform1f(uniforms.uScale, resolvedScale);
+        activeGl.uniform1f(
+          uniforms.uGlow,
+          propsRef.current.glow ?? AURORA_CONFIG.glow,
+        );
+        activeGl.uniform1f(
+          uniforms.uBrightness,
+          propsRef.current.brightness ?? AURORA_CONFIG.brightness,
+        );
+        activeGl.uniform1i(uniforms.uLayers, resolvedLayers);
+        activeGl.uniform1f(
+          uniforms.uOpacity,
+          propsRef.current.opacity ?? AURORA_CONFIG.opacity,
+        );
+      }
+
+      const speed = propsRef.current.speed ?? AURORA_CONFIG.speed;
       const timeUniform =
         propsRef.current.time !== undefined
           ? propsRef.current.time * speed * 0.1
           : virtualTime;
 
-      let resolvedLayers: number;
-      if (propsRef.current.layers !== undefined) {
-        resolvedLayers = clamp(
-          Math.round(propsRef.current.layers),
-          1,
-          MAX_LAYERS,
-        );
-      } else {
-        resolvedLayers = isMob ? 1 : 2;
-      }
-
-      const resolvedHeight = propsRef.current.height ?? (isMob ? 0.62 : 0.52);
-      const resolvedScale = propsRef.current.scale ?? (isMob ? 1.35 : 1.0);
-      const resolvedAmplitude =
-        propsRef.current.amplitude ?? (isMob ? 1.35 : 1.5);
-
-      activeGl.uniform2f(uniforms.uResolution, canvas.width, canvas.height);
       activeGl.uniform1f(uniforms.uTime, timeUniform);
-      activeGl.uniform3fv(uniforms.uStops, palette);
-      activeGl.uniform1i(uniforms.uStopCount, stopCount);
-      activeGl.uniform1f(uniforms.uAmplitude, resolvedAmplitude);
-      activeGl.uniform1f(uniforms.uBlend, propsRef.current.blend ?? 0.65);
-      activeGl.uniform1f(uniforms.uHeight, resolvedHeight);
-      activeGl.uniform1f(uniforms.uScale, resolvedScale);
-      activeGl.uniform1f(uniforms.uGlow, propsRef.current.glow ?? 0.5);
-      activeGl.uniform1f(
-        uniforms.uBrightness,
-        propsRef.current.brightness ?? 1.0,
-      );
-      activeGl.uniform1i(uniforms.uLayers, resolvedLayers);
       activeGl.uniform3f(uniforms.uPointer, state.px, state.py, state.reach);
       const revealFactor = 1 - Math.pow(1 - state.reveal, 3);
       activeGl.uniform1f(uniforms.uReveal, revealFactor);
-      activeGl.uniform1f(uniforms.uOpacity, propsRef.current.opacity ?? 1.0);
 
       activeGl.drawArrays(activeGl.TRIANGLES, 0, 3);
     };
@@ -548,31 +603,40 @@ function useAuroraCanvas(
         dt = Math.min(Math.max(rawDeltaSeconds, 0.0005), 0.1);
       }
 
-      const targetFps = isMobileRef.current ? 30 : 0;
+      const preset = isMobileRef.current
+        ? AURORA_CONFIG.mobile
+        : AURORA_CONFIG.desktop;
+      const targetFps = preset.targetFps;
       if (targetFps > 0) {
         const targetInterval = 1.0 / targetFps;
         frameAccumulator += dt;
         if (frameAccumulator < targetInterval) {
           return;
         }
-        const steps = Math.min(3, Math.floor(frameAccumulator / targetInterval));
+        const steps = Math.min(
+          3,
+          Math.floor(frameAccumulator / targetInterval),
+        );
         dt = steps * targetInterval;
         frameAccumulator -= dt;
       }
 
-      const speed = propsRef.current.speed ?? 3.2;
+      const speed = propsRef.current.speed ?? AURORA_CONFIG.speed;
       virtualTime += dt * speed;
 
       const engaged =
-        (propsRef.current.mouseInteraction ?? true) &&
+        (propsRef.current.mouseInteraction ?? AURORA_CONFIG.mouseInteraction) &&
         pointer.inside &&
         !prefersReducedMotionRef.current;
       updatePointerFollow(dt, pointer, view, state, engaged);
 
-      if ((propsRef.current.intro ?? true) === false) {
+      if ((propsRef.current.intro ?? AURORA_CONFIG.intro) === false) {
         state.reveal = 1;
       } else if (state.reveal < 1) {
-        state.reveal = Math.min(1, state.reveal + dt / INTRO_SECONDS);
+        state.reveal = Math.min(
+          1,
+          state.reveal + dt / AURORA_CONFIG.introSeconds,
+        );
       }
 
       render();
@@ -623,15 +687,19 @@ function useAuroraCanvas(
         h = newH;
         view.width = w;
         view.height = h;
+        const preset = isMobileRef.current
+          ? AURORA_CONFIG.mobile
+          : AURORA_CONFIG.desktop;
         const currentDpr = Math.min(
           window.devicePixelRatio || 1.0,
-          isMobileRef.current ? 1.0 : 1.5,
+          preset.maxDpr,
         );
         const pixelW = Math.max(1, Math.round(w * currentDpr));
         const pixelH = Math.max(1, Math.round(h * currentDpr));
         if (canvas.width !== pixelW || canvas.height !== pixelH) {
           canvas.width = pixelW;
           canvas.height = pixelH;
+          configDirty = true;
         }
         activeGl.viewport(0, 0, canvas.width, canvas.height);
         if (!isContextLostRef.current && !activeGl.isContextLost()) {
@@ -694,6 +762,7 @@ function useAuroraCanvas(
         programData = nextProgram;
         quadData = nextQuad;
         prevStops = null;
+        configDirty = true;
         isContextLostRef.current = false;
         setIsContextLost(false);
         canvas.style.opacity = "1";
@@ -720,7 +789,9 @@ function useAuroraCanvas(
           console.warn("[DevTools] Simulating WebGL context loss...");
           loseContextExt.loseContext();
         } else {
-          console.warn("[DevTools] WEBGL_lose_context extension not supported.");
+          console.warn(
+            "[DevTools] WEBGL_lose_context extension not supported.",
+          );
         }
       };
       window.restoreContext = () => {
@@ -728,7 +799,9 @@ function useAuroraCanvas(
           console.log("[DevTools] Restoring WebGL context...");
           loseContextExt.restoreContext();
         } else {
-          console.warn("[DevTools] WEBGL_lose_context extension not supported.");
+          console.warn(
+            "[DevTools] WEBGL_lose_context extension not supported.",
+          );
         }
       };
     }
@@ -763,6 +836,7 @@ function useAuroraCanvas(
       if (animateId) cancelAnimationFrame(animateId);
       triggerRef.current = null;
       pauseRef.current = null;
+      markDirtyRef.current = null;
       resizeRef.current = null;
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("pointermove", onPointerMove);
@@ -773,10 +847,7 @@ function useAuroraCanvas(
       );
       window.removeEventListener("blur", onPointerLeave);
       canvas.removeEventListener("webglcontextlost", handleContextLost);
-      canvas.removeEventListener(
-        "webglcontextrestored",
-        handleContextRestored,
-      );
+      canvas.removeEventListener("webglcontextrestored", handleContextRestored);
       if (import.meta.env.DEV) {
         delete window.simulateContextLoss;
         delete window.restoreContext;
@@ -816,9 +887,9 @@ function AuroraCanvas(props: Readonly<AuroraProps>) {
     <div
       ref={containerRef}
       className="relative size-full"
-      style={{ viewTransitionName: "none" }}
+      style={NO_VIEW_TRANSITION_STYLE}
     >
-      {isContextLost ? <AuroraFallback /> : null}
+      {isContextLost ? FALLBACK_ELEMENT : null}
     </div>
   );
 }
@@ -828,17 +899,11 @@ function Aurora(props: Readonly<AuroraProps>) {
     <div
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 z-0"
-      style={{ viewTransitionName: "none" }}
+      style={NO_VIEW_TRANSITION_STYLE}
     >
       <div className="relative size-full">
-        <ErrorBoundary fallback={<AuroraFallback />}>
-          <AuroraCanvas
-            colorStops={DEFAULT_COLOR_STOPS}
-            speed={3.2}
-            blend={0.65}
-            glow={0.5}
-            {...props}
-          />
+        <ErrorBoundary fallback={FALLBACK_ELEMENT}>
+          <AuroraCanvas {...props} />
         </ErrorBoundary>
       </div>
     </div>

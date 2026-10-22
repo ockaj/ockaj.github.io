@@ -41,11 +41,17 @@ export function toOklch(
   rgb: readonly [number, number, number],
 ): [number, number, number] {
   const r =
-    rgb[0] <= 0.04045 ? rgb[0] / 12.92 : Math.pow((rgb[0] + 0.055) / 1.055, 2.4);
+    rgb[0] <= 0.04045
+      ? rgb[0] / 12.92
+      : Math.pow((rgb[0] + 0.055) / 1.055, 2.4);
   const g =
-    rgb[1] <= 0.04045 ? rgb[1] / 12.92 : Math.pow((rgb[1] + 0.055) / 1.055, 2.4);
+    rgb[1] <= 0.04045
+      ? rgb[1] / 12.92
+      : Math.pow((rgb[1] + 0.055) / 1.055, 2.4);
   const b =
-    rgb[2] <= 0.04045 ? rgb[2] / 12.92 : Math.pow((rgb[2] + 0.055) / 1.055, 2.4);
+    rgb[2] <= 0.04045
+      ? rgb[2] / 12.92
+      : Math.pow((rgb[2] + 0.055) / 1.055, 2.4);
 
   const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
   const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
@@ -85,8 +91,13 @@ export function areStopsEqual(
 export function normalizeStops(
   stops?: readonly string[] | null,
 ): readonly string[] {
+  if (stops === DEFAULT_COLOR_STOPS) return DEFAULT_COLOR_STOPS;
   if (!stops || !Array.isArray(stops)) return DEFAULT_COLOR_STOPS;
-  const valid = stops.filter(Boolean).map(String).slice(0, MAX_STOPS);
+  const valid: string[] = [];
+  for (let i = 0; i < stops.length && valid.length < MAX_STOPS; i++) {
+    const item = stops[i];
+    if (item) valid.push(String(item));
+  }
   if (valid.length >= 2) return valid;
   if (valid.length === 1) return [valid[0], valid[0]];
   return DEFAULT_COLOR_STOPS;
