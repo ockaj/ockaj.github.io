@@ -87,7 +87,7 @@ export const CV_DATA: CvData = {
     phone: "Telefónne číslo na vyžiadanie",
     profile: {
       title: "Profil",
-      text: "Študent informačného manažmentu so zameraním na procesné mapovanie, AS-IS/TO-BE modelovanie a návrh digitálnych riešení. Praktické skúsenosti s identifikáciou problémových miest a optimalizáciou procesov v oblasti logistiky a HR s využitím nástroja ADONIS a notácie BPMN. Zameraný na prepojenie akademických vedomostí s practical biznis analýzou.",
+      text: "Študent informačného manažmentu so zameraním na procesné mapovanie, AS-IS/TO-BE modelovanie a návrh digitálnych riešení. Praktické skúsenosti s identifikáciou problémových miest a optimalizáciou procesov v oblasti logistiky a HR s využitím nástroja ADONIS a notácie BPMN. Zameraný na prepojenie akademických vedomostí s praktickou biznis analýzou.",
     },
     experience: {
       title: "Pracovné skúsenosti",
@@ -172,11 +172,9 @@ export const CV_DATA: CvData = {
             "Microsoft Excel",
             "Microsoft PowerPoint",
             "Microsoft Word",
+            "SQL (základy)",
             "Confluence (základy)",
             "Reporting",
-            "Tabuľky",
-            "Filtre",
-            "Základné vzorce",
             "Práca s dátami",
           ],
         },
@@ -210,6 +208,14 @@ export const CV_DATA: CvData = {
           date: "jún 2026",
           bullets: [
             "Rozvíjané zručnosti: Procesný manažment, biznis modelovanie, praktické mapovanie a konfigurácia atribútov.",
+          ],
+        },
+        {
+          name: "SQL (Basic)",
+          issuer: "HackerRank",
+          date: "október 2026",
+          bullets: [
+            "Dopytovanie relačných databáz, agregácie a filtrovanie dát.",
           ],
         },
       ],
@@ -308,11 +314,9 @@ export const CV_DATA: CvData = {
             "Microsoft Excel",
             "Microsoft PowerPoint",
             "Microsoft Word",
+            "SQL (foundational)",
             "Confluence (foundational)",
             "Reporting",
-            "Spreadsheets",
-            "Data Filtering",
-            "Formulas",
             "Data Processing",
           ],
         },
@@ -346,6 +350,14 @@ export const CV_DATA: CvData = {
           date: "June 2026",
           bullets: [
             "Developed skills: Process management, business modeling, practical mapping, and attribute configuration.",
+          ],
+        },
+        {
+          name: "SQL (Basic)",
+          issuer: "HackerRank",
+          date: "October 2026",
+          bullets: [
+            "Relational database querying, data aggregation, and filtering.",
           ],
         },
       ],

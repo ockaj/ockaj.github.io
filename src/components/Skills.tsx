@@ -91,6 +91,7 @@ const SKILL_CATEGORIES = [
     title: "Office & Analytics",
     icon: FileText,
     skills: [
+      "SQL (Basic)",
       "Excel Advanced",
       "PowerPoint",
       "Word",
