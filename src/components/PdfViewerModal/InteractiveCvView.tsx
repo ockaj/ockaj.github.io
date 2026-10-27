@@ -541,8 +541,8 @@ export const InteractiveCvView = memo(function InteractiveCvView({
               >
                 <Tab
                   value="en"
-                  roundedClass="rounded-lg"
-                  className="relative flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+                  roundedClass="rounded-concentric"
+                  className="relative flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-concentric px-3 text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
                   activeClassName="font-semibold text-text-primary"
                 >
                   <Languages size={14} />
@@ -550,8 +550,8 @@ export const InteractiveCvView = memo(function InteractiveCvView({
                 </Tab>
                 <Tab
                   value="sk"
-                  roundedClass="rounded-lg"
-                  className="relative flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+                  roundedClass="rounded-concentric"
+                  className="relative flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-concentric px-3 text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
                   activeClassName="font-semibold text-text-primary"
                 >
                   <Languages size={14} />

@@ -32,6 +32,7 @@
     "react-zoom-pan-pinch": "^4.2.0",
     "slot-text": "^0.3.4",
     "tailwind-merge": "^3.7.0",
+    "tailwindcss-concentric": "^0.1.0",
     "zustand": "^5.0.16"
   },
   "devDependencies": {

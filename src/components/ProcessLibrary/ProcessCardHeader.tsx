@@ -68,9 +68,9 @@ function ProcessCardHeader({
         >
           <Tab
             value="source"
-            roundedClass="rounded-lg"
+            roundedClass="rounded-concentric"
             className={cn(
-              "relative flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none",
+              "relative flex cursor-pointer items-center justify-center rounded-concentric text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none",
               isMobile
                 ? "h-7 px-6 before:absolute before:inset-x-0 before:-inset-y-2"
                 : "h-9 px-4 before:absolute before:inset-x-0 before:-inset-y-1.5 focus-visible:ring-offset-1 focus-visible:ring-offset-black",
@@ -81,9 +81,9 @@ function ProcessCardHeader({
           </Tab>
           <Tab
             value="optimized"
-            roundedClass="rounded-lg"
+            roundedClass="rounded-concentric"
             className={cn(
-              "relative flex cursor-pointer items-center justify-center rounded-lg text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none",
+              "relative flex cursor-pointer items-center justify-center rounded-concentric text-sm font-medium tracking-wide text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none",
               isMobile
                 ? "h-7 px-6 before:absolute before:inset-x-0 before:-inset-y-2"
                 : "h-9 px-4 before:absolute before:inset-x-0 before:-inset-y-1.5 focus-visible:ring-offset-1 focus-visible:ring-offset-black",

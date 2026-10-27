@@ -171,7 +171,7 @@ function createHoverStore(): HoverStore {
 }
 
 function getDefaultTabRadius(variant: TabVariant): string {
-  return variant === "segmented" ? "rounded-lg" : "rounded-full";
+  return variant === "segmented" ? "rounded-concentric" : "rounded-full";
 }
 
 function resolveBaseRadius(
@@ -181,6 +181,9 @@ function resolveBaseRadius(
 ): string {
   if (variant === "capsule") {
     return "9999px";
+  }
+  if (roundedClass.includes("rounded-concentric")) {
+    return "var(--concentric-r, 8px)";
   }
   if (roundedClass.includes("rounded-2xl")) {
     return `${Math.min(height / 2, 16)}px`;
@@ -663,7 +666,7 @@ const TabHighlight = memo(function TabHighlight({
           transform: "scale(var(--scale-x), var(--scale-y))",
           borderRadius:
             variant === "segmented"
-              ? "var(--base-radius)"
+              ? undefined
               : "calc((var(--base-radius) * var(--scale-y)) / var(--scale-x)) / var(--base-radius)",
           transformOrigin: "center center",
           willChange: willChange ? "transform" : "auto",
