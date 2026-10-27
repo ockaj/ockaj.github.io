@@ -92,7 +92,7 @@ export function getGlassClasses({
       : "cursor-default";
 
   const baseClasses = cn(
-    "group relative isolate inline-flex items-center justify-center bg-surface/35 backdrop-blur-sm md:backdrop-blur-lg backdrop-saturate-150 text-text-primary select-none overflow-hidden",
+    "group relative isolate inline-flex items-center justify-center bg-surface/35 backdrop-blur-sm md:backdrop-blur-lg backdrop-saturate-150 text-text-primary select-none overflow-hidden [user-drag:none] [-webkit-user-drag:none]",
     cursorAndFocusClasses,
     roundedClass,
     className,
@@ -138,8 +138,14 @@ export function setupTagProps(
     className: baseClasses,
     style: tagStyle,
     "aria-label": ariaLabel,
+    draggable: false,
     ...sharedAnimationProps,
     ...domProps,
+  };
+
+  tagProps.onDragStart = (e: unknown) => {
+    (e as { preventDefault?: () => void }).preventDefault?.();
+    domProps?.onDragStart?.(e as React.DragEvent<HTMLElement>);
   };
 
   if (href) {

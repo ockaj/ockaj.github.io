@@ -5,9 +5,10 @@ import {
   useRef,
   useCallback,
   useEffect,
-  type MouseEvent,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
 } from "react";
-import { frame, useMotionValue, useSpring, useTransform } from "motion/react";
+import { frame, useMotionValue, useSpring } from "motion/react";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 import { SPRING } from "../../utils/springConfig";
 import { tilt as tiltConfig } from "./config";
@@ -26,13 +27,42 @@ function computeEffectiveTiltStrength(width: number, strength: number): number {
   return Math.min(raw, tiltConfig.maxStrength);
 }
 
-function computeTiltAngle(
-  offset: number,
-  dimension: number,
-  strength: number,
-): number {
-  if (!dimension) return 0;
-  return (offset / (dimension / 2)) * strength;
+export function computeAnisotropicStretch(
+  rawDx: number,
+  dy: number,
+  width: number,
+  height: number,
+): {
+  scaleX: number;
+  scaleY: number;
+  rubber: number;
+  nx: number;
+  ny: number;
+} {
+  const safeHeight = Math.max(height, 20);
+  const aspect = Math.max(width / safeHeight, 0.5);
+  const dx = rawDx / aspect;
+  const length = Math.hypot(dx, dy);
+
+  if (length <= 0) {
+    return { scaleX: 1, scaleY: 1, rubber: 0, nx: 0, ny: 0 };
+  }
+
+  const rubber = 1 - 1 / (1 + length / safeHeight / (5 * aspect));
+  const nx = dx / length;
+  const ny = dy / length;
+
+  const stretch =
+    1 + (6 / safeHeight) * rubber * Math.abs(Math.abs(nx) - Math.abs(ny));
+  const horizontal = Math.abs(nx) > Math.abs(ny);
+
+  return {
+    scaleX: horizontal ? stretch : 1 / stretch,
+    scaleY: horizontal ? 1 / stretch : stretch,
+    rubber,
+    nx,
+    ny,
+  };
 }
 
 export function useLiquidGlassPhysics({
@@ -51,12 +81,46 @@ export function useLiquidGlassPhysics({
   const [isHovered, setIsHovered] = useState(false);
   const isHoveredRef = useRef(false);
 
+  const [isHolding, setIsHolding] = useState(false);
+  const activePointerIdRef = useRef<number | null>(null);
+  const targetElementRef = useRef<HTMLElement | null>(null);
+  const targetRectRef = useRef<{
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+  } | null>(null);
+  const startPointerRef = useRef<{ x: number; y: number } | null>(null);
+  const hasDraggedRef = useRef(false);
+  const dragResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const shouldSuppressClick = useCallback(() => {
+    if (hasDraggedRef.current) {
+      if (dragResetTimerRef.current !== null) {
+        clearTimeout(dragResetTimerRef.current);
+        dragResetTimerRef.current = null;
+      }
+      hasDraggedRef.current = false;
+      return true;
+    }
+    return false;
+  }, []);
+
   useEffect(() => {
     return () => {
       isHoveredRef.current = false;
+      targetElementRef.current = null;
+      targetRectRef.current = null;
+      activePointerIdRef.current = null;
+      startPointerRef.current = null;
+      hasDraggedRef.current = false;
       if (settleTimerRef.current !== null) {
         clearTimeout(settleTimerRef.current);
         settleTimerRef.current = null;
+      }
+      if (dragResetTimerRef.current !== null) {
+        clearTimeout(dragResetTimerRef.current);
+        dragResetTimerRef.current = null;
       }
     };
   }, []);
@@ -115,73 +179,233 @@ export function useLiquidGlassPhysics({
 
   useResizeObserver(interactive && isHovered ? elementRef : null, handleResize);
 
+  const rawPullX = useMotionValue(0);
+  const rawPullY = useMotionValue(0);
+  const rawTiltX = useMotionValue(0);
+  const rawTiltY = useMotionValue(0);
+  const rawScaleX = useMotionValue(1);
+  const rawScaleY = useMotionValue(1);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const rawSheenOpacity = useMotionValue(0);
 
-  const springX = useSpring(mouseX, SPRING.glassMouse);
-  const springY = useSpring(mouseY, SPRING.glassMouse);
+  const springPullX = useSpring(rawPullX, SPRING.glassMouse);
+  const springPullY = useSpring(rawPullY, SPRING.glassMouse);
+  const springTiltX = useSpring(rawTiltX, SPRING.glassMouse);
+  const springTiltY = useSpring(rawTiltY, SPRING.glassMouse);
+  const springScaleX = useSpring(rawScaleX, SPRING.glassMouse);
+  const springScaleY = useSpring(rawScaleY, SPRING.glassMouse);
   const sheenOpacity = useSpring(rawSheenOpacity, SPRING.glassOpacity);
 
-  const effectiveTiltStrength = computeEffectiveTiltStrength(
-    dimensions.width,
-    tiltStrength,
+  const endHold = useCallback(
+    (e?: Event) => {
+      if (
+        e &&
+        "pointerId" in e &&
+        activePointerIdRef.current !== null &&
+        (e as PointerEvent).pointerId !== activePointerIdRef.current
+      ) {
+        return;
+      }
+      setIsHolding(false);
+      activePointerIdRef.current = null;
+      targetElementRef.current = null;
+      targetRectRef.current = null;
+      startPointerRef.current = null;
+      if (hasDraggedRef.current) {
+        if (dragResetTimerRef.current !== null) {
+          clearTimeout(dragResetTimerRef.current);
+        }
+        dragResetTimerRef.current = setTimeout(() => {
+          hasDraggedRef.current = false;
+          dragResetTimerRef.current = null;
+        }, 100);
+      }
+      frame.read(() => {
+        rawPullX.set(0);
+        rawPullY.set(0);
+        rawTiltX.set(0);
+        rawTiltY.set(0);
+        rawScaleX.set(1);
+        rawScaleY.set(1);
+        mouseX.set(0);
+        mouseY.set(0);
+        rawSheenOpacity.set(0);
+      });
+    },
+    [
+      mouseX,
+      mouseY,
+      rawPullX,
+      rawPullY,
+      rawScaleX,
+      rawScaleY,
+      rawSheenOpacity,
+      rawTiltX,
+      rawTiltY,
+    ],
   );
 
-  const springPullX = useTransform(() =>
-    effectiveMagnetic ? springX.get() * magneticStrength : 0,
-  );
-  const springPullY = useTransform(() =>
-    effectiveMagnetic ? springY.get() * magneticStrength : 0,
+  const onWindowPointerMove = useCallback(
+    (e: PointerEvent) => {
+      if (e.pointerId !== activePointerIdRef.current) {
+        return;
+      }
+      const target = targetElementRef.current;
+      const start = startPointerRef.current;
+      const cachedRect = targetRectRef.current;
+      if (!target || !start || !cachedRect) return;
+      const clientX = e.clientX;
+      const clientY = e.clientY;
+
+      const rawDx = clientX - start.x;
+      const dy = clientY - start.y;
+      const length = Math.hypot(rawDx, dy);
+
+      if (length > 5) {
+        hasDraggedRef.current = true;
+      }
+
+      frame.read(() => {
+        if (length > 0) {
+          const { scaleX, scaleY, rubber, nx, ny } = computeAnisotropicStretch(
+            rawDx,
+            dy,
+            cachedRect.width,
+            cachedRect.height,
+          );
+
+          rawScaleX.set(scaleX);
+          rawScaleY.set(scaleY);
+
+          const effectiveTiltStrength = computeEffectiveTiltStrength(
+            cachedRect.width,
+            tiltStrength,
+          );
+          const maxPull = effectiveMagnetic
+            ? 8 * (magneticStrength / 0.02)
+            : 0;
+          const maxTilt = effectiveTilt ? effectiveTiltStrength * 4 : 0;
+
+          rawPullX.set(nx * maxPull * rubber);
+          rawPullY.set(ny * maxPull * rubber);
+          rawTiltX.set(-ny * maxTilt * rubber);
+          rawTiltY.set(nx * maxTilt * rubber);
+        } else {
+          rawScaleX.set(1);
+          rawScaleY.set(1);
+          rawPullX.set(0);
+          rawPullY.set(0);
+          rawTiltX.set(0);
+          rawTiltY.set(0);
+        }
+
+        const localX = clientX - cachedRect.left;
+        const localY = clientY - cachedRect.top;
+        mouseX.set(localX - cachedRect.width / 2);
+        mouseY.set(localY - cachedRect.height / 2);
+      });
+    },
+    [
+      effectiveMagnetic,
+      effectiveTilt,
+      magneticStrength,
+      mouseX,
+      mouseY,
+      rawPullX,
+      rawPullY,
+      rawScaleX,
+      rawScaleY,
+      rawTiltX,
+      rawTiltY,
+      tiltStrength,
+    ],
   );
 
-  const springTiltX = useTransform(() =>
-    effectiveTilt
-      ? -computeTiltAngle(
-          springY.get(),
-          liveDimensionsRef.current.height,
-          effectiveTiltStrength,
-        )
-      : 0,
-  );
+  useEffect(() => {
+    if (!isHolding) return;
 
-  const springTiltY = useTransform(() =>
-    effectiveTilt
-      ? computeTiltAngle(
-          springX.get(),
-          liveDimensionsRef.current.width,
-          effectiveTiltStrength,
-        )
-      : 0,
-  );
+    window.addEventListener("pointermove", onWindowPointerMove, {
+      passive: true,
+    });
+    window.addEventListener("pointerup", endHold);
+    window.addEventListener("pointercancel", endHold);
+    window.addEventListener("blur", endHold);
 
-  const updateMousePositions = useCallback(
-    (e: MouseEvent, onUpdate?: () => void) => {
-      const currentTarget = e.currentTarget;
+    return () => {
+      window.removeEventListener("pointermove", onWindowPointerMove);
+      window.removeEventListener("pointerup", endHold);
+      window.removeEventListener("pointercancel", endHold);
+      window.removeEventListener("blur", endHold);
+    };
+  }, [endHold, isHolding, onWindowPointerMove]);
+
+  const handlePointerDown = useCallback(
+    (e: ReactPointerEvent<HTMLElement>) => {
+      if (!interactive || e.button !== 0 || e.isPrimary === false) return;
+
+      setIsHolding(true);
+      hasDraggedRef.current = false;
+      startPointerRef.current = { x: e.clientX, y: e.clientY };
+      activePointerIdRef.current = e.pointerId;
+      const target = e.currentTarget;
+      targetElementRef.current = target;
+
       const clientX = e.clientX;
       const clientY = e.clientY;
 
       frame.read(() => {
-        if (!currentTarget || !isHoveredRef.current) return;
-        const rect = currentTarget.getBoundingClientRect();
+        const rect = target.getBoundingClientRect();
         if (rect.width > 0 && rect.height > 0) {
+          targetRectRef.current = {
+            left: rect.left,
+            top: rect.top,
+            width: rect.width,
+            height: rect.height,
+          };
           liveDimensionsRef.current = {
             width: rect.width,
             height: rect.height,
           };
+          if (!hasMeasuredRef.current) {
+            hasMeasuredRef.current = true;
+            committedDimensionsRef.current = {
+              width: rect.width,
+              height: rect.height,
+            };
+            setDimensions({ width: rect.width, height: rect.height });
+          }
         }
+        rawPullX.set(0);
+        rawPullY.set(0);
+        rawTiltX.set(0);
+        rawTiltY.set(0);
+        rawScaleX.set(1);
+        rawScaleY.set(1);
+
         const localX = clientX - rect.left;
         const localY = clientY - rect.top;
         mouseX.set(localX - rect.width / 2);
         mouseY.set(localY - rect.height / 2);
-        onUpdate?.();
+        rawSheenOpacity.set(1);
       });
     },
-    [mouseX, mouseY],
+    [
+      interactive,
+      mouseX,
+      mouseY,
+      rawPullX,
+      rawPullY,
+      rawScaleX,
+      rawScaleY,
+      rawSheenOpacity,
+      rawTiltX,
+      rawTiltY,
+    ],
   );
 
   const handleMouseEnter = useCallback(
-    (e: MouseEvent<HTMLElement>) => {
+    (e: ReactMouseEvent<HTMLElement>) => {
       if (!interactive) return;
       isHoveredRef.current = true;
       if (!hasMeasuredRef.current) {
@@ -195,30 +419,42 @@ export function useLiquidGlassPhysics({
         }
       }
       setIsHovered(true);
-      updateMousePositions(e, () => {
-        if (!isHoveredRef.current) return;
-        rawSheenOpacity.set(1);
-      });
     },
-    [interactive, rawSheenOpacity, updateMousePositions],
+    [interactive],
   );
 
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (!interactive) return;
-      updateMousePositions(e);
-    },
-    [interactive, updateMousePositions],
-  );
+  const handleMouseMove = useCallback(() => {
+    // Mouse movement on hover does not track cursor; tracking is hold-only like glisse.
+  }, []);
 
   const handleMouseLeave = useCallback(() => {
     if (!interactive) return;
     isHoveredRef.current = false;
-    rawSheenOpacity.set(0);
-    mouseX.set(0);
-    mouseY.set(0);
     setIsHovered(false);
-  }, [interactive, mouseX, mouseY, rawSheenOpacity]);
+    if (!isHolding) {
+      rawPullX.set(0);
+      rawPullY.set(0);
+      rawTiltX.set(0);
+      rawTiltY.set(0);
+      rawScaleX.set(1);
+      rawScaleY.set(1);
+      rawSheenOpacity.set(0);
+      mouseX.set(0);
+      mouseY.set(0);
+    }
+  }, [
+    interactive,
+    isHolding,
+    mouseX,
+    mouseY,
+    rawPullX,
+    rawPullY,
+    rawScaleX,
+    rawScaleY,
+    rawSheenOpacity,
+    rawTiltX,
+    rawTiltY,
+  ]);
 
   const setElementRef = useCallback((node: HTMLElement | null) => {
     elementRef.current = node;
@@ -228,8 +464,10 @@ export function useLiquidGlassPhysics({
     setElementRef,
     dimensions,
     isHovered,
-    springX,
-    springY,
+    springX: springPullX,
+    springY: springPullY,
+    springScaleX,
+    springScaleY,
     sheenOpacity,
     springPullX,
     springPullY,
@@ -238,5 +476,7 @@ export function useLiquidGlassPhysics({
     handleMouseEnter,
     handleMouseMove,
     handleMouseLeave,
+    handlePointerDown,
+    shouldSuppressClick,
   };
 }
