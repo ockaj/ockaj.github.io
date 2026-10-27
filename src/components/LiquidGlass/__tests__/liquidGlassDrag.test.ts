@@ -1,8 +1,21 @@
 import { describe, it, expect, vi } from "vitest";
-import { setupTagProps } from "../liquidGlassUtils";
+import {
+  setupTagProps,
+  TAP_PRESS_TRANSITION,
+  TAP_RELEASE_TRANSITION,
+} from "../liquidGlassUtils";
 import { computeAnisotropicStretch } from "../useLiquidGlassPhysics";
+import { SPRING } from "../../../utils/springConfig";
 
 describe("LiquidGlass hold, drag, and click suppression", () => {
+  it("defines dual-stage spring profiles in SPRING config matching Apple physical specifications", () => {
+    expect(SPRING.glassPress.stiffness).toBeCloseTo(417.6, 1);
+    expect(SPRING.glassPress.damping).toBeCloseTo(29.2, 1);
+    expect(SPRING.glassRelease.stiffness).toBeCloseTo(230, 1);
+    expect(SPRING.glassRelease.damping).toBeCloseTo(23.7, 1);
+    expect(TAP_PRESS_TRANSITION.scaleX).toBe(SPRING.glassPress);
+    expect(TAP_RELEASE_TRANSITION.scaleX).toBe(SPRING.glassRelease);
+  });
   it("marks tagProps as draggable=false and prevents default onDragStart to prevent native link drag", () => {
     const onKeyDown = vi.fn();
     const onClick = vi.fn();
@@ -94,6 +107,16 @@ describe("LiquidGlass hold, drag, and click suppression", () => {
       const result = computeAnisotropicStretch(30, 30, 100, 100);
       expect(result.scaleX).toBeCloseTo(1, 2);
       expect(result.scaleY).toBeCloseTo(1, 2);
+    });
+
+    it("supports mutable output buffer to guarantee zero-allocation in hot path", () => {
+      const buffer = { scaleX: 0, scaleY: 0, rubber: 0, nx: 0, ny: 0 };
+      const returned = computeAnisotropicStretch(40, 0, buttonWidth, buttonHeight, buffer);
+
+      expect(returned).toBe(buffer);
+      expect(buffer.scaleX).toBeGreaterThan(1);
+      expect(buffer.scaleY).toBeLessThan(1);
+      expect(buffer.scaleX * buffer.scaleY).toBeCloseTo(1, 5);
     });
 
     it("preserves volume and applies asymptotic rubberband resistance", () => {

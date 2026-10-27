@@ -15,7 +15,8 @@ import { useRipple } from "./useRipple";
 import { type InteractiveGlassPropsWithRef, DEFAULT_STYLE } from "./types";
 import { scaleDeltas, scaleVertical, getInnerGlassStyle } from "./config";
 import {
-  SCALE_TRANSITION,
+  TAP_PRESS_TRANSITION,
+  TAP_RELEASE_TRANSITION,
   assignRef,
   getContentTagAndClasses,
   useKeyboardClick,
@@ -124,9 +125,13 @@ export default function LiquidGlassMobile(
   const sharedAnimationProps = useMemo(
     () => ({
       whileTap: effectiveSpringScale
-        ? { scaleX: tapScaleX, scaleY: tapScaleY }
+        ? {
+            scaleX: tapScaleX,
+            scaleY: tapScaleY,
+            transition: TAP_PRESS_TRANSITION,
+          }
         : undefined,
-      transition: effectiveSpringScale ? SCALE_TRANSITION : undefined,
+      transition: effectiveSpringScale ? TAP_RELEASE_TRANSITION : undefined,
       onPointerDown: handlePointerDown,
     }),
     [effectiveSpringScale, handlePointerDown, tapScaleX, tapScaleY],

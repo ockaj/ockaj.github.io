@@ -63,10 +63,15 @@ export const SPRING = {
     damping: 14,
     mass: 0.5,
   },
-  /** LiquidGlass mouse tracking physics for useSpring hooks */
-  glassMouse: {
-    damping: 28,
-    stiffness: 180,
+  /** LiquidGlass dual-stage hold & recoil physics */
+  glassPress: {
+    stiffness: 417.6,
+    damping: 29.2,
+    mass: 0.6,
+  },
+  glassRelease: {
+    stiffness: 230,
+    damping: 23.7,
     mass: 0.6,
   },
   glassOpacity: {

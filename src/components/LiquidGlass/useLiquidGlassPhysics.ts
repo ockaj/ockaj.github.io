@@ -27,25 +27,34 @@ function computeEffectiveTiltStrength(width: number, strength: number): number {
   return Math.min(raw, tiltConfig.maxStrength);
 }
 
-export function computeAnisotropicStretch(
-  rawDx: number,
-  dy: number,
-  width: number,
-  height: number,
-): {
+export interface StretchMetrics {
   scaleX: number;
   scaleY: number;
   rubber: number;
   nx: number;
   ny: number;
-} {
+}
+
+export function computeAnisotropicStretch(
+  rawDx: number,
+  dy: number,
+  width: number,
+  height: number,
+  out?: StretchMetrics,
+): StretchMetrics {
+  const target = out ?? { scaleX: 1, scaleY: 1, rubber: 0, nx: 0, ny: 0 };
   const safeHeight = Math.max(height, 20);
   const aspect = Math.max(width / safeHeight, 0.5);
   const dx = rawDx / aspect;
   const length = Math.hypot(dx, dy);
 
   if (length <= 0) {
-    return { scaleX: 1, scaleY: 1, rubber: 0, nx: 0, ny: 0 };
+    target.scaleX = 1;
+    target.scaleY = 1;
+    target.rubber = 0;
+    target.nx = 0;
+    target.ny = 0;
+    return target;
   }
 
   const rubber = 1 - 1 / (1 + length / safeHeight / (5 * aspect));
@@ -56,13 +65,13 @@ export function computeAnisotropicStretch(
     1 + (6 / safeHeight) * rubber * Math.abs(Math.abs(nx) - Math.abs(ny));
   const horizontal = Math.abs(nx) > Math.abs(ny);
 
-  return {
-    scaleX: horizontal ? stretch : 1 / stretch,
-    scaleY: horizontal ? 1 / stretch : stretch,
-    rubber,
-    nx,
-    ny,
-  };
+  target.scaleX = horizontal ? stretch : 1 / stretch;
+  target.scaleY = horizontal ? 1 / stretch : stretch;
+  target.rubber = rubber;
+  target.nx = nx;
+  target.ny = ny;
+
+  return target;
 }
 
 export function useLiquidGlassPhysics({
@@ -93,6 +102,13 @@ export function useLiquidGlassPhysics({
   const startPointerRef = useRef<{ x: number; y: number } | null>(null);
   const hasDraggedRef = useRef(false);
   const dragResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stretchMetricsRef = useRef<StretchMetrics>({
+    scaleX: 1,
+    scaleY: 1,
+    rubber: 0,
+    nx: 0,
+    ny: 0,
+  });
 
   const shouldSuppressClick = useCallback(() => {
     if (hasDraggedRef.current) {
@@ -189,12 +205,16 @@ export function useLiquidGlassPhysics({
   const mouseY = useMotionValue(0);
   const rawSheenOpacity = useMotionValue(0);
 
-  const springPullX = useSpring(rawPullX, SPRING.glassMouse);
-  const springPullY = useSpring(rawPullY, SPRING.glassMouse);
-  const springTiltX = useSpring(rawTiltX, SPRING.glassMouse);
-  const springTiltY = useSpring(rawTiltY, SPRING.glassMouse);
-  const springScaleX = useSpring(rawScaleX, SPRING.glassMouse);
-  const springScaleY = useSpring(rawScaleY, SPRING.glassMouse);
+  const activeSpringConfig = isHolding
+    ? SPRING.glassPress
+    : SPRING.glassRelease;
+
+  const springPullX = useSpring(rawPullX, activeSpringConfig);
+  const springPullY = useSpring(rawPullY, activeSpringConfig);
+  const springTiltX = useSpring(rawTiltX, activeSpringConfig);
+  const springTiltY = useSpring(rawTiltY, activeSpringConfig);
+  const springScaleX = useSpring(rawScaleX, activeSpringConfig);
+  const springScaleY = useSpring(rawScaleY, activeSpringConfig);
   const sheenOpacity = useSpring(rawSheenOpacity, SPRING.glassOpacity);
 
   const endHold = useCallback(
@@ -268,15 +288,16 @@ export function useLiquidGlassPhysics({
 
       frame.read(() => {
         if (length > 0) {
-          const { scaleX, scaleY, rubber, nx, ny } = computeAnisotropicStretch(
+          const metrics = computeAnisotropicStretch(
             rawDx,
             dy,
             cachedRect.width,
             cachedRect.height,
+            stretchMetricsRef.current,
           );
 
-          rawScaleX.set(scaleX);
-          rawScaleY.set(scaleY);
+          rawScaleX.set(metrics.scaleX);
+          rawScaleY.set(metrics.scaleY);
 
           const effectiveTiltStrength = computeEffectiveTiltStrength(
             cachedRect.width,
@@ -287,10 +308,10 @@ export function useLiquidGlassPhysics({
             : 0;
           const maxTilt = effectiveTilt ? effectiveTiltStrength * 4 : 0;
 
-          rawPullX.set(nx * maxPull * rubber);
-          rawPullY.set(ny * maxPull * rubber);
-          rawTiltX.set(-ny * maxTilt * rubber);
-          rawTiltY.set(nx * maxTilt * rubber);
+          rawPullX.set(metrics.nx * maxPull * metrics.rubber);
+          rawPullY.set(metrics.ny * maxPull * metrics.rubber);
+          rawTiltX.set(-metrics.ny * maxTilt * metrics.rubber);
+          rawTiltY.set(metrics.nx * maxTilt * metrics.rubber);
         } else {
           rawScaleX.set(1);
           rawScaleY.set(1);

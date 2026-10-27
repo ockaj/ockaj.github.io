@@ -9,6 +9,7 @@ import {
 } from "react";
 import { motion, type MotionStyle } from "motion/react";
 import { cn } from "../../utils/cn";
+import { SPRING } from "../../utils/springConfig";
 import { springs } from "./config";
 import {
   type StaticGlassProps,
@@ -20,6 +21,16 @@ import {
 export const SCALE_TRANSITION = {
   scaleX: springs.scale,
   scaleY: springs.scale,
+} as const;
+
+export const TAP_PRESS_TRANSITION = {
+  scaleX: SPRING.glassPress,
+  scaleY: SPRING.glassPress,
+} as const;
+
+export const TAP_RELEASE_TRANSITION = {
+  scaleX: SPRING.glassRelease,
+  scaleY: SPRING.glassRelease,
 } as const;
 
 export function assignRef<T>(ref: Ref<T> | undefined, node: T | null): void {
