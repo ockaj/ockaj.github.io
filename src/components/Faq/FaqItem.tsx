@@ -39,31 +39,27 @@ export const FaqItem = memo(function FaqItem({ item }: FaqItemProps) {
         specularGlow
       >
         <div className="p-6 md:p-7">
-          <Accordion.Header className="m-0 p-0 font-normal">
-            <Accordion.Trigger className="group flex w-full cursor-pointer items-center justify-between gap-4 rounded-lg text-left select-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none">
-              <div className="flex flex-col">
-                <span className="font-display text-lg font-normal text-balance wrap-anywhere text-text-primary transition-colors duration-200 md:text-xl">
-                  {item.question}
-                </span>
-              </div>
-
-              <InteractiveGlass
-                as="span"
-                roundedClass="rounded-full"
-                className="flex size-11 min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center p-0 text-text-primary shadow-sm transition-colors"
-                magnetic
-                tilt
-                magneticStrength={0.03}
-                specularGlow
-              >
-                <span
-                  data-no-skeleton=""
-                  className="flex items-center justify-center text-text-primary transition-transform duration-300 ease-out group-data-panel-open:rotate-180 motion-reduce:transition-none"
-                >
-                  <ChevronDown size={18} aria-hidden="true" />
-                </span>
-              </InteractiveGlass>
+          <Accordion.Header className="m-0 flex w-full items-center justify-between gap-4 p-0 font-normal">
+            <Accordion.Trigger className="flex-1 cursor-pointer text-left font-display text-lg font-normal text-balance wrap-anywhere text-text-primary transition-colors duration-200 select-none focus-visible:outline-none md:text-xl">
+              {item.question}
             </Accordion.Trigger>
+
+            <Accordion.Trigger
+              render={
+                <LiquidGlassButton
+                  ariaLabel={`Toggle ${item.question}`}
+                  roundedClass="rounded-full"
+                  className="group flex size-11 min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center p-0 text-text-primary shadow-sm transition-colors"
+                >
+                  <span
+                    data-no-skeleton=""
+                    className="flex items-center justify-center text-text-primary transition-transform duration-300 ease-out group-data-panel-open:rotate-180 motion-reduce:transition-none"
+                  >
+                    <ChevronDown size={18} aria-hidden="true" />
+                  </span>
+                </LiquidGlassButton>
+              }
+            />
           </Accordion.Header>
 
           <Accordion.Panel

@@ -19,21 +19,17 @@ import { useRipple } from "./useRipple";
 import { useLiquidGlassPhysics } from "./useLiquidGlassPhysics";
 import {
   type InteractiveGlassPropsWithRef,
-  type InteractiveGlassProps,
   DEFAULT_STYLE,
 } from "./types";
 import {
-  hoverDelta,
-  getInnerGlassStyle,
-} from "./config";
-import {
-  SCALE_TRANSITION,
   assignRef,
   getContentTagAndClasses,
   useKeyboardClick,
   getGlassClasses,
   TAG_MAP,
   setupTagProps,
+  computeInnerGlassStyle,
+  computeReactiveSheenBoxShadow,
 } from "./liquidGlassUtils";
 import {
   InnerBorderOverlay,
@@ -59,20 +55,6 @@ function getEffectiveMotionFlags(
     effectiveSpringScale: options.springScale && !isReduced,
     effectiveRipple: options.ripple && !isReduced,
   };
-}
-
-function computeInnerGlassStyle(
-  variant: InteractiveGlassProps["variant"],
-  isActive: boolean,
-  specularGlow: boolean,
-): CSSProperties {
-  const baseStyle = getInnerGlassStyle(variant, isActive);
-  if (specularGlow && isActive && variant === "flat") {
-    return {
-      boxShadow: `inset 0 1px 2px rgba(255, 255, 255, 0.24), inset 0 8px 16px rgba(255, 255, 255, 0.06), ${baseStyle.boxShadow ?? ""}`,
-    };
-  }
-  return baseStyle;
 }
 
 function computeTagStyle(
@@ -105,27 +87,7 @@ function computeTagStyle(
   };
 }
 
-function getScaleAnimationProps(
-  effectiveSpringScale: boolean,
-  dimensions: { width: number; height: number },
-) {
-  if (!effectiveSpringScale) {
-    return {
-      whileHover: undefined,
-      transition: undefined,
-    };
-  }
 
-  const delta = hoverDelta.desktop;
-
-  return {
-    whileHover: {
-      scaleX: 1 + (2 * delta) / dimensions.width,
-      scaleY: 1 + (2 * delta) / dimensions.height,
-    },
-    transition: SCALE_TRANSITION,
-  };
-}
 
 export default function LiquidGlassDesktop({
   children,
@@ -253,21 +215,14 @@ export default function LiquidGlassDesktop({
     ],
   );
 
-  const scaleAnimationProps = useMemo(
-    () => getScaleAnimationProps(effectiveSpringScale, physics.dimensions),
-    [effectiveSpringScale, physics.dimensions],
-  );
-
   const sharedAnimationProps = useMemo(
     () => ({
-      ...scaleAnimationProps,
       onMouseEnter: handleMouseEnter,
       onMouseMove: handleMouseMove,
       onMouseLeave: handleMouseLeave,
       onPointerDown: handlePointerDown,
     }),
     [
-      scaleAnimationProps,
       handleMouseEnter,
       handleMouseMove,
       handleMouseLeave,
@@ -286,7 +241,7 @@ export default function LiquidGlassDesktop({
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
-      if (shouldSuppressClick()) {
+      if (e.defaultPrevented || shouldSuppressClick()) {
         e.preventDefault();
         e.stopPropagation();
         return;
@@ -323,17 +278,15 @@ export default function LiquidGlassDesktop({
     domProps,
   );
 
-  const reactiveBoxShadow = useTransform(() => {
-    const x = physics.springX.get();
-    const y = physics.springY.get();
-    const halfW = Math.max(physics.dimensions.width / 2, 1);
-    const halfH = Math.max(physics.dimensions.height / 2, 1);
-    const normX = Math.max(-1, Math.min(1, x / halfW));
-    const normY = Math.max(-1, Math.min(1, y / halfH));
-    const ix = (-normX * 1.2).toFixed(2);
-    const iy = (-normY * 1.2).toFixed(2);
-    return `inset ${ix}px ${iy}px 2px oklch(100% 0 0 / 0.18), inset ${ix}px ${iy}px 6px oklch(100% 0 0 / 0.08)`;
-  });
+  const reactiveBoxShadow = useTransform(() =>
+    computeReactiveSheenBoxShadow(
+      physics.springX.get(),
+      physics.springY.get(),
+      physics.springHolding.get(),
+      physics.dimensions.width,
+      physics.dimensions.height,
+    ),
+  );
 
   return (
     <Tag ref={handleRef} onClickCapture={handleClickCapture} {...tagProps}>

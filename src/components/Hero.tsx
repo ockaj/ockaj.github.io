@@ -29,12 +29,7 @@ import {
   heroScrollArrowVariants,
 } from "../utils/motionVariants";
 
-const CV_BUTTON_ICON = (
-  <FileText
-    size={16}
-    className="hero-cv-icon transition-transform duration-200"
-  />
-);
+const CV_BUTTON_ICON = <FileText size={16} />;
 
 const EYEBROW_BADGE = <BpmnNodeBadge type="start-event-none" />;
 

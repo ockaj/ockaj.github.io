@@ -13,7 +13,7 @@ import { useResizeObserver } from "../../hooks/useResizeObserver";
 import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
 import { type InteractiveGlassPropsWithRef, DEFAULT_STYLE } from "./types";
-import { scaleDeltas, scaleVertical, getInnerGlassStyle } from "./config";
+import { glassFeel } from "./config";
 import {
   TAP_PRESS_TRANSITION,
   TAP_RELEASE_TRANSITION,
@@ -24,6 +24,8 @@ import {
   TAG_MAP,
   setupTagProps,
   getEntryDimensions,
+  computeInnerGlassStyle,
+  computeGlisseBaseScale,
 } from "./liquidGlassUtils";
 import { InnerBorderOverlay } from "./LiquidGlassOverlays";
 
@@ -62,7 +64,7 @@ export default function LiquidGlassMobile(
   const effectiveRipple = ripple && !isMotionReduced;
 
   const elementRef = useRef<HTMLElement | null>(null);
-  const [width, setWidth] = useState(120);
+  const [dimensions, setDimensions] = useState({ width: 120, height: 36 });
 
   const handleRef = useCallback(
     (node: HTMLElement | null) => {
@@ -73,9 +75,13 @@ export default function LiquidGlassMobile(
   );
 
   useResizeObserver(effectiveSpringScale ? elementRef : null, (entry) => {
-    const { width: newWidth } = getEntryDimensions(entry);
-    if (newWidth > 0) {
-      setWidth((prev) => (prev === newWidth ? prev : newWidth));
+    const { width: newWidth, height: newHeight } = getEntryDimensions(entry);
+    if (newWidth > 0 && newHeight > 0) {
+      setDimensions((prev) =>
+        prev.width === newWidth && prev.height === newHeight
+          ? prev
+          : { width: newWidth, height: newHeight },
+      );
     }
   });
 
@@ -98,15 +104,10 @@ export default function LiquidGlassMobile(
     className,
   });
 
-  const innerGlassStyle = useMemo<CSSProperties>(() => {
-    const baseStyle = getInnerGlassStyle(variant, active);
-    if (specularGlow && active && variant === "flat") {
-      return {
-        boxShadow: `inset 0 1px 2px rgba(255, 255, 255, 0.24), inset 0 8px 16px rgba(255, 255, 255, 0.06), ${baseStyle.boxShadow ?? ""}`,
-      };
-    }
-    return baseStyle;
-  }, [variant, active, specularGlow]);
+  const innerGlassStyle = useMemo<CSSProperties>(
+    () => computeInnerGlassStyle(variant, active, specularGlow),
+    [variant, active, specularGlow],
+  );
 
   const tagStyle = useMemo<CSSProperties>(() => {
     return {
@@ -118,23 +119,25 @@ export default function LiquidGlassMobile(
     };
   }, [effectiveSpringScale, style]);
 
-  const tapDeltaX = scaleDeltas.tap.mobile;
-  const tapScaleX = 1 + tapDeltaX / width;
-  const tapScaleY = scaleVertical.tap.mobile;
+  const tapScale = computeGlisseBaseScale(
+    dimensions.width,
+    dimensions.height,
+    glassFeel.touch.grow,
+  );
 
   const sharedAnimationProps = useMemo(
     () => ({
       whileTap: effectiveSpringScale
         ? {
-            scaleX: tapScaleX,
-            scaleY: tapScaleY,
+            scaleX: tapScale,
+            scaleY: tapScale,
             transition: TAP_PRESS_TRANSITION,
           }
         : undefined,
       transition: effectiveSpringScale ? TAP_RELEASE_TRANSITION : undefined,
       onPointerDown: handlePointerDown,
     }),
-    [effectiveSpringScale, handlePointerDown, tapScaleX, tapScaleY],
+    [effectiveSpringScale, handlePointerDown, tapScale],
   );
 
   const { isInline, contentClasses } = getContentTagAndClasses(
