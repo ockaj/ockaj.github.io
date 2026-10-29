@@ -324,12 +324,14 @@ export default function LiquidGlassDesktop({
   );
 
   const reactiveBoxShadow = useTransform(() => {
-    const x = physics.springPullX.get();
-    const y = physics.springPullY.get();
-    const normX = Math.max(-1, Math.min(1, x / 8));
-    const normY = Math.max(-1, Math.min(1, y / 8));
-    const ix = (-normX * 1.5).toFixed(2);
-    const iy = (-normY * 1.5).toFixed(2);
+    const x = physics.springX.get();
+    const y = physics.springY.get();
+    const halfW = Math.max(physics.dimensions.width / 2, 1);
+    const halfH = Math.max(physics.dimensions.height / 2, 1);
+    const normX = Math.max(-1, Math.min(1, x / halfW));
+    const normY = Math.max(-1, Math.min(1, y / halfH));
+    const ix = (-normX * 1.2).toFixed(2);
+    const iy = (-normY * 1.2).toFixed(2);
     return `inset ${ix}px ${iy}px 2px oklch(100% 0 0 / 0.18), inset ${ix}px ${iy}px 6px oklch(100% 0 0 / 0.08)`;
   });
 

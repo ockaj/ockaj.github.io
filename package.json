@@ -17,7 +17,7 @@
     "test:watch": "vitest",
     "prepare": "husky",
     "knip": "knip",
-    "doctor": "react-doctor --verbose",
+    "doctor": "react-doctor --scope full -y --verbose",
     "test:e2e": "node scripts/e2e/runner.mjs"
   },
   "dependencies": {

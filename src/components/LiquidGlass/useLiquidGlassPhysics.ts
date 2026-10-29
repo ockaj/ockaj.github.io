@@ -215,6 +215,8 @@ export function useLiquidGlassPhysics({
   const springTiltY = useSpring(rawTiltY, activeSpringConfig);
   const springScaleX = useSpring(rawScaleX, activeSpringConfig);
   const springScaleY = useSpring(rawScaleY, activeSpringConfig);
+  const springX = useSpring(mouseX, SPRING.glassMouse);
+  const springY = useSpring(mouseY, SPRING.glassMouse);
   const sheenOpacity = useSpring(rawSheenOpacity, SPRING.glassOpacity);
 
   const endHold = useCallback(
@@ -248,9 +250,11 @@ export function useLiquidGlassPhysics({
         rawTiltY.set(0);
         rawScaleX.set(1);
         rawScaleY.set(1);
-        mouseX.set(0);
-        mouseY.set(0);
-        rawSheenOpacity.set(0);
+        if (!isHoveredRef.current) {
+          rawSheenOpacity.set(0);
+          mouseX.set(0);
+          mouseY.set(0);
+        }
       });
     },
     [
@@ -425,6 +429,31 @@ export function useLiquidGlassPhysics({
     ],
   );
 
+  const updateMousePositions = useCallback(
+    (e: ReactMouseEvent<HTMLElement>, onUpdate?: () => void) => {
+      const currentTarget = e.currentTarget;
+      const clientX = e.clientX;
+      const clientY = e.clientY;
+
+      frame.read(() => {
+        if (!currentTarget || !isHoveredRef.current) return;
+        const rect = currentTarget.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          liveDimensionsRef.current = {
+            width: rect.width,
+            height: rect.height,
+          };
+        }
+        const localX = clientX - rect.left;
+        const localY = clientY - rect.top;
+        mouseX.set(localX - rect.width / 2);
+        mouseY.set(localY - rect.height / 2);
+        onUpdate?.();
+      });
+    },
+    [mouseX, mouseY],
+  );
+
   const handleMouseEnter = useCallback(
     (e: ReactMouseEvent<HTMLElement>) => {
       if (!interactive) return;
@@ -440,13 +469,21 @@ export function useLiquidGlassPhysics({
         }
       }
       setIsHovered(true);
+      updateMousePositions(e, () => {
+        if (!isHoveredRef.current) return;
+        rawSheenOpacity.set(1);
+      });
     },
-    [interactive],
+    [interactive, rawSheenOpacity, updateMousePositions],
   );
 
-  const handleMouseMove = useCallback(() => {
-    // Mouse movement on hover does not track cursor; tracking is hold-only like glisse.
-  }, []);
+  const handleMouseMove = useCallback(
+    (e: ReactMouseEvent<HTMLElement>) => {
+      if (!interactive || isHolding) return;
+      updateMousePositions(e);
+    },
+    [interactive, isHolding, updateMousePositions],
+  );
 
   const handleMouseLeave = useCallback(() => {
     if (!interactive) return;
@@ -485,8 +522,8 @@ export function useLiquidGlassPhysics({
     setElementRef,
     dimensions,
     isHovered,
-    springX: springPullX,
-    springY: springPullY,
+    springX,
+    springY,
     springScaleX,
     springScaleY,
     sheenOpacity,
