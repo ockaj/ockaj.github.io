@@ -10,27 +10,23 @@ import {
 import { motion, type MotionStyle } from "motion/react";
 import { cn } from "../../utils/cn";
 import { SPRING } from "../../utils/springConfig";
-import { springs } from "./config";
+import { getInnerGlassStyle } from "./config";
 import {
   type StaticGlassProps,
+  type InteractiveGlassProps,
   type LiquidGlassTagProps,
   type LiquidGlassAnimationProps,
   type LiquidGlassDomProps,
 } from "./types";
 
-export const SCALE_TRANSITION = {
-  scaleX: springs.scale,
-  scaleY: springs.scale,
-} as const;
-
 export const TAP_PRESS_TRANSITION = {
-  scaleX: SPRING.glassPress,
-  scaleY: SPRING.glassPress,
+  scaleX: SPRING.glassTouchPress,
+  scaleY: SPRING.glassTouchPress,
 } as const;
 
 export const TAP_RELEASE_TRANSITION = {
-  scaleX: SPRING.glassRelease,
-  scaleY: SPRING.glassRelease,
+  scaleX: SPRING.glassTouchRelease,
+  scaleY: SPRING.glassTouchRelease,
 } as const;
 
 export function assignRef<T>(ref: Ref<T> | undefined, node: T | null): void {
@@ -211,4 +207,54 @@ export function getEntryDimensions(entry: ResizeObserverEntry): {
   }
 
   return { width, height };
+}
+
+export function computeGlisseBaseScale(
+  width: number,
+  height: number,
+  grow: number,
+): number {
+  const safeHeight =
+    Number.isFinite(height) && height > 0 ? Math.max(height, 20) : 20;
+  const safeWidth =
+    Number.isFinite(width) && width > 0 ? width : safeHeight;
+  const safeGrow = Number.isFinite(grow) ? grow : 0;
+  return 1 + safeGrow / Math.max(safeWidth, safeHeight);
+}
+
+export function computeInnerGlassStyle(
+  variant: InteractiveGlassProps["variant"],
+  isActive: boolean,
+  specularGlow: boolean,
+): CSSProperties {
+  const baseStyle = getInnerGlassStyle(variant, isActive);
+  if (specularGlow && isActive && variant === "flat") {
+    return {
+      boxShadow: `inset 0 1px 2px rgba(255, 255, 255, 0.24), inset 0 8px 16px rgba(255, 255, 255, 0.06), ${baseStyle.boxShadow ?? ""}`,
+    };
+  }
+  return baseStyle;
+}
+
+export function computeReactiveSheenBoxShadow(
+  x: number,
+  y: number,
+  holding: number,
+  width: number,
+  height: number,
+): string {
+  const h = Math.max(0, Math.min(1, holding));
+  const halfW = Math.max(width / 2, 1);
+  const halfH = Math.max(height / 2, 1);
+
+  // Stock hover (h=0): full edge travel [-1, 1] and 1.2px multiplier.
+  // Hold / drag (h=1): contracted clamp [-0.65, 0.65] and 0.75px multiplier to avoid rim mask blowout.
+  const maxNorm = 1 - 0.35 * h;
+  const normX = Math.max(-maxNorm, Math.min(maxNorm, x / halfW));
+  const normY = Math.max(-maxNorm, Math.min(maxNorm, y / halfH));
+  const mult = 1.2 - 0.45 * h;
+  const ix = (-normX * mult).toFixed(2);
+  const iy = (-normY * mult).toFixed(2);
+
+  return `inset ${ix}px ${iy}px 2px oklch(100% 0 0 / 0.18), inset ${ix}px ${iy}px 6px oklch(100% 0 0 / 0.08)`;
 }

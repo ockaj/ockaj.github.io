@@ -11,7 +11,7 @@ import {
 import { frame, useMotionValue, useSpring } from "motion/react";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 import { SPRING } from "../../utils/springConfig";
-import { tilt as tiltConfig } from "./config";
+import { tilt as tiltConfig, glassFeel } from "./config";
 import { getEntryDimensions } from "./liquidGlassUtils";
 
 interface LiquidGlassPhysicsParams {
@@ -40,17 +40,26 @@ export function computeAnisotropicStretch(
   dy: number,
   width: number,
   height: number,
+  grow = 0,
   out?: StretchMetrics,
 ): StretchMetrics {
   const target = out ?? { scaleX: 1, scaleY: 1, rubber: 0, nx: 0, ny: 0 };
-  const safeHeight = Math.max(height, 20);
-  const aspect = Math.max(width / safeHeight, 0.5);
-  const dx = rawDx / aspect;
-  const length = Math.hypot(dx, dy);
+  const safeHeight =
+    Number.isFinite(height) && height > 0 ? Math.max(height, 20) : 20;
+  const safeWidth =
+    Number.isFinite(width) && width > 0 ? width : safeHeight;
+  const maxDimension = Math.max(safeWidth, safeHeight);
+  const safeGrow = Number.isFinite(grow) ? grow : 0;
+  const base = 1 + safeGrow / maxDimension;
+  const aspect = Math.max(safeWidth / safeHeight, 0.5);
+  const safeDx = Number.isFinite(rawDx) ? rawDx : 0;
+  const safeDy = Number.isFinite(dy) ? dy : 0;
+  const dx = safeDx / aspect;
+  const length = Math.hypot(dx, safeDy);
 
   if (length <= 0) {
-    target.scaleX = 1;
-    target.scaleY = 1;
+    target.scaleX = base;
+    target.scaleY = base;
     target.rubber = 0;
     target.nx = 0;
     target.ny = 0;
@@ -59,19 +68,53 @@ export function computeAnisotropicStretch(
 
   const rubber = 1 - 1 / (1 + length / safeHeight / (5 * aspect));
   const nx = dx / length;
-  const ny = dy / length;
+  const ny = safeDy / length;
 
   const stretch =
     1 + (6 / safeHeight) * rubber * Math.abs(Math.abs(nx) - Math.abs(ny));
   const horizontal = Math.abs(nx) > Math.abs(ny);
 
-  target.scaleX = horizontal ? stretch : 1 / stretch;
-  target.scaleY = horizontal ? 1 / stretch : stretch;
+  target.scaleX = base * (horizontal ? stretch : 1 / stretch);
+  target.scaleY = base * (horizontal ? 1 / stretch : stretch);
   target.rubber = rubber;
   target.nx = nx;
   target.ny = ny;
 
   return target;
+}
+
+interface CachedRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+function checkHoverOnRelease(
+  e: Event | undefined,
+  element: HTMLElement | null,
+  cachedRect: CachedRect | null,
+): { isHovered: boolean; x: number; y: number } {
+  if (!e || !("clientX" in e)) {
+    return { isHovered: false, x: 0, y: 0 };
+  }
+  const clientX = (e as PointerEvent).clientX;
+  const clientY = (e as PointerEvent).clientY;
+  const rect = element?.getBoundingClientRect() ?? cachedRect;
+  if (!rect) {
+    return { isHovered: false, x: 0, y: 0 };
+  }
+  const isHovered =
+    clientX >= rect.left &&
+    clientX <= rect.left + rect.width &&
+    clientY >= rect.top &&
+    clientY <= rect.top + rect.height;
+
+  return {
+    isHovered,
+    x: isHovered ? clientX - rect.left - rect.width / 2 : 0,
+    y: isHovered ? clientY - rect.top - rect.height / 2 : 0,
+  };
 }
 
 export function useLiquidGlassPhysics({
@@ -91,6 +134,8 @@ export function useLiquidGlassPhysics({
   const isHoveredRef = useRef(false);
 
   const [isHolding, setIsHolding] = useState(false);
+  const [pointerType, setPointerType] = useState<"mouse" | "touch">("mouse");
+  const pointerTypeRef = useRef<"mouse" | "touch">("mouse");
   const activePointerIdRef = useRef<number | null>(null);
   const targetElementRef = useRef<HTMLElement | null>(null);
   const targetRectRef = useRef<{
@@ -204,10 +249,15 @@ export function useLiquidGlassPhysics({
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const rawSheenOpacity = useMotionValue(0);
+  const rawHolding = useMotionValue(0);
 
+  const activeFeel = glassFeel[pointerType === "touch" ? "touch" : "pointer"];
   const activeSpringConfig = isHolding
-    ? SPRING.glassPress
-    : SPRING.glassRelease;
+    ? activeFeel.press
+    : activeFeel.release;
+  const activeSheenSpring = isHolding
+    ? activeFeel.press
+    : SPRING.glassMouse;
 
   const springPullX = useSpring(rawPullX, activeSpringConfig);
   const springPullY = useSpring(rawPullY, activeSpringConfig);
@@ -215,9 +265,10 @@ export function useLiquidGlassPhysics({
   const springTiltY = useSpring(rawTiltY, activeSpringConfig);
   const springScaleX = useSpring(rawScaleX, activeSpringConfig);
   const springScaleY = useSpring(rawScaleY, activeSpringConfig);
-  const springX = useSpring(mouseX, SPRING.glassMouse);
-  const springY = useSpring(mouseY, SPRING.glassMouse);
+  const springX = useSpring(mouseX, activeSheenSpring);
+  const springY = useSpring(mouseY, activeSheenSpring);
   const sheenOpacity = useSpring(rawSheenOpacity, SPRING.glassOpacity);
+  const springHolding = useSpring(rawHolding, SPRING.glassPress);
 
   const endHold = useCallback(
     (e?: Event) => {
@@ -229,7 +280,9 @@ export function useLiquidGlassPhysics({
       ) {
         return;
       }
+      const cachedRect = targetRectRef.current;
       setIsHolding(false);
+      rawHolding.set(0);
       activePointerIdRef.current = null;
       targetElementRef.current = null;
       targetRectRef.current = null;
@@ -250,16 +303,30 @@ export function useLiquidGlassPhysics({
         rawTiltY.set(0);
         rawScaleX.set(1);
         rawScaleY.set(1);
-        if (!isHoveredRef.current) {
-          rawSheenOpacity.set(0);
+
+        const isMouse = pointerTypeRef.current === "mouse";
+        const hoverResult = isMouse
+          ? checkHoverOnRelease(e, elementRef.current, cachedRect)
+          : { isHovered: false, x: 0, y: 0 };
+
+        isHoveredRef.current = hoverResult.isHovered;
+        setIsHovered(hoverResult.isHovered);
+
+        if (hoverResult.isHovered) {
+          mouseX.set(hoverResult.x);
+          mouseY.set(hoverResult.y);
+          rawSheenOpacity.set(1);
+        } else {
           mouseX.set(0);
           mouseY.set(0);
+          rawSheenOpacity.set(0);
         }
       });
     },
     [
       mouseX,
       mouseY,
+      rawHolding,
       rawPullX,
       rawPullY,
       rawScaleX,
@@ -291,44 +358,46 @@ export function useLiquidGlassPhysics({
       }
 
       frame.read(() => {
-        if (length > 0) {
-          const metrics = computeAnisotropicStretch(
-            rawDx,
-            dy,
-            cachedRect.width,
-            cachedRect.height,
-            stretchMetricsRef.current,
-          );
+        const growPx =
+          glassFeel[pointerTypeRef.current === "touch" ? "touch" : "pointer"]
+            .grow;
 
-          rawScaleX.set(metrics.scaleX);
-          rawScaleY.set(metrics.scaleY);
+        const metrics = computeAnisotropicStretch(
+          rawDx,
+          dy,
+          cachedRect.width,
+          cachedRect.height,
+          growPx,
+          stretchMetricsRef.current,
+        );
 
-          const effectiveTiltStrength = computeEffectiveTiltStrength(
-            cachedRect.width,
-            tiltStrength,
-          );
-          const maxPull = effectiveMagnetic
-            ? 8 * (magneticStrength / 0.02)
-            : 0;
-          const maxTilt = effectiveTilt ? effectiveTiltStrength * 4 : 0;
+        rawScaleX.set(metrics.scaleX);
+        rawScaleY.set(metrics.scaleY);
 
-          rawPullX.set(metrics.nx * maxPull * metrics.rubber);
-          rawPullY.set(metrics.ny * maxPull * metrics.rubber);
-          rawTiltX.set(-metrics.ny * maxTilt * metrics.rubber);
-          rawTiltY.set(metrics.nx * maxTilt * metrics.rubber);
-        } else {
-          rawScaleX.set(1);
-          rawScaleY.set(1);
-          rawPullX.set(0);
-          rawPullY.set(0);
-          rawTiltX.set(0);
-          rawTiltY.set(0);
-        }
+        const effectiveTiltStrength = computeEffectiveTiltStrength(
+          cachedRect.width,
+          tiltStrength,
+        );
+        const maxPull = effectiveMagnetic
+          ? 8 * (magneticStrength / 0.02)
+          : 0;
+        const maxTilt = effectiveTilt ? effectiveTiltStrength * 4 : 0;
+
+        rawPullX.set(metrics.nx * maxPull * metrics.rubber);
+        rawPullY.set(metrics.ny * maxPull * metrics.rubber);
+        rawTiltX.set(-metrics.ny * maxTilt * metrics.rubber);
+        rawTiltY.set(metrics.nx * maxTilt * metrics.rubber);
 
         const localX = clientX - cachedRect.left;
         const localY = clientY - cachedRect.top;
-        mouseX.set(localX - cachedRect.width / 2);
-        mouseY.set(localY - cachedRect.height / 2);
+        const halfW = Math.max(cachedRect.width / 2, 1);
+        const halfH = Math.max(cachedRect.height / 2, 1);
+        const maxExtentX = halfW * 1.5;
+        const maxExtentY = halfH * 1.5;
+        const clampedX = Math.max(-maxExtentX, Math.min(maxExtentX, localX - halfW));
+        const clampedY = Math.max(-maxExtentY, Math.min(maxExtentY, localY - halfH));
+        mouseX.set(clampedX);
+        mouseY.set(clampedY);
       });
     },
     [
@@ -369,8 +438,19 @@ export function useLiquidGlassPhysics({
     (e: ReactPointerEvent<HTMLElement>) => {
       if (!interactive || e.button !== 0 || e.isPrimary === false) return;
 
+      const detectedType: "mouse" | "touch" =
+        e.pointerType === "touch" || e.pointerType === "pen"
+          ? "touch"
+          : "mouse";
+      pointerTypeRef.current = detectedType;
+      setPointerType(detectedType);
       setIsHolding(true);
+      rawHolding.set(1);
       hasDraggedRef.current = false;
+      if (dragResetTimerRef.current !== null) {
+        clearTimeout(dragResetTimerRef.current);
+        dragResetTimerRef.current = null;
+      }
       startPointerRef.current = { x: e.clientX, y: e.clientY };
       activePointerIdRef.current = e.pointerId;
       const target = e.currentTarget;
@@ -401,12 +481,29 @@ export function useLiquidGlassPhysics({
             setDimensions({ width: rect.width, height: rect.height });
           }
         }
+
+        const growPx =
+          glassFeel[detectedType === "touch" ? "touch" : "pointer"].grow;
+        const width =
+          rect.width > 0 ? rect.width : liveDimensionsRef.current.width;
+        const height =
+          rect.height > 0 ? rect.height : liveDimensionsRef.current.height;
+
+        const metrics = computeAnisotropicStretch(
+          0,
+          0,
+          width,
+          height,
+          growPx,
+          stretchMetricsRef.current,
+        );
+
         rawPullX.set(0);
         rawPullY.set(0);
         rawTiltX.set(0);
         rawTiltY.set(0);
-        rawScaleX.set(1);
-        rawScaleY.set(1);
+        rawScaleX.set(metrics.scaleX);
+        rawScaleY.set(metrics.scaleY);
 
         const localX = clientX - rect.left;
         const localY = clientY - rect.top;
@@ -419,6 +516,7 @@ export function useLiquidGlassPhysics({
       interactive,
       mouseX,
       mouseY,
+      rawHolding,
       rawPullX,
       rawPullY,
       rawScaleX,
@@ -470,7 +568,7 @@ export function useLiquidGlassPhysics({
       }
       setIsHovered(true);
       updateMousePositions(e, () => {
-        if (!isHoveredRef.current) return;
+        if (!isHoveredRef.current || pointerTypeRef.current === "touch") return;
         rawSheenOpacity.set(1);
       });
     },
@@ -487,9 +585,9 @@ export function useLiquidGlassPhysics({
 
   const handleMouseLeave = useCallback(() => {
     if (!interactive) return;
-    isHoveredRef.current = false;
-    setIsHovered(false);
     if (!isHolding) {
+      isHoveredRef.current = false;
+      setIsHovered(false);
       rawPullX.set(0);
       rawPullY.set(0);
       rawTiltX.set(0);
@@ -497,6 +595,7 @@ export function useLiquidGlassPhysics({
       rawScaleX.set(1);
       rawScaleY.set(1);
       rawSheenOpacity.set(0);
+      rawHolding.set(0);
       mouseX.set(0);
       mouseY.set(0);
     }
@@ -505,6 +604,7 @@ export function useLiquidGlassPhysics({
     isHolding,
     mouseX,
     mouseY,
+    rawHolding,
     rawPullX,
     rawPullY,
     rawScaleX,
@@ -526,6 +626,7 @@ export function useLiquidGlassPhysics({
     springY,
     springScaleX,
     springScaleY,
+    springHolding,
     sheenOpacity,
     springPullX,
     springPullY,

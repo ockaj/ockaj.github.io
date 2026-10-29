@@ -36,6 +36,19 @@ export const springs = {
   ripple: SPRING.glassRipple,
 } as const;
 
+export const glassFeel = {
+  pointer: {
+    grow: 6,
+    press: SPRING.glassPress,
+    release: SPRING.glassRelease,
+  },
+  touch: {
+    grow: 14,
+    press: SPRING.glassTouchPress,
+    release: SPRING.glassTouchRelease,
+  },
+} as const;
+
 // Tilt
 export const tilt = {
   referenceWidth: 240,

@@ -365,10 +365,6 @@ p {
     color: hsl(var(--text)) !important;
   }
 
-  .group:hover .hero-cv-icon {
-    transform: scale(1.05);
-  }
-
   .group:hover .process-tab-label {
     transform: translateX(0.125rem);
   }
