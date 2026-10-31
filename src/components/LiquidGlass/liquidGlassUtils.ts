@@ -127,29 +127,11 @@ export const TAG_MAP: { readonly [tag: string]: ElementType | undefined } = {
   section: motion.section,
 };
 
-export function setupTagProps(
-  href: string | undefined,
-  as: string,
-  download: string | undefined,
-  target: string | undefined,
-  rel: string | undefined,
-  onClick: unknown,
-  handleKeyDown: (e: KeyboardEvent<HTMLElement>) => void,
-  baseClasses: string,
-  tagStyle: CSSProperties | MotionStyle,
-  ariaLabel?: string,
+function attachComposedEventHandlers(
+  tagProps: LiquidGlassTagProps,
   sharedAnimationProps?: LiquidGlassAnimationProps,
   domProps?: LiquidGlassDomProps,
-): LiquidGlassTagProps {
-  const tagProps: LiquidGlassTagProps = {
-    className: baseClasses,
-    style: tagStyle,
-    "aria-label": ariaLabel,
-    draggable: false,
-    ...sharedAnimationProps,
-    ...domProps,
-  };
-
+): void {
   if (sharedAnimationProps?.onPointerDown) {
     const internalPointerDown = sharedAnimationProps.onPointerDown;
     const domPointerDown = domProps?.onPointerDown;
@@ -185,6 +167,32 @@ export function setupTagProps(
       domMouseLeave?.(e);
     };
   }
+}
+
+export function setupTagProps(
+  href: string | undefined,
+  as: string,
+  download: string | undefined,
+  target: string | undefined,
+  rel: string | undefined,
+  onClick: unknown,
+  handleKeyDown: (e: KeyboardEvent<HTMLElement>) => void,
+  baseClasses: string,
+  tagStyle: CSSProperties | MotionStyle,
+  ariaLabel?: string,
+  sharedAnimationProps?: LiquidGlassAnimationProps,
+  domProps?: LiquidGlassDomProps,
+): LiquidGlassTagProps {
+  const tagProps: LiquidGlassTagProps = {
+    className: baseClasses,
+    style: tagStyle,
+    "aria-label": ariaLabel,
+    draggable: false,
+    ...sharedAnimationProps,
+    ...domProps,
+  };
+
+  attachComposedEventHandlers(tagProps, sharedAnimationProps, domProps);
 
   tagProps.onDragStart = (e: unknown) => {
     (e as { preventDefault?: () => void }).preventDefault?.();

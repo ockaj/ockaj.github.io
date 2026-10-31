@@ -27,6 +27,7 @@ updates:
     open-pull-requests-limit: 10
     ignore:
       - dependency-name: "typescript"
+      - dependency-name: "@rolldown/plugin-babel"
     groups:
       npm-dependencies:
         patterns:

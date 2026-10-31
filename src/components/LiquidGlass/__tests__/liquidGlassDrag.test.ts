@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
+import type { LiquidGlassDomProps } from "../types";
 import {
   setupTagProps,
   TAP_PRESS_TRANSITION,
@@ -300,10 +301,14 @@ describe("LiquidGlass hold, drag, and click suppression", () => {
         {},
         undefined,
         { onPointerDown: internalOnPointerDown },
-        { onPointerDown: externalOnPointerDown } as any,
+        {
+          onPointerDown: externalOnPointerDown,
+        } as unknown as LiquidGlassDomProps,
       );
 
-      const mockEvent = { pointerId: 1 } as any;
+      const mockEvent = {
+        pointerId: 1,
+      } as unknown as React.PointerEvent<HTMLElement>;
       tagProps.onPointerDown?.(mockEvent);
 
       expect(internalOnPointerDown).toHaveBeenCalledWith(mockEvent);
