@@ -79,7 +79,8 @@ Pass `keepMounted` to `<Dialog.Portal keepMounted>` when wrapping with `motion/r
 
 ---
 
-## 6. Shared Utilities (`cn` and `quicklink`)
+## 6. Shared Utilities (`cn`, `quicklink`, `idleCallback`)
 
-- **Class Composition**: Use `cn(...)` from [`src/utils/cn.ts`](../../src/utils/cn.ts) (`clsx` + `tailwind-merge`) for conditional class composition.
+- **Class Composition**: Use `cn(...)` from [`src/utils/cn.ts`](../../src/utils/cn.ts) (`clsx` + `extendTailwindMerge(withConcentric)`) for conditional class composition. Correctly merges both Tailwind classes and concentric classes (`rounded-concentric`).
 - **Prefetching**: Import `prefetchAsset` from [`src/utils/quicklink.ts`](../../src/utils/quicklink.ts). Never import `prefetch` from `"quicklink"` directly because the wrapper deduplicates requests via an in-memory `Set`.
+- **Idle Scheduling**: Import `requestIdle` and `cancelIdle` from [`src/utils/idleCallback.ts`](../../src/utils/idleCallback.ts). Never call `window.requestIdleCallback` or `window.cancelIdleCallback` directly.

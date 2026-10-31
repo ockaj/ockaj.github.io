@@ -52,9 +52,9 @@ Source: https://base-ui.com/llms.txt
 ## 5. Repository Implementation Standards
 
 - **Accordion**:
-  - Configure `<Accordion.Root multiple hiddenUntilFound>` for uncontrolled disclosure.
+  - Configure `<Accordion.Root multiple>` with `<Accordion.Panel keepMounted hiddenUntilFound>`.
   - Do not create React state or JavaScript animations for item expansion.
-  - Apply CSS height transitions with `h-[var(--accordion-panel-height)] transition-[height] data-ending-style:h-0 data-starting-style:h-0`.
+  - Apply CSS height transitions with `h-(--accordion-panel-height) overflow-hidden accordion-panel-transition duration-350 ease-expo-out data-ending-style:h-0 data-starting-style:h-0 motion-reduce:transition-none`.
   - Rotate trigger icons with CSS selectors: `group-data-panel-open:rotate-180`.
 - **Tooltips**:
   - Use CSS transitions (`data-starting-style`, `data-ending-style`).

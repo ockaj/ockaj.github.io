@@ -8,13 +8,13 @@ description: Central useResizeObserver hook usage. Use when measuring DOM elemen
 Components measuring element boundaries or offsets use the central `useResizeObserver` hook to avoid loop limit exceeded errors and optimize rendering.
 
 ## Rules
-- Use [`useResizeObserver`](../../src/hooks/useResizeObserver.ts) instead of native `ResizeObserver` instances.
+- Use [`useResizeObserver`](../../src/hooks/useResizeObserver.ts) or [`subscribeResizeObserver`](../../src/hooks/useResizeObserver.ts) instead of native `ResizeObserver` instances.
 - Do not introduce third-party element measurement libraries.
 
 ## Examples
-- Implementation in [`LiquidGlassDesktop.tsx`](../../src/components/LiquidGlass/LiquidGlassDesktop.tsx) and [`LiquidGlassTabs.tsx`](../../src/components/LiquidGlass/LiquidGlassTabs.tsx):
+- Implementation in [`useLiquidGlassPhysics.ts`](../../src/components/LiquidGlass/useLiquidGlassPhysics.ts) and [`LiquidGlassTabs.tsx`](../../src/components/LiquidGlass/LiquidGlassTabs.tsx):
   ```typescript
   useResizeObserver(element, (entry) => {
-    setWidth(entry.target.offsetWidth);
+    handleResize(entry);
   });
   ```

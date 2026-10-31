@@ -29,9 +29,9 @@ Include exact target file paths and line numbers.
 
 Refer to specialized documentation for deep task context:
 
-- [Product Vision & Requirements](./PRODUCT.md)
-- [Design System & UI Guidelines](./DESIGN.md)
-- Specialized rule files in [`.agents/rules/`](./.agents/rules/) (indexed automatically by agent harnesses)
+- [Product Vision & Requirements](./PRODUCT.md): Career narrative, target audience, positioning, and value proposition. Consult when modifying editorial copy, case studies, journal articles, or value statements.
+- [Design System & UI Guidelines](./DESIGN.md): Design tokens, visual hierarchy, typography, spatial scales, and color palettes. Consult when styling layout components, tuning contrast, or adjusting theme variables.
+- Specialized rule files in [`.agents/rules/`](./.agents/rules/): Technical architectural constraints and invariants (indexed automatically by agent harnesses).
 
 ---
 

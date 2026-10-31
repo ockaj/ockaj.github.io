@@ -17,10 +17,10 @@ Import named exports directly from `src/components/LiquidGlass/`.
 
 | Component | Path | Use Case | Physics & Motion |
 |---|---|---|---|
-| `InteractiveGlass` | `src/components/LiquidGlass/LiquidGlass` | Cards, landmark containers, clickable surfaces (`CaseStudyCard`, `JournalEntry`, `FaqItem`, `ProcessDesktopCard`, `Skills` badges) | Dynamic desktop physics (tilt, magnetic pull, specular glow, spring scale) and mobile gyro/touch handling. |
+| `InteractiveGlass` | `src/components/LiquidGlass/LiquidGlass` | Cards, landmark containers, clickable surfaces (`CaseStudyCard`, `JournalEntry`, `FaqItem`, `ProcessDesktopCard`, `Skills` badges) | Dynamic desktop physics (tilt, magnetic pull, clamped specular glow, resting 1.0x scale, hold expansion, and dual-stage physical recoil) and mobile touch handling. |
 | `StaticGlass` | `src/components/LiquidGlass/LiquidGlass` | Non-interactive containers, toolbars, controls, layout shells (`ProcessMobileControls`) | Zero physics overhead. Stripped of motion listeners and spring calculations for optimal performance. |
-| `LiquidGlassButton` | `src/components/LiquidGlass/LiquidGlass` | Tactile interactive buttons and anchor links | Pre-configured `InteractiveGlass` with `as={href ? "a" : "button"}`, `springScale={true}`, magnetic pull, and keyboard accessibility. |
-| `Tabs`, `Tab` | `src/components/LiquidGlass/LiquidGlassTabs` | Segmented controls, filter bars, view switchers | Sliding highlight pill with spring physics, 2 variants (`"capsule"` and `"segmented"`), and keyboard navigation. |
+| `LiquidGlassButton` | `src/components/LiquidGlass/LiquidGlass` | Tactile interactive buttons and anchor links | Pre-configured `InteractiveGlass` with `as={href ? "a" : "button"}`, resting 1.0x scale, hold-expansion physics, magnetic pull, and keyboard accessibility. |
+| `Tabs`, `Tab` | `src/components/LiquidGlass/LiquidGlassTabs` | Segmented controls, filter bars, view switchers | Sliding highlight pill with spring physics, 2 variants (`"capsule"` and `"segmented"`), and keyboard navigation. Segmented tabs use `rounded-concentric` via `tailwindcss-concentric`. |
 
 ### Anti-Patterns and Prohibitions
 
@@ -47,10 +47,10 @@ Import named exports directly from `src/components/LiquidGlass/`.
 3. **Props Allocation**:
    - Reserve physics props (`springScale`, `tilt`, `magnetic`, `ripple`) for `InteractiveGlass`.
    - On `InteractiveGlass`, use the `as` prop (`"div"`, `"button"`, `"a"`, `"article"`, `"section"`, `"span"`) to ensure semantic HTML.
-   - Use `roundedClass` (e.g. `rounded-2xl`, `rounded-full`, `rounded-xl`) to specify border curvature.
+   - Use `roundedClass` (e.g. `rounded-2xl`, `rounded-full`, `rounded-xl`, `rounded-concentric`) to specify border curvature.
 4. **Tabs Variants**:
    - Use `variant="capsule"` (default) for floating stadium pill navigation bars and modals (`rounded-full`).
-   - Use `variant="segmented"` for segmented controls and card selectors. Follow concentric geometry ($R_{inner} = R_{outer} - \text{padding}$, e.g. outer `rounded-xl` with `p-1.25` container padding and inner `rounded-lg`).
+   - Use `variant="segmented"` for segmented controls and card selectors. Follow concentric geometry using `rounded-concentric` powered by `tailwindcss-concentric` (`var(--concentric-r, 8px)`).
 5. **Border Geometry & Chromatic Dispersion**:
    - Use inset box shadows instead of external 1px border strokes across glass elements.
    - Glass surfaces employ dual-vertical (12 & 6 o'clock) specular rims: key light on top (`inset 0 1px ...`) and ground bounce reflection on bottom (`inset 0 -1px ...`).
@@ -58,8 +58,11 @@ Import named exports directly from `src/components/LiquidGlass/`.
      `inset 0 1.5px 2px -0.5px var(--color-dispersion-cyan)`
      `inset 0 -1.5px 2px -0.5px var(--color-dispersion-amber)`
    - Flat inactive tab highlights use inset borders (`box-shadow: inset 0 0 0 1px ...`) without CSS borders.
-6. **Non-Reconciling Specular Rim Sheen**:
+6. **Non-Reconciling Specular Rim Sheen & Hold Physics**:
    - Use `useTransform` with MotionValue inputs to interpolate reactive inset specular box shadows directly without React component re-renders or compiler bailouts.
    - Pointer tracking updates MotionValues directly without dispatching React component state on pointer move.
+   - Clamped sheen coordinates (`normX` and `normY` clamp to $\pm 0.65$ on hold/drag with $0.75\text{px}$ multiplier via `computeReactiveSheenBoxShadow`) prevent rim mask blowout.
+   - Resting scale remains 1.0x. Scale expansion triggers strictly on pointer hold or touch drag via `computeGlisseBaseScale` and `computeAnisotropicStretch`.
+   - Dual-stage physical springs (`glassPress`/`glassRelease` for mouse, `glassTouchPress`/`glassTouchRelease` for touch) deliver tactile physical feedback.
    - The specular highlight renders as a reactive inset bevel (`.liquid-glass-specular-bevel`) that shifts toward the cursor angle without any mask-composite exclude stencil cuts, rubber gaskets, or interior surface blobs.
    - Glass containers declare `isolation: isolate` (via Tailwind `isolate`) to bound visual blending to the element.

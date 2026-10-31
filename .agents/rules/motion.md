@@ -20,10 +20,10 @@ When creating, modifying, or auditing animations:
 ## 2. Core Animation Rules
 
 1. **Import Source**:
-   - Import animations exclusively from `motion/react` (v13+).
+   - Import animations exclusively from `motion/react` (v14+).
 
 2. **Hardware Acceleration**:
-   - Animate compositor-accelerated properties: `opacity` and independent transforms (`x`, `y`, `scale`, `scaleX`, `scaleY`, `rotate`). Motion 14.2+ runs independent transforms directly on the GPU compositor.
+   - Animate compositor-accelerated properties: `opacity` and independent transforms (`x`, `y`, `scale`, `scaleX`, `scaleY`, `rotate`). Motion runs independent transforms directly on the GPU compositor.
    - Never animate layout geometry properties like `height`, `width`, `top`, `left`, or `margin` directly.
    - Use `layout` or `layoutId` props for layout morphing.
 
@@ -42,8 +42,9 @@ When creating, modifying, or auditing animations:
 
 All UI spring animations and transitions reuse standardized configurations:
 
-- Reuse preset physics from the `SPRING` object in [`src/utils/springConfig.ts`](../../src/utils/springConfig.ts).
-- Use `SPRING.modal` and `SPRING.exit` for modal, drawer, and toast transitions.
+- Reuse preset physics from the `SPRING` object in [`src/utils/springConfig.ts`](../../src/utils/springConfig.ts): `highlight`, `drawer`, `modal`, `exit`, `hero`, `snappyMenu`, `glassScale`, `glassRipple`, `glassPress`, `glassRelease`, `glassTouchPress`, `glassTouchRelease`, `glassMouse`, `glassOpacity`, `nudge`, `stage`, and `stageExit`.
+- Maintain references in `src/` for all `SPRING` presets (enforced by exit gate invariant).
+- Reuse standardized easing curves from `EASE` (`EASE.out`, `EASE.exit`, `EASE.inOut`).
 - Reuse centralized animation variants from [`src/utils/motionVariants.ts`](../../src/utils/motionVariants.ts).
 - Center modals (`PdfViewerModal`, `BpmnOverlay`, `ProcessLightbox`) must reuse `modalVariants` with `y: 0` and `transformOrigin: "center center"`.
 - Drawer child containers using `drawerItemVariants` must pass `custom={prefersReducedMotion}`.
@@ -51,7 +52,7 @@ All UI spring animations and transitions reuse standardized configurations:
 
 ### Example
 ```typescript
-import { SPRING } from "../utils/springConfig";
+import { SPRING, EASE } from "../utils/springConfig";
 import {
   modalVariants,
   REDUCED_MOTION_TRANSITION,
