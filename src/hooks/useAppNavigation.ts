@@ -375,9 +375,7 @@ function useScrollSpy(isLoading: boolean) {
 
       if (LAST_SECTION && isViewportAtBottom()) {
         if (useAppStore.getState().activeSection !== LAST_SECTION) {
-          startTransition(() => {
-            useAppStore.getState().setActiveSection(LAST_SECTION);
-          });
+          useAppStore.getState().setActiveSection(LAST_SECTION);
         }
         pendingHashRef.current = `#${LAST_SECTION}`;
       }
@@ -427,9 +425,7 @@ function useScrollSpy(isLoading: boolean) {
             : intersectedId;
         if (targetId) {
           if (useAppStore.getState().activeSection !== targetId) {
-            startTransition(() => {
-              useAppStore.getState().setActiveSection(targetId);
-            });
+            useAppStore.getState().setActiveSection(targetId);
           }
 
           pendingHashRef.current = `#${targetId}`;

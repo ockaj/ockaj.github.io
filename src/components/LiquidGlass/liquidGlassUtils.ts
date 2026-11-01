@@ -10,11 +10,7 @@ import {
 import { motion, type MotionStyle } from "motion/react";
 import { cn } from "../../utils/cn";
 import { SPRING } from "../../utils/springConfig";
-import {
-  getInnerGlassStyle,
-  scaleDeltas,
-  hoverDelta,
-} from "./config";
+import { getInnerGlassStyle, scaleDeltas, hoverDelta } from "./config";
 import {
   type StaticGlassProps,
   type InteractiveGlassProps,
@@ -338,6 +334,34 @@ function computeTravelScales(
   return { targetScaleX: stretchX, targetScaleY: compressY };
 }
 
+function computeHoverScales(
+  isMobileNav: boolean,
+  dimensions: { width: number; height: number },
+) {
+  const delta = isMobileNav ? hoverDelta.mobile : hoverDelta.desktop;
+  return {
+    targetScaleX: 1 + (2 * delta) / dimensions.width,
+    targetScaleY: 1 + (2 * delta) / dimensions.height,
+  };
+}
+
+function computeHoverTravelScales(
+  hover: { targetScaleX: number; targetScaleY: number },
+  travel: { targetScaleX: number; targetScaleY: number },
+  orientation: TabOrientation,
+) {
+  if (orientation === "vertical") {
+    return {
+      targetScaleX: 1 + (hover.targetScaleX - 1) * 0.45 * travel.targetScaleX,
+      targetScaleY: hover.targetScaleY * travel.targetScaleY,
+    };
+  }
+  return {
+    targetScaleX: hover.targetScaleX * travel.targetScaleX,
+    targetScaleY: 1 + (hover.targetScaleY - 1) * 0.45 * travel.targetScaleY,
+  };
+}
+
 export function computeTargetScales(
   isPressed: boolean,
   isHoverActive: boolean,
@@ -365,15 +389,17 @@ export function computeTargetScales(
 
   // 2. Flight / Travel State (Mouse gliding across tabs OR page scrolling between sections)
   if (isTraveling && tabDistance > 0) {
-    return computeTravelScales(tabDistance, tabCount, orientation);
+    const travel = computeTravelScales(tabDistance, tabCount, orientation);
+    if (isHoverActive) {
+      const hover = computeHoverScales(isMobileNav, dimensions);
+      return computeHoverTravelScales(hover, travel, orientation);
+    }
+    return travel;
   }
 
   // 3. Resting Hover State: Old good formula (even pixel growth on all 4 sides)
   if (isHoverActive) {
-    const delta = isMobileNav ? hoverDelta.mobile : hoverDelta.desktop;
-    const hoverScaleX = 1 + (2 * delta) / dimensions.width;
-    const hoverScaleY = 1 + (2 * delta) / dimensions.height;
-    return { targetScaleX: hoverScaleX, targetScaleY: hoverScaleY };
+    return computeHoverScales(isMobileNav, dimensions);
   }
 
   // 4. Resting Idle State

@@ -182,6 +182,74 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
       expect(hoveredDesktop.targetScaleY).toBeCloseTo(1 + 5 / 36, 4);
     });
 
+    it("stretches immediately beyond hover width and streamlines height during hover-glide", () => {
+      const hoverScaleX = 1 + 5 / 120;
+      const hoverScaleY = 1 + 5 / 36;
+      const hoverGlide = computeTargetScales(
+        false, // isPressed
+        true, // isHoverActive
+        true, // isTraveling
+        "horizontal",
+        false, // isMobileNav
+        dimensions,
+        1, // tabDistance = 1
+        false,
+      );
+      expect(hoverGlide.targetScaleX).toBeCloseTo(hoverScaleX * 1.04, 4);
+      expect(hoverGlide.targetScaleY).toBeCloseTo(
+        1 + (hoverScaleY - 1) * 0.45 * 0.992,
+        4,
+      );
+    });
+
+    it("activates hover expansion baseline during scroll travel and blooms into hover scale upon arrival", () => {
+      const expectedHoverX = 1 + 5 / 120;
+      const expectedHoverY = 1 + 5 / 36;
+
+      // 1. In-flight on scroll (traveling with isHoverActive = true via scroll hover)
+      const inFlight = computeTargetScales(
+        false,
+        true, // isHoverActive (scroll hover activated)
+        true, // isTraveling
+        "horizontal",
+        false,
+        dimensions,
+        2, // 2-section hop
+        false,
+      );
+      // In-flight has hover scale composed with travel stretch
+      expect(inFlight.targetScaleX).toBeGreaterThan(expectedHoverX);
+      expect(inFlight.targetScaleY).toBeGreaterThan(1.0);
+
+      // 2. Arrival docking / dwell on destination tab (isTraveling = false, isHoverActive = true)
+      const arrivalBloom = computeTargetScales(
+        false,
+        true, // isHoverActive (dwell active)
+        false, // arrived at destination
+        "horizontal",
+        false,
+        dimensions,
+        0,
+        false,
+      );
+      // Destination tab holds the exact hover geometry
+      expect(arrivalBloom.targetScaleX).toBeCloseTo(expectedHoverX, 4);
+      expect(arrivalBloom.targetScaleY).toBeCloseTo(expectedHoverY, 4);
+
+      // 3. Settled stationary idle (isHoverActive = false, isTraveling = false)
+      const settled = computeTargetScales(
+        false,
+        false,
+        false,
+        "horizontal",
+        false,
+        dimensions,
+        0,
+        false,
+      );
+      expect(settled).toEqual({ targetScaleX: 1, targetScaleY: 1 });
+    });
+
     it("respects reduced motion preference by suppressing stretch entirely", () => {
       const reduced = computeTargetScales(
         false,
@@ -215,13 +283,11 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
     });
 
     it("handles absent or custom highlight class cleanly", () => {
-      expect(resolveContextHighlightClass(undefined, true)).toBe(
-        "",
-      );
+      expect(resolveContextHighlightClass(undefined, true)).toBe("");
       expect(resolveContextHighlightClass(undefined, false)).toBe("");
-      expect(
-        resolveContextHighlightClass("custom-accent", true),
-      ).toBe("custom-accent");
+      expect(resolveContextHighlightClass("custom-accent", true)).toBe(
+        "custom-accent",
+      );
     });
   });
 });
