@@ -105,6 +105,7 @@ function MobileMenu({
                 value={active}
                 onChange={onChange}
                 layoutId="active-mobile-nav-highlight"
+                orientation="vertical"
                 role={null}
                 highlightClassName="navbar-highlight-flat"
                 highlightStyle={HIGHLIGHT_STYLE}

@@ -10,13 +10,18 @@ import {
 import { motion, type MotionStyle } from "motion/react";
 import { cn } from "../../utils/cn";
 import { SPRING } from "../../utils/springConfig";
-import { getInnerGlassStyle } from "./config";
+import {
+  getInnerGlassStyle,
+  scaleDeltas,
+  hoverDelta,
+} from "./config";
 import {
   type StaticGlassProps,
   type InteractiveGlassProps,
   type LiquidGlassTagProps,
   type LiquidGlassAnimationProps,
   type LiquidGlassDomProps,
+  type TabOrientation,
 } from "./types";
 
 export const TAP_PRESS_TRANSITION = {
@@ -300,4 +305,91 @@ export function computeReactiveSheenBoxShadow(
   const iy = (-normY * mult).toFixed(2);
 
   return `inset ${ix}px ${iy}px 2px oklch(100% 0 0 / 0.18), inset ${ix}px ${iy}px 6px oklch(100% 0 0 / 0.08)`;
+}
+
+const NAVBAR_HIGHLIGHT_REGEX = /navbar-highlight-(?:active|flat)/g;
+
+function computeTravelScales(
+  tabDistance: number,
+  tabCount: number,
+  orientation: TabOrientation,
+) {
+  const isBinary = tabCount > 0 && tabCount <= 2;
+  const countMultiplier =
+    tabCount > 0 ? Math.min(1.0, Math.max(0.4, (tabCount - 1) / 3)) : 1.0;
+  const delta = Math.max(1, tabDistance);
+
+  if (orientation === "vertical") {
+    const maxY = isBinary ? 0.02 : 0.065;
+    const stretchY =
+      1 + Math.min(maxY, (0.02 + delta * 0.012) * countMultiplier);
+    const compressX = isBinary
+      ? 1.0
+      : 1 - Math.min(0.015, (0.005 + delta * 0.003) * countMultiplier);
+    return { targetScaleX: compressX, targetScaleY: stretchY };
+  }
+
+  const maxX = isBinary ? 0.02 : 0.08;
+  const stretchX =
+    1 + Math.min(maxX, (0.025 + delta * 0.015) * countMultiplier);
+  const compressY = isBinary
+    ? 1.0
+    : 1 - Math.min(0.015, (0.005 + delta * 0.003) * countMultiplier);
+  return { targetScaleX: stretchX, targetScaleY: compressY };
+}
+
+export function computeTargetScales(
+  isPressed: boolean,
+  isHoverActive: boolean,
+  isTraveling: boolean,
+  orientation: TabOrientation,
+  isMobileNav: boolean,
+  dimensions: { width: number; height: number },
+  tabDistance = 0,
+  prefersReducedMotion = false,
+  tabCount = 0,
+) {
+  if (prefersReducedMotion) {
+    return { targetScaleX: 1, targetScaleY: 1 };
+  }
+
+  // 1. Click / Press: Even pixel growth on all 4 sides without vertical compression (NO squish)
+  if (isPressed) {
+    const tapDelta = isMobileNav
+      ? scaleDeltas.tap.mobile
+      : scaleDeltas.tap.desktop;
+    const clickScaleX = 1 + (2 * tapDelta) / dimensions.width;
+    const clickScaleY = 1 + (2 * tapDelta) / dimensions.height;
+    return { targetScaleX: clickScaleX, targetScaleY: clickScaleY };
+  }
+
+  // 2. Flight / Travel State (Mouse gliding across tabs OR page scrolling between sections)
+  if (isTraveling && tabDistance > 0) {
+    return computeTravelScales(tabDistance, tabCount, orientation);
+  }
+
+  // 3. Resting Hover State: Old good formula (even pixel growth on all 4 sides)
+  if (isHoverActive) {
+    const delta = isMobileNav ? hoverDelta.mobile : hoverDelta.desktop;
+    const hoverScaleX = 1 + (2 * delta) / dimensions.width;
+    const hoverScaleY = 1 + (2 * delta) / dimensions.height;
+    return { targetScaleX: hoverScaleX, targetScaleY: hoverScaleY };
+  }
+
+  // 4. Resting Idle State
+  return { targetScaleX: 1, targetScaleY: 1 };
+}
+
+export function resolveContextHighlightClass(
+  contextHighlightClass: string | undefined,
+  isNavbarActive: boolean,
+): string {
+  if (!contextHighlightClass) return "";
+  if (contextHighlightClass.includes("navbar-highlight-")) {
+    return contextHighlightClass.replace(
+      NAVBAR_HIGHLIGHT_REGEX,
+      isNavbarActive ? "navbar-highlight-active" : "navbar-highlight-flat",
+    );
+  }
+  return contextHighlightClass;
 }

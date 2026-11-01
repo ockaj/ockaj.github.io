@@ -62,9 +62,9 @@ export const ripple = {
   initialOpacity: 0.06,
 } as const;
 
-// Scale deltas (absolute pixel growth)
+// Scale deltas (pixels per side on tap/press)
 export const scaleDeltas = {
-  tap: { mobile: 4, desktop: 8 },
+  tap: { mobile: 2.5, desktop: 4.5 },
 } as const;
 
 // Absolute hover growth (pixels per side)
@@ -73,7 +73,4 @@ export const hoverDelta = {
   desktop: 2.5,
 } as const;
 
-// Vertical scale factors
-export const scaleVertical = {
-  tap: { mobile: 0.98, desktop: 0.96 },
-} as const;
+

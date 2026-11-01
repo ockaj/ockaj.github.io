@@ -80,6 +80,7 @@ function ProcessDesktopControls() {
             value={activeTopicId}
             onChange={selectTopic}
             layoutId="active-process-highlight"
+            orientation="vertical"
             variant="segmented"
             roundedClass="rounded-2xl"
             highlightClassName="navbar-highlight-flat"

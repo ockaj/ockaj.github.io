@@ -126,9 +126,7 @@ export function navigateTo(target: string, options?: NavigateToOptions): void {
   const sectionId = resolveSection(target);
   if (!sectionId) return;
 
-  startTransition(() => {
-    useAppStore.getState().setActiveSection(sectionId);
-  });
+  useAppStore.getState().setActiveSection(sectionId);
 
   const isReduced = isReducedMotionPreferred();
   const scrollBehavior =

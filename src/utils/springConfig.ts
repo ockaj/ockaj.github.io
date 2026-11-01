@@ -13,9 +13,10 @@ export const SPRING = {
   /** Highlight pill sliding between nav/tab items */
   highlight: {
     type: "spring" as const,
-    stiffness: 380,
-    damping: 24,
-    mass: 0.6,
+    stiffness: 640,
+    damping: 42,
+    mass: 0.7,
+    restDelta: 0.001,
   },
   /** Drawers sliding in from edge (Smooth 350ms physical spring) */
   drawer: {

@@ -91,3 +91,5 @@ export interface LiquidGlassTagProps extends Omit<
   whileTap?: unknown;
   transition?: unknown;
 }
+
+export type TabOrientation = "horizontal" | "vertical";

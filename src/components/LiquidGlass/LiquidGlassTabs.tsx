@@ -30,10 +30,14 @@ import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
 import { useIsMobile, useIsTouchDevice } from "../../hooks/useMediaQuery";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
-import { getEntryDimensions } from "./liquidGlassUtils";
+import {
+  getEntryDimensions,
+  computeTargetScales,
+  resolveContextHighlightClass,
+} from "./liquidGlassUtils";
 import { cn } from "../../utils/cn";
-import { DEFAULT_STYLE } from "./types";
-import { scaleDeltas, scaleVertical, springs, hoverDelta } from "./config";
+import { DEFAULT_STYLE, type TabOrientation } from "./types";
+import { springs } from "./config";
 
 type TabVariant = "capsule" | "segmented";
 
@@ -44,6 +48,7 @@ interface LiquidGlassTabsProps<
   value: T;
   onChange?: (value: T) => void;
   layoutId: string;
+  orientation?: TabOrientation;
   hoverSlide?: boolean;
   ripple?: boolean;
   roundedClass?: string;
@@ -72,7 +77,9 @@ type TabValue = string | number;
 interface ActiveStore {
   get: () => TabValue;
   isTransitioning: () => boolean;
-  set: (val: TabValue) => void;
+  getDistance: () => number;
+  set: (val: TabValue, distance?: number) => void;
+  endTransition: () => void;
   subscribe: (listener: () => void) => () => void;
   destroy: () => void;
 }
@@ -105,20 +112,35 @@ function createSubscribableStore<T>(initialValue: T) {
 function createActiveStore(initialValue: TabValue): ActiveStore {
   const store = createSubscribableStore(initialValue);
   let isTransitioningVal = false;
+  let distanceVal = 0;
   let transitionTimer: ReturnType<typeof setTimeout> | null = null;
 
   return {
     get: store.get,
     isTransitioning: () => isTransitioningVal,
-    set: (val: TabValue) => {
+    getDistance: () => distanceVal,
+    set: (val: TabValue, distance = 0) => {
       if (store.get() === val) return;
+      distanceVal = distance;
+      if (distance > 0) {
+        isTransitioningVal = true;
+        if (transitionTimer) clearTimeout(transitionTimer);
+        transitionTimer = setTimeout(() => {
+          isTransitioningVal = false;
+          store.notify();
+        }, 300);
+      } else {
+        if (transitionTimer) clearTimeout(transitionTimer);
+        isTransitioningVal = false;
+      }
       store.set(val);
-      isTransitioningVal = true;
-      if (transitionTimer) clearTimeout(transitionTimer);
-      transitionTimer = setTimeout(() => {
+    },
+    endTransition: () => {
+      if (isTransitioningVal) {
+        if (transitionTimer) clearTimeout(transitionTimer);
         isTransitioningVal = false;
         store.notify();
-      }, 300);
+      }
     },
     subscribe: store.subscribe,
     destroy: () => {
@@ -130,7 +152,9 @@ function createActiveStore(initialValue: TabValue): ActiveStore {
 
 interface HoverStore {
   get: () => TabValue | null;
-  set: (val: TabValue | null) => void;
+  getDistance: () => number;
+  isMoving: () => boolean;
+  set: (val: TabValue | null, distance?: number) => void;
   subscribe: (listener: () => void) => () => void;
   destroy: () => void;
 }
@@ -142,9 +166,13 @@ interface TabsContextValue {
   };
   actions: {
     onChange?: (value: TabValue) => void;
+    registerTab: (val: TabValue) => () => void;
+    getTabDistance: (from: TabValue | null, to: TabValue | null) => number;
+    getTabCount: () => number;
   };
   config: {
     layoutId: string;
+    orientation: TabOrientation;
     variant: TabVariant;
     hoverSlide: boolean;
     ripple: boolean;
@@ -167,41 +195,95 @@ function useTabsContext() {
 }
 
 function createHoverStore(): HoverStore {
-  return createSubscribableStore<TabValue | null>(null);
+  const store = createSubscribableStore<TabValue | null>(null);
+  let distanceVal = 0;
+  let isMovingVal = false;
+  let moveTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const clearMovingState = () => {
+    if (moveTimer) clearTimeout(moveTimer);
+    moveTimer = null;
+    isMovingVal = false;
+  };
+
+  const scheduleMovingState = () => {
+    isMovingVal = true;
+    if (moveTimer) clearTimeout(moveTimer);
+    moveTimer = setTimeout(() => {
+      isMovingVal = false;
+      store.notify();
+    }, 240);
+  };
+
+  const handleNullValue = () => {
+    clearMovingState();
+    distanceVal = 0;
+    store.set(null);
+  };
+
+  const handleSameValue = (distance: number) => {
+    if (distance === 0 && isMovingVal) {
+      clearMovingState();
+      distanceVal = 0;
+      store.notify();
+    }
+  };
+
+  return {
+    get: store.get,
+    getDistance: () => distanceVal,
+    isMoving: () => isMovingVal,
+    set: (val: TabValue | null, distance = 0) => {
+      if (val === null) {
+        handleNullValue();
+        return;
+      }
+      if (store.get() === val) {
+        handleSameValue(distance);
+        return;
+      }
+      distanceVal = distance;
+      if (distance > 0) {
+        scheduleMovingState();
+      } else {
+        clearMovingState();
+      }
+      store.set(val);
+    },
+    subscribe: store.subscribe,
+    destroy: () => {
+      clearMovingState();
+      store.destroy();
+    },
+  };
 }
 
 function getDefaultTabRadius(variant: TabVariant): string {
   return variant === "segmented" ? "rounded-concentric" : "rounded-full";
 }
 
+const RADIUS_BY_CLASS = [
+  ["rounded-concentric", "var(--concentric-r, 8px)"],
+  ["rounded-xl", "12px"],
+  ["rounded-lg", "8px"],
+  ["rounded-md", "6px"],
+  ["rounded-sm", "4px"],
+] as const;
+
 function resolveBaseRadius(
   variant: TabVariant,
   roundedClass: string,
   height: number,
 ): string {
-  if (variant === "capsule") {
-    return "9999px";
-  }
-  if (roundedClass.includes("rounded-concentric")) {
-    return "var(--concentric-r, 8px)";
-  }
+  if (variant === "capsule") return "9999px";
   if (roundedClass.includes("rounded-2xl")) {
     return `${Math.min(height / 2, 16)}px`;
   }
   if (roundedClass.includes("rounded-3xl")) {
     return `${Math.min(height / 2, 24)}px`;
   }
-  if (roundedClass.includes("rounded-xl")) {
-    return "12px";
-  }
-  if (roundedClass.includes("rounded-lg")) {
-    return "8px";
-  }
-  if (roundedClass.includes("rounded-md")) {
-    return "6px";
-  }
-  if (roundedClass.includes("rounded-sm")) {
-    return "4px";
+  for (const [cls, radius] of RADIUS_BY_CLASS) {
+    if (roundedClass.includes(cls)) return radius;
   }
   return "8px";
 }
@@ -227,6 +309,7 @@ function TabsInner<T extends TabValue>({
   value,
   onChange,
   layoutId,
+  orientation = "horizontal",
   children,
   hoverSlide = true,
   ripple = true,
@@ -242,10 +325,63 @@ function TabsInner<T extends TabValue>({
 }: Readonly<LiquidGlassTabsProps<T>>) {
   const [hoverStore] = useState(createHoverStore);
   const [activeStore] = useState(() => createActiveStore(value));
+  const tabOrderRef = useRef<TabValue[]>([]);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const registerTab = useCallback((val: TabValue) => {
+    if (!tabOrderRef.current.includes(val)) {
+      tabOrderRef.current.push(val);
+    }
+    return () => {
+      const idx = tabOrderRef.current.indexOf(val);
+      if (idx !== -1) {
+        tabOrderRef.current.splice(idx, 1);
+      }
+    };
+  }, []);
+
+  const getTabDistance = useCallback(
+    (from: TabValue | null, to: TabValue | null) => {
+      if (from === null || to === null || from === to) return 0;
+      let fromIdx = -1;
+      let toIdx = -1;
+      if (containerRef.current) {
+        const tabNodes =
+          containerRef.current.querySelectorAll<HTMLElement>("[data-tab-value]");
+        if (tabNodes.length > 0) {
+          const domValues = Array.from(tabNodes).map(
+            (node) => node.dataset.tabValue,
+          );
+          fromIdx = domValues.indexOf(String(from));
+          toIdx = domValues.indexOf(String(to));
+        }
+      }
+      if (fromIdx === -1 || toIdx === -1) {
+        fromIdx = tabOrderRef.current.indexOf(from);
+        toIdx = tabOrderRef.current.indexOf(to);
+      }
+      return fromIdx !== -1 && toIdx !== -1 ? Math.abs(toIdx - fromIdx) : 1;
+    },
+    [],
+  );
+
+  const getTabCount = useCallback(() => {
+    if (containerRef.current) {
+      const nodes =
+        containerRef.current.querySelectorAll<HTMLElement>("[data-tab-value]");
+      if (nodes.length > 0) return nodes.length;
+    }
+    return tabOrderRef.current.length;
+  }, []);
 
   useLayoutEffect(() => {
-    activeStore.set(value);
-  }, [value, activeStore]);
+    const prevVal = activeStore.get();
+    if (prevVal !== value) {
+      const wasAlreadyHovered = hoverStore.get() === value;
+      const distance = wasAlreadyHovered ? 0 : getTabDistance(prevVal, value);
+      activeStore.set(value, distance);
+    }
+  }, [value, activeStore, hoverStore, getTabDistance]);
 
   useEffect(() => {
     return () => {
@@ -264,9 +400,13 @@ function TabsInner<T extends TabValue>({
       },
       actions: {
         onChange: onChange as ((val: TabValue) => void) | undefined,
+        registerTab,
+        getTabDistance,
+        getTabCount,
       },
       config: {
         layoutId,
+        orientation,
         variant,
         hoverSlide,
         ripple,
@@ -281,7 +421,11 @@ function TabsInner<T extends TabValue>({
       activeStore,
       hoverStore,
       onChange,
+      registerTab,
+      getTabDistance,
+      getTabCount,
       layoutId,
+      orientation,
       variant,
       hoverSlide,
       ripple,
@@ -297,7 +441,9 @@ function TabsInner<T extends TabValue>({
     <TabsContext value={contextValue}>
       <LayoutGroup id={layoutId} inherit={false}>
         <div
+          ref={containerRef}
           role={role ?? undefined}
+          aria-orientation={role === "tablist" ? orientation : undefined}
           tabIndex={role === "tablist" ? -1 : undefined}
           className={cn("flex", className)}
           style={style}
@@ -353,37 +499,6 @@ const handleTabKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
   nextTab.click();
 };
 
-function computeTargetScales(
-  isPressed: boolean,
-  isNavbarActive: boolean,
-  isMobileNav: boolean,
-  dimensions: { width: number; height: number },
-) {
-  const tapDeltaX = isMobileNav
-    ? scaleDeltas.tap.mobile
-    : scaleDeltas.tap.desktop;
-
-  const delta = isMobileNav ? hoverDelta.mobile : hoverDelta.desktop;
-  const pillWidth = dimensions.width;
-  const pillHeight = dimensions.height;
-
-  const hoverScaleX = 1 + (2 * delta) / pillWidth;
-  const hoverScaleY = 1 + (2 * delta) / pillHeight;
-
-  const tapScaleX = 1 + tapDeltaX / dimensions.width;
-  const tapScaleY = isMobileNav
-    ? scaleVertical.tap.mobile
-    : scaleVertical.tap.desktop;
-
-  if (isPressed) {
-    return { targetScaleX: tapScaleX, targetScaleY: tapScaleY };
-  }
-  if (isNavbarActive) {
-    return { targetScaleX: hoverScaleX, targetScaleY: hoverScaleY };
-  }
-  return { targetScaleX: 1, targetScaleY: 1 };
-}
-
 function computeTabAriaProps(
   restAriaSelected: boolean | undefined,
   restAriaControls: string | undefined,
@@ -433,7 +548,6 @@ function resolveTabRole(
 }
 
 const HIGHLIGHT_TRANSITION = { layout: SPRING.highlight } as const;
-const NAVBAR_HIGHLIGHT_REGEX = /navbar-highlight-(?:active|flat)/;
 const GET_FALSE = () => false;
 
 function useTabActive(activeStore: ActiveStore, value: TabValue) {
@@ -463,10 +577,7 @@ function useTabActive(activeStore: ActiveStore, value: TabValue) {
 }
 
 function useTabHover(
-  hoverStore: {
-    get: () => TabValue | null;
-    subscribe: (listener: () => void) => () => void;
-  },
+  hoverStore: HoverStore,
   value: TabValue,
   isActive: boolean,
   hoverSlide: boolean,
@@ -489,21 +600,18 @@ function useTabHover(
     }, [hoverStore, hoverSlide, isActive, isTouchDevice, value]),
     useCallback(() => isActive, [isActive]),
   );
-  return { isHovered, showHighlight };
-}
-
-function resolveContextHighlightClass(
-  contextHighlightClass: string | undefined,
-  isNavbarActive: boolean,
-): string {
-  if (!contextHighlightClass) return "";
-  if (contextHighlightClass.includes("navbar-highlight-")) {
-    return contextHighlightClass.replace(
-      NAVBAR_HIGHLIGHT_REGEX,
-      isNavbarActive ? "navbar-highlight-active" : "navbar-highlight-flat",
-    );
-  }
-  return contextHighlightClass;
+  const isHoverMoving = useSyncExternalStore(
+    hoverStore.subscribe,
+    useCallback(
+      () =>
+        !isTouchDevice &&
+        hoverStore.get() === value &&
+        hoverStore.isMoving(),
+      [hoverStore, isTouchDevice, value],
+    ),
+    GET_FALSE,
+  );
+  return { isHovered, showHighlight, isHoverMoving };
 }
 
 function useTabDimensions(
@@ -571,7 +679,7 @@ function useTabPress(
     (e: PointerEvent<HTMLButtonElement>) => {
       if (disabled) return;
       if (hoverSlide && !isTouchDevice && e.pointerType !== "touch") {
-        hoverStore.set(value);
+        hoverStore.set(value, 0);
       }
       onPointerDown(e);
       setWillChange(true);
@@ -624,7 +732,8 @@ interface TabHighlightProps {
   scaleAnimationTarget: { "--scale-x": number; "--scale-y": number };
   innerHighlightClass: string;
   willChange: boolean;
-  onAnimationComplete: () => void;
+  prefersReducedMotion?: boolean | null;
+  onScaleAnimationComplete?: () => void;
   ripple: boolean;
   rippleX: MotionValue<number>;
   rippleY: MotionValue<number>;
@@ -641,7 +750,8 @@ const TabHighlight = memo(function TabHighlight({
   scaleAnimationTarget,
   innerHighlightClass,
   willChange,
-  onAnimationComplete,
+  prefersReducedMotion,
+  onScaleAnimationComplete,
   ripple,
   rippleX,
   rippleY,
@@ -659,8 +769,8 @@ const TabHighlight = memo(function TabHighlight({
     >
       <motion.span
         animate={scaleAnimationTarget}
-        transition={springs.scale}
-        onAnimationComplete={onAnimationComplete}
+        transition={prefersReducedMotion ? { duration: 0 } : springs.scale}
+        onAnimationComplete={onScaleAnimationComplete}
         className={innerHighlightClass}
         style={{
           transform: "scale(var(--scale-x), var(--scale-y))",
@@ -701,9 +811,10 @@ function TabComponent({
 }: Readonly<LiquidGlassTabProps>) {
   const { state, actions, config } = useTabsContext();
   const { activeStore, hoverStore } = state;
-  const { onChange } = actions;
+  const { onChange, registerTab, getTabDistance, getTabCount } = actions;
   const {
     layoutId,
+    orientation,
     variant,
     hoverSlide,
     ripple,
@@ -714,6 +825,10 @@ function TabComponent({
     role: parentRole,
   } = config;
 
+  useEffect(() => {
+    return registerTab(value);
+  }, [registerTab, value]);
+
   const effectiveRoundedClass = tabRoundedClass ?? contextRoundedClass;
 
   const prefersReducedMotion = useReducedMotion();
@@ -723,7 +838,7 @@ function TabComponent({
   const isMobile = useIsMobile();
   const isTouchDevice = useIsTouchDevice();
   const { isActive, isTransitioning } = useTabActive(activeStore, value);
-  const { isHovered, showHighlight } = useTabHover(
+  const { isHovered, showHighlight, isHoverMoving } = useTabHover(
     hoverStore,
     value,
     isActive,
@@ -763,33 +878,58 @@ function TabComponent({
   const tabRole = resolveTabRole(rest.role, parentRole);
   const isTabRole = tabRole === "tab";
 
-  const isNavbarActive =
-    isHovered ||
-    isTransitioning ||
-    !!contextHighlightClass?.includes("navbar-highlight-active");
+  const isHoverActive =
+    isHovered || !!contextHighlightClass?.includes("navbar-highlight-active");
+
+  let effectiveDistance = 0;
+  if (isHoverMoving) {
+    effectiveDistance = hoverStore.getDistance();
+  } else if (isTransitioning) {
+    effectiveDistance = activeStore.getDistance();
+  }
+
+  const isTraveling =
+    (isHoverMoving || isTransitioning) && effectiveDistance > 0;
 
   const { targetScaleX, targetScaleY } = computeTargetScales(
     isPressed,
-    isNavbarActive,
+    isHoverActive,
+    isTraveling,
+    orientation,
     !!isMobileNav,
     dimensions,
+    effectiveDistance,
+    prefersReducedMotion ?? false,
+    getTabCount(),
   );
 
   const handleMouseEnter = useCallback(() => {
     if (disabled || !hoverSlide || isTouchDevice) return;
-    hoverStore.set(value);
-  }, [disabled, hoverSlide, isTouchDevice, value, hoverStore]);
+    const currentHover = hoverStore.get();
+    const currentAnchor = currentHover ?? activeStore.get();
+    const distance = getTabDistance(currentAnchor, value);
+    hoverStore.set(value, distance);
+  }, [
+    disabled,
+    hoverSlide,
+    isTouchDevice,
+    hoverStore,
+    activeStore,
+    getTabDistance,
+    value,
+  ]);
 
   const selectOption = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       if (disabled) return;
+      hoverStore.set(value, 0);
       if (onChange) onChange(value);
       if (onClick) onClick(e);
     },
-    [disabled, onChange, onClick, value],
+    [disabled, hoverStore, onChange, onClick, value],
   );
 
-  const handleAnimationComplete = useCallback(() => {
+  const handleScaleAnimationComplete = useCallback(() => {
     setWillChange(false);
   }, [setWillChange]);
 
@@ -812,6 +952,11 @@ function TabComponent({
     contextHighlightStyle,
     highlightStyle,
   );
+
+  const isNavbarActive =
+    isHoverActive ||
+    isTransitioning ||
+    !!contextHighlightClass?.includes("navbar-highlight-active");
 
   const resolvedContextHighlightClass = resolveContextHighlightClass(
     contextHighlightClass,
@@ -843,6 +988,7 @@ function TabComponent({
     <motion.button
       ref={buttonRef}
       type="button"
+      data-tab-value={String(value)}
       disabled={disabled}
       onClick={selectOption}
       onPointerDown={handlePointerDown}
@@ -873,7 +1019,8 @@ function TabComponent({
           scaleAnimationTarget={scaleAnimationTarget}
           innerHighlightClass={innerHighlightClass}
           willChange={willChange}
-          onAnimationComplete={handleAnimationComplete}
+          prefersReducedMotion={prefersReducedMotion}
+          onScaleAnimationComplete={handleScaleAnimationComplete}
           ripple={ripple}
           rippleX={rippleX}
           rippleY={rippleY}
