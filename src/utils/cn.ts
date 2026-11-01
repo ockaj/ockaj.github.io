@@ -1,8 +1,5 @@
 import { type ClassValue, clsx } from "clsx";
-import { extendTailwindMerge } from "tailwind-merge";
-import { withConcentric } from "tailwindcss-concentric/merge";
-
-const twMerge = extendTailwindMerge(withConcentric);
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

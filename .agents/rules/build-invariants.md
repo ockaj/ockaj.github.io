@@ -10,7 +10,7 @@ This document defines build-time invariants and configuration patterns.
 ## 1. Tailwind CSS v4 Configuration
 - Theme tokens reside in the `@theme` directive in [`src/index.css`](../../src/index.css).
 - Tailwind CSS v4 does not use `tailwind.config.js` or `postcss.config.js`.
-- Nested corner radius: `tailwindcss-concentric` is imported in [`src/index.css`](../../src/index.css) (`@import "tailwindcss-concentric";`) and merged in [`src/utils/cn.ts`](../../src/utils/cn.ts) via `extendTailwindMerge(withConcentric)`. Use `rounded-concentric` on nested children instead of manual calculations.
+- Nested corner radius: Follow concentric corner geometry manually ($R_{\text{inner}} = R_{\text{outer}} - \text{padding}$, e.g. outer `rounded-xl` with `p-1.25` padding and inner `rounded-lg`).
 - Use theme tokens or native Tailwind scales instead of arbitrary values.
 - Prettier with `prettier-plugin-tailwindcss` sorts class names automatically.
 

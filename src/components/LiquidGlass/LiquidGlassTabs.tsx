@@ -259,11 +259,10 @@ function createHoverStore(): HoverStore {
 }
 
 function getDefaultTabRadius(variant: TabVariant): string {
-  return variant === "segmented" ? "rounded-concentric" : "rounded-full";
+  return variant === "segmented" ? "rounded-lg" : "rounded-full";
 }
 
 const RADIUS_BY_CLASS = [
-  ["rounded-concentric", "var(--concentric-r, 8px)"],
   ["rounded-xl", "12px"],
   ["rounded-lg", "8px"],
   ["rounded-md", "6px"],
@@ -275,7 +274,9 @@ function resolveBaseRadius(
   roundedClass: string,
   height: number,
 ): string {
-  if (variant === "capsule") return "9999px";
+  if (variant === "capsule" || roundedClass.includes("rounded-full")) {
+    return "9999px";
+  }
   if (roundedClass.includes("rounded-2xl")) {
     return `${Math.min(height / 2, 16)}px`;
   }
@@ -299,6 +300,7 @@ function computeOuterHighlightStyle(
   const baseRadius = resolveBaseRadius(variant, roundedClass, height);
   return {
     "--base-radius": baseRadius,
+    "--pill-h": `${height}px`,
     ...contextHighlightStyle,
     ...highlightStyle,
     willChange: willChange ? "transform" : "auto",
@@ -347,7 +349,9 @@ function TabsInner<T extends TabValue>({
       let toIdx = -1;
       if (containerRef.current) {
         const tabNodes =
-          containerRef.current.querySelectorAll<HTMLElement>("[data-tab-value]");
+          containerRef.current.querySelectorAll<HTMLElement>(
+            "[data-tab-value]",
+          );
         if (tabNodes.length > 0) {
           const domValues = Array.from(tabNodes).map(
             (node) => node.dataset.tabValue,
@@ -604,9 +608,7 @@ function useTabHover(
     hoverStore.subscribe,
     useCallback(
       () =>
-        !isTouchDevice &&
-        hoverStore.get() === value &&
-        hoverStore.isMoving(),
+        !isTouchDevice && hoverStore.get() === value && hoverStore.isMoving(),
       [hoverStore, isTouchDevice, value],
     ),
     GET_FALSE,
@@ -742,6 +744,11 @@ interface TabHighlightProps {
   variant: TabVariant;
 }
 
+const SEGMENTED_HIGHLIGHT_RADIUS =
+  "calc((var(--base-radius) + max(0px, var(--pill-h, 36px) * (var(--scale-y) - 1) / 2)) / var(--scale-x)) / calc((var(--base-radius) + max(0px, var(--pill-h, 36px) * (var(--scale-y) - 1) / 2)) / var(--scale-y))";
+const CAPSULE_HIGHLIGHT_RADIUS =
+  "calc((var(--base-radius) * var(--scale-y)) / var(--scale-x)) / var(--base-radius)";
+
 const TabHighlight = memo(function TabHighlight({
   layoutId,
   layoutTransition,
@@ -776,8 +783,8 @@ const TabHighlight = memo(function TabHighlight({
           transform: "scale(var(--scale-x), var(--scale-y))",
           borderRadius:
             variant === "segmented"
-              ? undefined
-              : "calc((var(--base-radius) * var(--scale-y)) / var(--scale-x)) / var(--base-radius)",
+              ? SEGMENTED_HIGHLIGHT_RADIUS
+              : CAPSULE_HIGHLIGHT_RADIUS,
           transformOrigin: "center center",
           willChange: willChange ? "transform" : "auto",
         }}
