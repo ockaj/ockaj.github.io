@@ -77,12 +77,14 @@ interface LiquidGlassTabProps extends Omit<
 type TabValue = string | number;
 
 const TRAVEL_IMPULSE_MS = 140;
+const FLIGHT_SETTLE_MS = 280;
 
 interface MotionTabStore<T> {
   get: () => T;
   getDistance: () => number;
   isMoving: () => boolean;
   set: (val: T, distance?: number) => void;
+  completeFlight: () => void;
   subscribe: (listener: () => void) => () => void;
   destroy: () => void;
 }
@@ -115,7 +117,10 @@ function createSubscribableStore<T>(initialValue: T) {
   };
 }
 
-function createMotionTabStore<T>(initialValue: T): MotionTabStore<T> {
+function createMotionTabStore<T>(
+  initialValue: T,
+  impulseMs = TRAVEL_IMPULSE_MS,
+): MotionTabStore<T> {
   const store = createSubscribableStore(initialValue);
   let distanceVal = 0;
   let isMovingVal = false;
@@ -156,11 +161,17 @@ function createMotionTabStore<T>(initialValue: T): MotionTabStore<T> {
           moveTimer = null;
           isMovingVal = false;
           store.notify();
-        }, TRAVEL_IMPULSE_MS);
+        }, impulseMs);
       } else {
         clearMovingState();
       }
       store.set(val);
+    },
+    completeFlight: () => {
+      if (!isMovingVal) return;
+      clearMovingState();
+      distanceVal = 0;
+      store.notify();
     },
     subscribe: store.subscribe,
     destroy: () => {
@@ -174,9 +185,6 @@ interface TabsContextValue {
   state: {
     activeStore: ActiveStore;
     hoverStore: HoverStore;
-    scrollHoverStore: ReturnType<
-      typeof createSubscribableStore<TabValue | null>
-    >;
     scaleX: MotionValue<number>;
     scaleY: MotionValue<number>;
   };
@@ -282,12 +290,8 @@ function TabsInner<T extends TabValue>({
   ...rest
 }: Readonly<LiquidGlassTabsProps<T>>) {
   const [hoverStore] = useState(createHoverStore);
-  const [scrollHoverStore] = useState(() =>
-    createSubscribableStore<TabValue | null>(null),
-  );
-  const [activeStore] = useState(() => createMotionTabStore<TabValue>(value));
-  const scrollHoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
+  const [activeStore] = useState(() =>
+    createMotionTabStore<TabValue>(value, FLIGHT_SETTLE_MS),
   );
   const scaleX = useMotionValue(1);
   const scaleY = useMotionValue(1);
@@ -323,39 +327,17 @@ function TabsInner<T extends TabValue>({
       const wasAlreadyHovered = hoverStore.get() === value;
       const distance = wasAlreadyHovered ? 0 : getTabDistance(prevVal, value);
       activeStore.set(value, distance);
-
-      if (!wasAlreadyHovered && distance > 0) {
-        if (scrollHoverTimerRef.current) {
-          clearTimeout(scrollHoverTimerRef.current);
-        }
-        scrollHoverStore.set(value);
-        scrollHoverTimerRef.current = setTimeout(() => {
-          scrollHoverStore.set(null);
-          scrollHoverTimerRef.current = null;
-        }, 340);
-      } else {
-        if (scrollHoverTimerRef.current) {
-          clearTimeout(scrollHoverTimerRef.current);
-          scrollHoverTimerRef.current = null;
-        }
-        scrollHoverStore.set(null);
-      }
     }
-  }, [value, activeStore, hoverStore, scrollHoverStore, getTabDistance]);
+  }, [value, activeStore, hoverStore, getTabDistance]);
 
   useEffect(() => {
     return () => {
       activeStore.destroy();
       hoverStore.destroy();
-      scrollHoverStore.destroy();
-      if (scrollHoverTimerRef.current) {
-        clearTimeout(scrollHoverTimerRef.current);
-        scrollHoverTimerRef.current = null;
-      }
       scaleX.stop();
       scaleY.stop();
     };
-  }, [activeStore, hoverStore, scrollHoverStore, scaleX, scaleY]);
+  }, [activeStore, hoverStore, scaleX, scaleY]);
 
   const effectiveRoundedClass = roundedClass ?? getDefaultTabRadius(variant);
 
@@ -364,7 +346,6 @@ function TabsInner<T extends TabValue>({
       state: {
         activeStore,
         hoverStore,
-        scrollHoverStore,
         scaleX,
         scaleY,
       },
@@ -390,7 +371,6 @@ function TabsInner<T extends TabValue>({
     [
       activeStore,
       hoverStore,
-      scrollHoverStore,
       scaleX,
       scaleY,
       onChange,
@@ -422,11 +402,6 @@ function TabsInner<T extends TabValue>({
           {...rest}
           onMouseLeave={(e) => {
             hoverStore.set(null);
-            if (scrollHoverTimerRef.current) {
-              clearTimeout(scrollHoverTimerRef.current);
-              scrollHoverTimerRef.current = null;
-            }
-            scrollHoverStore.set(null);
             if (rest.onMouseLeave) {
               rest.onMouseLeave(e);
             }
@@ -595,21 +570,6 @@ function useTabDimensions(buttonRef: RefObject<HTMLButtonElement | null>) {
   return dimensions;
 }
 
-function useTabWillChange(isActive: boolean) {
-  const [willChange, setWillChange] = useState(false);
-
-  useEffect(() => {
-    if (isActive) {
-      const handle = requestAnimationFrame(() => {
-        setWillChange(true);
-      });
-      return () => cancelAnimationFrame(handle);
-    }
-  }, [isActive]);
-
-  return [willChange, setWillChange] as const;
-}
-
 function useTabLayoutTransition(
   prefersReducedMotion: boolean | null,
   highlightTransition?: Transition,
@@ -631,7 +591,6 @@ function useTabPress(
   value: TabValue,
   hoverStore: HoverStore,
   onPointerDown: (e: PointerEvent<HTMLButtonElement>) => void,
-  setWillChange: (val: boolean) => void,
   isTouchDevice: boolean,
 ) {
   const [isPressed, setIsPressed] = useState(false);
@@ -643,18 +602,9 @@ function useTabPress(
         hoverStore.set(value, 0);
       }
       onPointerDown(e);
-      setWillChange(true);
       setIsPressed(true);
     },
-    [
-      disabled,
-      hoverSlide,
-      isTouchDevice,
-      value,
-      hoverStore,
-      onPointerDown,
-      setWillChange,
-    ],
+    [disabled, hoverSlide, isTouchDevice, value, hoverStore, onPointerDown],
   );
 
   const handlePointerUp = useCallback(
@@ -700,6 +650,7 @@ interface TabHighlightProps {
   rippleScale: MotionValue<number>;
   rippleOpacity: MotionValue<number>;
   variant: TabVariant;
+  onLayoutAnimationComplete: () => void;
 }
 
 const SEGMENTED_HIGHLIGHT_RADIUS =
@@ -725,7 +676,6 @@ function useTabScaleAnimation(
   scaleY: MotionValue<number>,
   targetScaleX: number,
   targetScaleY: number,
-  setWillChange: (val: boolean) => void,
 ) {
   useLayoutEffect(() => {
     if (!showHighlight) return;
@@ -734,10 +684,7 @@ function useTabScaleAnimation(
       scaleY.jump(targetScaleY);
       return;
     }
-    animate(scaleX, targetScaleX, {
-      ...springs.scale,
-      onComplete: () => setWillChange(false),
-    });
+    animate(scaleX, targetScaleX, springs.scale);
     animate(scaleY, targetScaleY, springs.scale);
   }, [
     showHighlight,
@@ -746,7 +693,6 @@ function useTabScaleAnimation(
     scaleY,
     targetScaleX,
     targetScaleY,
-    setWillChange,
   ]);
 }
 
@@ -765,6 +711,7 @@ const TabHighlight = memo(function TabHighlight({
   rippleScale,
   rippleOpacity,
   variant,
+  onLayoutAnimationComplete,
 }: Readonly<TabHighlightProps>) {
   return (
     <motion.span
@@ -773,6 +720,7 @@ const TabHighlight = memo(function TabHighlight({
       className={outerHighlightClass}
       style={outerHighlightStyle}
       transition={layoutTransition}
+      onLayoutAnimationComplete={onLayoutAnimationComplete}
     >
       <motion.span
         className={innerHighlightClass}
@@ -818,7 +766,7 @@ function TabComponent({
   ...rest
 }: Readonly<LiquidGlassTabProps>) {
   const { state, actions, config } = useTabsContext();
-  const { activeStore, hoverStore, scrollHoverStore, scaleX, scaleY } = state;
+  const { activeStore, hoverStore, scaleX, scaleY } = state;
   const { onChange, registerTab, getTabDistance, getTabCount } = actions;
   const {
     layoutId,
@@ -854,16 +802,6 @@ function TabComponent({
     isTouchDevice,
   );
 
-  const isScrollHover = useSyncExternalStore(
-    scrollHoverStore.subscribe,
-    useCallback(
-      () => scrollHoverStore.get() === value,
-      [scrollHoverStore, value],
-    ),
-    useCallback(() => false, []),
-  );
-
-  const [willChange, setWillChange] = useTabWillChange(isActive);
   const layoutTransition = useTabLayoutTransition(
     prefersReducedMotion,
     highlightTransition,
@@ -884,7 +822,6 @@ function TabComponent({
     value,
     hoverStore,
     onPointerDown,
-    setWillChange,
     isTouchDevice,
   );
 
@@ -897,7 +834,7 @@ function TabComponent({
 
   const isHoverActive =
     isHovered ||
-    isScrollHover ||
+    isTransitioning ||
     !!contextHighlightClass?.includes("navbar-highlight-active");
 
   const effectiveDistance = resolveEffectiveDistance(
@@ -928,8 +865,11 @@ function TabComponent({
     scaleY,
     targetScaleX,
     targetScaleY,
-    setWillChange,
   );
+
+  const handleLayoutAnimationComplete = useCallback(() => {
+    activeStore.completeFlight();
+  }, [activeStore]);
 
   const handleMouseEnter = useCallback(() => {
     if (disabled || !hoverSlide || isTouchDevice) return;
@@ -959,19 +899,31 @@ function TabComponent({
     [disabled, hoverStore, onChange, onClick, value],
   );
 
+  const isNavbarActive = isHoverActive;
+  const willChange = isNavbarActive || isPressed;
+
   const outerHighlightClass =
     `absolute inset-0 z-[-1] pointer-events-none ${effectiveRoundedClass}`.trim();
 
-  const outerHighlightStyle = computeOuterHighlightStyle(
-    variant,
-    effectiveRoundedClass,
-    dimensions.height,
-    willChange,
-    contextHighlightStyle,
-    highlightStyle,
+  const outerHighlightStyle = useMemo(
+    () =>
+      computeOuterHighlightStyle(
+        variant,
+        effectiveRoundedClass,
+        dimensions.height,
+        willChange,
+        contextHighlightStyle,
+        highlightStyle,
+      ),
+    [
+      variant,
+      effectiveRoundedClass,
+      dimensions.height,
+      willChange,
+      contextHighlightStyle,
+      highlightStyle,
+    ],
   );
-
-  const isNavbarActive = isHoverActive || isTransitioning;
 
   const resolvedContextHighlightClass = resolveContextHighlightClass(
     contextHighlightClass,
@@ -1040,6 +992,7 @@ function TabComponent({
           rippleScale={rippleScale}
           rippleOpacity={rippleOpacity}
           variant={variant}
+          onLayoutAnimationComplete={handleLayoutAnimationComplete}
         />
       ) : null}
       {children}
