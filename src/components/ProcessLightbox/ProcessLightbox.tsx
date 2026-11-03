@@ -39,7 +39,17 @@ const DOUBLE_CLICK_REDUCED_CONFIG = {
   animationTime: 0,
 };
 const ZOOM_REDUCED_CONFIG = { disabled: true };
-const WHEEL_CONFIG = { step: 0.00125 };
+const WHEEL_CONFIG = {
+  step: 0.0055,
+  wheelDisabled: true,
+  touchPadDisabled: false,
+};
+const PINCH_CONFIG = {
+  step: 5,
+  disabled: false,
+};
+const TRACKPAD_PANNING_CONFIG = { disabled: false };
+const PANNING_CONFIG = { velocityDisabled: true };
 const ZOOM_ANIMATION_CONFIG = {
   disabled: false,
   size: 0.4,
@@ -158,6 +168,7 @@ function ProcessLightbox({
                     minScale={1}
                     maxScale={10}
                     centerOnInit
+                    limitToBounds
                     smooth={!prefersReducedMotion}
                     doubleClick={
                       prefersReducedMotion
@@ -165,6 +176,9 @@ function ProcessLightbox({
                         : DOUBLE_CLICK_CONFIG
                     }
                     wheel={WHEEL_CONFIG}
+                    pinch={PINCH_CONFIG}
+                    panning={PANNING_CONFIG}
+                    trackPadPanning={TRACKPAD_PANNING_CONFIG}
                     zoomAnimation={
                       prefersReducedMotion
                         ? ZOOM_REDUCED_CONFIG
