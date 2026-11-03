@@ -396,6 +396,7 @@ function useAuroraCanvas(
   });
 
   useEffect(() => {
+    let cancelled = false;
     const ctn = container.current;
     if (!ctn) return;
 
@@ -416,8 +417,14 @@ function useAuroraCanvas(
         "Hardware WebGL2 acceleration unavailable. Applying SVG fallback.",
       );
       isContextLostRef.current = true;
-      queueMicrotask(() => setIsContextLost(true));
-      return;
+      queueMicrotask(() => {
+        if (!cancelled) {
+          setIsContextLost(true);
+        }
+      });
+      return () => {
+        cancelled = true;
+      };
     }
 
     const activeGl = gl;
@@ -429,8 +436,14 @@ function useAuroraCanvas(
         "WebGL shader or buffer creation failed. Applying SVG fallback.",
       );
       isContextLostRef.current = true;
-      queueMicrotask(() => setIsContextLost(true));
-      return;
+      queueMicrotask(() => {
+        if (!cancelled) {
+          setIsContextLost(true);
+        }
+      });
+      return () => {
+        cancelled = true;
+      };
     }
 
     Object.assign(canvas.style, {
@@ -833,6 +846,7 @@ function useAuroraCanvas(
     const activeProgram = programData;
 
     return () => {
+      cancelled = true;
       if (animateId) cancelAnimationFrame(animateId);
       triggerRef.current = null;
       pauseRef.current = null;

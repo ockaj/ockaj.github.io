@@ -18,8 +18,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "daily"
       time: "06:00"
       timezone: "Europe/Bratislava"
     commit-message:
@@ -27,7 +26,6 @@ updates:
     open-pull-requests-limit: 10
     ignore:
       - dependency-name: "typescript"
-      - dependency-name: "@rolldown/plugin-babel"
     groups:
       npm-dependencies:
         patterns:

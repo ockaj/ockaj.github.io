@@ -223,6 +223,13 @@ function ProcessMobileCarousel() {
       },
       isInitial ? 50 : 500,
     );
+
+    return () => {
+      if (scrollEndTimeoutRef.current !== null) {
+        window.clearTimeout(scrollEndTimeoutRef.current);
+        scrollEndTimeoutRef.current = null;
+      }
+    };
   }, [activeTopicId, prefersReducedMotion]);
 
   // Re-align active topic when container width changes (e.g. window resize or becoming visible)
