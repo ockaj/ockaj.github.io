@@ -221,8 +221,8 @@ function TabsInner<T extends TabValue>({
   useLayoutEffect(() => {
     const prevVal = activeStore.get();
     if (prevVal !== value) {
-      const wasAlreadyHovered = hoverStore.get() === value;
-      const distance = wasAlreadyHovered ? 0 : getTabDistance(prevVal, value);
+      hoverStore.set(null);
+      const distance = getTabDistance(prevVal, value);
       activeStore.set(value, distance);
     }
   }, [value, activeStore, hoverStore, getTabDistance]);
@@ -298,7 +298,9 @@ function TabsInner<T extends TabValue>({
           style={style}
           {...rest}
           onMouseLeave={(e) => {
-            hoverStore.set(null);
+            if (hoverStore.get() !== null) {
+              hoverStore.set(null);
+            }
             if (rest.onMouseLeave) {
               rest.onMouseLeave(e);
             }
@@ -508,7 +510,7 @@ function useTabPress(
     (e: PointerEvent<HTMLButtonElement>) => {
       if (disabled) return;
       if (hoverSlide && !isTouchDevice && e.pointerType !== "touch") {
-        hoverStore.set(value, 0);
+        hoverStore.set(value);
       }
       onPointerDown(e);
       setIsPressed(true);
@@ -559,7 +561,7 @@ interface TabHighlightProps {
   rippleScale: MotionValue<number>;
   rippleOpacity: MotionValue<number>;
   variant: TabVariant;
-  onLayoutAnimationComplete: () => void;
+  onLayoutAnimationComplete?: () => void;
 }
 
 const SEGMENTED_HIGHLIGHT_RADIUS =
@@ -585,35 +587,19 @@ function useTabScaleAnimation(
   scaleY: MotionValue<number>,
   targetScaleX: number,
   targetScaleY: number,
-  onSettle?: () => void,
 ) {
   useLayoutEffect(() => {
-    if (!showHighlight) {
-      onSettle?.();
-      return;
-    }
+    if (!showHighlight) return;
     if (prefersReducedMotion) {
       scaleX.jump(targetScaleX);
       scaleY.jump(targetScaleY);
-      onSettle?.();
       return;
     }
     const scaleSpring =
       targetScaleX === 1 && targetScaleY === 1 ? SETTLE_SPRING : springs.scale;
     const animX = animate(scaleX, targetScaleX, scaleSpring);
     const animY = animate(scaleY, targetScaleY, scaleSpring);
-    let cancelled = false;
-
-    if (onSettle) {
-      animY.then(() => {
-        if (!cancelled) {
-          onSettle();
-        }
-      });
-    }
-
     return () => {
-      cancelled = true;
       animX.stop();
       animY.stop();
     };
@@ -624,7 +610,6 @@ function useTabScaleAnimation(
     scaleY,
     targetScaleX,
     targetScaleY,
-    onSettle,
   ]);
 }
 
@@ -761,7 +746,6 @@ function TabComponent({
   );
 
   const dimensions = useTabDimensions(buttonRef);
-
   const isMobileNav = layoutId?.includes("mobile") || isMobile;
 
   const tabRole = resolveTabRole(rest.role, parentRole);
@@ -784,7 +768,7 @@ function TabComponent({
 
   const { targetScaleX, targetScaleY } = computeTargetScales(
     isPressed,
-    isHoverActive || (variant === "capsule" ? isActive : false),
+    isHoverActive,
     isTraveling,
     orientation,
     !!isMobileNav,
@@ -794,12 +778,6 @@ function TabComponent({
     isTraveling ? getTabCount() : 0,
   );
 
-  const handleLandingSettle = useCallback(() => {
-    if (activeStore.getPhase() === "landing") {
-      activeStore.completeFlight();
-    }
-  }, [activeStore]);
-
   useTabScaleAnimation(
     showHighlight,
     prefersReducedMotion,
@@ -807,7 +785,6 @@ function TabComponent({
     scaleY,
     targetScaleX,
     targetScaleY,
-    isLanding ? handleLandingSettle : undefined,
   );
 
   const handleLayoutAnimationComplete = useCallback(() => {

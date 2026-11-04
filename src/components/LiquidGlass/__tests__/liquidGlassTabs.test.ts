@@ -1,9 +1,18 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { SPRING } from "../../../utils/springConfig";
 import {
   computeTargetScales,
+  computeVelocityScales,
+  REF_VELOCITY,
   resolveContextHighlightClass,
 } from "../liquidGlassUtils";
+import {
+  createActiveTabStore,
+  createHoverTabStore,
+  FLIGHT_SETTLE_MS,
+  LANDING_PULSE_MS,
+  TRAVEL_IMPULSE_MS,
+} from "../liquidGlassStore";
 
 describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
   it("tunes SPRING.highlight to the Apple physics preset", () => {
@@ -288,6 +297,309 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
       expect(resolveContextHighlightClass("custom-accent", true)).toBe(
         "custom-accent",
       );
+    });
+  });
+
+  describe("computeVelocityScales continuous velocity chain", () => {
+    const baseResting = { scaleX: 1, scaleY: 1 };
+    const baseHovered = { scaleX: 1.04, scaleY: 1.14 };
+
+    it("returns resting scale when stationary (|velocity| < 5)", () => {
+      expect(computeVelocityScales(0, "horizontal", 4, baseResting)).toEqual(
+        baseResting,
+      );
+
+      expect(computeVelocityScales(4.9, "horizontal", 4, baseResting)).toEqual(
+        baseResting,
+      );
+
+      expect(computeVelocityScales(-3, "vertical", 4, baseHovered)).toEqual(
+        baseHovered,
+      );
+    });
+
+    it("stretches horizontal tabs along X (+8%) and compresses along Y (-1.5%) at peak velocity with volume preservation", () => {
+      const peak = computeVelocityScales(
+        REF_VELOCITY,
+        "horizontal",
+        4,
+        baseResting,
+      );
+      expect(peak.scaleX).toBeCloseTo(1.08, 4);
+      expect(peak.scaleY).toBeCloseTo(0.985, 4);
+
+      // Symmetrical for negative velocity (traveling in opposite direction)
+      const negPeak = computeVelocityScales(
+        -REF_VELOCITY,
+        "horizontal",
+        4,
+        baseResting,
+      );
+      expect(negPeak.scaleX).toBeCloseTo(1.08, 4);
+      expect(negPeak.scaleY).toBeCloseTo(0.985, 4);
+
+      // Fractional velocity scales proportionally
+      const halfSpeed = computeVelocityScales(
+        REF_VELOCITY / 2,
+        "horizontal",
+        4,
+        baseResting,
+      );
+      expect(halfSpeed.scaleX).toBeCloseTo(1 + 0.08 * 0.5, 4);
+      expect(halfSpeed.scaleY).toBeCloseTo(1 - 0.015 * 0.5, 4);
+    });
+
+    it("stretches vertical tabs along Y (+6.5%) and compresses along X (-1.5%) at peak velocity with volume preservation", () => {
+      const peakVertical = computeVelocityScales(
+        REF_VELOCITY,
+        "vertical",
+        4,
+        baseResting,
+      );
+      expect(peakVertical.scaleY).toBeCloseTo(1.065, 4);
+      expect(peakVertical.scaleX).toBeCloseTo(0.985, 4);
+
+      const negVertical = computeVelocityScales(
+        -REF_VELOCITY,
+        "vertical",
+        4,
+        baseResting,
+      );
+      expect(negVertical.scaleY).toBeCloseTo(1.065, 4);
+      expect(negVertical.scaleX).toBeCloseTo(0.985, 4);
+    });
+
+    it("dampens stretch and eliminates transverse squish for binary toggles (tabCount <= 2)", () => {
+      // Horizontal binary toggle (tabCount = 2): maxX = 0.02, maxYCompress = 0, countMult = 0.4
+      const binaryHoriz = computeVelocityScales(
+        REF_VELOCITY,
+        "horizontal",
+        2,
+        baseResting,
+      );
+      expect(binaryHoriz.scaleX).toBeCloseTo(1 + 0.02 * 0.4, 4); // 1.008
+      expect(binaryHoriz.scaleY).toBe(1.0); // Zero vertical squish
+
+      // Vertical binary toggle (tabCount = 2): maxY = 0.02, maxXCompress = 0, countMult = 0.4
+      const binaryVert = computeVelocityScales(
+        REF_VELOCITY,
+        "vertical",
+        2,
+        baseResting,
+      );
+      expect(binaryVert.scaleY).toBeCloseTo(1 + 0.02 * 0.4, 4); // 1.008
+      expect(binaryVert.scaleX).toBe(1.0); // Zero horizontal squish
+    });
+
+    it("streamlines transverse expansion during hovered flight", () => {
+      // Horizontal hover flight
+      const horizFlight = computeVelocityScales(
+        REF_VELOCITY,
+        "horizontal",
+        4,
+        baseHovered,
+      );
+      // Stretches along X beyond hover
+      expect(horizFlight.scaleX).toBeCloseTo(1.04 * 1.08, 4);
+      // Streamlines Y hover bloom
+      expect(horizFlight.scaleY).toBeCloseTo(1 + (1.14 - 1) * 0.45 * 0.985, 4);
+
+      // Vertical hover flight
+      const vertFlight = computeVelocityScales(
+        REF_VELOCITY,
+        "vertical",
+        4,
+        baseHovered,
+      );
+      expect(vertFlight.scaleY).toBeCloseTo(1.14 * 1.065, 4);
+      expect(vertFlight.scaleX).toBeCloseTo(1 + (1.04 - 1) * 0.45 * 0.985, 4);
+    });
+
+    it("suppresses velocity stretch entirely under reduced motion", () => {
+      const reducedHoriz = computeVelocityScales(
+        REF_VELOCITY,
+        "horizontal",
+        4,
+        baseHovered,
+        REF_VELOCITY,
+        true, // prefersReducedMotion
+      );
+      expect(reducedHoriz).toEqual(baseHovered);
+
+      const reducedVert = computeVelocityScales(
+        REF_VELOCITY,
+        "vertical",
+        4,
+        baseResting,
+        REF_VELOCITY,
+        true,
+      );
+      expect(reducedVert).toEqual(baseResting);
+    });
+
+    it("clamps ratio to 1.0 when velocity exceeds REF_VELOCITY (extreme trackpad/flick speeds)", () => {
+      const normalPeak = computeVelocityScales(
+        REF_VELOCITY,
+        "horizontal",
+        4,
+        baseResting,
+      );
+      const extremeVelocity = computeVelocityScales(
+        8000,
+        "horizontal",
+        4,
+        baseResting,
+      );
+      expect(extremeVelocity.scaleX).toBeCloseTo(normalPeak.scaleX, 4);
+      expect(extremeVelocity.scaleY).toBeCloseTo(normalPeak.scaleY, 4);
+    });
+
+    it("uses default resting baseScales if baseScales argument is omitted", () => {
+      const defaultScales = computeVelocityScales(0, "horizontal", 4);
+      expect(defaultScales).toEqual({ scaleX: 1, scaleY: 1 });
+
+      const movingDefault = computeVelocityScales(
+        REF_VELOCITY,
+        "horizontal",
+        4,
+      );
+      expect(movingDefault.scaleX).toBeCloseTo(1.08, 4);
+      expect(movingDefault.scaleY).toBeCloseTo(0.985, 4);
+    });
+
+    it("handles boundary tab count values (tabCount = 0 and tabCount = 1)", () => {
+      const singleTab = computeVelocityScales(
+        REF_VELOCITY,
+        "horizontal",
+        1,
+        baseResting,
+      );
+      // tabCount = 1 is binary (isBinary: true, countMult: 0.4)
+      expect(singleTab.scaleX).toBeCloseTo(1 + 0.02 * 0.4, 4);
+      expect(singleTab.scaleY).toBe(1.0);
+
+      const zeroTab = computeVelocityScales(
+        REF_VELOCITY,
+        "horizontal",
+        0,
+        baseResting,
+      );
+      // tabCount = 0 defaults countMult = 1.0, isBinary = false
+      expect(zeroTab.scaleX).toBeCloseTo(1.08, 4);
+    });
+  });
+
+  describe("ActiveTabStore & HoverTabStore lifecycle state machine", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("initializes in idle phase with zero distance", () => {
+      const store = createActiveTabStore("tab1");
+      expect(store.get()).toBe("tab1");
+      expect(store.getPhase()).toBe("idle");
+      expect(store.getDistance()).toBe(0);
+      expect(store.isMoving()).toBe(false);
+      store.destroy();
+    });
+
+    it("transitions flight -> landing -> idle upon distance navigation", () => {
+      const store = createActiveTabStore("tab1");
+      let notifications = 0;
+      store.subscribe(() => {
+        notifications++;
+      });
+
+      // 1. Flight start
+      store.set("tab3", 2);
+      expect(store.get()).toBe("tab3");
+      expect(store.getPhase()).toBe("flight");
+      expect(store.getDistance()).toBe(2);
+      expect(store.isMoving()).toBe(true);
+      expect(notifications).toBe(1);
+
+      // 2. Flight fallback timer transitions to landing
+      vi.advanceTimersByTime(FLIGHT_SETTLE_MS);
+      expect(store.getPhase()).toBe("landing");
+      expect(store.getDistance()).toBe(0);
+      expect(store.isMoving()).toBe(true);
+      expect(notifications).toBe(2);
+
+      // 3. Landing pulse (dwell) transitions to idle
+      vi.advanceTimersByTime(LANDING_PULSE_MS);
+      expect(store.getPhase()).toBe("idle");
+      expect(store.getDistance()).toBe(0);
+      expect(store.isMoving()).toBe(false);
+      expect(notifications).toBe(3);
+
+      store.destroy();
+    });
+
+    it("supports beginLanding when layout animation completes early", () => {
+      const store = createActiveTabStore("tab1");
+      store.set("tab2", 1);
+      expect(store.getPhase()).toBe("flight");
+
+      // Layout animation completes at 80ms (before FLIGHT_SETTLE_MS = 150ms)
+      vi.advanceTimersByTime(80);
+      store.beginLanding();
+      expect(store.getPhase()).toBe("landing");
+      expect(store.getDistance()).toBe(0);
+
+      // Complete dwell
+      vi.advanceTimersByTime(LANDING_PULSE_MS);
+      expect(store.getPhase()).toBe("idle");
+      store.destroy();
+    });
+
+    it("completeFlight immediately forces idle transition and resets distance", () => {
+      const store = createActiveTabStore("tab1");
+      store.set("tab4", 3);
+      expect(store.getPhase()).toBe("flight");
+
+      store.completeFlight();
+      expect(store.getPhase()).toBe("idle");
+      expect(store.getDistance()).toBe(0);
+      expect(store.isMoving()).toBe(false);
+      store.destroy();
+    });
+
+    it("resets to idle when set to the same value with 0 distance", () => {
+      const store = createActiveTabStore("tab1");
+      store.set("tab2", 1);
+      expect(store.getPhase()).toBe("flight");
+
+      store.set("tab2", 0);
+      expect(store.getPhase()).toBe("idle");
+      expect(store.getDistance()).toBe(0);
+      store.destroy();
+    });
+
+    it("HoverTabStore tracks moving state during impulse window and settles", () => {
+      const hover = createHoverTabStore();
+      expect(hover.get()).toBeNull();
+      expect(hover.isMoving()).toBe(false);
+      expect(hover.getDistance()).toBe(0);
+
+      hover.set("tab2", 2);
+      expect(hover.get()).toBe("tab2");
+      expect(hover.isMoving()).toBe(true);
+      expect(hover.getDistance()).toBe(2);
+
+      vi.advanceTimersByTime(TRAVEL_IMPULSE_MS);
+      expect(hover.isMoving()).toBe(false);
+      // Value remains hovered
+      expect(hover.get()).toBe("tab2");
+
+      hover.set(null);
+      expect(hover.get()).toBeNull();
+      expect(hover.isMoving()).toBe(false);
+      expect(hover.getDistance()).toBe(0);
+      hover.destroy();
     });
   });
 });

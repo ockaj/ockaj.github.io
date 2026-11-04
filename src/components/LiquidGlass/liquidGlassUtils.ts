@@ -305,6 +305,58 @@ export function computeReactiveSheenBoxShadow(
 
 const NAVBAR_HIGHLIGHT_REGEX = /navbar-highlight-(?:active|flat)/g;
 
+export const REF_VELOCITY = 2400;
+
+export interface BaseScales {
+  scaleX: number;
+  scaleY: number;
+}
+
+export function computeVelocityScales(
+  velocity: number,
+  orientation: TabOrientation,
+  tabCount: number,
+  baseScales: BaseScales = { scaleX: 1, scaleY: 1 },
+  refVelocity = REF_VELOCITY,
+  prefersReducedMotion = false,
+): { scaleX: number; scaleY: number } {
+  if (prefersReducedMotion) return baseScales;
+
+  const speed = Math.abs(velocity);
+  if (speed < 5) return baseScales;
+
+  const isBinary = tabCount > 0 && tabCount <= 2;
+  const countMult =
+    tabCount > 0 ? Math.min(1.0, Math.max(0.4, (tabCount - 1) / 3)) : 1.0;
+  const ratio = Math.min(1.0, speed / refVelocity);
+
+  if (orientation === "vertical") {
+    const maxY = isBinary ? 0.02 : 0.065;
+    const maxXCompress = isBinary ? 0.0 : 0.015;
+    const travelStretchY = 1 + maxY * ratio * countMult;
+    const travelCompressX = 1 - maxXCompress * ratio * countMult;
+
+    const scaleX =
+      baseScales.scaleX > 1.001
+        ? 1 + (baseScales.scaleX - 1) * 0.45 * travelCompressX
+        : travelCompressX;
+    const scaleY = baseScales.scaleY * travelStretchY;
+    return { scaleX, scaleY };
+  }
+
+  const maxX = isBinary ? 0.02 : 0.08;
+  const maxYCompress = isBinary ? 0.0 : 0.015;
+  const travelStretchX = 1 + maxX * ratio * countMult;
+  const travelCompressY = 1 - maxYCompress * ratio * countMult;
+
+  const scaleX = baseScales.scaleX * travelStretchX;
+  const scaleY =
+    baseScales.scaleY > 1.001
+      ? 1 + (baseScales.scaleY - 1) * 0.45 * travelCompressY
+      : travelCompressY;
+  return { scaleX, scaleY };
+}
+
 function computeTravelScales(
   tabDistance: number,
   tabCount: number,

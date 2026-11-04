@@ -1,9 +1,9 @@
 export type TabValue = string | number;
 type TabFlightPhase = "idle" | "flight" | "landing";
 
-const TRAVEL_IMPULSE_MS = 140;
-const FLIGHT_SETTLE_MS = 150; // Snappy squish matching hover
-const LANDING_PULSE_MS = 420; // 420ms calm dwell: lets bounce completely settle before idle transition
+export const TRAVEL_IMPULSE_MS = 140;
+export const FLIGHT_SETTLE_MS = 150; // Snappy squish matching hover
+export const LANDING_PULSE_MS = 420; // 420ms calm dwell: lets bounce completely settle before idle transition
 
 interface SubscribableStore<T> {
   get: () => T;
