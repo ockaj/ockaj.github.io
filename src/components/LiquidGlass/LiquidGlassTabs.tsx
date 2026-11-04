@@ -40,6 +40,13 @@ import {
 import { cn } from "../../utils/cn";
 import { DEFAULT_STYLE, type TabOrientation } from "./types";
 import { springs } from "./config";
+import {
+  createActiveTabStore,
+  createHoverTabStore,
+  type ActiveTabStore,
+  type HoverTabStore,
+  type TabValue,
+} from "./liquidGlassStore";
 
 type TabVariant = "capsule" | "segmented";
 
@@ -74,112 +81,8 @@ interface LiquidGlassTabProps extends Omit<
   highlightTransition?: Transition;
 }
 
-type TabValue = string | number;
-
-const TRAVEL_IMPULSE_MS = 140;
-const FLIGHT_SETTLE_MS = 280;
-
-interface MotionTabStore<T> {
-  get: () => T;
-  getDistance: () => number;
-  isMoving: () => boolean;
-  set: (val: T, distance?: number) => void;
-  completeFlight: () => void;
-  subscribe: (listener: () => void) => () => void;
-  destroy: () => void;
-}
-
-type ActiveStore = MotionTabStore<TabValue>;
-type HoverStore = MotionTabStore<TabValue | null>;
-
-function createSubscribableStore<T>(initialValue: T) {
-  let currentVal = initialValue;
-  const listeners = new Set<() => void>();
-  return {
-    get: () => currentVal,
-    set: (val: T) => {
-      if (currentVal === val) return;
-      currentVal = val;
-      listeners.forEach((l) => l());
-    },
-    notify: () => {
-      listeners.forEach((l) => l());
-    },
-    subscribe: (listener: () => void) => {
-      listeners.add(listener);
-      return () => {
-        listeners.delete(listener);
-      };
-    },
-    destroy: () => {
-      listeners.clear();
-    },
-  };
-}
-
-function createMotionTabStore<T>(
-  initialValue: T,
-  impulseMs = TRAVEL_IMPULSE_MS,
-): MotionTabStore<T> {
-  const store = createSubscribableStore(initialValue);
-  let distanceVal = 0;
-  let isMovingVal = false;
-  let moveTimer: ReturnType<typeof setTimeout> | null = null;
-
-  const clearMovingState = () => {
-    if (moveTimer) {
-      clearTimeout(moveTimer);
-      moveTimer = null;
-    }
-    isMovingVal = false;
-  };
-
-  return {
-    get: store.get,
-    getDistance: () => distanceVal,
-    isMoving: () => isMovingVal,
-    set: (val: T, distance = 0) => {
-      if (val === null) {
-        clearMovingState();
-        distanceVal = 0;
-        store.set(val);
-        return;
-      }
-      if (store.get() === val) {
-        if (distance === 0 && isMovingVal) {
-          clearMovingState();
-          distanceVal = 0;
-          store.notify();
-        }
-        return;
-      }
-      distanceVal = distance;
-      if (distance > 0) {
-        isMovingVal = true;
-        if (moveTimer) clearTimeout(moveTimer);
-        moveTimer = setTimeout(() => {
-          moveTimer = null;
-          isMovingVal = false;
-          store.notify();
-        }, impulseMs);
-      } else {
-        clearMovingState();
-      }
-      store.set(val);
-    },
-    completeFlight: () => {
-      if (!isMovingVal) return;
-      clearMovingState();
-      distanceVal = 0;
-      store.notify();
-    },
-    subscribe: store.subscribe,
-    destroy: () => {
-      clearMovingState();
-      store.destroy();
-    },
-  };
-}
+type ActiveStore = ActiveTabStore;
+type HoverStore = HoverTabStore;
 
 interface TabsContextValue {
   state: {
@@ -216,10 +119,6 @@ function useTabsContext() {
     throw new Error("Tab must be used within a Tabs component");
   }
   return context;
-}
-
-function createHoverStore(): HoverStore {
-  return createMotionTabStore<TabValue | null>(null);
 }
 
 function getDefaultTabRadius(variant: TabVariant): string {
@@ -289,10 +188,8 @@ function TabsInner<T extends TabValue>({
   role = "tablist",
   ...rest
 }: Readonly<LiquidGlassTabsProps<T>>) {
-  const [hoverStore] = useState(createHoverStore);
-  const [activeStore] = useState(() =>
-    createMotionTabStore<TabValue>(value, FLIGHT_SETTLE_MS),
-  );
+  const [hoverStore] = useState(createHoverTabStore);
+  const [activeStore] = useState(() => createActiveTabStore(value));
   const scaleX = useMotionValue(1);
   const scaleY = useMotionValue(1);
   const tabOrderRef = useRef<TabValue[]>([]);
@@ -501,12 +398,23 @@ function resolveTabRole(
 
 const HIGHLIGHT_TRANSITION = { layout: SPRING.highlight } as const;
 
+/** Critically damped spring for gentle, non-bouncy settle to idle (zero undershoot) */
+const SETTLE_SPRING = {
+  type: "spring" as const,
+  stiffness: 160,
+  damping: 26,
+  mass: 0.8,
+} as const;
+
 function useTabActive(activeStore: ActiveStore, value: TabValue) {
   const snapshot = useSyncExternalStore(
     activeStore.subscribe,
     useCallback(() => {
       if (activeStore.get() !== value) return 0;
-      return activeStore.isMoving() ? 2 : 1;
+      const phase = activeStore.getPhase();
+      if (phase === "flight") return 2;
+      if (phase === "landing") return 3;
+      return 1;
     }, [activeStore, value]),
     useCallback(
       () => (activeStore.get() === value ? 1 : 0),
@@ -517,6 +425,7 @@ function useTabActive(activeStore: ActiveStore, value: TabValue) {
   return {
     isActive: snapshot > 0,
     isTransitioning: snapshot === 2,
+    isLanding: snapshot === 3,
   };
 }
 
@@ -676,16 +585,38 @@ function useTabScaleAnimation(
   scaleY: MotionValue<number>,
   targetScaleX: number,
   targetScaleY: number,
+  onSettle?: () => void,
 ) {
   useLayoutEffect(() => {
-    if (!showHighlight) return;
+    if (!showHighlight) {
+      onSettle?.();
+      return;
+    }
     if (prefersReducedMotion) {
       scaleX.jump(targetScaleX);
       scaleY.jump(targetScaleY);
+      onSettle?.();
       return;
     }
-    animate(scaleX, targetScaleX, springs.scale);
-    animate(scaleY, targetScaleY, springs.scale);
+    const scaleSpring =
+      targetScaleX === 1 && targetScaleY === 1 ? SETTLE_SPRING : springs.scale;
+    const animX = animate(scaleX, targetScaleX, scaleSpring);
+    const animY = animate(scaleY, targetScaleY, scaleSpring);
+    let cancelled = false;
+
+    if (onSettle) {
+      animY.then(() => {
+        if (!cancelled) {
+          onSettle();
+        }
+      });
+    }
+
+    return () => {
+      cancelled = true;
+      animX.stop();
+      animY.stop();
+    };
   }, [
     showHighlight,
     prefersReducedMotion,
@@ -693,6 +624,7 @@ function useTabScaleAnimation(
     scaleY,
     targetScaleX,
     targetScaleY,
+    onSettle,
   ]);
 }
 
@@ -793,7 +725,10 @@ function TabComponent({
 
   const isMobile = useIsMobile();
   const isTouchDevice = useIsTouchDevice();
-  const { isActive, isTransitioning } = useTabActive(activeStore, value);
+  const { isActive, isTransitioning, isLanding } = useTabActive(
+    activeStore,
+    value,
+  );
   const { isHovered, showHighlight, isHoverMoving } = useTabHover(
     hoverStore,
     value,
@@ -835,6 +770,7 @@ function TabComponent({
   const isHoverActive =
     isHovered ||
     isTransitioning ||
+    isLanding ||
     !!contextHighlightClass?.includes("navbar-highlight-active");
 
   const effectiveDistance = resolveEffectiveDistance(
@@ -848,7 +784,7 @@ function TabComponent({
 
   const { targetScaleX, targetScaleY } = computeTargetScales(
     isPressed,
-    isHoverActive,
+    isHoverActive || (variant === "capsule" ? isActive : false),
     isTraveling,
     orientation,
     !!isMobileNav,
@@ -858,6 +794,12 @@ function TabComponent({
     isTraveling ? getTabCount() : 0,
   );
 
+  const handleLandingSettle = useCallback(() => {
+    if (activeStore.getPhase() === "landing") {
+      activeStore.completeFlight();
+    }
+  }, [activeStore]);
+
   useTabScaleAnimation(
     showHighlight,
     prefersReducedMotion,
@@ -865,10 +807,13 @@ function TabComponent({
     scaleY,
     targetScaleX,
     targetScaleY,
+    isLanding ? handleLandingSettle : undefined,
   );
 
   const handleLayoutAnimationComplete = useCallback(() => {
-    activeStore.completeFlight();
+    if (activeStore.getPhase() === "flight") {
+      activeStore.beginLanding();
+    }
   }, [activeStore]);
 
   const handleMouseEnter = useCallback(() => {

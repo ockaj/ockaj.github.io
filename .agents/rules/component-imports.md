@@ -49,7 +49,7 @@ Feature modules encapsulate internal implementation. ESLint (`no-restricted-impo
 | `Navigation` | `Navigation/Navbar` | `MobileMenu` |
 | `PdfViewerModal` | `PdfViewerModal/PdfViewerModal` | `InteractiveCvView` |
 | `Bpmn` | `Bpmn/BpmnOverlay`, `Bpmn/BpmnNodeBadge` | `BpmnDiagram`, `BpmnHotkeyToast`, `bpmnStorage`, `pauseableTimer` |
-| `LiquidGlass` | `LiquidGlass/LiquidGlass`, `LiquidGlass/LiquidGlassTabs`, `LiquidGlass/types` | `config`, `liquidGlassUtils`, `Ripple`, `useRipple`, `useLiquidGlassPhysics`, `LiquidGlassDesktop`, `LiquidGlassMobile`, `LiquidGlassOverlays`, `LiquidGlassStatic` |
+| `LiquidGlass` | `LiquidGlass/LiquidGlass`, `LiquidGlass/LiquidGlassTabs`, `LiquidGlass/types` | `config`, `liquidGlassStore`, `liquidGlassUtils`, `Ripple`, `useRipple`, `useLiquidGlassPhysics`, `LiquidGlassDesktop`, `LiquidGlassMobile`, `LiquidGlassOverlays`, `LiquidGlassStatic` |
 
 Cross-cutting UI primitives live directly in `src/components/` (e.g. `BaseDrawer.tsx`, `Tooltip.tsx`, `LazySection.tsx`).
 
