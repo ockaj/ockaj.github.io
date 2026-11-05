@@ -3,6 +3,7 @@ import { SPRING } from "../../../utils/springConfig";
 import {
   computeTargetScales,
   computeVelocityScales,
+  computeTravelVelocity,
   REF_VELOCITY,
   resolveContextHighlightClass,
 } from "../liquidGlassUtils";
@@ -41,7 +42,7 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
     });
 
     it("stretches horizontal tabs along X and compresses along Y with volume preservation", () => {
-      // 1-step adjacent jump (distance = 1) -> +4% stretch, -0.8% compress
+      // 1-step adjacent jump (distance = 1) -> +6.5% stretch, -0.95% compress
       const step1 = computeTargetScales(
         false,
         false,
@@ -52,10 +53,10 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
         1,
         false,
       );
-      expect(step1.targetScaleX).toBeCloseTo(1 + 0.04, 4); // 1.04
-      expect(step1.targetScaleY).toBeCloseTo(1 - 0.008, 4); // 0.992
+      expect(step1.targetScaleX).toBeCloseTo(1 + 0.065, 4); // 1.065
+      expect(step1.targetScaleY).toBeCloseTo(1 - 0.0095, 4); // 0.9905
 
-      // 2-step jump (distance = 2) -> +5.5% stretch, -1.1% compress
+      // 2-step jump (distance = 2) -> +9.0% stretch, -1.3% compress
       const step2 = computeTargetScales(
         false,
         false,
@@ -66,10 +67,10 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
         2,
         false,
       );
-      expect(step2.targetScaleX).toBeCloseTo(1 + 0.055, 4); // 1.055
-      expect(step2.targetScaleY).toBeCloseTo(1 - 0.011, 4); // 0.989
+      expect(step2.targetScaleX).toBeCloseTo(1 + 0.09, 4); // 1.090
+      expect(step2.targetScaleY).toBeCloseTo(1 - 0.013, 4); // 0.987
 
-      // 4-step jump (distance = 4: reaches 8% clamp)
+      // 4-step jump (distance = 4: reaches 12% clamp)
       const step4 = computeTargetScales(
         false,
         false,
@@ -80,12 +81,12 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
         4,
         false,
       );
-      expect(step4.targetScaleX).toBeCloseTo(1.08, 4); // capped at +8%
-      expect(step4.targetScaleY).toBeCloseTo(1 - 0.015, 4); // capped at -1.5%
+      expect(step4.targetScaleX).toBeCloseTo(1.12, 4); // capped at +12%
+      expect(step4.targetScaleY).toBeCloseTo(1 - 0.018, 4); // capped at -1.8%
     });
 
     it("dampens stretch and eliminates height squish for 2-card toggles (Idea 1: tabCount <= 2)", () => {
-      // 2-card toggle: tabCount = 2, distance = 1 -> dampened to +1.6% stretch and 1.0 height (zero squish)
+      // 2-card toggle: tabCount = 2, distance = 1 -> dampened to +2.6% stretch and 1.0 height (zero squish)
       const binaryToggle = computeTargetScales(
         false, // isPressed
         false, // isHoverActive
@@ -97,12 +98,12 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
         false, // prefersReducedMotion
         2, // tabCount = 2
       );
-      expect(binaryToggle.targetScaleX).toBeCloseTo(1 + 0.016, 4); // +1.6% dampened
+      expect(binaryToggle.targetScaleX).toBeCloseTo(1 + 0.026, 4); // +2.6% dampened
       expect(binaryToggle.targetScaleY).toBe(1.0); // ZERO vertical compression
     });
 
     it("stretches vertical tabs along Y and compresses along X with volume preservation", () => {
-      // 1-step jump (distance = 1) -> +3.2% stretch, -0.8% compress
+      // 1-step jump (distance = 1) -> +5.5% stretch, -0.95% compress
       const step1 = computeTargetScales(
         false,
         false,
@@ -113,10 +114,10 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
         1,
         false,
       );
-      expect(step1.targetScaleY).toBeCloseTo(1 + 0.032, 4); // 1.032
-      expect(step1.targetScaleX).toBeCloseTo(1 - 0.008, 4); // 0.992
+      expect(step1.targetScaleY).toBeCloseTo(1 + 0.055, 4); // 1.055
+      expect(step1.targetScaleX).toBeCloseTo(1 - 0.0095, 4); // 0.9905
 
-      // 2-step jump (distance = 2) -> +4.4% stretch, -1.1% compress
+      // 2-step jump (distance = 2) -> +7.5% stretch, -1.3% compress
       const step2 = computeTargetScales(
         false,
         false,
@@ -127,10 +128,10 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
         2,
         false,
       );
-      expect(step2.targetScaleY).toBeCloseTo(1 + 0.044, 4); // 1.044
-      expect(step2.targetScaleX).toBeCloseTo(1 - 0.011, 4); // 0.989
+      expect(step2.targetScaleY).toBeCloseTo(1 + 0.075, 4); // 1.075
+      expect(step2.targetScaleX).toBeCloseTo(1 - 0.013, 4); // 0.987
 
-      // Wide jump (distance = 5: capped at +6.5%)
+      // Wide jump (distance = 5: capped at +10%)
       const step5 = computeTargetScales(
         false,
         false,
@@ -141,8 +142,8 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
         5,
         false,
       );
-      expect(step5.targetScaleY).toBeCloseTo(1.065, 4); // capped at +6.5%
-      expect(step5.targetScaleX).toBeCloseTo(1 - 0.015, 4); // capped at -1.5%
+      expect(step5.targetScaleY).toBeCloseTo(1.10, 4); // capped at +10%
+      expect(step5.targetScaleX).toBeCloseTo(1 - 0.018, 4); // capped at -1.8%
     });
 
     it("returns even pixel expansion with ZERO squish when pressed", () => {
@@ -204,9 +205,9 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
         1, // tabDistance = 1
         false,
       );
-      expect(hoverGlide.targetScaleX).toBeCloseTo(hoverScaleX * 1.04, 4);
+      expect(hoverGlide.targetScaleX).toBeCloseTo(hoverScaleX * 1.065, 4);
       expect(hoverGlide.targetScaleY).toBeCloseTo(
-        1 + (hoverScaleY - 1) * 0.45 * 0.992,
+        1 + (hoverScaleY - 1) * 0.45 * 0.9905,
         4,
       );
     });
@@ -272,6 +273,47 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
       );
       expect(reduced).toEqual({ targetScaleX: 1, targetScaleY: 1 });
     });
+
+    it("drives flight stretch directly from velocity when velocity is supplied", () => {
+      // Peak velocity in horizontal travel
+      const peak = computeTargetScales(
+        false,
+        false,
+        true,
+        "horizontal",
+        false,
+        dimensions,
+        0,
+        false,
+        4,
+        REF_VELOCITY,
+      );
+      expect(peak.targetScaleX).toBeCloseTo(1.12, 4);
+      expect(peak.targetScaleY).toBeCloseTo(0.982, 4);
+
+      // Half velocity scales proportionally
+      const half = computeTargetScales(
+        false,
+        false,
+        true,
+        "horizontal",
+        false,
+        dimensions,
+        0,
+        false,
+        4,
+        REF_VELOCITY / 2,
+      );
+      expect(half.targetScaleX).toBeCloseTo(1 + 0.12 * 0.5, 4);
+      expect(half.targetScaleY).toBeCloseTo(1 - 0.018 * 0.5, 4);
+    });
+
+    it("maps travel distances to physical velocity values via computeTravelVelocity", () => {
+      expect(computeTravelVelocity(1, "horizontal")).toBeCloseTo(975, 1);
+      expect(computeTravelVelocity(2, "horizontal")).toBeCloseTo(1350, 1);
+      expect(computeTravelVelocity(4, "horizontal")).toBe(REF_VELOCITY);
+      expect(computeTravelVelocity(1, "vertical")).toBeCloseTo(990, 1);
+    });
   });
 
   describe("resolveContextHighlightClass", () => {
@@ -318,15 +360,15 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
       );
     });
 
-    it("stretches horizontal tabs along X (+8%) and compresses along Y (-1.5%) at peak velocity with volume preservation", () => {
+    it("stretches horizontal tabs along X (+12%) and compresses along Y (-1.8%) at peak velocity with volume preservation", () => {
       const peak = computeVelocityScales(
         REF_VELOCITY,
         "horizontal",
         4,
         baseResting,
       );
-      expect(peak.scaleX).toBeCloseTo(1.08, 4);
-      expect(peak.scaleY).toBeCloseTo(0.985, 4);
+      expect(peak.scaleX).toBeCloseTo(1.12, 4);
+      expect(peak.scaleY).toBeCloseTo(0.982, 4);
 
       // Symmetrical for negative velocity (traveling in opposite direction)
       const negPeak = computeVelocityScales(
@@ -335,8 +377,8 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
         4,
         baseResting,
       );
-      expect(negPeak.scaleX).toBeCloseTo(1.08, 4);
-      expect(negPeak.scaleY).toBeCloseTo(0.985, 4);
+      expect(negPeak.scaleX).toBeCloseTo(1.12, 4);
+      expect(negPeak.scaleY).toBeCloseTo(0.982, 4);
 
       // Fractional velocity scales proportionally
       const halfSpeed = computeVelocityScales(
@@ -345,19 +387,19 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
         4,
         baseResting,
       );
-      expect(halfSpeed.scaleX).toBeCloseTo(1 + 0.08 * 0.5, 4);
-      expect(halfSpeed.scaleY).toBeCloseTo(1 - 0.015 * 0.5, 4);
+      expect(halfSpeed.scaleX).toBeCloseTo(1 + 0.12 * 0.5, 4);
+      expect(halfSpeed.scaleY).toBeCloseTo(1 - 0.018 * 0.5, 4);
     });
 
-    it("stretches vertical tabs along Y (+6.5%) and compresses along X (-1.5%) at peak velocity with volume preservation", () => {
+    it("stretches vertical tabs along Y (+10%) and compresses along X (-1.8%) at peak velocity with volume preservation", () => {
       const peakVertical = computeVelocityScales(
         REF_VELOCITY,
         "vertical",
         4,
         baseResting,
       );
-      expect(peakVertical.scaleY).toBeCloseTo(1.065, 4);
-      expect(peakVertical.scaleX).toBeCloseTo(0.985, 4);
+      expect(peakVertical.scaleY).toBeCloseTo(1.10, 4);
+      expect(peakVertical.scaleX).toBeCloseTo(0.982, 4);
 
       const negVertical = computeVelocityScales(
         -REF_VELOCITY,
@@ -365,29 +407,29 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
         4,
         baseResting,
       );
-      expect(negVertical.scaleY).toBeCloseTo(1.065, 4);
-      expect(negVertical.scaleX).toBeCloseTo(0.985, 4);
+      expect(negVertical.scaleY).toBeCloseTo(1.10, 4);
+      expect(negVertical.scaleX).toBeCloseTo(0.982, 4);
     });
 
     it("dampens stretch and eliminates transverse squish for binary toggles (tabCount <= 2)", () => {
-      // Horizontal binary toggle (tabCount = 2): maxX = 0.02, maxYCompress = 0, countMult = 0.4
+      // Horizontal binary toggle (tabCount = 2): maxX = 0.035, maxYCompress = 0, countMult = 0.4
       const binaryHoriz = computeVelocityScales(
         REF_VELOCITY,
         "horizontal",
         2,
         baseResting,
       );
-      expect(binaryHoriz.scaleX).toBeCloseTo(1 + 0.02 * 0.4, 4); // 1.008
+      expect(binaryHoriz.scaleX).toBeCloseTo(1 + 0.035 * 0.4, 4); // 1.014
       expect(binaryHoriz.scaleY).toBe(1.0); // Zero vertical squish
 
-      // Vertical binary toggle (tabCount = 2): maxY = 0.02, maxXCompress = 0, countMult = 0.4
+      // Vertical binary toggle (tabCount = 2): maxY = 0.035, maxXCompress = 0, countMult = 0.4
       const binaryVert = computeVelocityScales(
         REF_VELOCITY,
         "vertical",
         2,
         baseResting,
       );
-      expect(binaryVert.scaleY).toBeCloseTo(1 + 0.02 * 0.4, 4); // 1.008
+      expect(binaryVert.scaleY).toBeCloseTo(1 + 0.035 * 0.4, 4); // 1.014
       expect(binaryVert.scaleX).toBe(1.0); // Zero horizontal squish
     });
 
@@ -400,9 +442,9 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
         baseHovered,
       );
       // Stretches along X beyond hover
-      expect(horizFlight.scaleX).toBeCloseTo(1.04 * 1.08, 4);
+      expect(horizFlight.scaleX).toBeCloseTo(1.04 * 1.12, 4);
       // Streamlines Y hover bloom
-      expect(horizFlight.scaleY).toBeCloseTo(1 + (1.14 - 1) * 0.45 * 0.985, 4);
+      expect(horizFlight.scaleY).toBeCloseTo(1 + (1.14 - 1) * 0.45 * 0.982, 4);
 
       // Vertical hover flight
       const vertFlight = computeVelocityScales(
@@ -411,8 +453,8 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
         4,
         baseHovered,
       );
-      expect(vertFlight.scaleY).toBeCloseTo(1.14 * 1.065, 4);
-      expect(vertFlight.scaleX).toBeCloseTo(1 + (1.04 - 1) * 0.45 * 0.985, 4);
+      expect(vertFlight.scaleY).toBeCloseTo(1.14 * 1.10, 4);
+      expect(vertFlight.scaleX).toBeCloseTo(1 + (1.04 - 1) * 0.45 * 0.982, 4);
     });
 
     it("suppresses velocity stretch entirely under reduced motion", () => {
@@ -463,8 +505,8 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
         "horizontal",
         4,
       );
-      expect(movingDefault.scaleX).toBeCloseTo(1.08, 4);
-      expect(movingDefault.scaleY).toBeCloseTo(0.985, 4);
+      expect(movingDefault.scaleX).toBeCloseTo(1.12, 4);
+      expect(movingDefault.scaleY).toBeCloseTo(0.982, 4);
     });
 
     it("handles boundary tab count values (tabCount = 0 and tabCount = 1)", () => {
@@ -475,7 +517,7 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
         baseResting,
       );
       // tabCount = 1 is binary (isBinary: true, countMult: 0.4)
-      expect(singleTab.scaleX).toBeCloseTo(1 + 0.02 * 0.4, 4);
+      expect(singleTab.scaleX).toBeCloseTo(1 + 0.035 * 0.4, 4);
       expect(singleTab.scaleY).toBe(1.0);
 
       const zeroTab = computeVelocityScales(
@@ -485,7 +527,7 @@ describe("LiquidGlassTabs Spring & Anisotropic Dynamics", () => {
         baseResting,
       );
       // tabCount = 0 defaults countMult = 1.0, isBinary = false
-      expect(zeroTab.scaleX).toBeCloseTo(1.08, 4);
+      expect(zeroTab.scaleX).toBeCloseTo(1.12, 4);
     });
   });
 

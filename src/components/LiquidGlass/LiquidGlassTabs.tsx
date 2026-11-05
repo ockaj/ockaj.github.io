@@ -96,6 +96,7 @@ interface TabsContextValue {
     registerTab: (val: TabValue) => () => void;
     getTabDistance: (from: TabValue | null, to: TabValue | null) => number;
     getTabCount: () => number;
+    getVelocity?: () => number;
   };
   config: {
     layoutId: string;
@@ -193,6 +194,10 @@ function TabsInner<T extends TabValue>({
   const scaleX = useMotionValue(1);
   const scaleY = useMotionValue(1);
   const tabOrderRef = useRef<TabValue[]>([]);
+  const mouseVelocityRef = useRef(0);
+  const lastMousePosRef = useRef<{ x: number; y: number; time: number } | null>(
+    null,
+  );
 
   const registerTab = useCallback((val: TabValue) => {
     if (!tabOrderRef.current.includes(val)) {
@@ -217,6 +222,22 @@ function TabsInner<T extends TabValue>({
   );
 
   const getTabCount = useCallback(() => tabOrderRef.current.length, []);
+  const getVelocity = useCallback(() => mouseVelocityRef.current, []);
+
+  const handleMouseMove = useCallback((e: MouseEvent<HTMLDivElement>) => {
+    const now = performance.now();
+    if (lastMousePosRef.current) {
+      const dt = now - lastMousePosRef.current.time;
+      if (dt > 8 && dt < 200) {
+        const dx = e.clientX - lastMousePosRef.current.x;
+        const dy = e.clientY - lastMousePosRef.current.y;
+        const instantVelocity = (Math.hypot(dx, dy) / dt) * 1000;
+        mouseVelocityRef.current =
+          0.7 * instantVelocity + 0.3 * mouseVelocityRef.current;
+      }
+    }
+    lastMousePosRef.current = { x: e.clientX, y: e.clientY, time: now };
+  }, []);
 
   useLayoutEffect(() => {
     const prevVal = activeStore.get();
@@ -251,6 +272,7 @@ function TabsInner<T extends TabValue>({
         registerTab,
         getTabDistance,
         getTabCount,
+        getVelocity,
       },
       config: {
         layoutId,
@@ -274,6 +296,7 @@ function TabsInner<T extends TabValue>({
       registerTab,
       getTabDistance,
       getTabCount,
+      getVelocity,
       layoutId,
       orientation,
       variant,
@@ -297,7 +320,15 @@ function TabsInner<T extends TabValue>({
           className={cn("flex", className)}
           style={style}
           {...rest}
+          onMouseMove={(e) => {
+            handleMouseMove(e);
+            if (rest.onMouseMove) {
+              rest.onMouseMove(e);
+            }
+          }}
           onMouseLeave={(e) => {
+            mouseVelocityRef.current = 0;
+            lastMousePosRef.current = null;
             if (hoverStore.get() !== null) {
               hoverStore.set(null);
             }
@@ -587,6 +618,7 @@ function useTabScaleAnimation(
   scaleY: MotionValue<number>,
   targetScaleX: number,
   targetScaleY: number,
+  isLanding = false,
 ) {
   useLayoutEffect(() => {
     if (!showHighlight) return;
@@ -596,7 +628,9 @@ function useTabScaleAnimation(
       return;
     }
     const scaleSpring =
-      targetScaleX === 1 && targetScaleY === 1 ? SETTLE_SPRING : springs.scale;
+      isLanding || (targetScaleX === 1 && targetScaleY === 1)
+        ? SETTLE_SPRING
+        : springs.scale;
     const animX = animate(scaleX, targetScaleX, scaleSpring);
     const animY = animate(scaleY, targetScaleY, scaleSpring);
     return () => {
@@ -610,6 +644,7 @@ function useTabScaleAnimation(
     scaleY,
     targetScaleX,
     targetScaleY,
+    isLanding,
   ]);
 }
 
@@ -645,7 +680,8 @@ const TabHighlight = memo(function TabHighlight({
           {
             "--scale-x": scaleX,
             "--scale-y": scaleY,
-            transform: "scale(var(--scale-x, 1), var(--scale-y, 1))",
+            scaleX,
+            scaleY,
             borderRadius:
               variant === "segmented"
                 ? SEGMENTED_HIGHLIGHT_RADIUS
@@ -765,6 +801,7 @@ function TabComponent({
   );
 
   const isTraveling = effectiveDistance > 0;
+  const currentVelocity = isHoverMoving ? actions.getVelocity?.() : undefined;
 
   const { targetScaleX, targetScaleY } = computeTargetScales(
     isPressed,
@@ -776,6 +813,7 @@ function TabComponent({
     effectiveDistance,
     prefersReducedMotion ?? false,
     isTraveling ? getTabCount() : 0,
+    currentVelocity,
   );
 
   useTabScaleAnimation(
@@ -785,6 +823,7 @@ function TabComponent({
     scaleY,
     targetScaleX,
     targetScaleY,
+    isLanding,
   );
 
   const handleLayoutAnimationComplete = useCallback(() => {

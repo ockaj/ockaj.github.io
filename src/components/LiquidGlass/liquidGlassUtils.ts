@@ -305,7 +305,7 @@ export function computeReactiveSheenBoxShadow(
 
 const NAVBAR_HIGHLIGHT_REGEX = /navbar-highlight-(?:active|flat)/g;
 
-export const REF_VELOCITY = 2400;
+export const REF_VELOCITY = 1800;
 
 export interface BaseScales {
   scaleX: number;
@@ -331,8 +331,8 @@ export function computeVelocityScales(
   const ratio = Math.min(1.0, speed / refVelocity);
 
   if (orientation === "vertical") {
-    const maxY = isBinary ? 0.02 : 0.065;
-    const maxXCompress = isBinary ? 0.0 : 0.015;
+    const maxY = isBinary ? 0.035 : 0.10;
+    const maxXCompress = isBinary ? 0.0 : 0.018;
     const travelStretchY = 1 + maxY * ratio * countMult;
     const travelCompressX = 1 - maxXCompress * ratio * countMult;
 
@@ -344,8 +344,8 @@ export function computeVelocityScales(
     return { scaleX, scaleY };
   }
 
-  const maxX = isBinary ? 0.02 : 0.08;
-  const maxYCompress = isBinary ? 0.0 : 0.015;
+  const maxX = isBinary ? 0.035 : 0.12;
+  const maxYCompress = isBinary ? 0.0 : 0.018;
   const travelStretchX = 1 + maxX * ratio * countMult;
   const travelCompressY = 1 - maxYCompress * ratio * countMult;
 
@@ -355,6 +355,19 @@ export function computeVelocityScales(
       ? 1 + (baseScales.scaleY - 1) * 0.45 * travelCompressY
       : travelCompressY;
   return { scaleX, scaleY };
+}
+
+export function computeTravelVelocity(
+  tabDistance: number,
+  orientation: TabOrientation = "horizontal",
+): number {
+  const delta = Math.max(1, tabDistance);
+  if (orientation === "vertical") {
+    const ratio = Math.min(1.0, (0.035 + delta * 0.02) / 0.10);
+    return ratio * REF_VELOCITY;
+  }
+  const ratio = Math.min(1.0, (0.04 + delta * 0.025) / 0.12);
+  return ratio * REF_VELOCITY;
 }
 
 function computeTravelScales(
@@ -368,21 +381,21 @@ function computeTravelScales(
   const delta = Math.max(1, tabDistance);
 
   if (orientation === "vertical") {
-    const maxY = isBinary ? 0.02 : 0.065;
+    const maxY = isBinary ? 0.035 : 0.10;
     const stretchY =
-      1 + Math.min(maxY, (0.02 + delta * 0.012) * countMultiplier);
+      1 + Math.min(maxY, (0.035 + delta * 0.02) * countMultiplier);
     const compressX = isBinary
       ? 1.0
-      : 1 - Math.min(0.015, (0.005 + delta * 0.003) * countMultiplier);
+      : 1 - Math.min(0.018, (0.006 + delta * 0.0035) * countMultiplier);
     return { targetScaleX: compressX, targetScaleY: stretchY };
   }
 
-  const maxX = isBinary ? 0.02 : 0.08;
+  const maxX = isBinary ? 0.035 : 0.12;
   const stretchX =
-    1 + Math.min(maxX, (0.025 + delta * 0.015) * countMultiplier);
+    1 + Math.min(maxX, (0.04 + delta * 0.025) * countMultiplier);
   const compressY = isBinary
     ? 1.0
-    : 1 - Math.min(0.015, (0.005 + delta * 0.003) * countMultiplier);
+    : 1 - Math.min(0.018, (0.006 + delta * 0.0035) * countMultiplier);
   return { targetScaleX: stretchX, targetScaleY: compressY };
 }
 
@@ -414,6 +427,55 @@ function computeHoverTravelScales(
   };
 }
 
+function computePressScales(
+  isMobileNav: boolean,
+  dimensions: { width: number; height: number },
+) {
+  const tapDelta = isMobileNav
+    ? scaleDeltas.tap.mobile
+    : scaleDeltas.tap.desktop;
+  return {
+    targetScaleX: 1 + (2 * tapDelta) / dimensions.width,
+    targetScaleY: 1 + (2 * tapDelta) / dimensions.height,
+  };
+}
+
+function computeFlightScales(
+  orientation: TabOrientation,
+  isMobileNav: boolean,
+  dimensions: { width: number; height: number },
+  tabDistance: number,
+  tabCount: number,
+  isHoverActive: boolean,
+  velocity?: number,
+  prefersReducedMotion = false,
+) {
+  if (velocity !== undefined && Math.abs(velocity) >= 5) {
+    const baseScales: BaseScales = isHoverActive
+      ? (() => {
+          const h = computeHoverScales(isMobileNav, dimensions);
+          return { scaleX: h.targetScaleX, scaleY: h.targetScaleY };
+        })()
+      : { scaleX: 1, scaleY: 1 };
+    const scales = computeVelocityScales(
+      velocity,
+      orientation,
+      tabCount,
+      baseScales,
+      REF_VELOCITY,
+      prefersReducedMotion,
+    );
+    return { targetScaleX: scales.scaleX, targetScaleY: scales.scaleY };
+  }
+
+  const travel = computeTravelScales(tabDistance, tabCount, orientation);
+  if (isHoverActive) {
+    const hover = computeHoverScales(isMobileNav, dimensions);
+    return computeHoverTravelScales(hover, travel, orientation);
+  }
+  return travel;
+}
+
 export function computeTargetScales(
   isPressed: boolean,
   isHoverActive: boolean,
@@ -424,6 +486,7 @@ export function computeTargetScales(
   tabDistance = 0,
   prefersReducedMotion = false,
   tabCount = 0,
+  velocity?: number,
 ) {
   if (prefersReducedMotion) {
     return { targetScaleX: 1, targetScaleY: 1 };
@@ -431,22 +494,22 @@ export function computeTargetScales(
 
   // 1. Click / Press: Even pixel growth on all 4 sides without vertical compression (NO squish)
   if (isPressed) {
-    const tapDelta = isMobileNav
-      ? scaleDeltas.tap.mobile
-      : scaleDeltas.tap.desktop;
-    const clickScaleX = 1 + (2 * tapDelta) / dimensions.width;
-    const clickScaleY = 1 + (2 * tapDelta) / dimensions.height;
-    return { targetScaleX: clickScaleX, targetScaleY: clickScaleY };
+    return computePressScales(isMobileNav, dimensions);
   }
 
   // 2. Flight / Travel State (Mouse gliding across tabs OR page scrolling between sections)
-  if (isTraveling && tabDistance > 0) {
-    const travel = computeTravelScales(tabDistance, tabCount, orientation);
-    if (isHoverActive) {
-      const hover = computeHoverScales(isMobileNav, dimensions);
-      return computeHoverTravelScales(hover, travel, orientation);
-    }
-    return travel;
+  const hasVelocity = velocity !== undefined && Math.abs(velocity) >= 5;
+  if (isTraveling && (tabDistance > 0 || hasVelocity)) {
+    return computeFlightScales(
+      orientation,
+      isMobileNav,
+      dimensions,
+      tabDistance,
+      tabCount,
+      isHoverActive,
+      velocity,
+      prefersReducedMotion,
+    );
   }
 
   // 3. Resting Hover State: Old good formula (even pixel growth on all 4 sides)
