@@ -38,6 +38,7 @@ Thumbs.db
 dist/
 dist-ssr/
 stats.html
+coverage/
 
 # Local agent skills, critique, and cache directories
 .agents/skills/*

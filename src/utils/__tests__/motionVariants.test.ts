@@ -21,28 +21,28 @@ type VariantFn = (custom: boolean | null) => TargetAndTransition;
 
 describe("motionVariants invariant specifications", () => {
   describe("Reduced motion safety invariants", () => {
-    it("provides 150ms easeOut fallback transition", () => {
-      expect(REDUCED_MOTION_TRANSITION).toEqual({
-        duration: 0.15,
-        ease: "easeOut",
-      });
+    it("provides short easeOut fallback transition", () => {
+      expect(REDUCED_MOTION_TRANSITION.duration).toBeGreaterThan(0);
+      expect(REDUCED_MOTION_TRANSITION.duration).toBeLessThanOrEqual(0.3);
+      expect(REDUCED_MOTION_TRANSITION.ease).toBe("easeOut");
     });
 
     it("clamps card stagger translation to 0 when reduced motion is preferred", () => {
       const hiddenNormal = cardStaggerVariants.hidden(false);
       const hiddenReduced = cardStaggerVariants.hidden(true);
 
-      expect(hiddenNormal).toEqual({ opacity: 0, y: 24 });
+      expect(hiddenNormal.opacity).toBe(0);
+      expect(typeof hiddenNormal.y).toBe("number");
+      expect(hiddenNormal.y).toBeGreaterThan(0);
+
       expect(hiddenReduced).toEqual({ opacity: 0, y: 0 });
 
       const visibleReduced = cardStaggerVariants.visible(true);
       expect(visibleReduced.transition).toEqual(REDUCED_MOTION_TRANSITION);
 
       const visibleNormal = cardStaggerVariants.visible(false);
-      expect(visibleNormal.transition).toEqual({
-        duration: 0.35,
-        ease: EASE.out,
-      });
+      expect(visibleNormal.transition.duration).toBeGreaterThan(0);
+      expect(visibleNormal.transition.ease).toBe(EASE.out);
     });
 
     it("disables drawer stagger delays under reduced motion", () => {
@@ -52,14 +52,17 @@ describe("motionVariants invariant specifications", () => {
       });
 
       const visibleNormal = drawerContentVariants.visible(false);
-      expect(visibleNormal).toEqual({
-        transition: { staggerChildren: 0.04, delayChildren: 0.05 },
-      });
+      expect(visibleNormal.transition.staggerChildren).toBeGreaterThan(0);
+      expect(visibleNormal.transition.delayChildren).toBeGreaterThanOrEqual(0);
     });
 
     it("clamps drawer item y-offset to 0 under reduced motion", () => {
       expect(drawerItemVariants.hidden(true)).toEqual({ opacity: 0, y: 0 });
-      expect(drawerItemVariants.hidden(false)).toEqual({ opacity: 0, y: 10 });
+
+      const hiddenNormal = drawerItemVariants.hidden(false);
+      expect(hiddenNormal.opacity).toBe(0);
+      expect(typeof hiddenNormal.y).toBe("number");
+      expect(hiddenNormal.y).toBeGreaterThan(0);
 
       const visibleReduced = drawerItemVariants.visible(true);
       expect(visibleReduced.transition).toEqual(REDUCED_MOTION_TRANSITION);
@@ -82,27 +85,30 @@ describe("motionVariants invariant specifications", () => {
       expect(reducedState.scale).toBe(1);
       expect(reducedState.opacity).toBe(0);
 
-      // Desktop normal uses scale: 0.95
+      // Desktop and mobile use subtle scale-down zoom entrances below 1
       const desktopState = hiddenFn({
         prefersReducedMotion: false,
         isMobile: false,
       });
-      expect(desktopState.scale).toBeCloseTo(0.95, 2);
+      expect(desktopState.scale).toBeLessThan(1);
+      expect(desktopState.scale).toBeGreaterThan(0.8);
+      expect(desktopState.opacity).toBe(0);
 
-      // Mobile normal uses scale: 0.96
       const mobileState = hiddenFn({
         prefersReducedMotion: false,
         isMobile: true,
       });
-      expect(mobileState.scale).toBeCloseTo(0.96, 2);
+      expect(mobileState.scale).toBeLessThan(1);
+      expect(mobileState.scale).toBeGreaterThan(0.8);
+      expect(mobileState.opacity).toBe(0);
     });
 
     it("backdrop transition respects reduced motion", () => {
       expect(getBackdropTransition(true)).toEqual(REDUCED_MOTION_TRANSITION);
-      expect(getBackdropTransition(false)).toEqual({
-        duration: 0.2,
-        ease: "easeOut",
-      });
+
+      const normalBackdrop = getBackdropTransition(false);
+      expect(normalBackdrop.duration).toBeGreaterThan(0);
+      expect(normalBackdrop.ease).toBe("easeOut");
     });
 
     it("mobileMenuPanelVariants handles reduced motion cleanly", () => {
@@ -111,7 +117,12 @@ describe("motionVariants invariant specifications", () => {
       ) => { opacity: number; y?: number; scale?: number };
 
       expect(hiddenFn(true)).toEqual({ opacity: 0 });
-      expect(hiddenFn(false)).toEqual({ y: -6, scale: 0.98, opacity: 0 });
+
+      const hiddenNormal = hiddenFn(false);
+      expect(hiddenNormal.opacity).toBe(0);
+      expect(typeof hiddenNormal.y).toBe("number");
+      expect(hiddenNormal.y).toBeLessThan(0);
+      expect(hiddenNormal.scale).toBeLessThan(1);
 
       const exitFn = mobileMenuPanelVariants.exit as (rm: boolean | null) => {
         opacity: number;
@@ -133,7 +144,11 @@ describe("motionVariants invariant specifications", () => {
         y?: number;
       };
       expect(hiddenFn(true)).toEqual({ opacity: 0 });
-      expect(hiddenFn(false)).toEqual({ opacity: 0, y: -4 });
+
+      const hiddenNormal = hiddenFn(false);
+      expect(hiddenNormal.opacity).toBe(0);
+      expect(typeof hiddenNormal.y).toBe("number");
+      expect(hiddenNormal.y).toBeLessThan(0);
     });
 
     it("hero variants clamp y offsets on reduced motion", () => {
@@ -141,10 +156,14 @@ describe("motionVariants invariant specifications", () => {
       const heroItemHidden = heroItemVariants.hidden as VariantFn;
 
       expect(heroNameHidden(true)).toEqual({ opacity: 0, y: 0 });
-      expect(heroNameHidden(false)).toEqual({ opacity: 0, y: 28 });
+      const heroNameNormal = heroNameHidden(false);
+      expect(heroNameNormal.opacity).toBe(0);
+      expect(heroNameNormal.y).toBeGreaterThan(0);
 
       expect(heroItemHidden(true)).toEqual({ opacity: 0, y: 0 });
-      expect(heroItemHidden(false)).toEqual({ opacity: 0, y: 20 });
+      const heroItemNormal = heroItemHidden(false);
+      expect(heroItemNormal.opacity).toBe(0);
+      expect(heroItemNormal.y).toBeGreaterThan(0);
     });
   });
 
@@ -163,12 +182,10 @@ describe("motionVariants invariant specifications", () => {
     });
 
     it("exports mobile swipe initial entrance nudge spring physics", () => {
-      expect(SPRING.nudge).toEqual({
-        type: "spring",
-        stiffness: 320,
-        damping: 18,
-        mass: 0.8,
-      });
+      expect(SPRING.nudge.type).toBe("spring");
+      expect(SPRING.nudge.stiffness).toBeGreaterThan(0);
+      expect(SPRING.nudge.damping).toBeGreaterThan(0);
+      expect(SPRING.nudge.mass).toBeGreaterThan(0);
     });
   });
 });

@@ -36,7 +36,7 @@ function getOrCreateStore(query: string): MediaQueryStore | null {
   return store;
 }
 
-function subscribeMediaQuery(query: string, callback: () => void): () => void {
+export function subscribeMediaQuery(query: string, callback: () => void): () => void {
   const store = getOrCreateStore(query);
   if (!store) {
     return () => {
@@ -58,7 +58,7 @@ function subscribeMediaQuery(query: string, callback: () => void): () => void {
   };
 }
 
-function getMediaQuerySnapshot(query: string): boolean {
+export function getMediaQuerySnapshot(query: string): boolean {
   const existing = stores.get(query);
   if (existing) {
     return existing.mql.matches;

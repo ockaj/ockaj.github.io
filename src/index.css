@@ -934,7 +934,7 @@ p {
   white-space: nowrap;
 }
 
-/* Interactive Label Illumination: Apple specular bloom on active tab text */
+/* Interactive Label Illumination*/
 @keyframes tab-label-bloom {
   0% {
     text-shadow:
