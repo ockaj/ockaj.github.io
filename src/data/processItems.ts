@@ -112,9 +112,13 @@ export const PROCESS_TOPICS: ProcessTopic[] = [
   },
 ];
 
+export type ProcessViewMode = "source" | "optimized";
+
 export const PROCESS_ITEMS = PROCESS_TOPICS.flatMap((t) => [
   {
     id: t.id * 2 - 1,
+    topicId: t.id,
+    mode: "source" as ProcessViewMode,
     title: t.source.title,
     type: t.source.type,
     description: t.source.description,
@@ -126,6 +130,8 @@ export const PROCESS_ITEMS = PROCESS_TOPICS.flatMap((t) => [
   },
   {
     id: t.id * 2,
+    topicId: t.id,
+    mode: "optimized" as ProcessViewMode,
     title: t.optimized.title,
     type: t.optimized.type,
     description: t.optimized.description,
@@ -137,7 +143,28 @@ export const PROCESS_ITEMS = PROCESS_TOPICS.flatMap((t) => [
   },
 ]);
 
-export const PROCESS_ITEMS_BY_ID = new Map<
-  number,
-  (typeof PROCESS_ITEMS)[number]
->(PROCESS_ITEMS.map((item) => [item.id, item]));
+export type ProcessItem = (typeof PROCESS_ITEMS)[number];
+
+export const PROCESS_ITEMS_BY_ID = new Map<number, ProcessItem>(
+  PROCESS_ITEMS.map((item) => [item.id, item]),
+);
+
+const PROCESS_ITEMS_BY_TOPIC_MODE = new Map<string, ProcessItem>(
+  PROCESS_ITEMS.map((item) => [`${item.topicId}:${item.mode}`, item]),
+);
+
+export function getProcessItem(
+  topicId: number,
+  mode: ProcessViewMode,
+): ProcessItem | undefined {
+  return PROCESS_ITEMS_BY_TOPIC_MODE.get(`${topicId}:${mode}`);
+}
+
+export function resolveProcessModalTarget(
+  modal: string | null | undefined,
+): ProcessItem | null {
+  if (!modal?.startsWith("lightbox-")) return null;
+  const itemId = Number(modal.slice("lightbox-".length));
+  if (Number.isNaN(itemId)) return null;
+  return PROCESS_ITEMS_BY_ID.get(itemId) ?? null;
+}

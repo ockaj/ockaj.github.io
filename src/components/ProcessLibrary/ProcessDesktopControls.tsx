@@ -16,7 +16,6 @@ import {
   useProcessLibraryState,
   useProcessLibraryActions,
 } from "./ProcessLibraryContext";
-import { getProcessTopicIndex } from "./useProcessTopicController";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 import { usePrefersReducedMotion } from "../../hooks/useMediaQuery";
 import { EASE } from "../../utils/springConfig";
@@ -25,11 +24,9 @@ const PAGE_SIZE = 10;
 
 function ProcessDesktopControls() {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const { activeTopicId } = useProcessLibraryState();
+  const { activeTopicId, activeIndex } = useProcessLibraryState();
   const { selectTopic } = useProcessLibraryActions();
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const activeIndex = getProcessTopicIndex(activeTopicId);
 
   const [visibleCount, setVisibleCount] = useState(() =>
     Math.max(PAGE_SIZE, activeIndex + 1),

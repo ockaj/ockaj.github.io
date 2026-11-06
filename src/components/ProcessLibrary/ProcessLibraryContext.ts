@@ -1,5 +1,5 @@
 import { createContext, use } from "react";
-import type { ProcessTopic } from "../../data/processItems";
+import type { ProcessTopic, ProcessViewMode } from "../../data/processItems";
 
 interface LightboxTargetItem {
   id: number;
@@ -12,8 +12,9 @@ interface LightboxTargetItem {
 export interface ProcessLibraryState {
   activeTopicId: number;
   activeTopic: ProcessTopic;
-  activeViewMode: "source" | "optimized";
-  viewModes: { readonly [topicId: number]: "source" | "optimized" | undefined };
+  activeIndex: number;
+  activeViewMode: ProcessViewMode;
+  viewModes: { readonly [topicId: number]: ProcessViewMode | undefined };
   direction: number;
   prevDisabled: boolean;
   nextDisabled: boolean;
@@ -24,10 +25,7 @@ export interface ProcessLibraryActions {
   selectTopic: (id: number) => void;
   selectPreviousTopic: () => void;
   selectNextTopic: () => void;
-  handleTopicViewModeChange: (
-    topicId: number,
-    mode: "source" | "optimized",
-  ) => void;
+  handleTopicViewModeChange: (topicId: number, mode: ProcessViewMode) => void;
   setLightboxItem: (item: LightboxTargetItem) => void;
 }
 

@@ -3,13 +3,17 @@ import { motion, useReducedMotion } from "motion/react";
 import { Sparkles, Maximize2 } from "lucide-react";
 import { SPRING } from "../../utils/springConfig";
 import { cn } from "../../utils/cn";
-import { type ProcessTopic } from "../../data/processItems";
+import {
+  getProcessItem,
+  type ProcessTopic,
+  type ProcessViewMode,
+} from "../../data/processItems";
 
 type ProcessVariant = ProcessTopic["source"];
 
 interface ProcessVariantStageProps {
   topic: ProcessTopic;
-  activeViewMode: "source" | "optimized";
+  activeViewMode: ProcessViewMode;
   setLightboxItem: (item: {
     id: number;
     title: string;
@@ -27,7 +31,7 @@ const SPRING_STAGE_DELAYED = { ...SPRING.stage, delay: 0.04 };
 interface DiagramCanvasItemProps {
   topicId: number;
   variant: ProcessVariant;
-  mode: "source" | "optimized";
+  mode: ProcessViewMode;
   isSelected: boolean;
   isFirstSlide: boolean;
   prefersReducedMotion: boolean | null;
@@ -64,14 +68,10 @@ const DiagramCanvasItem = memo(function DiagramCanvasItem({
         tabIndex={isSelected ? 0 : -1}
         className="active:scale-0.97 flex size-full min-h-11 cursor-zoom-in items-center justify-center p-3 transition-transform duration-100 ease-out focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none sm:p-5 md:p-6"
         onClick={() => {
-          const itemId = mode === "optimized" ? topicId * 2 : topicId * 2 - 1;
-          setLightboxItem({
-            id: itemId,
-            title: variant.title,
-            description: variant.description,
-            image: variant.image,
-            type: variant.type,
-          });
+          const item = getProcessItem(topicId, mode);
+          if (item) {
+            setLightboxItem(item);
+          }
         }}
         aria-label={`Zoom diagram: ${variant.title}`}
       >

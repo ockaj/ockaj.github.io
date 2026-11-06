@@ -6,12 +6,11 @@ import {
   useProcessLibraryState,
   useProcessLibraryActions,
 } from "./ProcessLibraryContext";
-import { getProcessTopicIndex } from "./useProcessTopicController";
 
 function ProcessMobileControls() {
-  const { activeTopic, prevDisabled, nextDisabled } = useProcessLibraryState();
+  const { activeIndex, prevDisabled, nextDisabled } = useProcessLibraryState();
   const { selectPreviousTopic, selectNextTopic } = useProcessLibraryActions();
-  const activePosition = getProcessTopicIndex(activeTopic.id) + 1;
+  const activePosition = activeIndex + 1;
   return (
     <div className="flex w-full justify-center">
       <StaticGlass

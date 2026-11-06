@@ -1,11 +1,10 @@
-import { useState, useEffect, useCallback, useMemo, memo } from "react";
+import { useEffect, useMemo, memo } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import {
   PROCESS_TOPICS,
   PROCESS_ITEMS,
   PROCESS_ITEMS_BY_ID,
 } from "../../data/processItems";
-import { useAppStore } from "../../store/useAppStore";
 import { useEntityModal } from "../../hooks/useEntityModal";
 import ProcessLightbox from "../ProcessLightbox/ProcessLightbox";
 import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
@@ -28,11 +27,7 @@ import {
   type ProcessLibraryState,
   type ProcessLibraryActions,
 } from "./ProcessLibraryContext";
-import {
-  getInitialProcessTopicId,
-  getLightboxTopicId,
-  useProcessTopicController,
-} from "./useProcessTopicController";
+import { useProcessTopicController } from "./useProcessTopicController";
 
 const isBuildMode = isBoneyardBuild();
 const containerVariants = containerStaggerVariants();
@@ -48,42 +43,22 @@ function ProcessLibrary() {
   const prefersReducedMotion = useReducedMotion();
   const {
     open: openLightbox,
+    selected: selectedLightboxItem,
     displayed: displayedLightboxItem,
     drawerProps: lightboxDrawerProps,
   } = useEntityModal("lightbox", PROCESS_ITEMS_BY_ID);
 
-  const topicController = useProcessTopicController(() =>
-    getInitialProcessTopicId(useAppStore.getState().activeModal),
-  );
-  const { activeTopicId, activeTopic, direction, prevDisabled, nextDisabled } =
-    topicController;
-
-  const [viewModes, setViewModes] = useState<{
-    readonly [topicId: number]: "source" | "optimized" | undefined;
-  }>(() => {
-    const modal = useAppStore.getState().activeModal;
-    if (modal?.startsWith("lightbox-")) {
-      const id = Number(modal.slice("lightbox-".length));
-      const topicId = getLightboxTopicId(modal);
-      if (topicId !== null && !Number.isNaN(id)) {
-        return { [topicId]: id % 2 === 0 ? "optimized" : "source" };
-      }
-    }
-    return {};
-  });
-
-  const handleTopicViewModeChange = useCallback(
-    (topicId: number, mode: "source" | "optimized") => {
-      setViewModes((prev) =>
-        prev[topicId] === mode ? prev : { ...prev, [topicId]: mode },
-      );
-    },
-    [],
-  );
-
-  const activeViewMode = activeTopic
-    ? viewModes[activeTopic.id] || "source"
-    : "source";
+  const topicController = useProcessTopicController(selectedLightboxItem);
+  const {
+    activeTopicId,
+    activeTopic,
+    activeIndex,
+    activeViewMode,
+    viewModes,
+    direction,
+    prevDisabled,
+    nextDisabled,
+  } = topicController;
 
   useEffect(() => {
     if (PROCESS_ITEMS.length === 0 || isConnectionConstrained()) return;
@@ -107,16 +82,16 @@ function ProcessLibrary() {
   const actionsValue = useMemo<ProcessLibraryActions>(
     () => ({
       ...topicController.actions,
-      handleTopicViewModeChange,
       setLightboxItem: openLightbox,
     }),
-    [topicController.actions, handleTopicViewModeChange, openLightbox],
+    [topicController.actions, openLightbox],
   );
 
   const stateValue = useMemo<ProcessLibraryState>(
     () => ({
       activeTopicId,
       activeTopic,
+      activeIndex,
       activeViewMode,
       viewModes,
       direction,
@@ -127,6 +102,7 @@ function ProcessLibrary() {
     [
       activeTopicId,
       activeTopic,
+      activeIndex,
       activeViewMode,
       viewModes,
       direction,
