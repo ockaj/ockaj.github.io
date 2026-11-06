@@ -18,6 +18,7 @@ interface LiquidGlassPhysicsParams {
   interactive: boolean;
   effectiveMagnetic: boolean;
   effectiveTilt: boolean;
+  effectiveSpringScale?: boolean;
   magneticStrength: number;
   tiltStrength: number;
 }
@@ -27,7 +28,7 @@ function computeEffectiveTiltStrength(width: number, strength: number): number {
   return Math.min(raw, tiltConfig.maxStrength);
 }
 
-export interface StretchMetrics {
+interface StretchMetrics {
   scaleX: number;
   scaleY: number;
   rubber: number;
@@ -46,8 +47,7 @@ export function computeAnisotropicStretch(
   const target = out ?? { scaleX: 1, scaleY: 1, rubber: 0, nx: 0, ny: 0 };
   const safeHeight =
     Number.isFinite(height) && height > 0 ? Math.max(height, 20) : 20;
-  const safeWidth =
-    Number.isFinite(width) && width > 0 ? width : safeHeight;
+  const safeWidth = Number.isFinite(width) && width > 0 ? width : safeHeight;
   const maxDimension = Math.max(safeWidth, safeHeight);
   const safeGrow = Number.isFinite(grow) ? grow : 0;
   const base = 1 + safeGrow / maxDimension;
@@ -90,30 +90,474 @@ interface CachedRect {
   height: number;
 }
 
-function checkHoverOnRelease(
-  e: Event | undefined,
-  element: HTMLElement | null,
-  cachedRect: CachedRect | null,
-): { isHovered: boolean; x: number; y: number } {
-  if (!e || !("clientX" in e)) {
-    return { isHovered: false, x: 0, y: 0 };
-  }
-  const clientX = (e as PointerEvent).clientX;
-  const clientY = (e as PointerEvent).clientY;
-  const rect = element?.getBoundingClientRect() ?? cachedRect;
-  if (!rect) {
-    return { isHovered: false, x: 0, y: 0 };
-  }
-  const isHovered =
-    clientX >= rect.left &&
-    clientX <= rect.left + rect.width &&
-    clientY >= rect.top &&
-    clientY <= rect.top + rect.height;
+interface GlassPhysicsTargets {
+  isHovered: boolean;
+  isHolding: boolean;
+  pointerType: "mouse" | "touch";
+  dimensions: { width: number; height: number };
+  pullX: number;
+  pullY: number;
+  tiltX: number;
+  tiltY: number;
+  scaleX: number;
+  scaleY: number;
+  mouseX: number;
+  mouseY: number;
+  sheenOpacity: number;
+  holding: number;
+}
+
+interface GlassGestureEngine {
+  configure: (config: LiquidGlassPhysicsParams) => void;
+  getState: () => GlassPhysicsTargets;
+  pointerDown: (input: {
+    pointerId: number;
+    pointerType: string;
+    button: number;
+    isPrimary?: boolean;
+    clientX: number;
+    clientY: number;
+    rect: CachedRect;
+  }) => GlassPhysicsTargets | null;
+  pointerMove: (input: {
+    pointerId: number;
+    clientX: number;
+    clientY: number;
+  }) => GlassPhysicsTargets | null;
+  pointerUpOrCancel: (input?: {
+    pointerId?: number;
+    clientX?: number;
+    clientY?: number;
+    liveRect?: CachedRect | null;
+  }) => GlassPhysicsTargets | null;
+  mouseEnter: (input: {
+    clientX: number;
+    clientY: number;
+    rect: CachedRect;
+  }) => GlassPhysicsTargets | null;
+  mouseMove: (input: {
+    clientX: number;
+    clientY: number;
+    rect: CachedRect;
+  }) => GlassPhysicsTargets | null;
+  mouseLeave: () => GlassPhysicsTargets | null;
+  resize: (
+    width: number,
+    height: number,
+    onDebouncedCommit?: (dimensions: { width: number; height: number }) => void,
+  ) => { width: number; height: number } | null;
+  consumeClickSuppression: () => boolean;
+  destroy: () => void;
+}
+
+export function createGlassGestureEngine(
+  initialConfig: LiquidGlassPhysicsParams,
+): GlassGestureEngine {
+  let config: Required<LiquidGlassPhysicsParams> = {
+    effectiveSpringScale: true,
+    ...initialConfig,
+  };
+
+  let liveDimensions = { width: 120, height: 36 };
+  let committedDimensions = { width: 120, height: 36 };
+  let hasMeasured = false;
+  let settleTimer: ReturnType<typeof setTimeout> | null = null;
+
+  let activePointerId: number | null = null;
+  let targetRect: CachedRect | null = null;
+  let startPointer: { x: number; y: number } | null = null;
+  let hasDragged = false;
+  let dragResetTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const stretchMetrics: StretchMetrics = {
+    scaleX: 1,
+    scaleY: 1,
+    rubber: 0,
+    nx: 0,
+    ny: 0,
+  };
+
+  const state: GlassPhysicsTargets = {
+    isHovered: false,
+    isHolding: false,
+    pointerType: "mouse",
+    dimensions: { width: 120, height: 36 },
+    pullX: 0,
+    pullY: 0,
+    tiltX: 0,
+    tiltY: 0,
+    scaleX: 1,
+    scaleY: 1,
+    mouseX: 0,
+    mouseY: 0,
+    sheenOpacity: 0,
+    holding: 0,
+  };
+
+  const clearTimers = () => {
+    if (settleTimer !== null) {
+      clearTimeout(settleTimer);
+      settleTimer = null;
+    }
+    if (dragResetTimer !== null) {
+      clearTimeout(dragResetTimer);
+      dragResetTimer = null;
+    }
+  };
 
   return {
-    isHovered,
-    x: isHovered ? clientX - rect.left - rect.width / 2 : 0,
-    y: isHovered ? clientY - rect.top - rect.height / 2 : 0,
+    configure: (next) => {
+      config = {
+        effectiveSpringScale: true,
+        ...next,
+      };
+    },
+
+    getState: () => state,
+
+    pointerDown: ({
+      pointerId,
+      pointerType,
+      button,
+      isPrimary = true,
+      clientX,
+      clientY,
+      rect,
+    }) => {
+      if (!config.interactive || button !== 0 || isPrimary === false) {
+        return null;
+      }
+
+      const detectedType: "mouse" | "touch" =
+        pointerType === "touch" || pointerType === "pen" ? "touch" : "mouse";
+      state.pointerType = detectedType;
+      state.isHolding = true;
+      state.holding = 1;
+      hasDragged = false;
+
+      if (dragResetTimer !== null) {
+        clearTimeout(dragResetTimer);
+        dragResetTimer = null;
+      }
+
+      startPointer = { x: clientX, y: clientY };
+      activePointerId = pointerId;
+
+      if (rect.width > 0 && rect.height > 0) {
+        targetRect = {
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+        };
+        liveDimensions = { width: rect.width, height: rect.height };
+        if (!hasMeasured) {
+          hasMeasured = true;
+          committedDimensions = { width: rect.width, height: rect.height };
+          state.dimensions = committedDimensions;
+        }
+      } else {
+        targetRect = {
+          left: rect.left,
+          top: rect.top,
+          width: liveDimensions.width,
+          height: liveDimensions.height,
+        };
+      }
+
+      const width = targetRect.width;
+      const height = targetRect.height;
+
+      if (config.effectiveSpringScale) {
+        const growPx =
+          glassFeel[detectedType === "touch" ? "touch" : "pointer"].grow;
+        const metrics = computeAnisotropicStretch(
+          0,
+          0,
+          width,
+          height,
+          growPx,
+          stretchMetrics,
+        );
+        state.scaleX = metrics.scaleX;
+        state.scaleY = metrics.scaleY;
+      } else {
+        state.scaleX = 1;
+        state.scaleY = 1;
+      }
+
+      state.pullX = 0;
+      state.pullY = 0;
+      state.tiltX = 0;
+      state.tiltY = 0;
+      state.mouseX = clientX - rect.left - width / 2;
+      state.mouseY = clientY - rect.top - height / 2;
+      state.sheenOpacity = 1;
+
+      return state;
+    },
+
+    pointerMove: ({ pointerId, clientX, clientY }) => {
+      if (
+        !state.isHolding ||
+        pointerId !== activePointerId ||
+        !startPointer ||
+        !targetRect
+      ) {
+        return null;
+      }
+
+      const rawDx = clientX - startPointer.x;
+      const dy = clientY - startPointer.y;
+      const length = Math.hypot(rawDx, dy);
+
+      if (length > 5) {
+        hasDragged = true;
+      }
+
+      const growPx =
+        glassFeel[state.pointerType === "touch" ? "touch" : "pointer"].grow;
+      const metrics = computeAnisotropicStretch(
+        rawDx,
+        dy,
+        targetRect.width,
+        targetRect.height,
+        growPx,
+        stretchMetrics,
+      );
+
+      if (config.effectiveSpringScale) {
+        state.scaleX = metrics.scaleX;
+        state.scaleY = metrics.scaleY;
+      } else {
+        state.scaleX = 1;
+        state.scaleY = 1;
+      }
+
+      const effectiveTiltStrength = computeEffectiveTiltStrength(
+        targetRect.width,
+        config.tiltStrength,
+      );
+      const maxPull = config.effectiveMagnetic
+        ? 8 * (config.magneticStrength / 0.02)
+        : 0;
+      const maxTilt = config.effectiveTilt ? effectiveTiltStrength * 4 : 0;
+
+      state.pullX = metrics.nx * maxPull * metrics.rubber;
+      state.pullY = metrics.ny * maxPull * metrics.rubber;
+      state.tiltX = -metrics.ny * maxTilt * metrics.rubber;
+      state.tiltY = metrics.nx * maxTilt * metrics.rubber;
+
+      const localX = clientX - targetRect.left;
+      const localY = clientY - targetRect.top;
+      const halfW = Math.max(targetRect.width / 2, 1);
+      const halfH = Math.max(targetRect.height / 2, 1);
+      const maxExtentX = halfW * 1.5;
+      const maxExtentY = halfH * 1.5;
+      state.mouseX = Math.max(
+        -maxExtentX,
+        Math.min(maxExtentX, localX - halfW),
+      );
+      state.mouseY = Math.max(
+        -maxExtentY,
+        Math.min(maxExtentY, localY - halfH),
+      );
+
+      return state;
+    },
+
+    pointerUpOrCancel: (input) => {
+      if (
+        input?.pointerId !== undefined &&
+        activePointerId !== null &&
+        input.pointerId !== activePointerId
+      ) {
+        return null;
+      }
+
+      const cachedRect = input?.liveRect ?? targetRect;
+      state.isHolding = false;
+      state.holding = 0;
+      activePointerId = null;
+      targetRect = null;
+      startPointer = null;
+
+      if (hasDragged) {
+        if (dragResetTimer !== null) {
+          clearTimeout(dragResetTimer);
+        }
+        dragResetTimer = setTimeout(() => {
+          hasDragged = false;
+          dragResetTimer = null;
+        }, 100);
+      }
+
+      state.pullX = 0;
+      state.pullY = 0;
+      state.tiltX = 0;
+      state.tiltY = 0;
+      state.scaleX = 1;
+      state.scaleY = 1;
+
+      const isMouse = state.pointerType === "mouse";
+      const hasCoords =
+        input?.clientX !== undefined && input?.clientY !== undefined;
+
+      if (isMouse && hasCoords && cachedRect) {
+        const cx = input.clientX as number;
+        const cy = input.clientY as number;
+        const inside =
+          cx >= cachedRect.left &&
+          cx <= cachedRect.left + cachedRect.width &&
+          cy >= cachedRect.top &&
+          cy <= cachedRect.top + cachedRect.height;
+
+        state.isHovered = inside;
+        if (inside) {
+          state.mouseX = cx - cachedRect.left - cachedRect.width / 2;
+          state.mouseY = cy - cachedRect.top - cachedRect.height / 2;
+          state.sheenOpacity = 1;
+        } else {
+          state.mouseX = 0;
+          state.mouseY = 0;
+          state.sheenOpacity = 0;
+        }
+      } else {
+        state.isHovered = false;
+        state.mouseX = 0;
+        state.mouseY = 0;
+        state.sheenOpacity = 0;
+      }
+
+      return state;
+    },
+
+    mouseEnter: ({ clientX, clientY, rect }) => {
+      if (!config.interactive) return null;
+      state.isHovered = true;
+
+      if (rect.width > 0 && rect.height > 0) {
+        liveDimensions = { width: rect.width, height: rect.height };
+        if (!hasMeasured) {
+          hasMeasured = true;
+          committedDimensions = { width: rect.width, height: rect.height };
+          state.dimensions = committedDimensions;
+        }
+      }
+
+      const width = rect.width > 0 ? rect.width : liveDimensions.width;
+      const height = rect.height > 0 ? rect.height : liveDimensions.height;
+      state.mouseX = clientX - rect.left - width / 2;
+      state.mouseY = clientY - rect.top - height / 2;
+      if (state.pointerType !== "touch") {
+        state.sheenOpacity = 1;
+      }
+
+      return state;
+    },
+
+    mouseMove: ({ clientX, clientY, rect }) => {
+      if (!config.interactive || state.isHolding || !state.isHovered) {
+        return null;
+      }
+      if (rect.width > 0 && rect.height > 0) {
+        liveDimensions = { width: rect.width, height: rect.height };
+      }
+      const width = rect.width > 0 ? rect.width : liveDimensions.width;
+      const height = rect.height > 0 ? rect.height : liveDimensions.height;
+      state.mouseX = clientX - rect.left - width / 2;
+      state.mouseY = clientY - rect.top - height / 2;
+
+      return state;
+    },
+
+    mouseLeave: () => {
+      if (!config.interactive || state.isHolding) return null;
+      state.isHovered = false;
+      state.pullX = 0;
+      state.pullY = 0;
+      state.tiltX = 0;
+      state.tiltY = 0;
+      state.scaleX = 1;
+      state.scaleY = 1;
+      state.sheenOpacity = 0;
+      state.holding = 0;
+      state.mouseX = 0;
+      state.mouseY = 0;
+      return state;
+    },
+
+    resize: (width, height, onDebouncedCommit) => {
+      if (width <= 0 || height <= 0) return null;
+      liveDimensions = { width, height };
+
+      if (!hasMeasured) {
+        hasMeasured = true;
+        committedDimensions = { width, height };
+        state.dimensions = committedDimensions;
+        return committedDimensions;
+      }
+
+      const widthChanged = Math.abs(committedDimensions.width - width) >= 1;
+      const heightChanged = Math.abs(committedDimensions.height - height) >= 1;
+
+      if (!widthChanged && !heightChanged) {
+        return null;
+      }
+
+      if (widthChanged) {
+        if (settleTimer !== null) {
+          clearTimeout(settleTimer);
+          settleTimer = null;
+        }
+        committedDimensions = { width, height };
+        state.dimensions = committedDimensions;
+        return committedDimensions;
+      }
+
+      if (settleTimer !== null) {
+        clearTimeout(settleTimer);
+      }
+
+      settleTimer = setTimeout(() => {
+        settleTimer = null;
+        if (
+          Math.abs(committedDimensions.width - liveDimensions.width) >= 1 ||
+          Math.abs(committedDimensions.height - liveDimensions.height) >= 1
+        ) {
+          committedDimensions = {
+            width: liveDimensions.width,
+            height: liveDimensions.height,
+          };
+          state.dimensions = committedDimensions;
+          onDebouncedCommit?.(committedDimensions);
+        }
+      }, 100);
+
+      return null;
+    },
+
+    consumeClickSuppression: () => {
+      if (hasDragged) {
+        if (dragResetTimer !== null) {
+          clearTimeout(dragResetTimer);
+          dragResetTimer = null;
+        }
+        hasDragged = false;
+        return true;
+      }
+      return false;
+    },
+
+    destroy: () => {
+      clearTimers();
+      state.isHovered = false;
+      state.isHolding = false;
+      activePointerId = null;
+      targetRect = null;
+      startPointer = null;
+      hasDragged = false;
+    },
   };
 }
 
@@ -121,124 +565,41 @@ export function useLiquidGlassPhysics({
   interactive,
   effectiveMagnetic,
   effectiveTilt,
+  effectiveSpringScale = true,
   magneticStrength,
   tiltStrength,
 }: LiquidGlassPhysicsParams) {
   const elementRef = useRef<HTMLElement | null>(null);
   const [dimensions, setDimensions] = useState({ width: 120, height: 36 });
-  const liveDimensionsRef = useRef({ width: 120, height: 36 });
-  const committedDimensionsRef = useRef({ width: 120, height: 36 });
-  const hasMeasuredRef = useRef(false);
-  const settleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isHovered, setIsHovered] = useState(false);
-  const isHoveredRef = useRef(false);
-
   const [isHolding, setIsHolding] = useState(false);
   const [pointerType, setPointerType] = useState<"mouse" | "touch">("mouse");
-  const pointerTypeRef = useRef<"mouse" | "touch">("mouse");
-  const activePointerIdRef = useRef<number | null>(null);
-  const targetElementRef = useRef<HTMLElement | null>(null);
-  const targetRectRef = useRef<{
-    left: number;
-    top: number;
-    width: number;
-    height: number;
-  } | null>(null);
-  const startPointerRef = useRef<{ x: number; y: number } | null>(null);
-  const hasDraggedRef = useRef(false);
-  const dragResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const stretchMetricsRef = useRef<StretchMetrics>({
-    scaleX: 1,
-    scaleY: 1,
-    rubber: 0,
-    nx: 0,
-    ny: 0,
-  });
 
-  const shouldSuppressClick = useCallback(() => {
-    if (hasDraggedRef.current) {
-      if (dragResetTimerRef.current !== null) {
-        clearTimeout(dragResetTimerRef.current);
-        dragResetTimerRef.current = null;
-      }
-      hasDraggedRef.current = false;
-      return true;
-    }
-    return false;
-  }, []);
+  const [engine] = useState(() =>
+    createGlassGestureEngine({
+      interactive,
+      effectiveMagnetic,
+      effectiveTilt,
+      effectiveSpringScale,
+      magneticStrength,
+      tiltStrength,
+    }),
+  );
+
+  engine.configure({
+    interactive,
+    effectiveMagnetic,
+    effectiveTilt,
+    effectiveSpringScale,
+    magneticStrength,
+    tiltStrength,
+  });
 
   useEffect(() => {
     return () => {
-      isHoveredRef.current = false;
-      targetElementRef.current = null;
-      targetRectRef.current = null;
-      activePointerIdRef.current = null;
-      startPointerRef.current = null;
-      hasDraggedRef.current = false;
-      if (settleTimerRef.current !== null) {
-        clearTimeout(settleTimerRef.current);
-        settleTimerRef.current = null;
-      }
-      if (dragResetTimerRef.current !== null) {
-        clearTimeout(dragResetTimerRef.current);
-        dragResetTimerRef.current = null;
-      }
+      engine.destroy();
     };
-  }, []);
-
-  const handleResize = useCallback((entry: ResizeObserverEntry) => {
-    const { width, height } = getEntryDimensions(entry);
-    if (width <= 0 || height <= 0) return;
-
-    liveDimensionsRef.current = { width, height };
-
-    if (!hasMeasuredRef.current) {
-      hasMeasuredRef.current = true;
-      committedDimensionsRef.current = { width, height };
-      setDimensions({ width, height });
-      return;
-    }
-
-    const current = committedDimensionsRef.current;
-    const widthChanged = Math.abs(current.width - width) >= 1;
-    const heightChanged = Math.abs(current.height - height) >= 1;
-
-    if (!widthChanged && !heightChanged) {
-      return;
-    }
-
-    if (widthChanged) {
-      if (settleTimerRef.current !== null) {
-        clearTimeout(settleTimerRef.current);
-        settleTimerRef.current = null;
-      }
-      committedDimensionsRef.current = { width, height };
-      setDimensions({ width, height });
-      return;
-    }
-
-    // Only height changed: debounce state update until height settles.
-    if (settleTimerRef.current !== null) {
-      clearTimeout(settleTimerRef.current);
-    }
-
-    settleTimerRef.current = setTimeout(() => {
-      settleTimerRef.current = null;
-      const latest = liveDimensionsRef.current;
-      if (
-        Math.abs(committedDimensionsRef.current.width - latest.width) >= 1 ||
-        Math.abs(committedDimensionsRef.current.height - latest.height) >= 1
-      ) {
-        committedDimensionsRef.current = {
-          width: latest.width,
-          height: latest.height,
-        };
-        setDimensions({ width: latest.width, height: latest.height });
-      }
-    }, 100);
-  }, []);
-
-  useResizeObserver(interactive && isHovered ? elementRef : null, handleResize);
+  }, [engine]);
 
   const rawPullX = useMotionValue(0);
   const rawPullY = useMotionValue(0);
@@ -252,12 +613,8 @@ export function useLiquidGlassPhysics({
   const rawHolding = useMotionValue(0);
 
   const activeFeel = glassFeel[pointerType === "touch" ? "touch" : "pointer"];
-  const activeSpringConfig = isHolding
-    ? activeFeel.press
-    : activeFeel.release;
-  const activeSheenSpring = isHolding
-    ? activeFeel.press
-    : SPRING.glassMouse;
+  const activeSpringConfig = isHolding ? activeFeel.press : activeFeel.release;
+  const activeSheenSpring = isHolding ? activeFeel.press : SPRING.glassMouse;
 
   const springPullX = useSpring(rawPullX, activeSpringConfig);
   const springPullY = useSpring(rawPullY, activeSpringConfig);
@@ -270,58 +627,18 @@ export function useLiquidGlassPhysics({
   const sheenOpacity = useSpring(rawSheenOpacity, SPRING.glassOpacity);
   const springHolding = useSpring(rawHolding, SPRING.glassPress);
 
-  const endHold = useCallback(
-    (e?: Event) => {
-      if (
-        e &&
-        "pointerId" in e &&
-        activePointerIdRef.current !== null &&
-        (e as PointerEvent).pointerId !== activePointerIdRef.current
-      ) {
-        return;
-      }
-      const cachedRect = targetRectRef.current;
-      setIsHolding(false);
-      rawHolding.set(0);
-      activePointerIdRef.current = null;
-      targetElementRef.current = null;
-      targetRectRef.current = null;
-      startPointerRef.current = null;
-      if (hasDraggedRef.current) {
-        if (dragResetTimerRef.current !== null) {
-          clearTimeout(dragResetTimerRef.current);
-        }
-        dragResetTimerRef.current = setTimeout(() => {
-          hasDraggedRef.current = false;
-          dragResetTimerRef.current = null;
-        }, 100);
-      }
-      frame.read(() => {
-        rawPullX.set(0);
-        rawPullY.set(0);
-        rawTiltX.set(0);
-        rawTiltY.set(0);
-        rawScaleX.set(1);
-        rawScaleY.set(1);
-
-        const isMouse = pointerTypeRef.current === "mouse";
-        const hoverResult = isMouse
-          ? checkHoverOnRelease(e, elementRef.current, cachedRect)
-          : { isHovered: false, x: 0, y: 0 };
-
-        isHoveredRef.current = hoverResult.isHovered;
-        setIsHovered(hoverResult.isHovered);
-
-        if (hoverResult.isHovered) {
-          mouseX.set(hoverResult.x);
-          mouseY.set(hoverResult.y);
-          rawSheenOpacity.set(1);
-        } else {
-          mouseX.set(0);
-          mouseY.set(0);
-          rawSheenOpacity.set(0);
-        }
-      });
+  const syncMotionTargets = useCallback(
+    (targets: GlassPhysicsTargets) => {
+      rawPullX.set(targets.pullX);
+      rawPullY.set(targets.pullY);
+      rawTiltX.set(targets.tiltX);
+      rawTiltY.set(targets.tiltY);
+      rawScaleX.set(targets.scaleX);
+      rawScaleY.set(targets.scaleY);
+      mouseX.set(targets.mouseX);
+      mouseY.set(targets.mouseY);
+      rawSheenOpacity.set(targets.sheenOpacity);
+      rawHolding.set(targets.holding);
     },
     [
       mouseX,
@@ -337,83 +654,52 @@ export function useLiquidGlassPhysics({
     ],
   );
 
-  const onWindowPointerMove = useCallback(
-    (e: PointerEvent) => {
-      if (e.pointerId !== activePointerIdRef.current) {
-        return;
+  const handleResize = useCallback(
+    (entry: ResizeObserverEntry) => {
+      const { width, height } = getEntryDimensions(entry);
+      const committed = engine.resize(width, height, (debounced) => {
+        setDimensions(debounced);
+      });
+      if (committed) {
+        setDimensions(committed);
       }
-      const target = targetElementRef.current;
-      const start = startPointerRef.current;
-      const cachedRect = targetRectRef.current;
-      if (!target || !start || !cachedRect) return;
-      const clientX = e.clientX;
-      const clientY = e.clientY;
+    },
+    [engine],
+  );
 
-      const rawDx = clientX - start.x;
-      const dy = clientY - start.y;
-      const length = Math.hypot(rawDx, dy);
+  useResizeObserver(interactive && isHovered ? elementRef : null, handleResize);
 
-      if (length > 5) {
-        hasDraggedRef.current = true;
-      }
-
+  const endHold = useCallback(
+    (e?: Event) => {
+      const pointerEvent =
+        e && "pointerId" in e ? (e as PointerEvent) : undefined;
       frame.read(() => {
-        const growPx =
-          glassFeel[pointerTypeRef.current === "touch" ? "touch" : "pointer"]
-            .grow;
-
-        const metrics = computeAnisotropicStretch(
-          rawDx,
-          dy,
-          cachedRect.width,
-          cachedRect.height,
-          growPx,
-          stretchMetricsRef.current,
-        );
-
-        rawScaleX.set(metrics.scaleX);
-        rawScaleY.set(metrics.scaleY);
-
-        const effectiveTiltStrength = computeEffectiveTiltStrength(
-          cachedRect.width,
-          tiltStrength,
-        );
-        const maxPull = effectiveMagnetic
-          ? 8 * (magneticStrength / 0.02)
-          : 0;
-        const maxTilt = effectiveTilt ? effectiveTiltStrength * 4 : 0;
-
-        rawPullX.set(metrics.nx * maxPull * metrics.rubber);
-        rawPullY.set(metrics.ny * maxPull * metrics.rubber);
-        rawTiltX.set(-metrics.ny * maxTilt * metrics.rubber);
-        rawTiltY.set(metrics.nx * maxTilt * metrics.rubber);
-
-        const localX = clientX - cachedRect.left;
-        const localY = clientY - cachedRect.top;
-        const halfW = Math.max(cachedRect.width / 2, 1);
-        const halfH = Math.max(cachedRect.height / 2, 1);
-        const maxExtentX = halfW * 1.5;
-        const maxExtentY = halfH * 1.5;
-        const clampedX = Math.max(-maxExtentX, Math.min(maxExtentX, localX - halfW));
-        const clampedY = Math.max(-maxExtentY, Math.min(maxExtentY, localY - halfH));
-        mouseX.set(clampedX);
-        mouseY.set(clampedY);
+        const liveRect = elementRef.current?.getBoundingClientRect() ?? null;
+        const next = engine.pointerUpOrCancel({
+          pointerId: pointerEvent?.pointerId,
+          clientX: pointerEvent?.clientX,
+          clientY: pointerEvent?.clientY,
+          liveRect,
+        });
+        if (!next) return;
+        setIsHolding(false);
+        setIsHovered(next.isHovered);
+        syncMotionTargets(next);
       });
     },
-    [
-      effectiveMagnetic,
-      effectiveTilt,
-      magneticStrength,
-      mouseX,
-      mouseY,
-      rawPullX,
-      rawPullY,
-      rawScaleX,
-      rawScaleY,
-      rawTiltX,
-      rawTiltY,
-      tiltStrength,
-    ],
+    [engine, syncMotionTargets],
+  );
+
+  const onWindowPointerMove = useCallback(
+    (e: PointerEvent) => {
+      const { pointerId, clientX, clientY } = e;
+      frame.read(() => {
+        const next = engine.pointerMove({ pointerId, clientX, clientY });
+        if (!next) return;
+        syncMotionTargets(next);
+      });
+    },
+    [engine, syncMotionTargets],
   );
 
   useEffect(() => {
@@ -437,182 +723,92 @@ export function useLiquidGlassPhysics({
   const handlePointerDown = useCallback(
     (e: ReactPointerEvent<HTMLElement>) => {
       if (!interactive || e.button !== 0 || e.isPrimary === false) return;
-
+      const target = e.currentTarget;
+      const {
+        pointerId,
+        pointerType: rawType,
+        button,
+        isPrimary,
+        clientX,
+        clientY,
+      } = e;
       const detectedType: "mouse" | "touch" =
-        e.pointerType === "touch" || e.pointerType === "pen"
-          ? "touch"
-          : "mouse";
-      pointerTypeRef.current = detectedType;
+        rawType === "touch" || rawType === "pen" ? "touch" : "mouse";
       setPointerType(detectedType);
       setIsHolding(true);
-      rawHolding.set(1);
-      hasDraggedRef.current = false;
-      if (dragResetTimerRef.current !== null) {
-        clearTimeout(dragResetTimerRef.current);
-        dragResetTimerRef.current = null;
-      }
-      startPointerRef.current = { x: e.clientX, y: e.clientY };
-      activePointerIdRef.current = e.pointerId;
-      const target = e.currentTarget;
-      targetElementRef.current = target;
-
-      const clientX = e.clientX;
-      const clientY = e.clientY;
 
       frame.read(() => {
         const rect = target.getBoundingClientRect();
-        if (rect.width > 0 && rect.height > 0) {
-          targetRectRef.current = {
-            left: rect.left,
-            top: rect.top,
-            width: rect.width,
-            height: rect.height,
-          };
-          liveDimensionsRef.current = {
-            width: rect.width,
-            height: rect.height,
-          };
-          if (!hasMeasuredRef.current) {
-            hasMeasuredRef.current = true;
-            committedDimensionsRef.current = {
-              width: rect.width,
-              height: rect.height,
-            };
-            setDimensions({ width: rect.width, height: rect.height });
-          }
-        }
-
-        const growPx =
-          glassFeel[detectedType === "touch" ? "touch" : "pointer"].grow;
-        const width =
-          rect.width > 0 ? rect.width : liveDimensionsRef.current.width;
-        const height =
-          rect.height > 0 ? rect.height : liveDimensionsRef.current.height;
-
-        const metrics = computeAnisotropicStretch(
-          0,
-          0,
-          width,
-          height,
-          growPx,
-          stretchMetricsRef.current,
+        const next = engine.pointerDown({
+          pointerId,
+          pointerType: rawType,
+          button,
+          isPrimary,
+          clientX,
+          clientY,
+          rect,
+        });
+        if (!next) return;
+        setDimensions((prev) =>
+          prev.width === next.dimensions.width &&
+          prev.height === next.dimensions.height
+            ? prev
+            : next.dimensions,
         );
-
-        rawPullX.set(0);
-        rawPullY.set(0);
-        rawTiltX.set(0);
-        rawTiltY.set(0);
-        rawScaleX.set(metrics.scaleX);
-        rawScaleY.set(metrics.scaleY);
-
-        const localX = clientX - rect.left;
-        const localY = clientY - rect.top;
-        mouseX.set(localX - rect.width / 2);
-        mouseY.set(localY - rect.height / 2);
-        rawSheenOpacity.set(1);
+        syncMotionTargets(next);
       });
     },
-    [
-      interactive,
-      mouseX,
-      mouseY,
-      rawHolding,
-      rawPullX,
-      rawPullY,
-      rawScaleX,
-      rawScaleY,
-      rawSheenOpacity,
-      rawTiltX,
-      rawTiltY,
-    ],
-  );
-
-  const updateMousePositions = useCallback(
-    (e: ReactMouseEvent<HTMLElement>, onUpdate?: () => void) => {
-      const currentTarget = e.currentTarget;
-      const clientX = e.clientX;
-      const clientY = e.clientY;
-
-      frame.read(() => {
-        if (!currentTarget || !isHoveredRef.current) return;
-        const rect = currentTarget.getBoundingClientRect();
-        if (rect.width > 0 && rect.height > 0) {
-          liveDimensionsRef.current = {
-            width: rect.width,
-            height: rect.height,
-          };
-        }
-        const localX = clientX - rect.left;
-        const localY = clientY - rect.top;
-        mouseX.set(localX - rect.width / 2);
-        mouseY.set(localY - rect.height / 2);
-        onUpdate?.();
-      });
-    },
-    [mouseX, mouseY],
+    [engine, interactive, syncMotionTargets],
   );
 
   const handleMouseEnter = useCallback(
     (e: ReactMouseEvent<HTMLElement>) => {
       if (!interactive) return;
-      isHoveredRef.current = true;
-      if (!hasMeasuredRef.current) {
-        const width = e.currentTarget.offsetWidth;
-        const height = e.currentTarget.offsetHeight;
-        if (width > 0 && height > 0) {
-          hasMeasuredRef.current = true;
-          liveDimensionsRef.current = { width, height };
-          committedDimensionsRef.current = { width, height };
-          setDimensions({ width, height });
-        }
-      }
+      const currentTarget = e.currentTarget;
+      const { clientX, clientY } = e;
       setIsHovered(true);
-      updateMousePositions(e, () => {
-        if (!isHoveredRef.current || pointerTypeRef.current === "touch") return;
-        rawSheenOpacity.set(1);
+
+      frame.read(() => {
+        if (!currentTarget) return;
+        const rect = currentTarget.getBoundingClientRect();
+        const next = engine.mouseEnter({ clientX, clientY, rect });
+        if (!next) return;
+        setDimensions((prev) =>
+          prev.width === next.dimensions.width &&
+          prev.height === next.dimensions.height
+            ? prev
+            : next.dimensions,
+        );
+        syncMotionTargets(next);
       });
     },
-    [interactive, rawSheenOpacity, updateMousePositions],
+    [engine, interactive, syncMotionTargets],
   );
 
   const handleMouseMove = useCallback(
     (e: ReactMouseEvent<HTMLElement>) => {
       if (!interactive || isHolding) return;
-      updateMousePositions(e);
+      const currentTarget = e.currentTarget;
+      const { clientX, clientY } = e;
+
+      frame.read(() => {
+        if (!currentTarget) return;
+        const rect = currentTarget.getBoundingClientRect();
+        const next = engine.mouseMove({ clientX, clientY, rect });
+        if (!next) return;
+        syncMotionTargets(next);
+      });
     },
-    [interactive, isHolding, updateMousePositions],
+    [engine, interactive, isHolding, syncMotionTargets],
   );
 
   const handleMouseLeave = useCallback(() => {
     if (!interactive) return;
-    if (!isHolding) {
-      isHoveredRef.current = false;
-      setIsHovered(false);
-      rawPullX.set(0);
-      rawPullY.set(0);
-      rawTiltX.set(0);
-      rawTiltY.set(0);
-      rawScaleX.set(1);
-      rawScaleY.set(1);
-      rawSheenOpacity.set(0);
-      rawHolding.set(0);
-      mouseX.set(0);
-      mouseY.set(0);
-    }
-  }, [
-    interactive,
-    isHolding,
-    mouseX,
-    mouseY,
-    rawHolding,
-    rawPullX,
-    rawPullY,
-    rawScaleX,
-    rawScaleY,
-    rawSheenOpacity,
-    rawTiltX,
-    rawTiltY,
-  ]);
+    const next = engine.mouseLeave();
+    if (!next) return;
+    setIsHovered(false);
+    syncMotionTargets(next);
+  }, [engine, interactive, syncMotionTargets]);
 
   const setElementRef = useCallback((node: HTMLElement | null) => {
     elementRef.current = node;
@@ -636,6 +832,6 @@ export function useLiquidGlassPhysics({
     handleMouseMove,
     handleMouseLeave,
     handlePointerDown,
-    shouldSuppressClick,
+    shouldSuppressClick: engine.consumeClickSuppression,
   };
 }

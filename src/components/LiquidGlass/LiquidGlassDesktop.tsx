@@ -17,18 +17,12 @@ import {
 import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
 import { useLiquidGlassPhysics } from "./useLiquidGlassPhysics";
-import {
-  type InteractiveGlassPropsWithRef,
-  DEFAULT_STYLE,
-} from "./types";
+import { type InteractiveGlassPropsWithRef, DEFAULT_STYLE } from "./types";
 import {
   assignRef,
-  getContentTagAndClasses,
   useKeyboardClick,
-  getGlassClasses,
   TAG_MAP,
-  setupTagProps,
-  computeInnerGlassStyle,
+  resolveGlassSurfaceProps,
   computeReactiveSheenBoxShadow,
 } from "./liquidGlassUtils";
 import {
@@ -87,8 +81,6 @@ function computeTagStyle(
   };
 }
 
-
-
 export default function LiquidGlassDesktop({
   children,
   as = "div",
@@ -132,6 +124,7 @@ export default function LiquidGlassDesktop({
     interactive: true,
     effectiveMagnetic,
     effectiveTilt,
+    effectiveSpringScale,
     magneticStrength,
     tiltStrength,
   });
@@ -172,21 +165,6 @@ export default function LiquidGlassDesktop({
 
   const handleKeyDown = useKeyboardClick(onClick);
 
-  const { borderActiveClasses, baseClasses } = getGlassClasses({
-    active,
-    as,
-    href,
-    onClick,
-    roundedClass,
-    className,
-    isHovered: physics.isHovered,
-  });
-
-  const innerGlassStyle = useMemo(
-    () => computeInnerGlassStyle(variant, active, specularGlow),
-    [variant, active, specularGlow],
-  );
-
   const tagStyle = useMemo(
     () =>
       computeTagStyle(
@@ -222,22 +200,8 @@ export default function LiquidGlassDesktop({
       onMouseLeave: handleMouseLeave,
       onPointerDown: handlePointerDown,
     }),
-    [
-      handleMouseEnter,
-      handleMouseMove,
-      handleMouseLeave,
-      handlePointerDown,
-    ],
+    [handleMouseEnter, handleMouseMove, handleMouseLeave, handlePointerDown],
   );
-
-  const { isInline, contentClasses } = getContentTagAndClasses(
-    href ? "a" : as,
-    innerClassName,
-  );
-  const ContentTag = isInline ? "span" : "div";
-
-  const rendersFullEffects = !isMotionReduced;
-  const Tag = href ? motion.a : (TAG_MAP[as] ?? motion.div);
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
@@ -263,20 +227,36 @@ export default function LiquidGlassDesktop({
     [shouldSuppressClick],
   );
 
-  const tagProps = setupTagProps(
-    href,
+  const {
+    isInline,
+    tagProps,
+    contentClasses,
+    borderActiveClasses,
+    innerGlassStyle,
+  } = resolveGlassSurfaceProps({
     as,
+    href,
     download,
     target,
     rel,
-    handleClick,
-    handleKeyDown,
-    baseClasses,
-    tagStyle,
     ariaLabel,
-    sharedAnimationProps,
+    onClick: handleClick,
+    onKeyDown: handleKeyDown,
+    className,
+    innerClassName,
+    roundedClass,
+    variant,
+    active,
+    isHovered: physics.isHovered,
+    specularGlow,
+    tagStyle,
+    animationProps: sharedAnimationProps,
     domProps,
-  );
+  });
+
+  const ContentTag = isInline ? "span" : "div";
+  const Tag = href ? motion.a : (TAG_MAP[as] ?? motion.div);
+  const rendersFullEffects = !isMotionReduced;
 
   const reactiveBoxShadow = useTransform(() =>
     computeReactiveSheenBoxShadow(

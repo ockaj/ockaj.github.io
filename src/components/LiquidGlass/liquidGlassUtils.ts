@@ -10,14 +10,11 @@ import {
 import { motion, type MotionStyle } from "motion/react";
 import { cn } from "../../utils/cn";
 import { SPRING } from "../../utils/springConfig";
-import { getInnerGlassStyle, scaleDeltas, hoverDelta } from "./config";
+import { getInnerGlassStyle, type LiquidGlassVariant } from "./config";
 import {
-  type StaticGlassProps,
-  type InteractiveGlassProps,
   type LiquidGlassTagProps,
   type LiquidGlassAnimationProps,
   type LiquidGlassDomProps,
-  type TabOrientation,
 } from "./types";
 
 export const TAP_PRESS_TRANSITION = {
@@ -39,19 +36,6 @@ export function assignRef<T>(ref: Ref<T> | undefined, node: T | null): void {
   }
 }
 
-export function getContentTagAndClasses(
-  as: StaticGlassProps["as"],
-  innerClassName?: string,
-) {
-  const isInline = as === "a" || as === "button" || as === "span";
-  const contentClasses = cn(
-    "relative z-30 size-full",
-    isInline && "flex items-center justify-center gap-2 font-semibold",
-    innerClassName,
-  );
-  return { isInline, contentClasses };
-}
-
 export function useKeyboardClick(
   onClick?: (e: MouseEvent<HTMLElement>) => void,
 ) {
@@ -68,45 +52,6 @@ export function useKeyboardClick(
     },
     [onClick],
   );
-}
-
-export function getGlassClasses({
-  active = false,
-  as = "div",
-  href,
-  onClick,
-  roundedClass = "rounded-full",
-  className = "",
-  isHovered = false,
-}: {
-  active?: boolean;
-  as?: string;
-  href?: string;
-  onClick?: unknown;
-  roundedClass?: string;
-  className?: string;
-  isHovered?: boolean;
-}) {
-  let borderActiveClasses = "bg-white/[0.015]";
-  if (active) {
-    borderActiveClasses = "bg-white/[0.05]";
-  } else if (isHovered) {
-    borderActiveClasses = "bg-white/[0.03]";
-  }
-
-  const cursorAndFocusClasses =
-    as === "button" || href || onClick
-      ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-      : "cursor-default";
-
-  const baseClasses = cn(
-    "group relative isolate inline-flex items-center justify-center bg-surface/35 backdrop-blur-sm md:backdrop-blur-lg backdrop-saturate-150 text-text-primary select-none overflow-hidden [user-drag:none] [-webkit-user-drag:none]",
-    cursorAndFocusClasses,
-    roundedClass,
-    className,
-  );
-
-  return { borderActiveClasses, baseClasses };
 }
 
 const SEMANTIC_CONTAINERS = new Set([
@@ -170,63 +115,172 @@ function attachComposedEventHandlers(
   }
 }
 
-export function setupTagProps(
+export function computeInnerGlassStyle(
+  variant: LiquidGlassVariant = "flat",
+  isActive = false,
+  specularGlow = false,
+): CSSProperties {
+  const baseStyle = getInnerGlassStyle(variant, isActive);
+  if (specularGlow && isActive && variant === "flat") {
+    return {
+      boxShadow: `inset 0 1px 2px rgba(255, 255, 255, 0.24), inset 0 8px 16px rgba(255, 255, 255, 0.06), ${baseStyle.boxShadow ?? ""}`,
+    };
+  }
+  return baseStyle;
+}
+
+type GlassTagType = "div" | "button" | "a" | "article" | "section" | "span";
+
+interface GlassSurfaceOptions {
+  as?: GlassTagType;
+  href?: string;
+  download?: string;
+  target?: string;
+  rel?: string;
+  ariaLabel?: string;
+  onClick?: unknown;
+  onKeyDown?: (e: KeyboardEvent<HTMLElement>) => void;
+  className?: string;
+  innerClassName?: string;
+  roundedClass?: string;
+  variant?: LiquidGlassVariant;
+  active?: boolean;
+  isHovered?: boolean;
+  specularGlow?: boolean;
+  tagStyle?: CSSProperties | MotionStyle;
+  animationProps?: LiquidGlassAnimationProps;
+  domProps?: LiquidGlassDomProps;
+}
+
+interface ResolvedGlassSurface {
+  isInline: boolean;
+  tagProps: LiquidGlassTagProps;
+  contentClasses: string;
+  borderActiveClasses: string;
+  innerGlassStyle: CSSProperties;
+}
+
+function resolveBorderActiveClass(active: boolean, isHovered: boolean): string {
+  if (active) return "bg-white/[0.05]";
+  if (isHovered) return "bg-white/[0.03]";
+  return "bg-white/[0.015]";
+}
+
+function applyInteractiveElementProps(
+  tagProps: LiquidGlassTagProps,
+  as: GlassTagType,
   href: string | undefined,
-  as: string,
   download: string | undefined,
   target: string | undefined,
   rel: string | undefined,
   onClick: unknown,
-  handleKeyDown: (e: KeyboardEvent<HTMLElement>) => void,
-  baseClasses: string,
-  tagStyle: CSSProperties | MotionStyle,
-  ariaLabel?: string,
-  sharedAnimationProps?: LiquidGlassAnimationProps,
-  domProps?: LiquidGlassDomProps,
-): LiquidGlassTagProps {
-  const tagProps: LiquidGlassTagProps = {
-    className: baseClasses,
-    style: tagStyle,
-    "aria-label": ariaLabel,
-    draggable: false,
-    ...sharedAnimationProps,
-    ...domProps,
-  };
-
-  attachComposedEventHandlers(tagProps, sharedAnimationProps, domProps);
-
-  tagProps.onDragStart = (e: unknown) => {
-    (e as { preventDefault?: () => void }).preventDefault?.();
-    domProps?.onDragStart?.(e as React.DragEvent<HTMLElement>);
-  };
-
+  onKeyDown: ((e: KeyboardEvent<HTMLElement>) => void) | undefined,
+  domProps: LiquidGlassDomProps | undefined,
+): void {
   if (href) {
     tagProps.href = href;
     tagProps.download = download;
     tagProps.target = target;
     tagProps.rel = rel;
     tagProps.onClick = onClick as MouseEventHandler<HTMLAnchorElement>;
-  } else if (as === "button") {
-    tagProps.type = "button";
-    tagProps.onClick = onClick as MouseEventHandler<HTMLButtonElement>;
-  } else if (onClick) {
-    tagProps.onClick = onClick as MouseEventHandler<HTMLElement>;
-    if (
-      as !== "a" &&
-      (as as string) !== "button" &&
-      !SEMANTIC_CONTAINERS.has(as)
-    ) {
-      if (domProps?.role === undefined) {
-        tagProps.role = "button";
-      }
-      if (domProps?.tabIndex === undefined) {
-        tagProps.tabIndex = 0;
-      }
-      tagProps.onKeyDown = handleKeyDown;
-    }
+    return;
   }
 
-  return tagProps;
+  if (as === "button") {
+    tagProps.type = "button";
+    tagProps.onClick = onClick as MouseEventHandler<HTMLButtonElement>;
+    return;
+  }
+
+  if (!onClick) return;
+
+  tagProps.onClick = onClick as MouseEventHandler<HTMLElement>;
+  if (as !== "a" && !SEMANTIC_CONTAINERS.has(as)) {
+    tagProps.role = domProps?.role ?? "button";
+    tagProps.tabIndex = domProps?.tabIndex ?? 0;
+    tagProps.onKeyDown = onKeyDown;
+  }
+}
+
+export function resolveGlassSurfaceProps({
+  as = "div",
+  href,
+  download,
+  target,
+  rel,
+  ariaLabel,
+  onClick,
+  onKeyDown,
+  className = "",
+  innerClassName = "",
+  roundedClass = "rounded-full",
+  variant = "flat",
+  active = false,
+  isHovered = false,
+  specularGlow = false,
+  tagStyle = {},
+  animationProps,
+  domProps,
+}: GlassSurfaceOptions): ResolvedGlassSurface {
+  const borderActiveClasses = resolveBorderActiveClass(active, isHovered);
+  const isInteractive = Boolean(as === "button" || href || onClick);
+  const cursorAndFocusClasses = isInteractive
+    ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+    : "cursor-default";
+
+  const baseClasses = cn(
+    "group relative isolate inline-flex items-center justify-center bg-surface/35 backdrop-blur-sm md:backdrop-blur-lg backdrop-saturate-150 text-text-primary select-none overflow-hidden [user-drag:none] [-webkit-user-drag:none]",
+    cursorAndFocusClasses,
+    roundedClass,
+    className,
+  );
+
+  const resolvedAs: GlassTagType = href ? "a" : as;
+  const isInline =
+    resolvedAs === "a" || resolvedAs === "button" || resolvedAs === "span";
+  const contentClasses = cn(
+    "relative z-30 size-full",
+    isInline && "flex items-center justify-center gap-2 font-semibold",
+    innerClassName,
+  );
+
+  const tagProps: LiquidGlassTagProps = {
+    className: baseClasses,
+    style: tagStyle,
+    "aria-label": ariaLabel,
+    draggable: false,
+    ...animationProps,
+    ...domProps,
+  };
+
+  attachComposedEventHandlers(tagProps, animationProps, domProps);
+
+  tagProps.onDragStart = (e: unknown) => {
+    (e as { preventDefault?: () => void }).preventDefault?.();
+    domProps?.onDragStart?.(e as React.DragEvent<HTMLElement>);
+  };
+
+  applyInteractiveElementProps(
+    tagProps,
+    as,
+    href,
+    download,
+    target,
+    rel,
+    onClick,
+    onKeyDown,
+    domProps,
+  );
+
+  const innerGlassStyle = computeInnerGlassStyle(variant, active, specularGlow);
+
+  return {
+    isInline,
+    tagProps,
+    contentClasses,
+    borderActiveClasses,
+    innerGlassStyle,
+  };
 }
 
 export function getEntryDimensions(entry: ResizeObserverEntry): {
@@ -266,20 +320,6 @@ export function computeGlisseBaseScale(
   return 1 + safeGrow / Math.max(safeWidth, safeHeight);
 }
 
-export function computeInnerGlassStyle(
-  variant: InteractiveGlassProps["variant"],
-  isActive: boolean,
-  specularGlow: boolean,
-): CSSProperties {
-  const baseStyle = getInnerGlassStyle(variant, isActive);
-  if (specularGlow && isActive && variant === "flat") {
-    return {
-      boxShadow: `inset 0 1px 2px rgba(255, 255, 255, 0.24), inset 0 8px 16px rgba(255, 255, 255, 0.06), ${baseStyle.boxShadow ?? ""}`,
-    };
-  }
-  return baseStyle;
-}
-
 export function computeReactiveSheenBoxShadow(
   x: number,
   y: number,
@@ -304,222 +344,6 @@ export function computeReactiveSheenBoxShadow(
 }
 
 const NAVBAR_HIGHLIGHT_REGEX = /navbar-highlight-(?:active|flat)/g;
-
-export const REF_VELOCITY = 1800;
-
-export interface BaseScales {
-  scaleX: number;
-  scaleY: number;
-}
-
-export function computeVelocityScales(
-  velocity: number,
-  orientation: TabOrientation,
-  tabCount: number,
-  baseScales: BaseScales = { scaleX: 1, scaleY: 1 },
-  refVelocity = REF_VELOCITY,
-  prefersReducedMotion = false,
-): { scaleX: number; scaleY: number } {
-  if (prefersReducedMotion) return baseScales;
-
-  const speed = Math.abs(velocity);
-  if (speed < 5) return baseScales;
-
-  const isBinary = tabCount > 0 && tabCount <= 2;
-  const countMult =
-    tabCount > 0 ? Math.min(1.0, Math.max(0.4, (tabCount - 1) / 3)) : 1.0;
-  const ratio = Math.min(1.0, speed / refVelocity);
-
-  if (orientation === "vertical") {
-    const maxY = isBinary ? 0.035 : 0.10;
-    const maxXCompress = isBinary ? 0.0 : 0.018;
-    const travelStretchY = 1 + maxY * ratio * countMult;
-    const travelCompressX = 1 - maxXCompress * ratio * countMult;
-
-    const scaleX =
-      baseScales.scaleX > 1.001
-        ? 1 + (baseScales.scaleX - 1) * 0.45 * travelCompressX
-        : travelCompressX;
-    const scaleY = baseScales.scaleY * travelStretchY;
-    return { scaleX, scaleY };
-  }
-
-  const maxX = isBinary ? 0.035 : 0.12;
-  const maxYCompress = isBinary ? 0.0 : 0.018;
-  const travelStretchX = 1 + maxX * ratio * countMult;
-  const travelCompressY = 1 - maxYCompress * ratio * countMult;
-
-  const scaleX = baseScales.scaleX * travelStretchX;
-  const scaleY =
-    baseScales.scaleY > 1.001
-      ? 1 + (baseScales.scaleY - 1) * 0.45 * travelCompressY
-      : travelCompressY;
-  return { scaleX, scaleY };
-}
-
-export function computeTravelVelocity(
-  tabDistance: number,
-  orientation: TabOrientation = "horizontal",
-): number {
-  const delta = Math.max(1, tabDistance);
-  if (orientation === "vertical") {
-    const ratio = Math.min(1.0, (0.035 + delta * 0.02) / 0.10);
-    return ratio * REF_VELOCITY;
-  }
-  const ratio = Math.min(1.0, (0.04 + delta * 0.025) / 0.12);
-  return ratio * REF_VELOCITY;
-}
-
-function computeTravelScales(
-  tabDistance: number,
-  tabCount: number,
-  orientation: TabOrientation,
-) {
-  const isBinary = tabCount > 0 && tabCount <= 2;
-  const countMultiplier =
-    tabCount > 0 ? Math.min(1.0, Math.max(0.4, (tabCount - 1) / 3)) : 1.0;
-  const delta = Math.max(1, tabDistance);
-
-  if (orientation === "vertical") {
-    const maxY = isBinary ? 0.035 : 0.10;
-    const stretchY =
-      1 + Math.min(maxY, (0.035 + delta * 0.02) * countMultiplier);
-    const compressX = isBinary
-      ? 1.0
-      : 1 - Math.min(0.018, (0.006 + delta * 0.0035) * countMultiplier);
-    return { targetScaleX: compressX, targetScaleY: stretchY };
-  }
-
-  const maxX = isBinary ? 0.035 : 0.12;
-  const stretchX =
-    1 + Math.min(maxX, (0.04 + delta * 0.025) * countMultiplier);
-  const compressY = isBinary
-    ? 1.0
-    : 1 - Math.min(0.018, (0.006 + delta * 0.0035) * countMultiplier);
-  return { targetScaleX: stretchX, targetScaleY: compressY };
-}
-
-function computeHoverScales(
-  isMobileNav: boolean,
-  dimensions: { width: number; height: number },
-) {
-  const delta = isMobileNav ? hoverDelta.mobile : hoverDelta.desktop;
-  return {
-    targetScaleX: 1 + (2 * delta) / dimensions.width,
-    targetScaleY: 1 + (2 * delta) / dimensions.height,
-  };
-}
-
-function computeHoverTravelScales(
-  hover: { targetScaleX: number; targetScaleY: number },
-  travel: { targetScaleX: number; targetScaleY: number },
-  orientation: TabOrientation,
-) {
-  if (orientation === "vertical") {
-    return {
-      targetScaleX: 1 + (hover.targetScaleX - 1) * 0.45 * travel.targetScaleX,
-      targetScaleY: hover.targetScaleY * travel.targetScaleY,
-    };
-  }
-  return {
-    targetScaleX: hover.targetScaleX * travel.targetScaleX,
-    targetScaleY: 1 + (hover.targetScaleY - 1) * 0.45 * travel.targetScaleY,
-  };
-}
-
-function computePressScales(
-  isMobileNav: boolean,
-  dimensions: { width: number; height: number },
-) {
-  const tapDelta = isMobileNav
-    ? scaleDeltas.tap.mobile
-    : scaleDeltas.tap.desktop;
-  return {
-    targetScaleX: 1 + (2 * tapDelta) / dimensions.width,
-    targetScaleY: 1 + (2 * tapDelta) / dimensions.height,
-  };
-}
-
-function computeFlightScales(
-  orientation: TabOrientation,
-  isMobileNav: boolean,
-  dimensions: { width: number; height: number },
-  tabDistance: number,
-  tabCount: number,
-  isHoverActive: boolean,
-  velocity?: number,
-  prefersReducedMotion = false,
-) {
-  if (velocity !== undefined && Math.abs(velocity) >= 5) {
-    const baseScales: BaseScales = isHoverActive
-      ? (() => {
-          const h = computeHoverScales(isMobileNav, dimensions);
-          return { scaleX: h.targetScaleX, scaleY: h.targetScaleY };
-        })()
-      : { scaleX: 1, scaleY: 1 };
-    const scales = computeVelocityScales(
-      velocity,
-      orientation,
-      tabCount,
-      baseScales,
-      REF_VELOCITY,
-      prefersReducedMotion,
-    );
-    return { targetScaleX: scales.scaleX, targetScaleY: scales.scaleY };
-  }
-
-  const travel = computeTravelScales(tabDistance, tabCount, orientation);
-  if (isHoverActive) {
-    const hover = computeHoverScales(isMobileNav, dimensions);
-    return computeHoverTravelScales(hover, travel, orientation);
-  }
-  return travel;
-}
-
-export function computeTargetScales(
-  isPressed: boolean,
-  isHoverActive: boolean,
-  isTraveling: boolean,
-  orientation: TabOrientation,
-  isMobileNav: boolean,
-  dimensions: { width: number; height: number },
-  tabDistance = 0,
-  prefersReducedMotion = false,
-  tabCount = 0,
-  velocity?: number,
-) {
-  if (prefersReducedMotion) {
-    return { targetScaleX: 1, targetScaleY: 1 };
-  }
-
-  // 1. Click / Press: Even pixel growth on all 4 sides without vertical compression (NO squish)
-  if (isPressed) {
-    return computePressScales(isMobileNav, dimensions);
-  }
-
-  // 2. Flight / Travel State (Mouse gliding across tabs OR page scrolling between sections)
-  const hasVelocity = velocity !== undefined && Math.abs(velocity) >= 5;
-  if (isTraveling && (tabDistance > 0 || hasVelocity)) {
-    return computeFlightScales(
-      orientation,
-      isMobileNav,
-      dimensions,
-      tabDistance,
-      tabCount,
-      isHoverActive,
-      velocity,
-      prefersReducedMotion,
-    );
-  }
-
-  // 3. Resting Hover State: Old good formula (even pixel growth on all 4 sides)
-  if (isHoverActive) {
-    return computeHoverScales(isMobileNav, dimensions);
-  }
-
-  // 4. Resting Idle State
-  return { targetScaleX: 1, targetScaleY: 1 };
-}
 
 export function resolveContextHighlightClass(
   contextHighlightClass: string | undefined,

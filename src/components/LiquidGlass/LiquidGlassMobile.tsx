@@ -18,13 +18,10 @@ import {
   TAP_PRESS_TRANSITION,
   TAP_RELEASE_TRANSITION,
   assignRef,
-  getContentTagAndClasses,
   useKeyboardClick,
-  getGlassClasses,
   TAG_MAP,
-  setupTagProps,
+  resolveGlassSurfaceProps,
   getEntryDimensions,
-  computeInnerGlassStyle,
   computeGlisseBaseScale,
 } from "./liquidGlassUtils";
 import { InnerBorderOverlay } from "./LiquidGlassOverlays";
@@ -85,29 +82,17 @@ export default function LiquidGlassMobile(
     }
   });
 
+  const rendersRipple = effectiveSpringScale && effectiveRipple;
+
   const {
     rippleX,
     rippleY,
     rippleScale,
     rippleOpacity,
     onPointerDown: handlePointerDown,
-  } = useRipple(effectiveSpringScale && effectiveRipple);
+  } = useRipple(rendersRipple);
 
   const handleKeyDown = useKeyboardClick(onClick);
-
-  const { borderActiveClasses, baseClasses } = getGlassClasses({
-    active,
-    as,
-    href,
-    onClick,
-    roundedClass,
-    className,
-  });
-
-  const innerGlassStyle = useMemo<CSSProperties>(
-    () => computeInnerGlassStyle(variant, active, specularGlow),
-    [variant, active, specularGlow],
-  );
 
   const tagStyle = useMemo<CSSProperties>(() => {
     return {
@@ -140,16 +125,37 @@ export default function LiquidGlassMobile(
     [effectiveSpringScale, handlePointerDown, tapScale],
   );
 
-  const { isInline, contentClasses } = getContentTagAndClasses(
-    href ? "a" : as,
+  const {
+    isInline,
+    tagProps,
+    contentClasses,
+    borderActiveClasses,
+    innerGlassStyle,
+  } = resolveGlassSurfaceProps({
+    as,
+    href,
+    download,
+    target,
+    rel,
+    ariaLabel,
+    onClick,
+    onKeyDown: handleKeyDown,
+    className,
     innerClassName,
-  );
+    roundedClass,
+    variant,
+    active,
+    specularGlow,
+    tagStyle,
+    animationProps: sharedAnimationProps,
+    domProps,
+  });
+
   const ContentTag = isInline ? "span" : "div";
+  const Tag = href ? motion.a : (TAG_MAP[as] ?? motion.div);
 
-  const rendersRipple = effectiveSpringScale && effectiveRipple;
-
-  const innerElements = (
-    <>
+  return (
+    <Tag ref={handleRef} {...tagProps}>
       <InnerBorderOverlay
         borderActiveClasses={borderActiveClasses}
         roundedClass={roundedClass}
@@ -163,30 +169,7 @@ export default function LiquidGlassMobile(
           rippleOpacity={rippleOpacity}
         />
       ) : null}
-
       <ContentTag className={contentClasses}>{children}</ContentTag>
-    </>
-  );
-
-  const Tag = href ? motion.a : (TAG_MAP[as] ?? motion.div);
-  const tagProps = setupTagProps(
-    href,
-    as,
-    download,
-    target,
-    rel,
-    onClick,
-    handleKeyDown,
-    baseClasses,
-    tagStyle,
-    ariaLabel,
-    sharedAnimationProps,
-    domProps,
-  );
-
-  return (
-    <Tag ref={handleRef} {...tagProps}>
-      {innerElements}
     </Tag>
   );
 }

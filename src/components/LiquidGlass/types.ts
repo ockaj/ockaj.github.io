@@ -8,13 +8,12 @@ import {
 import { type MotionStyle } from "motion/react";
 
 export const DEFAULT_STYLE: CSSProperties = {};
-export const WHITESPACE_REGEX = /\s+/g;
 
 /**
  * Pure layout and glass styling properties.
  * Does not include physics or motion properties.
  */
-export interface StaticGlassProps extends AllHTMLAttributes<HTMLElement> {
+interface StaticGlassProps extends AllHTMLAttributes<HTMLElement> {
   children?: ReactNode;
   as?: "div" | "button" | "a" | "article" | "section" | "span";
   href?: string;
@@ -34,7 +33,7 @@ export interface StaticGlassProps extends AllHTMLAttributes<HTMLElement> {
 /**
  * Interactive glass properties with physics and motion settings.
  */
-export interface InteractiveGlassProps extends StaticGlassProps {
+interface InteractiveGlassProps extends StaticGlassProps {
   springScale?: boolean;
   magnetic?: boolean;
   tilt?: boolean;

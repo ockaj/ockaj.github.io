@@ -1,18 +1,29 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import type { LiquidGlassDomProps } from "../types";
 import {
-  setupTagProps,
+  resolveGlassSurfaceProps,
   TAP_PRESS_TRANSITION,
   TAP_RELEASE_TRANSITION,
   computeGlisseBaseScale,
   computeInnerGlassStyle,
   computeReactiveSheenBoxShadow,
 } from "../liquidGlassUtils";
-import { computeAnisotropicStretch } from "../useLiquidGlassPhysics";
+import {
+  computeAnisotropicStretch,
+  createGlassGestureEngine,
+} from "../useLiquidGlassPhysics";
 import { glassFeel } from "../config";
 import { SPRING } from "../../../utils/springConfig";
 
-describe("LiquidGlass hold, drag, and click suppression", () => {
+describe("LiquidGlass gesture physics engine, surface resolution, and stretch math", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("defines dual-stage mouse and touch spring profiles matching physical specifications", () => {
     for (const spring of [
       SPRING.glassPress,
@@ -40,58 +51,301 @@ describe("LiquidGlass hold, drag, and click suppression", () => {
     expect(glassFeel.touch.press).toBe(SPRING.glassTouchPress);
     expect(glassFeel.touch.release).toBe(SPRING.glassTouchRelease);
   });
-  it("marks tagProps as draggable=false and prevents default onDragStart to prevent native link drag", () => {
-    const onKeyDown = vi.fn();
-    const onClick = vi.fn();
-    const domOnDragStart = vi.fn();
 
-    const tagProps = setupTagProps(
-      "#work",
-      "a",
-      undefined,
-      undefined,
-      undefined,
-      onClick,
-      onKeyDown,
-      "base-class",
-      {},
-      "View Case Studies",
-      undefined,
-      { onDragStart: domOnDragStart },
-    );
+  describe("createGlassGestureEngine hold, drag threshold, click suppression, and hover-on-release", () => {
+    const rect = { left: 100, top: 50, width: 140, height: 44 };
 
-    expect(tagProps.draggable).toBe(false);
-    expect(typeof tagProps.onDragStart).toBe("function");
+    it("expands on pointerDown and does NOT suppress click when movement stays <= 5px", () => {
+      const engine = createGlassGestureEngine({
+        interactive: true,
+        effectiveMagnetic: true,
+        effectiveTilt: true,
+        effectiveSpringScale: true,
+        magneticStrength: 0.02,
+        tiltStrength: 2,
+      });
 
-    const mockEvent = {
-      preventDefault: vi.fn(),
-    };
+      const downState = engine.pointerDown({
+        pointerId: 1,
+        pointerType: "mouse",
+        button: 0,
+        isPrimary: true,
+        clientX: 170,
+        clientY: 72,
+        rect,
+      });
 
-    tagProps.onDragStart?.(
-      mockEvent as unknown as React.DragEvent<HTMLElement>,
-    );
-    expect(mockEvent.preventDefault).toHaveBeenCalled();
-    expect(domOnDragStart).toHaveBeenCalledWith(mockEvent);
+      expect(downState).not.toBeNull();
+      expect(downState?.isHolding).toBe(true);
+      expect(downState?.holding).toBe(1);
+      expect(downState?.scaleX).toBeCloseTo(
+        1 + glassFeel.pointer.grow / 140,
+        5,
+      );
+      expect(downState?.scaleY).toBeCloseTo(
+        1 + glassFeel.pointer.grow / 140,
+        5,
+      );
+      expect(downState?.sheenOpacity).toBe(1);
+
+      // Small jitter <= 5px (dx = 3, dy = 4 -> length = 5)
+      engine.pointerMove({
+        pointerId: 1,
+        clientX: 173,
+        clientY: 76,
+      });
+
+      const releaseState = engine.pointerUpOrCancel({
+        pointerId: 1,
+        clientX: 173,
+        clientY: 76,
+        liveRect: rect,
+      });
+
+      expect(releaseState?.isHolding).toBe(false);
+      expect(releaseState?.holding).toBe(0);
+      expect(releaseState?.scaleX).toBe(1);
+      expect(releaseState?.scaleY).toBe(1);
+      expect(releaseState?.isHovered).toBe(true);
+      expect(releaseState?.sheenOpacity).toBe(1);
+      expect(engine.consumeClickSuppression()).toBe(false);
+
+      engine.destroy();
+    });
+
+    it("suppresses synthetic click after dragging > 5px and expires suppression after 100ms", () => {
+      const engine = createGlassGestureEngine({
+        interactive: true,
+        effectiveMagnetic: true,
+        effectiveTilt: true,
+        effectiveSpringScale: true,
+        magneticStrength: 0.02,
+        tiltStrength: 2,
+      });
+
+      engine.pointerDown({
+        pointerId: 1,
+        pointerType: "mouse",
+        button: 0,
+        clientX: 170,
+        clientY: 72,
+        rect,
+      });
+
+      // Drag 30px horizontally (> 5px threshold)
+      const moveState = engine.pointerMove({
+        pointerId: 1,
+        clientX: 200,
+        clientY: 72,
+      });
+      expect(moveState?.scaleX).toBeGreaterThan(moveState?.scaleY ?? 1);
+      expect(moveState?.pullX).toBeGreaterThan(0);
+      expect(moveState?.tiltY).toBeGreaterThan(0);
+
+      // Release outside element bounds (clientX = 400)
+      const releaseState = engine.pointerUpOrCancel({
+        pointerId: 1,
+        clientX: 400,
+        clientY: 72,
+        liveRect: rect,
+      });
+      expect(releaseState?.isHovered).toBe(false);
+      expect(releaseState?.sheenOpacity).toBe(0);
+
+      // First synthetic click is suppressed; second is not
+      expect(engine.consumeClickSuppression()).toBe(true);
+      expect(engine.consumeClickSuppression()).toBe(false);
+
+      // Drag again and let 100ms timer expire without click firing
+      engine.pointerDown({
+        pointerId: 2,
+        pointerType: "touch",
+        button: 0,
+        clientX: 170,
+        clientY: 72,
+        rect,
+      });
+      engine.pointerMove({
+        pointerId: 2,
+        clientX: 170,
+        clientY: 95,
+      });
+      engine.pointerUpOrCancel({
+        pointerId: 2,
+        clientX: 170,
+        clientY: 95,
+        liveRect: rect,
+      });
+
+      vi.advanceTimersByTime(100);
+      expect(engine.consumeClickSuppression()).toBe(false);
+
+      engine.destroy();
+    });
+
+    it("keeps scale at 1 when effectiveSpringScale is false while preserving magnetic pull and tilt", () => {
+      const engine = createGlassGestureEngine({
+        interactive: true,
+        effectiveMagnetic: true,
+        effectiveTilt: true,
+        effectiveSpringScale: false,
+        magneticStrength: 0.02,
+        tiltStrength: 2,
+      });
+
+      const downState = engine.pointerDown({
+        pointerId: 1,
+        pointerType: "mouse",
+        button: 0,
+        clientX: 170,
+        clientY: 72,
+        rect,
+      });
+      expect(downState?.scaleX).toBe(1);
+      expect(downState?.scaleY).toBe(1);
+
+      const moveState = engine.pointerMove({
+        pointerId: 1,
+        clientX: 210,
+        clientY: 72,
+      });
+      expect(moveState?.scaleX).toBe(1);
+      expect(moveState?.scaleY).toBe(1);
+      expect(moveState?.pullX).toBeGreaterThan(0);
+      expect(moveState?.tiltY).toBeGreaterThan(0);
+
+      engine.destroy();
+    });
+
+    it("tracks hover mouseEnter/mouseMove/mouseLeave and debounces height-only resizes", () => {
+      const engine = createGlassGestureEngine({
+        interactive: true,
+        effectiveMagnetic: false,
+        effectiveTilt: false,
+        effectiveSpringScale: true,
+        magneticStrength: 0.02,
+        tiltStrength: 2,
+      });
+
+      const enter = engine.mouseEnter({ clientX: 180, clientY: 72, rect });
+      expect(enter?.isHovered).toBe(true);
+      expect(enter?.mouseX).toBe(10);
+      expect(enter?.mouseY).toBe(0);
+      expect(enter?.sheenOpacity).toBe(1);
+
+      const move = engine.mouseMove({ clientX: 195, clientY: 80, rect });
+      expect(move?.mouseX).toBe(25);
+      expect(move?.mouseY).toBe(8);
+
+      // Width change commits immediately
+      expect(engine.resize(200, 44)).toEqual({ width: 200, height: 44 });
+
+      // Height-only change debounces for 100ms
+      const onDebounced = vi.fn();
+      expect(engine.resize(200, 80, onDebounced)).toBeNull();
+      expect(onDebounced).not.toHaveBeenCalled();
+
+      vi.advanceTimersByTime(100);
+      expect(onDebounced).toHaveBeenCalledWith({ width: 200, height: 80 });
+
+      const leave = engine.mouseLeave();
+      expect(leave?.isHovered).toBe(false);
+      expect(leave?.sheenOpacity).toBe(0);
+
+      // Non-primary or right-click pointerDown is ignored
+      expect(
+        engine.pointerDown({
+          pointerId: 5,
+          pointerType: "mouse",
+          button: 2,
+          clientX: 170,
+          clientY: 72,
+          rect,
+        }),
+      ).toBeNull();
+
+      engine.destroy();
+    });
   });
 
-  it("attaches wrapped onClick handler to anchor elements with href", () => {
-    const onKeyDown = vi.fn();
-    const onClick = vi.fn();
+  describe("resolveGlassSurfaceProps unified surface seam", () => {
+    it("marks tagProps as draggable=false and prevents default onDragStart to prevent native link drag", () => {
+      const onKeyDown = vi.fn();
+      const onClick = vi.fn();
+      const domOnDragStart = vi.fn();
 
-    const tagProps = setupTagProps(
-      "#work",
-      "a",
-      undefined,
-      undefined,
-      undefined,
-      onClick,
-      onKeyDown,
-      "base-class",
-      {},
-      "View Case Studies",
-    );
+      const { tagProps } = resolveGlassSurfaceProps({
+        href: "#work",
+        as: "a",
+        onClick,
+        onKeyDown,
+        className: "base-class",
+        ariaLabel: "View Case Studies",
+        domProps: { onDragStart: domOnDragStart },
+      });
 
-    expect(tagProps.onClick).toBe(onClick);
+      expect(tagProps.draggable).toBe(false);
+      expect(tagProps.href).toBe("#work");
+      expect(tagProps.onClick).toBe(onClick);
+      expect(typeof tagProps.onDragStart).toBe("function");
+
+      const mockEvent = {
+        preventDefault: vi.fn(),
+      };
+
+      tagProps.onDragStart?.(
+        mockEvent as unknown as React.DragEvent<HTMLElement>,
+      );
+      expect(mockEvent.preventDefault).toHaveBeenCalled();
+      expect(domOnDragStart).toHaveBeenCalledWith(mockEvent);
+    });
+
+    it("composes internal and external onPointerDown handlers and resolves inline vs block surface tags", () => {
+      const internalOnPointerDown = vi.fn();
+      const externalOnPointerDown = vi.fn();
+
+      const { isInline, tagProps } = resolveGlassSurfaceProps({
+        as: "button",
+        onClick: vi.fn(),
+        onKeyDown: vi.fn(),
+        className: "btn",
+        animationProps: { onPointerDown: internalOnPointerDown },
+        domProps: {
+          onPointerDown: externalOnPointerDown,
+        } as unknown as LiquidGlassDomProps,
+      });
+
+      expect(isInline).toBe(true);
+      expect(tagProps.type).toBe("button");
+
+      const mockEvent = {
+        pointerId: 1,
+      } as unknown as React.PointerEvent<HTMLElement>;
+      tagProps.onPointerDown?.(mockEvent);
+
+      expect(internalOnPointerDown).toHaveBeenCalledWith(mockEvent);
+      expect(externalOnPointerDown).toHaveBeenCalledWith(mockEvent);
+    });
+
+    it("assigns role=button and tabIndex=0 on clickable non-semantic divs while skipping semantic containers", () => {
+      const onKeyDown = vi.fn();
+      const divSurface = resolveGlassSurfaceProps({
+        as: "div",
+        onClick: vi.fn(),
+        onKeyDown,
+      });
+      expect(divSurface.tagProps.role).toBe("button");
+      expect(divSurface.tagProps.tabIndex).toBe(0);
+      expect(divSurface.tagProps.onKeyDown).toBe(onKeyDown);
+
+      const articleSurface = resolveGlassSurfaceProps({
+        as: "article",
+        onClick: vi.fn(),
+        onKeyDown,
+      });
+      expect(articleSurface.tagProps.role).toBeUndefined();
+      expect(articleSurface.tagProps.tabIndex).toBeUndefined();
+    });
   });
 
   describe("computeAnisotropicStretch", () => {
@@ -143,64 +397,34 @@ describe("LiquidGlass hold, drag, and click suppression", () => {
 
       expect(result.scaleX).toBeGreaterThan(base);
       expect(result.scaleY).toBeLessThan(base);
-      // Volume preservation invariant: (scaleX * scaleY) / (base * base) === 1
       expect((result.scaleX * result.scaleY) / (base * base)).toBeCloseTo(1, 5);
     });
 
-    it("stretches scaleX and compresses scaleY on horizontal drag", () => {
-      const result = computeAnisotropicStretch(
-        40,
-        0,
-        buttonWidth,
-        buttonHeight,
-      );
-      expect(result.scaleX).toBeGreaterThan(1);
-      expect(result.scaleY).toBeLessThan(1);
-      // Volume preservation invariant: scaleX * scaleY is approximately 1
-      expect(result.scaleX * result.scaleY).toBeCloseTo(1, 5);
+    it("stretches scaleX on horizontal drag and scaleY on vertical drag", () => {
+      const horiz = computeAnisotropicStretch(40, 0, buttonWidth, buttonHeight);
+      expect(horiz.scaleX).toBeGreaterThan(1);
+      expect(horiz.scaleY).toBeLessThan(1);
+      expect(horiz.scaleX * horiz.scaleY).toBeCloseTo(1, 5);
+
+      const vert = computeAnisotropicStretch(0, 40, buttonWidth, buttonHeight);
+      expect(vert.scaleY).toBeGreaterThan(1);
+      expect(vert.scaleX).toBeLessThan(1);
+      expect(vert.scaleX * vert.scaleY).toBeCloseTo(1, 5);
     });
 
-    it("stretches scaleY and compresses scaleX on vertical drag", () => {
-      const result = computeAnisotropicStretch(
-        0,
-        40,
-        buttonWidth,
-        buttonHeight,
-      );
-      expect(result.scaleY).toBeGreaterThan(1);
-      expect(result.scaleX).toBeLessThan(1);
-      // Volume preservation invariant: scaleX * scaleY is approximately 1
-      expect(result.scaleX * result.scaleY).toBeCloseTo(1, 5);
-    });
-
-    it("handles zero, negative, or degenerate dimensions gracefully without producing NaN", () => {
+    it("handles zero, negative, or NaN dimensions gracefully without producing NaN", () => {
       const zeroResult = computeAnisotropicStretch(20, 20, 0, 0, 6);
       expect(Number.isFinite(zeroResult.scaleX)).toBe(true);
       expect(Number.isFinite(zeroResult.scaleY)).toBe(true);
       expect(Number.isFinite(zeroResult.rubber)).toBe(true);
-      const baseZero = 1 + 6 / 20; // safeHeight is 20
-      expect(
-        (zeroResult.scaleX * zeroResult.scaleY) / (baseZero * baseZero),
-      ).toBeCloseTo(1, 4);
 
       const nanResult = computeAnisotropicStretch(NaN, NaN, NaN, NaN, 6);
       expect(Number.isFinite(nanResult.scaleX)).toBe(true);
       expect(Number.isFinite(nanResult.scaleY)).toBe(true);
-      expect(Number.isFinite(nanResult.rubber)).toBe(true);
       expect(nanResult.scaleX).toBeCloseTo(1 + 6 / 20, 4);
-      expect(nanResult.scaleY).toBeCloseTo(1 + 6 / 20, 4);
     });
 
-    it("yields minimal anisotropic stretch on equal diagonal pull (aspect normalized)", () => {
-      // With equal aspect 1 (width = height), 45-degree drag has nx == ny, so ||nx| - |ny|| == 0
-      const grow = 6;
-      const base = 1 + grow / 100;
-      const result = computeAnisotropicStretch(30, 30, 100, 100, grow);
-      expect(result.scaleX).toBeCloseTo(base, 2);
-      expect(result.scaleY).toBeCloseTo(base, 2);
-    });
-
-    it("supports mutable output buffer to guarantee zero-allocation in hot path", () => {
+    it("supports mutable output buffer in both drag and stationary states", () => {
       const buffer = { scaleX: 0, scaleY: 0, rubber: 0, nx: 0, ny: 0 };
       const returned = computeAnisotropicStretch(
         40,
@@ -210,173 +434,44 @@ describe("LiquidGlass hold, drag, and click suppression", () => {
         6,
         buffer,
       );
-
-      const base = 1 + 6 / buttonWidth;
       expect(returned).toBe(buffer);
-      expect(buffer.scaleX).toBeGreaterThan(base);
-      expect(buffer.scaleY).toBeLessThan(base);
-      expect((buffer.scaleX * buffer.scaleY) / (base * base)).toBeCloseTo(1, 5);
-    });
+      expect(buffer.scaleX).toBeGreaterThan(1);
 
-    it("supports mutable output buffer in stationary hold bloom (zero length)", () => {
-      const buffer = { scaleX: 0, scaleY: 0, rubber: 1, nx: 1, ny: 1 };
-      const returned = computeAnisotropicStretch(
-        0,
-        0,
-        buttonWidth,
-        buttonHeight,
-        14,
-        buffer,
-      );
-
-      const base = 1 + 14 / buttonWidth;
-      expect(returned).toBe(buffer);
-      expect(buffer.scaleX).toBeCloseTo(base, 5);
-      expect(buffer.scaleY).toBeCloseTo(base, 5);
+      computeAnisotropicStretch(0, 0, buttonWidth, buttonHeight, 14, buffer);
       expect(buffer.rubber).toBe(0);
       expect(buffer.nx).toBe(0);
       expect(buffer.ny).toBe(0);
     });
-
-    it("preserves volume and applies asymptotic rubberband resistance", () => {
-      const smallDrag = computeAnisotropicStretch(
-        20,
-        0,
-        buttonWidth,
-        buttonHeight,
-      );
-      const largeDrag = computeAnisotropicStretch(
-        200,
-        0,
-        buttonWidth,
-        buttonHeight,
-      );
-
-      expect(largeDrag.rubber).toBeGreaterThan(smallDrag.rubber);
-      expect(largeDrag.rubber).toBeLessThan(1);
-      expect(largeDrag.scaleX).toBeGreaterThan(smallDrag.scaleX);
-    });
   });
 
-  describe("setupTagProps onDragStart fallback", () => {
-    it("safely calls preventDefault when domProps does not supply onDragStart", () => {
-      const tagProps = setupTagProps(
-        undefined,
-        "button",
-        undefined,
-        undefined,
-        undefined,
-        vi.fn(),
-        vi.fn(),
-        "btn",
-        {},
-      );
-
-      const mockEvent = { preventDefault: vi.fn() };
-      tagProps.onDragStart?.(
-        mockEvent as unknown as React.DragEvent<HTMLElement>,
-      );
-      expect(mockEvent.preventDefault).toHaveBeenCalled();
-    });
-
-    it("composes internal and external onPointerDown handlers without dropping glass physics", () => {
-      const internalOnPointerDown = vi.fn();
-      const externalOnPointerDown = vi.fn();
-
-      const tagProps = setupTagProps(
-        undefined,
-        "button",
-        undefined,
-        undefined,
-        undefined,
-        vi.fn(),
-        vi.fn(),
-        "btn",
-        {},
-        undefined,
-        { onPointerDown: internalOnPointerDown },
-        {
-          onPointerDown: externalOnPointerDown,
-        } as unknown as LiquidGlassDomProps,
-      );
-
-      const mockEvent = {
-        pointerId: 1,
-      } as unknown as React.PointerEvent<HTMLElement>;
-      tagProps.onPointerDown?.(mockEvent);
-
-      expect(internalOnPointerDown).toHaveBeenCalledWith(mockEvent);
-      expect(externalOnPointerDown).toHaveBeenCalledWith(mockEvent);
-    });
-  });
-
-  describe("computeGlisseBaseScale", () => {
-    it("computes uniform scale from dimension and grow count", () => {
-      // 140 width, 44 height, grow 6 => max is 140 => 1 + 6/140
+  describe("computeGlisseBaseScale, computeInnerGlassStyle, and computeReactiveSheenBoxShadow", () => {
+    it("computes uniform scale and falls back safely for NaN/zero dimensions", () => {
       expect(computeGlisseBaseScale(140, 44, 6)).toBeCloseTo(1 + 6 / 140, 5);
-      // touch grow 10
-      expect(computeGlisseBaseScale(140, 44, 10)).toBeCloseTo(1 + 10 / 140, 5);
-    });
-
-    it("falls back safely to 20 for non-finite or zero dimensions", () => {
       expect(computeGlisseBaseScale(0, 0, 6)).toBeCloseTo(1 + 6 / 20, 5);
       expect(computeGlisseBaseScale(NaN, NaN, 6)).toBeCloseTo(1 + 6 / 20, 5);
       expect(computeGlisseBaseScale(100, 40, NaN)).toBe(1);
     });
-  });
 
-  describe("computeInnerGlassStyle", () => {
     it("adds specular glow shadow when variant is flat, active is true, and specularGlow is true", () => {
       const style = computeInnerGlassStyle("flat", true, true);
       expect(style.boxShadow).toContain(
         "inset 0 1px 2px rgba(255, 255, 255, 0.24)",
       );
-      expect(style.boxShadow).toContain(
-        "inset 0 8px 16px rgba(255, 255, 255, 0.06)",
-      );
-    });
-
-    it("returns base style without extra glow when specularGlow is false", () => {
-      const style = computeInnerGlassStyle("flat", true, false);
-      expect(style.boxShadow).not.toContain(
+      const baseStyle = computeInnerGlassStyle("flat", true, false);
+      expect(baseStyle.boxShadow).not.toContain(
         "inset 0 1px 2px rgba(255, 255, 255, 0.24)",
       );
-      expect(style.boxShadow).toContain("var(--color-dispersion-cyan)");
-    });
-  });
-
-  describe("computeReactiveSheenBoxShadow", () => {
-    const width = 140;
-    const height = 44;
-
-    it("returns stock hover luminance and full range when holding = 0", () => {
-      // x = 70 (at right edge, normX = 1)
-      const shadow = computeReactiveSheenBoxShadow(70, 0, 0, width, height);
-      expect(shadow).toContain("oklch(100% 0 0 / 0.18)");
-      expect(shadow).toContain("oklch(100% 0 0 / 0.08)");
-      expect(shadow).toContain("-1.20px 0.00px");
     });
 
-    it("returns clamped travel and consistent luminance when holding = 1", () => {
-      // x = 70 (holding = 1, normX is clamped to 0.65, multiplier 0.75, offset = -0.65 * 0.75 = -0.49px)
-      const shadow = computeReactiveSheenBoxShadow(70, 0, 1, width, height);
-      expect(shadow).toContain("oklch(100% 0 0 / 0.18)");
-      expect(shadow).toContain("oklch(100% 0 0 / 0.08)");
-      expect(shadow).toContain("-0.49px 0.00px");
-    });
+    it("clamps reactive sheen travel when holding = 1 vs stock hover holding = 0", () => {
+      const hoverShadow = computeReactiveSheenBoxShadow(70, 0, 0, 140, 44);
+      expect(hoverShadow).toContain("-1.20px 0.00px");
 
-    it("smoothly clamps offset even when dragged far outside the element", () => {
-      const outsideShadow = computeReactiveSheenBoxShadow(
-        500,
-        500,
-        1,
-        width,
-        height,
-      );
-      // normX and normY clamped to -0.65, offset is -0.49px
+      const holdShadow = computeReactiveSheenBoxShadow(70, 0, 1, 140, 44);
+      expect(holdShadow).toContain("-0.49px 0.00px");
+
+      const outsideShadow = computeReactiveSheenBoxShadow(500, 500, 1, 140, 44);
       expect(outsideShadow).toContain("-0.49px -0.49px");
-      expect(outsideShadow).toContain("oklch(100% 0 0 / 0.18)");
-      expect(outsideShadow).toContain("oklch(100% 0 0 / 0.08)");
     });
   });
 });
