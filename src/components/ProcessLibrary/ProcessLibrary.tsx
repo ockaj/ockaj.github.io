@@ -1,4 +1,4 @@
-import { useEffect, useMemo, memo } from "react";
+import { useEffect, memo } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import {
   PROCESS_TOPICS,
@@ -22,12 +22,9 @@ import ProcessDesktopControls from "./ProcessDesktopControls";
 import ProcessMobileCarousel from "./ProcessMobileCarousel";
 import ProcessMobileControls from "./ProcessMobileControls";
 import {
-  ProcessLibraryStateContext,
-  ProcessLibraryActionsContext,
-  type ProcessLibraryState,
-  type ProcessLibraryActions,
-} from "./ProcessLibraryContext";
-import { useProcessTopicController } from "./useProcessTopicController";
+  useProcessStore,
+  selectActiveTopic,
+} from "../../store/useProcessStore";
 
 const isBuildMode = isBoneyardBuild();
 const containerVariants = containerStaggerVariants();
@@ -48,17 +45,13 @@ function ProcessLibrary() {
     drawerProps: lightboxDrawerProps,
   } = useEntityModal("lightbox", PROCESS_ITEMS_BY_ID);
 
-  const topicController = useProcessTopicController(selectedLightboxItem);
-  const {
-    activeTopicId,
-    activeTopic,
-    activeIndex,
-    activeViewMode,
-    viewModes,
-    direction,
-    prevDisabled,
-    nextDisabled,
-  } = topicController;
+  const activeTopic = useProcessStore(selectActiveTopic);
+
+  useEffect(() => {
+    if (selectedLightboxItem) {
+      useProcessStore.getState().syncModal(selectedLightboxItem);
+    }
+  }, [selectedLightboxItem]);
 
   useEffect(() => {
     if (PROCESS_ITEMS.length === 0 || isConnectionConstrained()) return;
@@ -79,39 +72,6 @@ function ProcessLibrary() {
     };
   }, []);
 
-  const actionsValue = useMemo<ProcessLibraryActions>(
-    () => ({
-      ...topicController.actions,
-      setLightboxItem: openLightbox,
-    }),
-    [topicController.actions, openLightbox],
-  );
-
-  const stateValue = useMemo<ProcessLibraryState>(
-    () => ({
-      activeTopicId,
-      activeTopic,
-      activeIndex,
-      activeViewMode,
-      viewModes,
-      direction,
-      prevDisabled,
-      nextDisabled,
-      prefersReducedMotion,
-    }),
-    [
-      activeTopicId,
-      activeTopic,
-      activeIndex,
-      activeViewMode,
-      viewModes,
-      direction,
-      prevDisabled,
-      nextDisabled,
-      prefersReducedMotion,
-    ],
-  );
-
   if (PROCESS_TOPICS.length === 0 || !activeTopic) {
     return (
       <div className="px-6 md:px-10 lg:px-16">
@@ -130,43 +90,38 @@ function ProcessLibrary() {
   }
 
   return (
-    <ProcessLibraryActionsContext value={actionsValue}>
-      <ProcessLibraryStateContext value={stateValue}>
-        <div className="px-6 md:px-10 lg:px-16">
-          <motion.div
-            custom={prefersReducedMotion}
-            variants={containerVariants}
-            initial={isBuildMode ? "visible" : "hidden"}
-            whileInView={isBuildMode ? undefined : "visible"}
-            viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
-            className="relative z-20 grid grid-cols-1 items-stretch gap-5 sm:gap-6 md:gap-8 lg:min-h-160 lg:grid-cols-12 lg:gap-12"
-          >
-            {isDesktop ? (
-              <>
-                {/* Left Column: Index Menu Selector */}
-                <ProcessDesktopControls />
+    <>
+      <div className="px-6 md:px-10 lg:px-16">
+        <motion.div
+          custom={prefersReducedMotion}
+          variants={containerVariants}
+          initial={isBuildMode ? "visible" : "hidden"}
+          whileInView={isBuildMode ? undefined : "visible"}
+          viewport={isBuildMode ? undefined : SECTION_VIEWPORT}
+          className="relative z-20 grid grid-cols-1 items-stretch gap-5 sm:gap-6 md:gap-8 lg:min-h-160 lg:grid-cols-12 lg:gap-12"
+        >
+          {isDesktop ? (
+            <>
+              {/* Left Column: Index Menu Selector */}
+              <ProcessDesktopControls />
 
-                {/* Right Column: Process Interactive Card */}
-                <ProcessDesktopCard />
-              </>
-            ) : (
-              <>
-                {/* Responsive Carousel Viewport */}
-                <ProcessMobileCarousel />
+              {/* Right Column: Process Interactive Card */}
+              <ProcessDesktopCard onOpenLightbox={openLightbox} />
+            </>
+          ) : (
+            <>
+              {/* Responsive Carousel Viewport */}
+              <ProcessMobileCarousel onOpenLightbox={openLightbox} />
 
-                {/* Mobile Topic Selector Dock */}
-                <ProcessMobileControls />
-              </>
-            )}
-          </motion.div>
-        </div>
+              {/* Mobile Topic Selector Dock */}
+              <ProcessMobileControls />
+            </>
+          )}
+        </motion.div>
+      </div>
 
-        <ProcessLightbox
-          item={displayedLightboxItem}
-          {...lightboxDrawerProps}
-        />
-      </ProcessLibraryStateContext>
-    </ProcessLibraryActionsContext>
+      <ProcessLightbox item={displayedLightboxItem} {...lightboxDrawerProps} />
+    </>
   );
 }
 

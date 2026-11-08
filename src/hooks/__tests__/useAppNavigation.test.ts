@@ -162,7 +162,6 @@ describe("useAppNavigation", () => {
       activeSection: "home",
       activeModal: null,
       hasCvMounted: false,
-      cvLang: "en",
     });
   });
 

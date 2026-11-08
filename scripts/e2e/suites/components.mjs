@@ -14,7 +14,12 @@ export async function run({ page, urls, record, sleep }) {
   // 1. FAQ Accordion (Base UI uncontrolled data-panel-open)
   const faqSection = page.locator("#faq");
   await faqSection.scrollIntoViewIfNeeded();
-  await sleep(800);
+  await page
+    .locator("#faq button.group")
+    .first()
+    .waitFor({ state: "attached", timeout: 4000 })
+    .catch(() => {});
+  await sleep(400);
 
   const triggers = page.locator("#faq button.group");
   const triggerCount = await triggers.count();
@@ -24,19 +29,25 @@ export async function run({ page, urls, record, sleep }) {
     const firstFaqBtn = triggers.first();
     const firstPanel = page.locator("#faq [data-no-skeleton]").first();
 
-    const initialOpen = await firstFaqBtn.evaluate((el) => el.hasAttribute("data-panel-open"));
+    const initialOpen = await firstFaqBtn.evaluate((el) =>
+      el.hasAttribute("data-panel-open"),
+    );
     record("FAQ Initially Collapsed", !initialOpen);
 
     await firstFaqBtn.click();
     await sleep(500);
 
-    const opened = await firstFaqBtn.evaluate((el) => el.hasAttribute("data-panel-open"));
+    const opened = await firstFaqBtn.evaluate((el) =>
+      el.hasAttribute("data-panel-open"),
+    );
     record("FAQ Expands on Click (data-panel-open)", opened);
     record("FAQ Content Readable", await firstPanel.isVisible());
 
     await firstFaqBtn.click();
     await sleep(500);
-    const closed = await firstFaqBtn.evaluate((el) => el.hasAttribute("data-panel-open"));
+    const closed = await firstFaqBtn.evaluate((el) =>
+      el.hasAttribute("data-panel-open"),
+    );
     record("FAQ Collapses on Second Click", !closed);
   }
 

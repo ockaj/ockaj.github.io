@@ -34,7 +34,6 @@ describe("useEntityModal helpers and store integration", () => {
       hasCvMounted: false,
       activeSection: "home",
       activeModal: null,
-      cvLang: "en",
     });
   });
 

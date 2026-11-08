@@ -4,9 +4,12 @@ import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
 import ProcessCardHeader from "./ProcessCardHeader";
 import ProcessVariantStage from "./ProcessVariantStage";
 import {
-  useProcessLibraryState,
-  useProcessLibraryActions,
-} from "./ProcessLibraryContext";
+  useProcessStore,
+  selectActiveTopic,
+  selectActiveViewMode,
+} from "../../store/useProcessStore";
+import { usePrefersReducedMotion } from "../../hooks/useMediaQuery";
+
 import { SPRING } from "../../utils/springConfig";
 
 interface CustomAnimationProps {
@@ -38,19 +41,28 @@ const defaultTabContentVariants: Variants = {
   }),
 };
 
-interface ProcessDesktopCardProps {
-  tabContentVariants?: Variants;
+interface LightboxTargetItem {
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+  type: string;
 }
 
-const DEFAULT_CARD_PROPS: ProcessDesktopCardProps = {};
+interface ProcessDesktopCardProps {
+  tabContentVariants?: Variants;
+  onOpenLightbox: (item: LightboxTargetItem) => void;
+}
 
 function ProcessDesktopCard({
   tabContentVariants = defaultTabContentVariants,
-}: Readonly<ProcessDesktopCardProps> = DEFAULT_CARD_PROPS) {
-  const { activeTopic, activeViewMode, prefersReducedMotion, direction } =
-    useProcessLibraryState();
-  const { handleTopicViewModeChange, setLightboxItem } =
-    useProcessLibraryActions();
+  onOpenLightbox,
+}: Readonly<ProcessDesktopCardProps>) {
+  const activeTopic = useProcessStore(selectActiveTopic);
+  const activeViewMode = useProcessStore(selectActiveViewMode);
+  const direction = useProcessStore((state) => state.direction);
+  const setViewMode = useProcessStore((state) => state.setViewMode);
+  const prefersReducedMotion = usePrefersReducedMotion();
   return (
     <div className="flex w-full min-w-0 flex-col justify-center lg:col-span-7">
       <AnimatePresence
@@ -80,14 +92,14 @@ function ProcessDesktopCard({
               topicId={activeTopic.id}
               title={activeTopic.source.title}
               viewMode={activeViewMode}
-              onViewModeChange={handleTopicViewModeChange}
+              onViewModeChange={setViewMode}
             />
 
             {/* Zero-Unmount Layer Staged Content */}
             <ProcessVariantStage
               topic={activeTopic}
               activeViewMode={activeViewMode}
-              setLightboxItem={setLightboxItem}
+              setLightboxItem={onOpenLightbox}
             />
           </InteractiveGlass>
         </motion.div>

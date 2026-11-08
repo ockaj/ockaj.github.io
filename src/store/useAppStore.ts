@@ -23,12 +23,10 @@ export interface AppState {
   hasCvMounted: boolean;
   activeSection: string;
   activeModal: string | null;
-  cvLang: "en" | "sk";
   completeLoading: () => void;
   mountCv: () => void;
   openModal: (id: string) => void;
   closeModal: () => void;
-  setCvLang: (lang: "en" | "sk") => void;
   setActiveSection: (section: string) => void;
 }
 
@@ -79,7 +77,6 @@ export const useAppStore = create<AppState>((set) => ({
   hasCvMounted: initialModal === "cv",
   activeSection: getInitialActiveSection(),
   activeModal: initialModal,
-  cvLang: "en",
   completeLoading: () => {
     try {
       localStorage.setItem("portfolio_loaded", "true");
@@ -99,8 +96,6 @@ export const useAppStore = create<AppState>((set) => ({
     set((state) =>
       state.activeModal === null ? state : { activeModal: null },
     ),
-  setCvLang: (lang: "en" | "sk") =>
-    set((state) => (state.cvLang === lang ? state : { cvLang: lang })),
   setActiveSection: (section: string) =>
     set((state) =>
       state.activeSection === section ? state : { activeSection: section },

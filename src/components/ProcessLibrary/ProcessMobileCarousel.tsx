@@ -14,10 +14,8 @@ import { SPRING } from "../../utils/springConfig";
 import { isBoneyardBuild } from "../../utils/boneyard";
 import ProcessCardHeader from "./ProcessCardHeader";
 import ProcessVariantStage from "./ProcessVariantStage";
-import {
-  useProcessLibraryState,
-  useProcessLibraryActions,
-} from "./ProcessLibraryContext";
+import { useProcessStore } from "../../store/useProcessStore";
+import { usePrefersReducedMotion } from "../../hooks/useMediaQuery";
 
 interface ProcessMobileSlideProps {
   topic: ProcessTopic;
@@ -114,11 +112,26 @@ function getTargetScrollOffset(
   );
 }
 
-function ProcessMobileCarousel() {
-  const { activeTopicId, viewModes, prefersReducedMotion } =
-    useProcessLibraryState();
-  const { selectTopic, handleTopicViewModeChange, setLightboxItem } =
-    useProcessLibraryActions();
+interface LightboxTargetItem {
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+  type: string;
+}
+
+interface ProcessMobileCarouselProps {
+  onOpenLightbox: (item: LightboxTargetItem) => void;
+}
+
+function ProcessMobileCarousel({
+  onOpenLightbox,
+}: Readonly<ProcessMobileCarouselProps>) {
+  const activeTopicId = useProcessStore((state) => state.activeTopicId);
+  const viewModes = useProcessStore((state) => state.viewModes);
+  const selectTopic = useProcessStore((state) => state.selectTopic);
+  const setViewMode = useProcessStore((state) => state.setViewMode);
+  const prefersReducedMotion = usePrefersReducedMotion();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const isProgrammaticScrollRef = useRef(false);
   const scrollEndTimeoutRef = useRef<number | null>(null);
@@ -357,9 +370,9 @@ function ProcessMobileCarousel() {
               topic={topic}
               idx={idx}
               isActive={topic.id === activeTopicId}
-              cardViewMode={viewModes[topic.id] || "source"}
-              onViewModeChange={handleTopicViewModeChange}
-              setLightboxItem={setLightboxItem}
+              cardViewMode={viewModes[topic.id] ?? "source"}
+              onViewModeChange={setViewMode}
+              setLightboxItem={onOpenLightbox}
               prefersReducedMotion={prefersReducedMotion}
               nudgeX={!prefersReducedMotion && idx <= 1 ? nudgeX : undefined}
             />

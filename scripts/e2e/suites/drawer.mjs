@@ -13,7 +13,11 @@ export async function run({ page, urls, record, sleep }) {
 
   // 1. Deep link to #case-study-1
   await page.goto(`${urls}#case-study-1`, { waitUntil: "domcontentloaded" });
-  await sleep(600);
+  await page
+    .locator("[role='dialog']")
+    .waitFor({ state: "visible", timeout: 4000 })
+    .catch(() => {});
+  await sleep(400);
   const dialog = page.locator("[role='dialog']");
   const isDialogOpen = await dialog.isVisible();
   record("Case Study Drawer Opens via Hash (#case-study-1)", isDialogOpen);
@@ -66,7 +70,9 @@ export async function run({ page, urls, record, sleep }) {
   await page.goto(`${urls}#article-bpmn-traps`, {
     waitUntil: "domcontentloaded",
   });
-  await page.waitForSelector("[role='dialog']", { timeout: 4000 }).catch(() => {});
+  await page
+    .waitForSelector("[role='dialog']", { timeout: 4000 })
+    .catch(() => {});
   const journalOpen = await dialog.isVisible();
   record("Journal Drawer Opens via Hash", journalOpen);
 

@@ -3,13 +3,20 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { StaticGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import { PROCESS_TOPICS } from "../../data/processItems";
 import {
-  useProcessLibraryState,
-  useProcessLibraryActions,
-} from "./ProcessLibraryContext";
+  useProcessStore,
+  selectActiveIndex,
+  selectPrevDisabled,
+  selectNextDisabled,
+} from "../../store/useProcessStore";
 
 function ProcessMobileControls() {
-  const { activeIndex, prevDisabled, nextDisabled } = useProcessLibraryState();
-  const { selectPreviousTopic, selectNextTopic } = useProcessLibraryActions();
+  const activeIndex = useProcessStore(selectActiveIndex);
+  const prevDisabled = useProcessStore(selectPrevDisabled);
+  const nextDisabled = useProcessStore(selectNextDisabled);
+  const selectPreviousTopic = useProcessStore(
+    (state) => state.selectPreviousTopic,
+  );
+  const selectNextTopic = useProcessStore((state) => state.selectNextTopic);
   const activePosition = activeIndex + 1;
   return (
     <div className="flex w-full justify-center">

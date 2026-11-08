@@ -26,7 +26,7 @@ import {
 import { EASE } from "../../utils/springConfig";
 import { CV_DATA } from "../../data/cvData";
 import { InteractiveCvView } from "./InteractiveCvView";
-import { useAppStore } from "../../store/useAppStore";
+import { useCvStore } from "../../store/useCvStore";
 
 const MODAL_CONTAINER_STYLE: React.CSSProperties = {
   transformOrigin: "center center",
@@ -283,7 +283,7 @@ const PdfDocumentPanel = memo(function PdfDocumentPanel({
 });
 
 const InteractiveCvContent = memo(function InteractiveCvContent() {
-  const cvLang = useAppStore((state) => state.cvLang);
+  const cvLang = useCvStore((state) => state.lang);
   return <InteractiveCvView activeCv={CV_DATA[cvLang]} lang={cvLang} />;
 });
 
@@ -317,9 +317,8 @@ function PdfViewerModal() {
   const isMobile = useIsMobile();
   const prefersReducedMotion = usePrefersReducedMotion();
   const { isOpen, close } = useModal("cv");
-  const [activeTab, setActiveTab] = useState<"pdf" | "interactive">(
-    "interactive",
-  );
+  const activeTab = useCvStore((state) => state.activeTab);
+  const setActiveTab = useCvStore((state) => state.setActiveTab);
 
   useEffect(() => {
     if (isOpen) {

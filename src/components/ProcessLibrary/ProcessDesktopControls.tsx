@@ -13,9 +13,9 @@ import { ChevronDown } from "lucide-react";
 import { PROCESS_TOPICS } from "../../data/processItems";
 import { cn } from "../../utils/cn";
 import {
-  useProcessLibraryState,
-  useProcessLibraryActions,
-} from "./ProcessLibraryContext";
+  useProcessStore,
+  selectActiveIndex,
+} from "../../store/useProcessStore";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 import { usePrefersReducedMotion } from "../../hooks/useMediaQuery";
 import { EASE } from "../../utils/springConfig";
@@ -24,8 +24,9 @@ const PAGE_SIZE = 10;
 
 function ProcessDesktopControls() {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const { activeTopicId, activeIndex } = useProcessLibraryState();
-  const { selectTopic } = useProcessLibraryActions();
+  const activeTopicId = useProcessStore((state) => state.activeTopicId);
+  const activeIndex = useProcessStore(selectActiveIndex);
+  const selectTopic = useProcessStore((state) => state.selectTopic);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [visibleCount, setVisibleCount] = useState(() =>

@@ -8,7 +8,6 @@ describe("useAppStore", () => {
       hasCvMounted: false,
       activeSection: "home",
       activeModal: null,
-      cvLang: "en",
     });
   });
 
@@ -40,12 +39,6 @@ describe("useAppStore", () => {
     const stateBefore = useAppStore.getState();
     useAppStore.getState().setActiveSection("skills");
     expect(useAppStore.getState()).toBe(stateBefore);
-  });
-
-  it("should toggle CV language", () => {
-    expect(useAppStore.getState().cvLang).toBe("en");
-    useAppStore.getState().setCvLang("sk");
-    expect(useAppStore.getState().cvLang).toBe("sk");
   });
 
   it("should complete loading", () => {

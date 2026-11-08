@@ -7,7 +7,7 @@ import { usePrefersReducedMotion } from "../../hooks/useMediaQuery";
 import { SPRING } from "../../utils/springConfig";
 import { cn } from "../../utils/cn";
 import { CV_DATA, type CvDataLanguageSection } from "../../data/cvData";
-import { useAppStore } from "../../store/useAppStore";
+import { useCvStore } from "../../store/useCvStore";
 
 const PHONE_PREFIX_REGEX = /^[+\d]/;
 
@@ -417,7 +417,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
   const prefersReducedMotion = usePrefersReducedMotion();
 
   const handleLangChange = useCallback((val: string | number) => {
-    useAppStore.getState().setCvLang(val as "en" | "sk");
+    useCvStore.getState().setLang(val as "en" | "sk");
   }, []);
 
   const directionMultiplier = lang === "sk" ? 1 : -1;
