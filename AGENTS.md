@@ -9,8 +9,9 @@ Single-page React portfolio showcasing business analysis and process optimizatio
 Verify only when required:
 
 - **Skip verification**: For cosmetic changes (CSS, Tailwind classes, colors, spacing, text, copy, markdown). Finish the turn without running commands.
-- **Run verification**: For logic and code changes (TypeScript, state, dependencies, component structure). Run `npm run verify` once at the end of the task.
-- **Exit gate**: Before finishing logic, state, routing, overlay, or config edits, run `npm run gate` in the terminal and rely strictly on its exit code and output. If gate checks fail or remediation guidance is needed, consult [`.agents/skills/exit-gate/SKILL.md`](./.agents/skills/exit-gate/SKILL.md).
+- **Inner loop (development)**: Run `npm run check` (runs gate + TypeScript typecheck in <2s) in the terminal for instant validation of types, seams, boundaries, and React 19 invariants during logic, routing, or state edits. If checks fail, consult [`.agents/skills/exit-gate/SKILL.md`](./.agents/skills/exit-gate/SKILL.md).
+- **Outer loop (task exit)**: Run `npm run verify` once at the end of the task for code, state, dependency, or component structure changes. Rely on zero exit code across gate, unit tests, typecheck, lint, doctor, knip, and build.
+- **End-to-End suite**: Run `npm run test:e2e` (Playwright suite in `scripts/e2e/runner.mjs`) for visual layout overhauls, CLS audits, or navigation regressions.
 
 ---
 
@@ -32,15 +33,3 @@ Refer to specialized documentation for deep task context:
 - [Product Vision & Requirements](./PRODUCT.md): Career narrative, target audience, positioning, and value proposition. Consult when modifying editorial copy, case studies, journal articles, or value statements.
 - [Design System & UI Guidelines](./DESIGN.md): Design tokens, visual hierarchy, typography, spatial scales, and color palettes. Consult when styling layout components, tuning contrast, or adjusting theme variables.
 - Specialized rule files in [`.agents/rules/`](./.agents/rules/): Technical architectural constraints and invariants (indexed automatically by agent harnesses).
-
----
-
-## UI Primitives
-
-Use LiquidGlass primitives for all user interface surfaces:
-- Buttons and links: `LiquidGlassButton`
-- Clickable cards and interactive surfaces: `InteractiveGlass`
-- Containers, shells, and toolbars: `StaticGlass`
-- Filter bars and segmented controls: `Tabs`
-
-Consult [`.agents/rules/liquid-glass.md`](./.agents/rules/liquid-glass.md).

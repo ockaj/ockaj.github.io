@@ -37,13 +37,13 @@ Inspect and run the unit test suite for every modified domain module, hook, or s
 
 **Completion criterion:** Every modified module has passing happy-path and boundary assertions with zero skipped or tautological tests.
 
-## Step 4: Run the Deterministic Gate (`npm run gate`)
+## Step 4: Run the Deterministic Gate & Typecheck (`npm run check`)
 
-Execute `npm run gate` in the terminal and evaluate the result:
-- When `npm run gate` exits `0` (**green**): proceed directly to Step 5.
-- When `npm run gate` reports violations: repair each issue directly at the reported source file and line number shown in the terminal output, then rerun `npm run gate`.
+Execute `npm run check` (or `npm run gate`) in the terminal and evaluate the result:
+- When `npm run check` exits `0` (**green**): all architectural invariants and TypeScript types are valid; proceed directly to Step 5.
+- When violations or type errors are reported: repair each issue directly at the reported source file and line number shown in the terminal output, then rerun `npm run check`.
 
-**Completion criterion:** `npm run gate` exits `0` (**green**) with zero reported violations across all source files, test suites, and rule docs.
+**Completion criterion:** `npm run check` exits `0` (**green**) with zero reported violations and zero TypeScript compiler errors across all source files, test suites, and rule docs.
 
 ## Step 5: Run the Full Verification Pipeline (`npm run verify`)
 

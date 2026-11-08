@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Architecture, SPA routing, Zustand store state, canonical seams, and React 19 invariants. Use when modifying route sections, navigation, global state, overlays, browser API calls, or architecture tiers.
+description: Architecture, SPA routing, Zustand store state, canonical seams, strongly-typed domain data, concentric corner geometry, and React 19 invariants. Use when modifying route sections, navigation, global state, overlays, browser API calls, types, or architecture tiers.
 ---
 
 # Codebase Architecture
@@ -112,16 +112,20 @@ Tier 1: Foundation (types/*, styles/*, constants/*, data/*)
 
 ## 8. Canonical Browser API Seams & React 19 Invariants
 
-Enforce unified seams and modern React patterns across all modules:
+Enforce unified seams, strong typing, and modern React patterns across all modules:
 
 ### Browser API Seams
 - **History Mutations**: Use `safeReplaceState` or `safePushState` from [`src/hooks/useAppNavigation.ts`](../../src/hooks/useAppNavigation.ts). Direct `window.history` calls are prohibited.
 - **Media Queries**: Use `useMediaQuery`, `useIsMobile`, or `isReducedMotionPreferred` from [`src/hooks/useMediaQuery.ts`](../../src/hooks/useMediaQuery.ts). Direct `window.matchMedia` calls are prohibited.
-- **Resize Observers**: Use `useResizeObserver` or `subscribeResizeObserver` from [`src/hooks/useResizeObserver.ts`](../../src/hooks/useResizeObserver.ts). Instantiating `new ResizeObserver` directly is prohibited.
+- **Resize Observers**: Use `useResizeObserver` or `subscribeResizeObserver` from [`src/hooks/useResizeObserver.ts`](../../src/hooks/useResizeObserver.ts). Instantiating `new ResizeObserver` directly or introducing third-party measurement libraries is prohibited.
 - **Idle Callbacks**: Use `requestIdle` and `cancelIdle` from [`src/utils/idleCallback.ts`](../../src/utils/idleCallback.ts). Direct `window.requestIdleCallback` calls are prohibited.
 - **Session Storage**: Use `getSessionStorageItem` and `setSessionStorageItem` from [`src/components/Bpmn/bpmnStorage.ts`](../../src/components/Bpmn/bpmnStorage.ts). Direct `window.sessionStorage` access is prohibited.
 - **Asset Prefetching**: Import `prefetchAsset` from [`src/utils/quicklink.ts`](../../src/utils/quicklink.ts). Direct `quicklink` package imports are prohibited.
 - **Animation Source**: Import animations exclusively from `motion/react`. The legacy `framer-motion` package is prohibited.
+
+### Strongly-Typed Domain Data & Types
+- **Forbid Loose Record**: Avoid untyped dictionary types like `Record<string, unknown>` or `Record<string, any>`. Parse incoming data or dynamic objects into explicit interfaces or index signatures at the earliest I/O boundary.
+- **Shared Domain Models**: Place domain interfaces in `types.ts` (or component-specific `types.ts`).
 
 ### React 19 & Anti-Bloat Invariants
 - **Ref as Prop**: Pass `ref` directly as a component prop. The `forwardRef` wrapper is prohibited.
@@ -136,8 +140,16 @@ Enforce unified seams and modern React patterns across all modules:
 
 ---
 
-## 9. Build Integration & Security Invariants
+## 9. Build Integration, Tailwind & Security Invariants
 
+- **Tailwind CSS v4 Configuration**:
+  - Theme tokens reside in the `@theme` directive in [`src/index.css`](../../src/index.css). Tailwind v4 does not use `tailwind.config.js` or `postcss.config.js`.
+  - Nested corner radius: Follow concentric corner geometry manually ($R_{\text{inner}} = R_{\text{outer}} - \text{padding}$, e.g. outer `rounded-xl` with `p-1.25` padding and inner `rounded-lg`).
+  - Use theme tokens or native Tailwind scales instead of arbitrary values. Prettier with `prettier-plugin-tailwindcss` sorts class names automatically.
 - **Boneyard Suspense**: `src/bones/registry.ts` is imported in `src/main.tsx` (do not delete). Components check `isBoneyardBuild()` from `src/utils/boneyard.ts` (`window.__BONEYARD_BUILD`) to skip dynamic animations during skeleton capture.
-- **Bundler & Tooling**: Vite 8 uses the Rolldown bundler engine (`rolldownOptions`), LightningCSS transformer (`css.transformer: "lightningcss"`), and React Compiler via `@rolldown/plugin-babel`.
+- **Bundler & React Compiler**:
+  - Vite 8 uses the Rolldown bundler engine with chunk splitting rules configured in `rolldownOptions`.
+  - LightningCSS handles CSS transformation and minification via `css.transformer: "lightningcss"`.
+  - The React Compiler operates at build time via `@rolldown/plugin-babel` with `@vitejs/plugin-react` `reactCompilerPreset()`.
+  - Avoid manual memoization hooks (`useMemo`, `useCallback`) unless profiling indicates a need.
 - **Security Invariants**: Static site hosted on GitHub Pages. BPMN SVGs must not contain inline event handlers. Markdown sources must contain no raw executable HTML.

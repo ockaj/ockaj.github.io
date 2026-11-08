@@ -7,6 +7,7 @@
     "dev": "vite",
     "optimize-svgs": "svgo -r -f public/BPMN_models",
     "gate": "node scripts/verify-gate.mjs",
+    "check": "npm run gate && npm run typecheck",
     "verify": "npm run gate && npx vitest run --reporter=minimal && npm run typecheck && npm run lint && npm run doctor && npm run knip && npm run build",
     "build": "vite build",
     "lint": "eslint .",
