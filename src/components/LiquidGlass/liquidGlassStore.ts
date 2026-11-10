@@ -1,3 +1,4 @@
+import { createStore, type StoreApi } from "zustand/vanilla";
 import type { Transition } from "motion/react";
 import { hoverDelta, scaleDeltas, springs } from "./config";
 import type { TabOrientation } from "./types";
@@ -271,7 +272,18 @@ interface TabRenderSnapshot {
   scaleSpring: Transition;
 }
 
+interface TabsPhysicsState {
+  activeValue: TabValue;
+  activeDistance: number;
+  activePhase: TabFlightPhase;
+  hoveredValue: TabValue | null;
+  hoverDistance: number;
+  hoverMoving: boolean;
+  pressedValue: TabValue | null;
+}
+
 export interface TabsPhysicsController {
+  store: StoreApi<TabsPhysicsState>;
   subscribe: (listener: () => void) => () => void;
   registerTab: (val: TabValue) => () => void;
   configure: (config: TabsControllerConfig) => void;
@@ -300,6 +312,7 @@ export interface TabsPhysicsController {
   completeFlight: () => void;
 
   getTabStateMask: (val: TabValue) => number;
+  getTabStateMaskFromState: (state: TabsPhysicsState, val: TabValue) => number;
   getServerTabStateMask: (val: TabValue) => number;
   getTabSnapshot: (
     val: TabValue,
@@ -319,15 +332,15 @@ export function createTabsController({
   landingMs = LANDING_PULSE_MS,
   impulseMs = TRAVEL_IMPULSE_MS,
 }: TabsControllerOptions): TabsPhysicsController {
-  let activeValue: TabValue = initialValue;
-  let activeDistance = 0;
-  let activePhase: TabFlightPhase = "idle";
-
-  let hoveredValue: TabValue | null = null;
-  let hoverDistance = 0;
-  let hoverMoving = false;
-
-  let pressedValue: TabValue | null = null;
+  const store = createStore<TabsPhysicsState>(() => ({
+    activeValue: initialValue,
+    activeDistance: 0,
+    activePhase: "idle",
+    hoveredValue: null,
+    hoverDistance: 0,
+    hoverMoving: false,
+    pressedValue: null,
+  }));
 
   let orientation: TabOrientation = initialOrientation;
   let hoverSlide = initialHoverSlide;
@@ -337,7 +350,7 @@ export function createTabsController({
   let hasNavbarActiveClass = initialNavbarActiveClass;
 
   const tabOrder: TabValue[] = [];
-  const listeners = new Set<() => void>();
+  let destroyed = false;
 
   let mouseVelocity = 0;
   let lastMousePos: { x: number; y: number; time: number } | null = null;
@@ -346,8 +359,15 @@ export function createTabsController({
   let landingTimer: ReturnType<typeof setTimeout> | null = null;
   let hoverTimer: ReturnType<typeof setTimeout> | null = null;
 
-  const notify = () => {
-    listeners.forEach((l) => l());
+  const updateState = (
+    updater:
+      | Partial<TabsPhysicsState>
+      | ((
+          state: TabsPhysicsState,
+        ) => TabsPhysicsState | Partial<TabsPhysicsState>),
+  ) => {
+    if (destroyed) return;
+    store.setState(updater);
   };
 
   const clearActiveTimers = () => {
@@ -366,7 +386,6 @@ export function createTabsController({
       clearTimeout(hoverTimer);
       hoverTimer = null;
     }
-    hoverMoving = false;
   };
 
   const getTabDistance = (
@@ -381,11 +400,11 @@ export function createTabsController({
 
   const completeFlight = () => {
     clearActiveTimers();
-    if (activePhase !== "idle") {
-      activePhase = "idle";
-      activeDistance = 0;
-      notify();
-    }
+    updateState((state) =>
+      state.activePhase === "idle"
+        ? state
+        : { activePhase: "idle", activeDistance: 0 },
+    );
   };
 
   const beginLanding = () => {
@@ -393,87 +412,77 @@ export function createTabsController({
       clearTimeout(flightTimer);
       flightTimer = null;
     }
-    if (activePhase === "flight") {
-      activePhase = "landing";
-      activeDistance = 0;
-      notify();
-      if (landingMs > 0) {
-        if (landingTimer) {
-          clearTimeout(landingTimer);
-        }
-        landingTimer = setTimeout(() => {
-          landingTimer = null;
-          completeFlight();
-        }, landingMs);
+    if (destroyed || store.getState().activePhase !== "flight") return;
+    updateState({ activePhase: "landing", activeDistance: 0 });
+    if (landingMs > 0) {
+      if (landingTimer) {
+        clearTimeout(landingTimer);
       }
-    }
-  };
-
-  const clearHoverValue = (shouldNotify: boolean) => {
-    const changed = hoveredValue !== null || hoverMoving;
-    clearHoverTimer();
-    hoverDistance = 0;
-    hoveredValue = null;
-    if (shouldNotify && changed) {
-      notify();
+      landingTimer = setTimeout(() => {
+        landingTimer = null;
+        completeFlight();
+      }, landingMs);
     }
   };
 
   const startHoverImpulse = () => {
-    hoverMoving = true;
     if (hoverTimer) clearTimeout(hoverTimer);
     hoverTimer = setTimeout(() => {
       hoverTimer = null;
-      hoverMoving = false;
-      notify();
+      updateState((state) =>
+        state.hoverMoving ? { hoverMoving: false } : state,
+      );
     }, impulseMs);
   };
 
-  const setHoverInternal = (
+  const computeHoverPatch = (
+    state: TabsPhysicsState,
     val: TabValue | null,
     distance: number,
-    shouldNotify: boolean,
-  ) => {
+  ): Partial<TabsPhysicsState> | null => {
     if (val === null) {
-      clearHoverValue(shouldNotify);
-      return;
-    }
-
-    if (hoveredValue === val) {
-      if (distance === 0 && hoverMoving) {
-        clearHoverTimer();
-        hoverDistance = 0;
-        if (shouldNotify) notify();
+      clearHoverTimer();
+      if (
+        state.hoveredValue === null &&
+        state.hoverDistance === 0 &&
+        !state.hoverMoving
+      ) {
+        return null;
       }
-      return;
+      return { hoveredValue: null, hoverDistance: 0, hoverMoving: false };
     }
 
-    hoveredValue = val;
-    hoverDistance = distance;
+    if (state.hoveredValue === val) {
+      if (distance === 0 && state.hoverMoving) {
+        clearHoverTimer();
+        return { hoverDistance: 0, hoverMoving: false };
+      }
+      return null;
+    }
+
     if (distance > 0) {
       startHoverImpulse();
-    } else {
-      clearHoverTimer();
+      return { hoveredValue: val, hoverDistance: distance, hoverMoving: true };
     }
-    if (shouldNotify) {
-      notify();
-    }
+
+    clearHoverTimer();
+    return { hoveredValue: val, hoverDistance: distance, hoverMoving: false };
   };
 
-  const evaluateTabFlags = (val: TabValue) => {
-    const isActive = activeValue === val;
-    const isTransitioning = isActive && activePhase === "flight";
-    const isLanding = isActive && activePhase === "landing";
-    const isHovered = !isTouchDevice && hoveredValue === val;
+  const evaluateTabFlags = (state: TabsPhysicsState, val: TabValue) => {
+    const isActive = state.activeValue === val;
+    const isTransitioning = isActive && state.activePhase === "flight";
+    const isLanding = isActive && state.activePhase === "landing";
+    const isHovered = !isTouchDevice && state.hoveredValue === val;
     const showHighlight = shouldShowTabHighlight(
       isActive,
       isHovered,
-      hoveredValue,
+      state.hoveredValue,
       hoverSlide,
       isTouchDevice,
     );
-    const isMovingHover = isHovered && hoverMoving;
-    const isPressed = pressedValue === val;
+    const isMovingHover = isHovered && state.hoverMoving;
+    const isPressed = state.pressedValue === val;
     return {
       isActive,
       isTransitioning,
@@ -485,13 +494,25 @@ export function createTabsController({
     };
   };
 
+  const getTabStateMaskFromState = (
+    state: TabsPhysicsState,
+    val: TabValue,
+  ): number => {
+    const flags = evaluateTabFlags(state, val);
+    return (
+      (flags.isActive ? 1 : 0) |
+      (flags.isTransitioning ? 2 : 0) |
+      (flags.isLanding ? 4 : 0) |
+      (flags.isHovered ? 8 : 0) |
+      (flags.showHighlight ? 16 : 0) |
+      (flags.isMovingHover ? 32 : 0) |
+      (flags.isPressed ? 64 : 0)
+    );
+  };
+
   return {
-    subscribe: (listener) => {
-      listeners.add(listener);
-      return () => {
-        listeners.delete(listener);
-      };
-    },
+    store,
+    subscribe: store.subscribe,
 
     registerTab: (val) => {
       if (!tabOrder.includes(val)) {
@@ -519,124 +540,138 @@ export function createTabsController({
     },
 
     destroy: () => {
+      destroyed = true;
       clearActiveTimers();
       clearHoverTimer();
-      activePhase = "idle";
-      activeDistance = 0;
-      hoveredValue = null;
-      hoverDistance = 0;
-      pressedValue = null;
       mouseVelocity = 0;
       lastMousePos = null;
-      listeners.clear();
     },
 
-    getActiveValue: () => activeValue,
-    getActivePhase: () => activePhase,
-    getActiveDistance: () => activeDistance,
-    getHoveredValue: () => hoveredValue,
-    getHoverDistance: () => hoverDistance,
-    isHoverMoving: () => hoverMoving,
+    getActiveValue: () => store.getState().activeValue,
+    getActivePhase: () => store.getState().activePhase,
+    getActiveDistance: () => store.getState().activeDistance,
+    getHoveredValue: () => store.getState().hoveredValue,
+    getHoverDistance: () => store.getState().hoverDistance,
+    isHoverMoving: () => store.getState().hoverMoving,
     getVelocity: () => mouseVelocity,
     getTabCount: () => tabOrder.length,
     getTabDistance,
 
     setActiveValue: (val, explicitDistance) => {
+      if (destroyed) return;
       clearActiveTimers();
-      if (activeValue === val) {
-        if (explicitDistance === 0 && activePhase !== "idle") {
-          activePhase = "idle";
-          activeDistance = 0;
-          notify();
+      const state = store.getState();
+      if (state.activeValue === val) {
+        if (explicitDistance === 0 && state.activePhase !== "idle") {
+          updateState({ activePhase: "idle", activeDistance: 0 });
         }
         return;
       }
 
-      setHoverInternal(null, 0, false);
-      const distance = explicitDistance ?? getTabDistance(activeValue, val);
-      activeValue = val;
+      const hoverPatch = computeHoverPatch(state, null, 0);
+      const distance =
+        explicitDistance ?? getTabDistance(state.activeValue, val);
 
       if (distance > 0) {
-        activeDistance = distance;
-        activePhase = "flight";
         flightTimer = setTimeout(() => {
           flightTimer = null;
           beginLanding();
         }, flightMs);
-      } else {
-        activeDistance = 0;
-        activePhase = "idle";
       }
-      notify();
+
+      updateState({
+        ...hoverPatch,
+        activeValue: val,
+        activeDistance: distance > 0 ? distance : 0,
+        activePhase: distance > 0 ? "flight" : "idle",
+      });
     },
 
     hoverTab: (val, explicitDistance) => {
+      if (destroyed) return;
       if (val === null) {
-        setHoverInternal(null, 0, true);
+        updateState((state) => computeHoverPatch(state, null, 0) ?? state);
         return;
       }
       if (!hoverSlide || isTouchDevice) return;
-      const currentAnchor = hoveredValue ?? activeValue;
-      const distance = explicitDistance ?? getTabDistance(currentAnchor, val);
-      setHoverInternal(val, distance, true);
+      updateState((state) => {
+        const currentAnchor = state.hoveredValue ?? state.activeValue;
+        const distance = explicitDistance ?? getTabDistance(currentAnchor, val);
+        return computeHoverPatch(state, val, distance) ?? state;
+      });
     },
 
     selectTab: (val) => {
-      if (hoveredValue === val) {
-        setHoverInternal(val, 0, true);
-      }
+      if (destroyed) return;
+      updateState((state) =>
+        state.hoveredValue === val
+          ? (computeHoverPatch(state, val, 0) ?? state)
+          : state,
+      );
     },
 
     pressTab: (val, pointerType) => {
+      if (destroyed) return;
       const isTouch = isTouchDevice || pointerType === "touch";
-      if (hoverSlide && !isTouch) {
-        setHoverInternal(val, 0, false);
-      }
-      if (pressedValue !== val) {
-        pressedValue = val;
-        notify();
-      }
+      updateState((state) => {
+        const hoverPatch =
+          hoverSlide && !isTouch ? computeHoverPatch(state, val, 0) : null;
+        if (state.pressedValue === val) {
+          return hoverPatch ?? state;
+        }
+        return { ...hoverPatch, pressedValue: val };
+      });
     },
 
     releaseTab: (val, pointerType) => {
+      if (destroyed) return;
       const isTouch = isTouchDevice || pointerType === "touch";
-      const wasPressed = pressedValue === val;
-      if (wasPressed) {
-        pressedValue = null;
-      }
-      if (isTouch && hoveredValue !== null) {
-        setHoverInternal(null, 0, false);
-        notify();
-        return;
-      }
-      if (wasPressed) {
-        notify();
-      }
+      updateState((state) => {
+        const wasPressed = state.pressedValue === val;
+        const hoverPatch =
+          isTouch && state.hoveredValue !== null
+            ? computeHoverPatch(state, null, 0)
+            : null;
+        if (!wasPressed && !hoverPatch) return state;
+        return {
+          ...hoverPatch,
+          ...(wasPressed ? { pressedValue: null } : {}),
+        };
+      });
     },
 
     cancelTabPress: () => {
-      const hadState =
-        pressedValue !== null || hoveredValue !== null || hoverMoving;
-      pressedValue = null;
-      setHoverInternal(null, 0, false);
-      if (hadState) {
-        notify();
-      }
+      if (destroyed) return;
+      updateState((state) => {
+        const hadState =
+          state.pressedValue !== null ||
+          state.hoveredValue !== null ||
+          state.hoverMoving;
+        if (!hadState) return state;
+        const hoverPatch = computeHoverPatch(state, null, 0);
+        return {
+          ...hoverPatch,
+          pressedValue: null,
+        };
+      });
     },
 
     leaveTab: (val) => {
-      if (pressedValue === val) {
-        pressedValue = null;
-        notify();
-      }
+      if (destroyed) return;
+      updateState((state) =>
+        state.pressedValue === val ? { pressedValue: null } : state,
+      );
     },
 
     leaveTabs: () => {
+      if (destroyed) return;
       mouseVelocity = 0;
       lastMousePos = null;
-      if (hoveredValue !== null) {
-        setHoverInternal(null, 0, true);
-      }
+      updateState((state) =>
+        state.hoveredValue !== null
+          ? (computeHoverPatch(state, null, 0) ?? state)
+          : state,
+      );
     },
 
     recordPointerMove: (clientX, clientY, nowMs) => {
@@ -653,29 +688,23 @@ export function createTabsController({
     },
 
     notifyLayoutComplete: () => {
-      if (activePhase === "flight") {
+      if (destroyed) return;
+      if (store.getState().activePhase === "flight") {
         beginLanding();
       }
     },
 
     completeFlight,
 
-    getTabStateMask: (val) => {
-      const flags = evaluateTabFlags(val);
-      return (
-        (flags.isActive ? 1 : 0) |
-        (flags.isTransitioning ? 2 : 0) |
-        (flags.isLanding ? 4 : 0) |
-        (flags.isHovered ? 8 : 0) |
-        (flags.showHighlight ? 16 : 0) |
-        (flags.isMovingHover ? 32 : 0) |
-        (flags.isPressed ? 64 : 0)
-      );
-    },
+    getTabStateMask: (val) => getTabStateMaskFromState(store.getState(), val),
 
-    getServerTabStateMask: (val) => (activeValue === val ? 1 | 16 : 0),
+    getTabStateMaskFromState,
+
+    getServerTabStateMask: (val) =>
+      getTabStateMaskFromState(store.getInitialState(), val),
 
     getTabSnapshot: (val, dimensions) => {
+      const state = store.getState();
       const {
         isActive,
         isTransitioning,
@@ -684,15 +713,15 @@ export function createTabsController({
         showHighlight,
         isMovingHover,
         isPressed,
-      } = evaluateTabFlags(val);
+      } = evaluateTabFlags(state, val);
 
       const isHoverActive =
         isHovered || isTransitioning || isLanding || hasNavbarActiveClass;
       let effectiveDistance = 0;
       if (isMovingHover) {
-        effectiveDistance = hoverDistance;
+        effectiveDistance = state.hoverDistance;
       } else if (isTransitioning) {
-        effectiveDistance = activeDistance;
+        effectiveDistance = state.activeDistance;
       }
 
       const isTraveling = effectiveDistance > 0;

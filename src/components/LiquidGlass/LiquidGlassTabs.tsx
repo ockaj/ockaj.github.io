@@ -5,7 +5,6 @@ import {
   useState,
   useEffect,
   useLayoutEffect,
-  useSyncExternalStore,
   memo,
   useRef,
   useCallback,
@@ -18,6 +17,7 @@ import {
   type ComponentPropsWithoutRef,
   type RefObject,
 } from "react";
+import { useStore } from "zustand";
 import {
   animate,
   motion,
@@ -546,11 +546,10 @@ function TabComponent({
     return controller.registerTab(value);
   }, [controller, value]);
 
-  useSyncExternalStore(
-    controller.subscribe,
-    useCallback(() => controller.getTabStateMask(value), [controller, value]),
+  useStore(
+    controller.store,
     useCallback(
-      () => controller.getServerTabStateMask(value),
+      (state) => controller.getTabStateMaskFromState(state, value),
       [controller, value],
     ),
   );

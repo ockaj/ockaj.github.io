@@ -292,6 +292,75 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
 
       controller.destroy();
     });
+
+    it("exposes a Zustand store with consistent state selectors and skips no-op notifications", () => {
+      const controller = createTabsController({ initialValue: "t1" });
+      controller.registerTab("t1");
+      controller.registerTab("t2");
+
+      let notifications = 0;
+      const unsubscribe = controller.store.subscribe(() => {
+        notifications++;
+      });
+
+      expect(
+        controller.getTabStateMaskFromState(
+          controller.store.getInitialState(),
+          "t1",
+        ),
+      ).toBe(controller.getServerTabStateMask("t1"));
+      expect(
+        controller.getTabStateMaskFromState(
+          controller.store.getInitialState(),
+          "t2",
+        ),
+      ).toBe(0);
+
+      // No-op operations must not notify subscribers
+      controller.setActiveValue("t1");
+      controller.leaveTabs();
+      controller.completeFlight();
+      controller.hoverTab(null);
+      expect(notifications).toBe(0);
+
+      // Hovering t2 starts impulse; passing non-zero distance or re-hovering after settle is a no-op
+      controller.hoverTab("t2");
+      expect(notifications).toBe(1);
+      controller.hoverTab("t2", 1);
+      expect(notifications).toBe(1);
+      vi.advanceTimersByTime(TRAVEL_IMPULSE_MS);
+      expect(notifications).toBe(2);
+      controller.hoverTab("t2");
+      expect(notifications).toBe(2);
+      expect(controller.store.getState().hoveredValue).toBe("t2");
+
+      unsubscribe();
+      controller.destroy();
+    });
+
+    it("prevents pending timers and late mutations after destroy()", () => {
+      const controller = createTabsController({ initialValue: "t1" });
+      controller.registerTab("t1");
+      controller.registerTab("t2");
+
+      let notifications = 0;
+      controller.store.subscribe(() => {
+        notifications++;
+      });
+
+      controller.setActiveValue("t2");
+      expect(notifications).toBe(1);
+      expect(controller.getActivePhase()).toBe("flight");
+
+      controller.destroy();
+      vi.advanceTimersByTime(FLIGHT_SETTLE_MS + LANDING_PULSE_MS);
+
+      controller.hoverTab("t1");
+      controller.pressTab("t1", "mouse");
+      expect(notifications).toBe(1);
+      expect(controller.getActivePhase()).toBe("flight");
+      expect(controller.getHoveredValue()).toBeNull();
+    });
   });
 
   describe("resolveContextHighlightClass", () => {
