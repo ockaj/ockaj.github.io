@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Dialog } from "@base-ui/react/dialog";
+import { Toast } from "@base-ui/react/toast";
 import { X } from "lucide-react";
 import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import BpmnHotkeyToast from "./BpmnHotkeyToast";
@@ -17,13 +18,14 @@ import {
 } from "../../utils/motionVariants";
 
 const BPMN_KEYS = new Set(["b", "p", "m", "n"]);
+const BPMN_HOTKEY_TOAST_ID = "bpmn-hotkey-tip";
 
 export default function BpmnOverlay() {
   const isMobile = useIsMobile();
   const prefersReducedMotion = usePrefersReducedMotion();
   const { isOpen, open, close } = useModal("bpmn");
   const typedBufferRef = useRef<string[]>([]);
-  const [showHotkeyTip, setShowHotkeyTip] = useState(false);
+  const [hotkeyToastManager] = useState(() => Toast.createToastManager());
 
   // Keyboard shortcut listener for 'B-P-M-N'
   useEffect(() => {
@@ -47,7 +49,7 @@ export default function BpmnOverlay() {
         if (typedBufferRef.current.join("") === "bpmn") {
           open();
           typedBufferRef.current = [];
-          setShowHotkeyTip(false);
+          hotkeyToastManager.close(BPMN_HOTKEY_TOAST_ID);
           setSessionStorageItem("bpmn_tip_dismissed", "true");
         }
       } else {
@@ -57,31 +59,31 @@ export default function BpmnOverlay() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isMobile, open]);
+  }, [isMobile, open, hotkeyToastManager]);
 
   // Show a brief toast notification on how to trigger if user spends time on the site (once per session)
   useEffect(() => {
-    if (
-      isMobile ||
-      isOpen ||
-      getSessionStorageItem("bpmn_tip_dismissed") === "true"
-    ) {
+    if (isOpen) {
+      hotkeyToastManager.close(BPMN_HOTKEY_TOAST_ID);
+      return;
+    }
+
+    if (isMobile || getSessionStorageItem("bpmn_tip_dismissed") === "true") {
       return;
     }
 
     const showTipTimer = setTimeout(() => {
-      setShowHotkeyTip(true);
+      hotkeyToastManager.add({
+        id: BPMN_HOTKEY_TOAST_ID,
+        title: "Process Analyst Easter Egg",
+      });
       setSessionStorageItem("bpmn_tip_dismissed", "true");
     }, 12000);
 
     return () => {
       clearTimeout(showTipTimer);
     };
-  }, [isMobile, isOpen]);
-
-  const handleDismissToast = useCallback(() => {
-    setShowHotkeyTip(false);
-  }, []);
+  }, [isMobile, isOpen, hotkeyToastManager]);
 
   const handleTaskClick = useCallback(
     (sectionId: string) => {
@@ -96,11 +98,7 @@ export default function BpmnOverlay() {
   return (
     <>
       {/* Subtle Toast Tip */}
-      <AnimatePresence>
-        {showHotkeyTip && !isOpen ? (
-          <BpmnHotkeyToast onDismiss={handleDismissToast} />
-        ) : null}
-      </AnimatePresence>
+      <BpmnHotkeyToast toastManager={hotkeyToastManager} />
 
       {/* Full Screen Blueprint BPMN Overlay */}
       <Dialog.Root

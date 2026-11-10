@@ -48,7 +48,7 @@ Feature modules encapsulate internal implementation. ESLint (`no-restricted-impo
 | `LoadingScreen` | `LoadingScreen/LoadingScreen` | `LoadingBpmnDiagram`, `loadingData`, `LoadingMethodologyChecklist` |
 | `Navigation` | `Navigation/Navbar` | `MobileMenu` |
 | `PdfViewerModal` | `PdfViewerModal/PdfViewerModal` | `InteractiveCvView` |
-| `Bpmn` | `Bpmn/BpmnOverlay`, `Bpmn/BpmnNodeBadge` | `BpmnDiagram`, `BpmnHotkeyToast`, `bpmnStorage`, `pauseableTimer` |
+| `Bpmn` | `Bpmn/BpmnOverlay`, `Bpmn/BpmnNodeBadge` | `BpmnDiagram`, `BpmnHotkeyToast`, `bpmnStorage` |
 | `LiquidGlass` | `LiquidGlass/LiquidGlass`, `LiquidGlass/LiquidGlassTabs`, `LiquidGlass/types` | `config`, `liquidGlassStore`, `liquidGlassUtils`, `Ripple`, `useRipple`, `useLiquidGlassPhysics`, `LiquidGlassDesktop`, `LiquidGlassMobile`, `LiquidGlassOverlays`, `LiquidGlassStatic` |
 
 Cross-cutting UI primitives live directly in `src/components/` (e.g. `BaseDrawer.tsx`, `Tooltip.tsx`, `LazySection.tsx`).
@@ -73,6 +73,7 @@ For component selection criteria, physics, and props allocation, see [LiquidGlas
 Import Base UI components directly from their specific subpath specifiers:
 - Dialogs: `@base-ui/react/dialog` (`Dialog.Root`, `Dialog.Portal`, `Dialog.Backdrop`, `Dialog.Popup`, `Dialog.Title`, `Dialog.Description`, `Dialog.Close`).
 - Tooltips: `@base-ui/react/tooltip`.
+- Toasts: `@base-ui/react/toast` (`Toast.Provider`, `Toast.Portal`, `Toast.Viewport`, `Toast.Root`, `Toast.Content`, `Toast.Title`, `Toast.Description`, `Toast.Close`, `Toast.useToastManager`, `Toast.createToastManager`).
 - Accordions: `@base-ui/react/accordion` (`Accordion.Root`, `Accordion.Item`, `Accordion.Header`, `Accordion.Trigger`, `Accordion.Panel`).
 
 Pass `keepMounted` to `<Dialog.Portal keepMounted>` when wrapping with `motion/react` `<AnimatePresence>` for exit transitions. See [Base UI Guidelines](./base-ui.md).

@@ -74,6 +74,76 @@ export async function run({ page, urls, record, sleep }) {
     `Mobile URL: ${mobileUrl}`
   );
 
+  // 4. Base UI Hotkey Toast Lifecycle (12s trigger, hover pause, auto-dismiss, close button)
+  const toastContext = await page.context().browser().newContext({
+    viewport: { width: 1440, height: 900 },
+  });
+  try {
+    const toastPage = await toastContext.newPage();
+    await toastPage.addInitScript(() => {
+      try {
+        localStorage.setItem("portfolio_loaded", "true");
+        sessionStorage.removeItem("bpmn_tip_dismissed");
+      } catch {
+        // Ignored: storage might be restricted
+      }
+    });
+    await toastPage.clock.install();
+    await toastPage.goto(urls, { waitUntil: "networkidle" });
+    await toastPage.clock.fastForward(500);
+    await toastPage.clock.fastForward(12100);
+
+    const toastTitle = toastPage.locator("text=Process Analyst Easter Egg");
+    const toastAppeared = await toastTitle
+      .waitFor({ state: "visible", timeout: 2500 })
+      .then(() => true)
+      .catch(() => false);
+    record("BPMN Hotkey Toast Appears After 12s", toastAppeared);
+
+    if (toastAppeared) {
+      await toastTitle.hover();
+      await toastPage.clock.fastForward(10500);
+      const stayedOpenOnHover = await toastTitle.isVisible();
+      record("BPMN Hotkey Toast Pauses Timer on Hover", stayedOpenOnHover);
+
+      await toastPage.mouse.move(10, 10);
+      await toastPage.clock.fastForward(10500);
+      await toastPage.clock.runFor(400);
+      const dismissedAfterLeave = await toastTitle
+        .waitFor({ state: "detached", timeout: 2500 })
+        .then(() => true)
+        .catch(() => false);
+      record("BPMN Hotkey Toast Auto-Dismisses After Leave", dismissedAfterLeave);
+    }
+
+    // Verify manual close button dismissal on a fresh session
+    await toastPage.evaluate(() => {
+      sessionStorage.removeItem("bpmn_tip_dismissed");
+    });
+    await toastPage.reload({ waitUntil: "networkidle" });
+    await toastPage.clock.fastForward(500);
+    await toastPage.clock.fastForward(12100);
+
+    const closeBtn = toastPage.locator("button[aria-label='Dismiss tip']");
+    const closeBtnReady = await closeBtn
+      .waitFor({ state: "visible", timeout: 2500 })
+      .then(() => true)
+      .catch(() => false);
+    if (closeBtnReady) {
+      await closeBtn.click();
+      await toastPage.clock.runFor(400);
+    }
+    const dismissedByButton =
+      closeBtnReady &&
+      (await toastTitle
+        .waitFor({ state: "detached", timeout: 2500 })
+        .then(() => true)
+        .catch(() => false));
+    record("BPMN Hotkey Toast Closes via Dismiss Button", dismissedByButton);
+  } finally {
+    await toastContext.close();
+  }
+
   // Reset viewport to desktop standard
   await page.setViewportSize({ width: 1440, height: 900 });
 }
