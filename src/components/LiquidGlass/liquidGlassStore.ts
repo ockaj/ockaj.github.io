@@ -286,6 +286,7 @@ export interface TabsPhysicsController {
   subscribe: (listener: () => void) => () => void;
   registerTab: (val: TabValue) => () => void;
   configure: (config: TabsControllerConfig) => void;
+  activate: () => void;
   destroy: () => void;
 
   getActiveValue: () => TabValue;
@@ -538,6 +539,35 @@ export function createTabsController({
       }
     },
 
+    activate: () => {
+      if (!destroyed) return;
+      destroyed = false;
+      clearActiveTimers();
+      clearHoverTimer();
+      mouseVelocity = 0;
+      lastMousePos = null;
+      updateState((state) => {
+        if (
+          state.activePhase === "idle" &&
+          state.activeDistance === 0 &&
+          state.hoveredValue === null &&
+          state.hoverDistance === 0 &&
+          !state.hoverMoving &&
+          state.pressedValue === null
+        ) {
+          return state;
+        }
+        return {
+          activePhase: "idle",
+          activeDistance: 0,
+          hoveredValue: null,
+          hoverDistance: 0,
+          hoverMoving: false,
+          pressedValue: null,
+        };
+      });
+    },
+
     destroy: () => {
       destroyed = true;
       clearActiveTimers();
@@ -674,6 +704,7 @@ export function createTabsController({
     },
 
     recordPointerMove: (clientX, clientY, nowMs) => {
+      if (destroyed) return;
       if (lastMousePos) {
         const dt = nowMs - lastMousePos.time;
         if (dt > 8 && dt < 200) {

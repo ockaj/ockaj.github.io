@@ -3,7 +3,6 @@ import {
   use,
   useMemo,
   useState,
-  useEffect,
   useLayoutEffect,
   memo,
   useRef,
@@ -207,16 +206,17 @@ function TabsInner<T extends TabValue>({
   const scaleY = useMotionValue(1);
 
   useLayoutEffect(() => {
-    controller.setActiveValue(value);
-  }, [controller, value]);
-
-  useEffect(() => {
+    controller.activate();
     return () => {
       controller.destroy();
       scaleX.stop();
       scaleY.stop();
     };
   }, [controller, scaleX, scaleY]);
+
+  useLayoutEffect(() => {
+    controller.setActiveValue(value);
+  }, [controller, value]);
 
   const effectiveRoundedClass = roundedClass ?? getDefaultTabRadius(variant);
 
@@ -536,7 +536,7 @@ function TabComponent({
     prefersReducedMotion,
   } = config;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     return controller.registerTab(value);
   }, [controller, value]);
 

@@ -361,6 +361,154 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       expect(controller.getActivePhase()).toBe("flight");
       expect(controller.getHoveredValue()).toBeNull();
     });
+
+    it("reactivates cleanly after idle destroy() with zero notifications and restores mutations", () => {
+      const controller = createTabsController({ initialValue: "t1" });
+      controller.registerTab("t1");
+      controller.registerTab("t2");
+
+      let notifications = 0;
+      controller.store.subscribe(() => {
+        notifications++;
+      });
+
+      controller.destroy();
+
+      // Pointer moves while destroyed are ignored
+      controller.recordPointerMove(0, 10, 100);
+      controller.recordPointerMove(90, 10, 150);
+      expect(controller.getVelocity()).toBe(0);
+
+      // Re-activating from idle emits 0 notifications
+      controller.activate();
+      expect(notifications).toBe(0);
+      expect(controller.getActiveValue()).toBe("t1");
+      expect(controller.getActivePhase()).toBe("idle");
+
+      // Subsequent mutations work normally
+      controller.hoverTab("t2");
+      expect(notifications).toBe(1);
+      expect(controller.getHoveredValue()).toBe("t2");
+
+      controller.setActiveValue("t2");
+      expect(notifications).toBe(2);
+      expect(controller.getActiveValue()).toBe("t2");
+      expect(controller.getActivePhase()).toBe("flight");
+
+      vi.advanceTimersByTime(FLIGHT_SETTLE_MS + LANDING_PULSE_MS);
+      expect(controller.getActivePhase()).toBe("idle");
+
+      controller.destroy();
+    });
+
+    it("resets transient fields while preserving activeValue on mid-interaction destroy() -> activate()", () => {
+      const controller = createTabsController({ initialValue: "t1" });
+      for (const id of ["t1", "t2", "t3"]) {
+        controller.registerTab(id);
+      }
+
+      controller.recordPointerMove(0, 10, 100);
+      controller.recordPointerMove(90, 10, 150);
+      expect(controller.getVelocity()).toBeGreaterThan(0);
+
+      controller.setActiveValue("t2");
+      controller.hoverTab("t3");
+      controller.pressTab("t3", "mouse");
+
+      expect(controller.getActiveValue()).toBe("t2");
+      expect(controller.getActivePhase()).toBe("flight");
+      expect(controller.getActiveDistance()).toBe(1);
+      expect(controller.getHoveredValue()).toBe("t3");
+      expect(controller.store.getState().pressedValue).toBe("t3");
+
+      let notifications = 0;
+      controller.store.subscribe(() => {
+        notifications++;
+      });
+
+      controller.destroy();
+      expect(controller.getVelocity()).toBe(0);
+
+      controller.activate();
+      expect(notifications).toBe(1);
+      expect(controller.getActiveValue()).toBe("t2");
+      expect(controller.getActivePhase()).toBe("idle");
+      expect(controller.getActiveDistance()).toBe(0);
+      expect(controller.getHoveredValue()).toBeNull();
+      expect(controller.getHoverDistance()).toBe(0);
+      expect(controller.isHoverMoving()).toBe(false);
+      expect(controller.store.getState().pressedValue).toBeNull();
+      expect(controller.getVelocity()).toBe(0);
+
+      // Subsequent interactions work after mid-interaction reactivation
+      controller.setActiveValue("t3");
+      expect(controller.getActiveValue()).toBe("t3");
+      expect(controller.getActivePhase()).toBe("flight");
+
+      vi.advanceTimersByTime(FLIGHT_SETTLE_MS + LANDING_PULSE_MS);
+      expect(controller.getActivePhase()).toBe("idle");
+
+      controller.destroy();
+    });
+
+    it("treats activate() as an idempotent no-op when already active", () => {
+      const controller = createTabsController({ initialValue: "t1" });
+      controller.registerTab("t1");
+      controller.registerTab("t2");
+
+      let notifications = 0;
+      controller.store.subscribe(() => {
+        notifications++;
+      });
+
+      controller.activate();
+      expect(notifications).toBe(0);
+
+      controller.setActiveValue("t2");
+      controller.hoverTab("t1");
+      expect(notifications).toBe(2);
+
+      // Must not clear in-flight/hover state or notify when already active
+      controller.activate();
+      expect(notifications).toBe(2);
+      expect(controller.getActivePhase()).toBe("flight");
+      expect(controller.getHoveredValue()).toBe("t1");
+
+      vi.advanceTimersByTime(FLIGHT_SETTLE_MS);
+      expect(controller.getActivePhase()).toBe("landing");
+
+      controller.destroy();
+    });
+
+    it("preserves tab registration across StrictMode unregister -> re-register -> activate() order", () => {
+      const controller = createTabsController({ initialValue: "t1" });
+      const unreg1 = controller.registerTab("t1");
+      const unreg2 = controller.registerTab("t2");
+      const unreg3 = controller.registerTab("t3");
+
+      // Simulate StrictMode unmount cleanup (children unregister, parent destroys)
+      unreg1();
+      unreg2();
+      unreg3();
+      controller.destroy();
+      expect(controller.getTabCount()).toBe(0);
+
+      // Simulate StrictMode remount: children register before parent activate() runs
+      const remountUnreg1 = controller.registerTab("t1");
+      const remountUnreg2 = controller.registerTab("t2");
+      const remountUnreg3 = controller.registerTab("t3");
+      expect(controller.getTabCount()).toBe(3);
+
+      controller.activate();
+      controller.setActiveValue("t3");
+      expect(controller.getActivePhase()).toBe("flight");
+      expect(controller.getActiveDistance()).toBe(2);
+
+      remountUnreg1();
+      remountUnreg2();
+      remountUnreg3();
+      controller.destroy();
+    });
   });
 
   describe("resolveContextHighlightClass", () => {
