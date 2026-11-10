@@ -40,6 +40,12 @@ dist-ssr/
 stats.html
 coverage/
 
+# Playwright Test artifacts
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
 # Local agent skills, critique, and cache directories
 .agents/skills/*
 !.agents/skills/exit-gate/

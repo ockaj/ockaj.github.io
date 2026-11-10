@@ -10,8 +10,8 @@ Verify only when required:
 
 - **Skip verification**: For cosmetic changes (CSS, Tailwind classes, colors, spacing, text, copy, markdown). Finish the turn without running commands.
 - **Inner loop (development)**: Run `npm run check` (runs gate + TypeScript typecheck in <2s) in the terminal for instant validation of types, seams, boundaries, and React 19 invariants during logic, routing, or state edits. If checks fail, consult [`.agents/skills/exit-gate/SKILL.md`](./.agents/skills/exit-gate/SKILL.md).
-- **Outer loop (task exit)**: Run `npm run verify` once at the end of the task for code, state, dependency, or component structure changes. Rely on zero exit code across gate, unit tests, typecheck, lint, doctor, knip, and build.
-- **End-to-End suite**: Run `npm run test:e2e` (Playwright suite in `scripts/e2e/runner.mjs`) for visual layout overhauls, CLS audits, or navigation regressions.
+- **Outer loop (task exit)**: Run `npm run verify` once at the end of the task for code, state, dependency, or component structure changes. Rely on zero exit code across gate, unit tests, typecheck, lint, doctor, knip, build, and E2E.
+- **End-to-End suite**: Run `npm run test:e2e` (requires built `dist/` via `npm run build`) for targeted visual layout, CLS, or navigation checks.
 
 ---
 

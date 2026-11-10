@@ -88,8 +88,7 @@ export default tseslint.config(
     },
   },
   {
-    extends: [js.configs.recommended],
-    files: ["scripts/e2e/**/*.{js,mjs}"],
+    files: ["e2e/**/*.ts", "playwright.config.ts"],
     languageOptions: {
       ecmaVersion: 2023,
       globals: {
@@ -99,6 +98,11 @@ export default tseslint.config(
     },
     rules: {
       "no-empty": ["error", { allowEmptyCatch: true }],
+      "react-hooks/rules-of-hooks": "off",
+      "react-compiler/react-compiler": "off",
+      "react-refresh/only-export-components": "off",
+      "tailwindcss/no-arbitrary-value": "off",
+      "tailwindcss/no-unnecessary-arbitrary-value": "off",
     },
   },
   eslintConfigPrettier,
