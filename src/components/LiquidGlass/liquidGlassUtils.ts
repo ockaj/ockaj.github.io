@@ -1,13 +1,15 @@
 import {
   useCallback,
   type CSSProperties,
+  type DragEvent,
   type KeyboardEvent,
   type MouseEvent,
   type MouseEventHandler,
-  type Ref,
+  type ReactNode,
   type ElementType,
 } from "react";
 import { motion, type MotionStyle } from "motion/react";
+import { mergeProps } from "@base-ui/react/merge-props";
 import { cn } from "../../utils/cn";
 import { SPRING } from "../../utils/springConfig";
 import { getInnerGlassStyle, type LiquidGlassVariant } from "./config";
@@ -26,15 +28,6 @@ export const TAP_RELEASE_TRANSITION = {
   scaleX: SPRING.glassTouchRelease,
   scaleY: SPRING.glassTouchRelease,
 } as const;
-
-export function assignRef<T>(ref: Ref<T> | undefined, node: T | null): void {
-  if (!ref) return;
-  if (typeof ref === "function") {
-    ref(node);
-  } else if ("current" in ref) {
-    (ref as { current: T | null }).current = node;
-  }
-}
 
 export function useKeyboardClick(
   onClick?: (e: MouseEvent<HTMLElement>) => void,
@@ -73,46 +66,10 @@ export const TAG_MAP: { readonly [tag: string]: ElementType | undefined } = {
   section: motion.section,
 };
 
-function attachComposedEventHandlers(
-  tagProps: LiquidGlassTagProps,
-  sharedAnimationProps?: LiquidGlassAnimationProps,
-  domProps?: LiquidGlassDomProps,
-): void {
-  if (sharedAnimationProps?.onPointerDown) {
-    const internalPointerDown = sharedAnimationProps.onPointerDown;
-    const domPointerDown = domProps?.onPointerDown;
-    tagProps.onPointerDown = (e: React.PointerEvent<HTMLElement>) => {
-      internalPointerDown(e);
-      domPointerDown?.(e);
-    };
-  }
+type GlassTagElement = (props: LiquidGlassTagProps) => ReactNode;
 
-  if (sharedAnimationProps?.onMouseEnter) {
-    const internalMouseEnter = sharedAnimationProps.onMouseEnter;
-    const domMouseEnter = domProps?.onMouseEnter;
-    tagProps.onMouseEnter = (e: React.MouseEvent<HTMLElement>) => {
-      internalMouseEnter(e);
-      domMouseEnter?.(e);
-    };
-  }
-
-  if (sharedAnimationProps?.onMouseMove) {
-    const internalMouseMove = sharedAnimationProps.onMouseMove;
-    const domMouseMove = domProps?.onMouseMove;
-    tagProps.onMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-      internalMouseMove(e);
-      domMouseMove?.(e);
-    };
-  }
-
-  if (sharedAnimationProps?.onMouseLeave) {
-    const internalMouseLeave = sharedAnimationProps.onMouseLeave;
-    const domMouseLeave = domProps?.onMouseLeave;
-    tagProps.onMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
-      internalMouseLeave(e);
-      domMouseLeave?.(e);
-    };
-  }
+function preventDefaultOnDragStart(e: DragEvent<HTMLElement>): void {
+  (e as { preventDefault?: () => void }).preventDefault?.();
 }
 
 export function computeInnerGlassStyle(
@@ -244,21 +201,19 @@ export function resolveGlassSurfaceProps({
     innerClassName,
   );
 
-  const tagProps: LiquidGlassTagProps = {
+  const baseSurfaceProps: LiquidGlassTagProps = {
     className: baseClasses,
     style: tagStyle,
     "aria-label": ariaLabel,
     draggable: false,
-    ...animationProps,
-    ...domProps,
   };
 
-  attachComposedEventHandlers(tagProps, animationProps, domProps);
-
-  tagProps.onDragStart = (e: unknown) => {
-    (e as { preventDefault?: () => void }).preventDefault?.();
-    domProps?.onDragStart?.(e as React.DragEvent<HTMLElement>);
-  };
+  const tagProps = mergeProps<GlassTagElement>(
+    baseSurfaceProps,
+    animationProps as LiquidGlassTagProps | undefined,
+    domProps as LiquidGlassTagProps | undefined,
+    { onDragStart: preventDefaultOnDragStart },
+  ) as LiquidGlassTagProps;
 
   applyInteractiveElementProps(
     tagProps,

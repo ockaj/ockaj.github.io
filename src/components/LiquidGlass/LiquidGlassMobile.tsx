@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  useState,
-  useRef,
-  useCallback,
-  useMemo,
-  type CSSProperties,
-} from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { useState, useRef, useMemo, type CSSProperties } from "react";
+import { motion, useComposedRefs, useReducedMotion } from "motion/react";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 
 import Ripple from "./Ripple";
@@ -17,7 +11,6 @@ import { glassFeel } from "./config";
 import {
   TAP_PRESS_TRANSITION,
   TAP_RELEASE_TRANSITION,
-  assignRef,
   useKeyboardClick,
   TAG_MAP,
   resolveGlassSurfaceProps,
@@ -63,13 +56,7 @@ export default function LiquidGlassMobile(
   const elementRef = useRef<HTMLElement | null>(null);
   const [dimensions, setDimensions] = useState({ width: 120, height: 36 });
 
-  const handleRef = useCallback(
-    (node: HTMLElement | null) => {
-      elementRef.current = node;
-      assignRef(ref, node);
-    },
-    [ref],
-  );
+  const handleRef = useComposedRefs(elementRef, ref);
 
   useResizeObserver(effectiveSpringScale ? elementRef : null, (entry) => {
     const { width: newWidth, height: newHeight } = getEntryDimensions(entry);

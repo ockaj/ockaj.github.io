@@ -18,6 +18,7 @@ import {
   type RefObject,
 } from "react";
 import { useStore } from "zustand";
+import { mergeProps } from "@base-ui/react/merge-props";
 import {
   animate,
   motion,
@@ -254,31 +255,24 @@ function TabsInner<T extends TabValue>({
     ],
   );
 
+  const containerProps = mergeProps<"div">(rest, {
+    role: role ?? undefined,
+    "aria-orientation": role === "tablist" ? orientation : undefined,
+    tabIndex: role === "tablist" ? -1 : undefined,
+    className: cn("flex", className),
+    style,
+    onMouseMove: (e) => {
+      controller.recordPointerMove(e.clientX, e.clientY, performance.now());
+    },
+    onMouseLeave: () => {
+      controller.leaveTabs();
+    },
+  });
+
   return (
     <TabsContext value={contextValue}>
       <LayoutGroup id={layoutId} inherit={false}>
-        <div
-          role={role ?? undefined}
-          aria-orientation={role === "tablist" ? orientation : undefined}
-          tabIndex={role === "tablist" ? -1 : undefined}
-          className={cn("flex", className)}
-          style={style}
-          {...rest}
-          onMouseMove={(e) => {
-            controller.recordPointerMove(
-              e.clientX,
-              e.clientY,
-              performance.now(),
-            );
-            rest.onMouseMove?.(e);
-          }}
-          onMouseLeave={(e) => {
-            controller.leaveTabs();
-            rest.onMouseLeave?.(e);
-          }}
-        >
-          {children}
-        </div>
+        <div {...containerProps}>{children}</div>
       </LayoutGroup>
     </TabsContext>
   );
@@ -675,31 +669,31 @@ function TabComponent({
     isActive,
   );
 
+  const buttonProps = mergeProps<typeof motion.button>(rest, {
+    type: "button",
+    disabled,
+    onClick: selectOption,
+    onPointerDown: handlePointerDown,
+    onPointerUp: handlePointerUp,
+    onPointerCancel: controller.cancelTabPress,
+    onMouseLeave: handleMouseLeave,
+    onMouseEnter: handleMouseEnter,
+    className: cn(
+      "relative z-10 transition-colors duration-200 select-none focus-visible:outline-none",
+      className,
+      isActive && activeClassName,
+    ),
+    role: tabRole,
+    "aria-selected": computedAriaSelected,
+    "aria-controls": computedAriaControls,
+    "aria-current": computedAriaCurrent,
+    id: isTabRole ? (rest.id ?? `tab-${value}`) : rest.id,
+    tabIndex: computedTabIndex,
+    onKeyDown: isTabRole ? handleTabKeyDown : undefined,
+  });
+
   return (
-    <motion.button
-      ref={buttonRef}
-      type="button"
-      disabled={disabled}
-      onClick={selectOption}
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={controller.cancelTabPress}
-      onMouseLeave={handleMouseLeave}
-      onMouseEnter={handleMouseEnter}
-      className={cn(
-        "relative z-10 transition-colors duration-200 select-none focus-visible:outline-none",
-        className,
-        isActive && activeClassName,
-      )}
-      {...rest}
-      role={tabRole}
-      aria-selected={computedAriaSelected}
-      aria-controls={computedAriaControls}
-      aria-current={computedAriaCurrent}
-      id={isTabRole ? (rest.id ?? `tab-${value}`) : rest.id}
-      tabIndex={computedTabIndex}
-      onKeyDown={isTabRole ? handleTabKeyDown : rest.onKeyDown}
-    >
+    <motion.button ref={buttonRef} {...buttonProps}>
       {showHighlight ? (
         <TabHighlight
           layoutId={layoutId}

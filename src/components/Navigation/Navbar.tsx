@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useState, useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
+import { Avatar } from "@base-ui/react/avatar";
 import { Menu, X } from "lucide-react";
 import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
@@ -54,7 +55,6 @@ export default function Navbar() {
   const isOpen = isMobile && isNavModalOpen;
 
   const [scrolled, setScrolled] = useState(false);
-  const [avatarError, setAvatarError] = useState(false);
 
   const isScrollingRef = useRef(false);
 
@@ -110,9 +110,6 @@ export default function Navbar() {
 
   const handleNav = useCallback(
     (id: string) => {
-      if (id === "home") {
-        setAvatarError(false);
-      }
       closeNavModal();
       navigateTo(id);
     },
@@ -153,22 +150,21 @@ export default function Navbar() {
               activeClassName="text-text-primary tab-active-bloom"
               aria-label="Home"
             >
-              <span className="relative z-10 flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/5 bg-bg">
-                {avatarError ? (
-                  <span className="font-mono text-sm leading-none font-bold tracking-normal text-accent select-none">
-                    OMO
-                  </span>
-                ) : (
-                  <img
-                    src="https://avatars.githubusercontent.com/u/36997301?v=4&s=24"
-                    onError={() => setAvatarError(true)}
-                    alt="Ondrej Michal Ockaj"
-                    width="24"
-                    height="24"
-                    className="size-full object-cover outline-1 -outline-offset-1 outline-white/8"
-                  />
-                )}
-              </span>
+              <Avatar.Root className="relative z-10 flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/5 bg-bg">
+                <Avatar.Image
+                  src="https://avatars.githubusercontent.com/u/36997301?v=4&s=24"
+                  alt="Ondrej Michal Ockaj"
+                  width={24}
+                  height={24}
+                  className="size-full object-cover outline-1 -outline-offset-1 outline-white/8"
+                />
+                <Avatar.Fallback
+                  delay={500}
+                  className="font-mono text-sm leading-none font-bold tracking-normal text-accent select-none"
+                >
+                  OMO
+                </Avatar.Fallback>
+              </Avatar.Root>
 
               <span className="xs:max-w-none max-w-35 truncate py-0.5 text-sm leading-normal font-semibold">
                 Ondrej Michal Očkaj

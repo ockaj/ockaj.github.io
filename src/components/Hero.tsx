@@ -2,6 +2,7 @@ import { useEffect, useState, memo, MouseEvent, useCallback } from "react";
 import { FileText } from "lucide-react";
 import {
   motion,
+  usePageInView,
   useReducedMotion,
   useScroll,
   useTransform,
@@ -64,30 +65,17 @@ function RotatingSpecialization({
   prefersReducedMotion,
 }: Readonly<RotatingSpecializationProps>) {
   const [roleIndex, setRoleIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(() =>
-    typeof document !== "undefined" ? document.hidden : false,
-  );
+  const isPageInView = usePageInView();
 
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      setIsPaused(document.hidden);
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isPaused) return;
+    if (!isPageInView) return;
 
     const interval = setInterval(() => {
       setRoleIndex(getNextRoleIndex);
     }, 2500);
 
     return () => clearInterval(interval);
-  }, [isPaused]);
+  }, [isPageInView]);
 
   return (
     <SlotText

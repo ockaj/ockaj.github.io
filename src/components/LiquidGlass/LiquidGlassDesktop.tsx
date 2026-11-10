@@ -8,6 +8,7 @@ import {
 } from "react";
 import {
   motion,
+  useComposedRefs,
   useReducedMotion,
   useTransform,
   type MotionStyle,
@@ -19,7 +20,6 @@ import { useRipple } from "./useRipple";
 import { useLiquidGlassPhysics } from "./useLiquidGlassPhysics";
 import { type InteractiveGlassPropsWithRef, DEFAULT_STYLE } from "./types";
 import {
-  assignRef,
   useKeyboardClick,
   TAG_MAP,
   resolveGlassSurfaceProps,
@@ -138,13 +138,7 @@ export default function LiquidGlassDesktop({
     shouldSuppressClick,
   } = physics;
 
-  const handleRef = useCallback(
-    (node: HTMLElement | null) => {
-      setElementRef(node);
-      assignRef(ref, node);
-    },
-    [ref, setElementRef],
-  );
+  const handleRef = useComposedRefs(setElementRef, ref);
 
   const rendersRipple = effectiveSpringScale && effectiveRipple;
   const {
