@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, memo } from "react";
-import { motion, useMotionValue, useTransform } from "motion/react";
+import { animate, motion, useMotionValue, useTransform } from "motion/react";
 import {
   useIsMobile,
   usePrefersReducedMotion,
@@ -94,8 +94,7 @@ function LoadingScreen({ onComplete }: Readonly<LoadingScreenProps>) {
   const isMobile = useIsMobile();
   const initialVal = prefersReducedMotion ? 100 : 0;
   const count = useMotionValue(initialVal);
-  const startTimeRef = useRef<number | null>(null);
-  const rafRef = useRef<number | null>(null);
+  const controlsRef = useRef<ReturnType<typeof animate> | null>(null);
   const doneRef = useRef(false);
 
   // Threshold-triggered React states (only re-render when crossed, not every frame)
@@ -109,12 +108,12 @@ function LoadingScreen({ onComplete }: Readonly<LoadingScreenProps>) {
   const activeNodeCountRef = useRef(activeNodes.size);
 
   const handleSkip = () => {
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-    }
+    const wasDone = doneRef.current;
+    doneRef.current = true;
+    controlsRef.current?.stop();
+    controlsRef.current = null;
     count.set(100);
-    if (!doneRef.current) {
-      doneRef.current = true;
+    if (!wasDone) {
       setLoadingState({
         activeNodes: ALL_LOADING_NODES,
         activeStepIdx: BPMN_STEPS.length - 1,
@@ -144,55 +143,52 @@ function LoadingScreen({ onComplete }: Readonly<LoadingScreenProps>) {
       };
     }
 
-    const DURATION = 1800;
-    startTimeRef.current = null;
+    count.set(0);
+    const controls = animate(count, 100, {
+      duration: 1.8,
+      ease: "linear",
+      onUpdate: (latest) => {
+        if (doneRef.current) return;
+        const current = Math.floor(latest);
 
-    const tick = (timestamp: number) => {
-      if (!startTimeRef.current) startTimeRef.current = timestamp;
-      const elapsed = timestamp - startTimeRef.current;
-      const progress = Math.min(elapsed / DURATION, 1);
-      const eased = progress;
-      const current = Math.floor(eased * 100);
+        const currentActiveNodes = getActiveNodesForProgress(current);
+        const nodesUpdated =
+          currentActiveNodes.size !== activeNodeCountRef.current;
+        if (nodesUpdated) {
+          activeNodeCountRef.current = currentActiveNodes.size;
+        }
 
-      count.set(eased * 100);
+        const { stepsDirty, stepIdx, completed } = checkStepThresholds(
+          current,
+          lastStepSnapshotRef.current,
+        );
+        if (stepsDirty) {
+          lastStepSnapshotRef.current = { idx: stepIdx, completed };
+        }
 
-      const currentActiveNodes = getActiveNodesForProgress(current);
-      const nodesUpdated =
-        currentActiveNodes.size !== activeNodeCountRef.current;
-      if (nodesUpdated) {
-        activeNodeCountRef.current = currentActiveNodes.size;
-      }
-
-      const { stepsDirty, stepIdx, completed } = checkStepThresholds(
-        current,
-        lastStepSnapshotRef.current,
-      );
-      if (stepsDirty) {
-        lastStepSnapshotRef.current = { idx: stepIdx, completed };
-      }
-
-      if (nodesUpdated || stepsDirty) {
-        setLoadingState((prev) => ({
-          activeNodes: nodesUpdated ? currentActiveNodes : prev.activeNodes,
-          activeStepIdx: stepsDirty ? stepIdx : prev.activeStepIdx,
-          completedSteps: stepsDirty ? completed : prev.completedSteps,
-        }));
-      }
-
-      if (progress < 1) {
-        rafRef.current = requestAnimationFrame(tick);
-      } else {
+        if (nodesUpdated || stepsDirty) {
+          setLoadingState((prev) => ({
+            activeNodes: nodesUpdated ? currentActiveNodes : prev.activeNodes,
+            activeStepIdx: stepsDirty ? stepIdx : prev.activeStepIdx,
+            completedSteps: stepsDirty ? completed : prev.completedSteps,
+          }));
+        }
+      },
+      onComplete: () => {
         count.set(100);
         if (!doneRef.current) {
           doneRef.current = true;
           timeoutId = setTimeout(onComplete, 100);
         }
-      }
-    };
+      },
+    });
+    controlsRef.current = controls;
 
-    rafRef.current = requestAnimationFrame(tick);
     return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      controls.stop();
+      if (controlsRef.current === controls) {
+        controlsRef.current = null;
+      }
       if (timeoutId) clearTimeout(timeoutId);
     };
   }, [onComplete, prefersReducedMotion, count]);

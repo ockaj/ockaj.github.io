@@ -8,7 +8,7 @@ import {
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { frame, useMotionValue, useSpring } from "motion/react";
+import { clamp, frame, useMotionValue, useSpring } from "motion/react";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 import { SPRING } from "../../utils/springConfig";
 import { tilt as tiltConfig, glassFeel } from "./config";
@@ -354,14 +354,8 @@ export function createGlassGestureEngine(
       const halfH = Math.max(targetRect.height / 2, 1);
       const maxExtentX = halfW * 1.5;
       const maxExtentY = halfH * 1.5;
-      state.mouseX = Math.max(
-        -maxExtentX,
-        Math.min(maxExtentX, localX - halfW),
-      );
-      state.mouseY = Math.max(
-        -maxExtentY,
-        Math.min(maxExtentY, localY - halfH),
-      );
+      state.mouseX = clamp(-maxExtentX, maxExtentX, localX - halfW);
+      state.mouseY = clamp(-maxExtentY, maxExtentY, localY - halfH);
 
       return state;
     },

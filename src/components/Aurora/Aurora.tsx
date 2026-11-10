@@ -7,6 +7,7 @@ import {
   type RefObject,
 } from "react";
 import { ErrorBoundary } from "../ErrorBoundary";
+import { clamp } from "motion/react";
 import AuroraFallback from "./AuroraFallback";
 import { useIsMobile, useMediaQuery } from "../../hooks/useMediaQuery";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
@@ -15,7 +16,6 @@ import {
   MAX_STOPS,
   MAX_LAYERS,
   INTRO_SECONDS,
-  clamp,
   hexToRgb,
   toOklch,
   unwrapHues,
@@ -538,7 +538,7 @@ function useAuroraCanvas(
           : AURORA_CONFIG.desktop;
         const resolvedLayers =
           propsRef.current.layers !== undefined
-            ? clamp(Math.round(propsRef.current.layers), 1, MAX_LAYERS)
+            ? clamp(1, MAX_LAYERS, Math.round(propsRef.current.layers))
             : preset.layers;
         const resolvedHeight = propsRef.current.height ?? preset.height;
         const resolvedScale = propsRef.current.scale ?? preset.scale;
@@ -613,7 +613,7 @@ function useAuroraCanvas(
       } else {
         const rawDeltaSeconds = (now - previousWallTime) * 0.001;
         previousWallTime = now;
-        dt = Math.min(Math.max(rawDeltaSeconds, 0.0005), 0.1);
+        dt = clamp(0.0005, 0.1, rawDeltaSeconds);
       }
 
       const preset = isMobileRef.current

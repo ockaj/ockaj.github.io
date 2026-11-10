@@ -1,5 +1,5 @@
 import { createStore, type StoreApi } from "zustand/vanilla";
-import type { Transition } from "motion/react";
+import { clamp, type Transition } from "motion/react";
 import { hoverDelta, scaleDeltas, springs } from "./config";
 import type { TabOrientation } from "./types";
 
@@ -39,7 +39,7 @@ export function computeVelocityScales(
 
   const isBinary = tabCount > 0 && tabCount <= 2;
   const countMult =
-    tabCount > 0 ? Math.min(1.0, Math.max(0.4, (tabCount - 1) / 3)) : 1.0;
+    tabCount > 0 ? clamp(0.4, 1.0, (tabCount - 1) / 3) : 1.0;
   const ratio = Math.min(1.0, speed / refVelocity);
 
   if (orientation === "vertical") {
@@ -76,7 +76,7 @@ function computeTravelScales(
 ) {
   const isBinary = tabCount > 0 && tabCount <= 2;
   const countMultiplier =
-    tabCount > 0 ? Math.min(1.0, Math.max(0.4, (tabCount - 1) / 3)) : 1.0;
+    tabCount > 0 ? clamp(0.4, 1.0, (tabCount - 1) / 3) : 1.0;
   const delta = Math.max(1, tabDistance);
 
   if (orientation === "vertical") {

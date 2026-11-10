@@ -9,9 +9,6 @@ export const MAX_STOPS = 5;
 export const MAX_LAYERS = 3;
 export const INTRO_SECONDS = 2.4;
 
-export const clamp = (value: number, min: number, max: number): number =>
-  Math.min(max, Math.max(min, value));
-
 function parseHexChannel(chars: string): number {
   const val = parseInt(chars, 16);
   return Number.isNaN(val) ? 0 : val / 255;

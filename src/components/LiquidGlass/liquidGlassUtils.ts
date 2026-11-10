@@ -8,7 +8,7 @@ import {
   type ReactNode,
   type ElementType,
 } from "react";
-import { motion, type MotionStyle } from "motion/react";
+import { clamp, motion, type MotionStyle } from "motion/react";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { cn } from "../../utils/cn";
 import { SPRING } from "../../utils/springConfig";
@@ -282,15 +282,15 @@ export function computeReactiveSheenBoxShadow(
   width: number,
   height: number,
 ): string {
-  const h = Math.max(0, Math.min(1, holding));
+  const h = clamp(0, 1, holding);
   const halfW = Math.max(width / 2, 1);
   const halfH = Math.max(height / 2, 1);
 
   // Stock hover (h=0): full edge travel [-1, 1] and 1.2px multiplier.
   // Hold / drag (h=1): contracted clamp [-0.65, 0.65] and 0.75px multiplier to avoid rim mask blowout.
   const maxNorm = 1 - 0.35 * h;
-  const normX = Math.max(-maxNorm, Math.min(maxNorm, x / halfW));
-  const normY = Math.max(-maxNorm, Math.min(maxNorm, y / halfH));
+  const normX = clamp(-maxNorm, maxNorm, x / halfW);
+  const normY = clamp(-maxNorm, maxNorm, y / halfH);
   const mult = 1.2 - 0.45 * h;
   const ix = (-normX * mult).toFixed(2);
   const iy = (-normY * mult).toFixed(2);

@@ -3,7 +3,6 @@ import {
   hexToRgb,
   toOklch,
   unwrapHues,
-  clamp,
   areStopsEqual,
   normalizeStops,
   getInitialReveal,
@@ -115,20 +114,6 @@ describe("Aurora Color Pipeline & Utilities", () => {
     it("gracefully returns empty array on empty input", () => {
       const unwrapped = unwrapHues([]);
       expect(unwrapped).toEqual([]);
-    });
-  });
-
-  describe("clamp", () => {
-    it("preserves values within boundary limits", () => {
-      expect(clamp(0.5, 0.0, 1.0)).toBe(0.5);
-    });
-
-    it("clamps values below the minimum boundary", () => {
-      expect(clamp(-0.5, 0.0, 1.0)).toBe(0.0);
-    });
-
-    it("clamps values above the maximum boundary", () => {
-      expect(clamp(1.5, 0.0, 1.0)).toBe(1.0);
     });
   });
 
