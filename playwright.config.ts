@@ -22,8 +22,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command:
-      "./node_modules/.bin/vite preview --port 4173 --strictPort --host localhost",
+    command: "npx vite preview --port 4173 --strictPort --host localhost",
     url: "http://localhost:4173",
     reuseExistingServer: !process.env.CI,
     timeout: 30_000,

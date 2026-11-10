@@ -528,7 +528,7 @@ p {
 }
 
 @utility transition-slide {
-  transition-property: transform, opacity;
+  transition-property: transform, translate, scale, opacity;
 }
 
 @utility accordion-panel-transition {

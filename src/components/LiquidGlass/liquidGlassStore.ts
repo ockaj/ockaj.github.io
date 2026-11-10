@@ -8,7 +8,7 @@ type TabFlightPhase = "idle" | "flight" | "landing";
 
 export const TRAVEL_IMPULSE_MS = 140;
 export const FLIGHT_SETTLE_MS = 150;
-export const LANDING_PULSE_MS = 420;
+export const LANDING_PULSE_MS = 300;
 export const REF_VELOCITY = 1800;
 
 /** Critically damped spring for gentle, non-bouncy settle to idle (zero undershoot) */
@@ -38,8 +38,7 @@ export function computeVelocityScales(
   if (speed < 5) return baseScales;
 
   const isBinary = tabCount > 0 && tabCount <= 2;
-  const countMult =
-    tabCount > 0 ? clamp(0.4, 1.0, (tabCount - 1) / 3) : 1.0;
+  const countMult = tabCount > 0 ? clamp(0.4, 1.0, (tabCount - 1) / 3) : 1.0;
   const ratio = Math.min(1.0, speed / refVelocity);
 
   if (orientation === "vertical") {
