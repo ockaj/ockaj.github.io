@@ -1,10 +1,7 @@
 import { memo, type ReactNode } from "react";
 import { TabButton, type TabButtonBaseProps } from "./internal/TabButton";
-import {
-  TabsProvider,
-  useTabsShellController,
-  type TabsShellProps,
-} from "./internal/TabsShell";
+import { TabsProvider, type TabsShellProps } from "./internal/TabsShell";
+import { useTabsShellController } from "./internal/useTabsShell";
 import type { TabValue } from "./internal/liquidGlassStore";
 import { DEFAULT_STYLE } from "./internal/types";
 

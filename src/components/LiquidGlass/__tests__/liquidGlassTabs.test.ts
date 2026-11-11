@@ -931,6 +931,14 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       expect(
         clampPillScaleXForTrack(446, 100, 1.15, mockTabs, 5),
       ).toBeCloseTo(1.02, 5);
+      // Edge tab narrower than BASE_PILL_WIDTH (100px) also clamps below 1.0 when pulled past edge
+      const narrowLastTabs: TabGeometry[] = [
+        { value: "home", left: 7, top: 7, width: 184, height: 42, centerX: 99 },
+        { value: "contact", left: 400, top: 7, width: 80, height: 42, centerX: 440 },
+      ];
+      expect(
+        clampPillScaleXForTrack(441.5, 100, 0.95, narrowLastTabs, 4.5),
+      ).toBeCloseTo(0.86, 5);
       expect(clampPillScaleXForTrack(100, 100, 1.2, [])).toBeCloseTo(1.2, 5);
     });
   });

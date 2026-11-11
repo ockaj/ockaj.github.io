@@ -35,7 +35,7 @@ import {
   type TabValue,
 } from "./liquidGlassStore";
 import { TabHighlight } from "./TabHighlight";
-import { useTabsContext } from "./TabsShell";
+import { useTabsContext } from "./useTabsShell";
 
 export interface DraggableTabBridge {
   registerTabElement: (val: TabValue, el: HTMLButtonElement | null) => void;

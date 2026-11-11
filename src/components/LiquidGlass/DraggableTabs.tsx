@@ -19,11 +19,8 @@ import type {
   TabsPhysicsController,
   TabValue,
 } from "./internal/liquidGlassStore";
-import {
-  TabsProvider,
-  useTabsShellController,
-  type TabsShellProps,
-} from "./internal/TabsShell";
+import { TabsProvider, type TabsShellProps } from "./internal/TabsShell";
+import { useTabsShellController } from "./internal/useTabsShell";
 import { getDefaultTabRadius } from "./internal/liquidGlassUtils";
 import {
   TabButton,

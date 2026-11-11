@@ -49,7 +49,7 @@ Feature modules encapsulate internal implementation. ESLint (`no-restricted-impo
 | `Navigation` | `Navigation/Navbar` | `MobileMenu` |
 | `PdfViewerModal` | `PdfViewerModal/PdfViewerModal` | `InteractiveCvView` |
 | `Bpmn` | `Bpmn/BpmnOverlay`, `Bpmn/BpmnNodeBadge` | `BpmnDiagram`, `BpmnHotkeyToast`, `bpmnStorage` |
-| `LiquidGlass` | `LiquidGlass/Glass`, `LiquidGlass/Button`, `LiquidGlass/StaticGlass`, `LiquidGlass/Tabs`, `LiquidGlass/DraggableTabs` | `internal/config`, `internal/types`, `internal/liquidGlassStore`, `internal/tabDragPhysics`, `internal/liquidGlassUtils`, `internal/useLiquidGlassPhysics`, `internal/LiquidGlassDesktop`, `internal/LiquidGlassMobile`, `internal/LiquidGlassOverlays`, `internal/Ripple`, `internal/useRipple`, `internal/TabsShell`, `internal/TabButton`, `internal/TabHighlight`, `internal/DraggableTabHighlight`, `internal/useDraggableTabs` |
+| `LiquidGlass` | `LiquidGlass/Glass`, `LiquidGlass/Button`, `LiquidGlass/StaticGlass`, `LiquidGlass/Tabs`, `LiquidGlass/DraggableTabs` | `internal/config`, `internal/types`, `internal/liquidGlassStore`, `internal/tabDragPhysics`, `internal/liquidGlassUtils`, `internal/useLiquidGlassPhysics`, `internal/LiquidGlassDesktop`, `internal/LiquidGlassMobile`, `internal/LiquidGlassOverlays`, `internal/Ripple`, `internal/useRipple`, `internal/TabsShell`, `internal/useTabsShell`, `internal/TabButton`, `internal/TabHighlight`, `internal/DraggableTabHighlight`, `internal/useDraggableTabs` |
 
 Cross-cutting UI primitives live directly in `src/components/` (e.g. `BaseDrawer.tsx`, `Tooltip.tsx`, `LazySection.tsx`).
 

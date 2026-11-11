@@ -2,7 +2,7 @@ import { memo, type CSSProperties } from "react";
 import { motion, type MotionValue, type Transition } from "motion/react";
 import Ripple from "./Ripple";
 import { CAPSULE_HIGHLIGHT_RADIUS } from "./liquidGlassUtils";
-import type { TabVariant } from "./TabsShell";
+import type { TabVariant } from "./types";
 
 interface TabHighlightProps {
   layoutId: string;

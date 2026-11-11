@@ -18,8 +18,8 @@ import {
   type LiquidGlassTagProps,
   type LiquidGlassAnimationProps,
   type LiquidGlassDomProps,
+  type TabVariant,
 } from "./types";
-import type { TabVariant } from "./TabsShell";
 
 export const CAPSULE_HIGHLIGHT_RADIUS =
   "calc((var(--base-radius) * var(--scale-y)) / var(--scale-x)) / var(--base-radius)";

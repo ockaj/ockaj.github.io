@@ -11,6 +11,8 @@ import {
   animate,
   useMotionValue,
   useSpring,
+  useTransform,
+  useVelocity,
   type MotionValue,
 } from "motion/react";
 import { SPRING } from "../../../utils/springConfig";
@@ -76,8 +78,12 @@ export function useDraggableTabs({
   const pillCenterX = useMotionValue(0);
   const fallbackCapsuleOffsetX = useMotionValue(0);
   const resolvedCapsuleOffsetX = capsuleOffsetX ?? fallbackCapsuleOffsetX;
-  const dragVelocityMv = useMotionValue(0);
-  const smoothDragVelocity = useSpring(dragVelocityMv, SPRING.highlight);
+  const isDraggingMv = useMotionValue(0);
+  const rawPillVelocity = useVelocity(pillCenterX);
+  const activeDragVelocity = useTransform(() =>
+    isMotionReduced ? 0 : isDraggingMv.get() * rawPillVelocity.get(),
+  );
+  const smoothDragVelocity = useSpring(activeDragVelocity, SPRING.highlight);
   const pillOpacity = useMotionValue(0);
   const layoutVersionMv = useMotionValue(0);
 
@@ -264,6 +270,7 @@ export function useDraggableTabs({
       cleanupListenersRef.current?.();
       cleanupListenersRef.current = null;
       hasActiveGrabRef.current = false;
+      isDraggingMv.jump(0);
       stopPillAnimation();
       stopCapsuleReturn();
       resolvedCapsuleOffsetX.jump(0);
@@ -276,6 +283,7 @@ export function useDraggableTabs({
   }, [
     enabled,
     controller,
+    isDraggingMv,
     measureTabs,
     pillOpacity,
     resolvedCapsuleOffsetX,
@@ -312,6 +320,7 @@ export function useDraggableTabs({
       cleanupListenersRef.current?.();
       cleanupListenersRef.current = null;
       hasActiveGrabRef.current = false;
+      isDraggingMv.jump(0);
       stopPillAnimation();
       stopCapsuleReturn();
       resolvedCapsuleOffsetX.jump(0);
@@ -321,6 +330,7 @@ export function useDraggableTabs({
     };
   }, [
     controller,
+    isDraggingMv,
     pillOpacity,
     resolvedCapsuleOffsetX,
     stopCapsuleReturn,
@@ -403,6 +413,7 @@ export function useDraggableTabs({
 
       const cleanupSession = () => {
         hasActiveGrabRef.current = false;
+        isDraggingMv.set(0);
         window.removeEventListener("pointermove", onWindowPointerMove);
         window.removeEventListener("pointerup", onWindowPointerEnd);
         window.removeEventListener("pointercancel", onWindowPointerEnd);
@@ -424,6 +435,7 @@ export function useDraggableTabs({
         if (!session.engaged) {
           if (Math.abs(dx) < DRAG_THRESHOLD_PX) return;
           session.engaged = true;
+          isDraggingMv.set(1);
           try {
             containerEl.setPointerCapture(session.pointerId);
           } catch {
@@ -451,7 +463,6 @@ export function useDraggableTabs({
           : computeCapsuleEdgeOffsetX(rawCenter, currentTabs);
         pillCenterX.set(clampedCenter);
         resolvedCapsuleOffsetX.set(nextCapsuleOffsetX);
-        dragVelocityMv.set(isMotionReduced ? 0 : velocitySampler.sample(now));
 
         const nearest = resolveNearestTab(clampedCenter, currentTabs);
         if (nearest !== null) {
@@ -488,7 +499,7 @@ export function useDraggableTabs({
           return;
         }
 
-        dragVelocityMv.set(0);
+        isDraggingMv.set(0);
         animateCapsuleToZero();
 
         if (endEvent.type === "pointercancel") {
@@ -547,8 +558,8 @@ export function useDraggableTabs({
       animatePillTo,
       containerRef,
       controller,
-      dragVelocityMv,
       enabled,
+      isDraggingMv,
       isMotionReduced,
       onChange,
       pillCenterX,

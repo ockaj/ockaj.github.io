@@ -1,35 +1,22 @@
 import {
-  createContext,
-  use,
   useCallback,
-  useLayoutEffect,
   useMemo,
-  useRef,
-  useState,
   type CSSProperties,
   type HTMLAttributes,
   type MouseEvent,
   type ReactNode,
-  type RefObject,
 } from "react";
 import { mergeProps } from "@base-ui/react/merge-props";
-import { LayoutGroup, useMotionValue, type MotionValue } from "motion/react";
-import {
-  useIsMobile,
-  useIsTouchDevice,
-  usePrefersReducedMotion,
-} from "../../../hooks/useMediaQuery";
+import { LayoutGroup } from "motion/react";
 import { cn } from "../../../utils/cn";
-import {
-  createTabsController,
-  type ReadonlyTabsStore,
-  type TabsPhysicsController,
-  type TabValue,
-} from "./liquidGlassStore";
+import type { TabValue } from "./liquidGlassStore";
 import { getDefaultTabRadius } from "./liquidGlassUtils";
-import { DEFAULT_STYLE, type TabOrientation } from "./types";
-
-export type TabVariant = "capsule" | "segmented";
+import { DEFAULT_STYLE, type TabOrientation, type TabVariant } from "./types";
+import {
+  TabsContext,
+  type TabsContextValue,
+  type TabsShellController,
+} from "./useTabsShell";
 
 export interface TabsShellProps<
   T extends TabValue = TabValue,
@@ -44,122 +31,6 @@ export interface TabsShellProps<
   highlightClassName?: string;
   highlightStyle?: CSSProperties;
   role?: string | null;
-}
-
-interface TabsContextValue {
-  state: {
-    variant: TabVariant;
-    orientation: TabOrientation;
-    isMobileNav: boolean;
-    isTouchDevice: boolean;
-    roundedClass: string;
-    highlightClassName: string;
-    highlightStyle: CSSProperties;
-    role: string | null;
-    prefersReducedMotion: boolean | null;
-  };
-  actions: {
-    registerTab: TabsPhysicsController["registerTab"];
-    pressTab: TabsPhysicsController["pressTab"];
-    releaseTab: TabsPhysicsController["releaseTab"];
-    cancelTabPress: TabsPhysicsController["cancelTabPress"];
-    leaveTab: TabsPhysicsController["leaveTab"];
-    hoverTab: TabsPhysicsController["hoverTab"];
-    selectTab: TabsPhysicsController["selectTab"];
-    notifyLayoutComplete: TabsPhysicsController["notifyLayoutComplete"];
-    onChange?: (value: TabValue) => void;
-  };
-  meta: {
-    store: ReadonlyTabsStore;
-    layoutId: string;
-    scaleX: MotionValue<number>;
-    scaleY: MotionValue<number>;
-  };
-}
-
-const TabsContext = createContext<TabsContextValue | null>(null);
-
-export function useTabsContext() {
-  const context = use(TabsContext);
-  if (!context) {
-    throw new Error("Tab must be used within a Tabs component");
-  }
-  return context;
-}
-
-interface TabsShellController {
-  controller: TabsPhysicsController;
-  containerRef: RefObject<HTMLDivElement | null>;
-  scaleX: MotionValue<number>;
-  scaleY: MotionValue<number>;
-  isMobileNav: boolean;
-  isTouchDevice: boolean;
-  prefersReducedMotion: boolean | null;
-}
-
-interface UseTabsShellControllerOptions {
-  value: TabValue;
-  layoutId: string;
-  orientation: TabOrientation;
-}
-
-export function useTabsShellController({
-  value,
-  layoutId,
-  orientation,
-}: Readonly<UseTabsShellControllerOptions>): TabsShellController {
-  const isMobile = useIsMobile();
-  const isTouchDevice = useIsTouchDevice();
-  const prefersReducedMotion = usePrefersReducedMotion();
-  const isReducedMotion = Boolean(prefersReducedMotion);
-
-  const isMobileNav = Boolean(layoutId?.includes("mobile") || isMobile);
-
-  const [controller] = useState(() =>
-    createTabsController({
-      initialValue: value,
-      orientation,
-      isMobileNav,
-      prefersReducedMotion: isReducedMotion,
-      isTouchDevice,
-    }),
-  );
-
-  useLayoutEffect(() => {
-    controller.configure({
-      orientation,
-      isMobileNav,
-      prefersReducedMotion: isReducedMotion,
-      isTouchDevice,
-    });
-  }, [controller, orientation, isMobileNav, isReducedMotion, isTouchDevice]);
-
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const scaleX = useMotionValue(1);
-  const scaleY = useMotionValue(1);
-
-  useLayoutEffect(() => {
-    controller.activate();
-    return () => {
-      controller.destroy();
-      scaleX.stop();
-      scaleY.stop();
-    };
-  }, [controller, scaleX, scaleY]);
-
-  useLayoutEffect(() => {
-    controller.setActiveValue(value);
-  }, [controller, value]);
-
-  return {
-    controller,
-    containerRef,
-    scaleX,
-    scaleY,
-    isMobileNav,
-    isTouchDevice,
-    prefersReducedMotion,
-  };
 }
 
 interface TabsProviderProps {

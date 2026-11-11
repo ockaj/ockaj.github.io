@@ -107,3 +107,5 @@ export interface LiquidGlassTagProps extends Omit<
 }
 
 export type TabOrientation = "horizontal" | "vertical";
+
+export type TabVariant = "capsule" | "segmented";

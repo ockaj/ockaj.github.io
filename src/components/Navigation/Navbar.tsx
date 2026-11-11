@@ -181,7 +181,7 @@ export default function Navbar() {
                 </Avatar.Fallback>
               </Avatar.Root>
 
-              <span className="xs:max-w-none max-w-35 truncate py-0.5 text-sm leading-normal font-semibold">
+              <span className="xs:max-w-none max-w-35 truncate py-0.5 text-sm leading-5 font-semibold">
                 Ondrej Michal Očkaj
               </span>
             </DraggableTab>

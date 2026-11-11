@@ -124,7 +124,7 @@ export function clampPillScaleXForTrack(
   baseWidth: number,
   candidateScaleX: number,
   tabs: readonly TabGeometry[],
-  maxEdgeOverhangPx = 5,
+  maxEdgeOverhangPx = 4.5,
 ): number {
   if (
     tabs.length === 0 ||
@@ -144,7 +144,7 @@ export function clampPillScaleXForTrack(
   const maxHalfLeft = Math.max(0, pillCenterX - minLeft);
   const maxHalfRight = Math.max(0, maxRight - pillCenterX);
   const allowedHalfWidth = Math.min(maxHalfLeft, maxHalfRight);
-  const maxScaleX = Math.max(1, (allowedHalfWidth * 2) / baseWidth);
+  const maxScaleX = Math.max(0.01, (allowedHalfWidth * 2) / baseWidth);
 
   return Math.min(candidateScaleX, maxScaleX);
 }
