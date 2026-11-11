@@ -506,7 +506,7 @@ interface TabsControllerOptions extends TabsControllerConfig {
   initialValue: TabValue;
 }
 
-interface TabRenderSnapshot {
+export interface TabRenderSnapshot {
   isActive: boolean;
   isDragPreview: boolean;
   hasDragPreview: boolean;
@@ -518,17 +518,182 @@ interface TabRenderSnapshot {
   scaleSpring: Transition;
 }
 
-interface TabsPhysicsState {
+export interface TabsPhysicsState {
   activeValue: TabValue;
   activeDistance: number;
   activePhase: TabFlightPhase;
   hoveredValue: TabValue | null;
   hoverDistance: number;
   hoverMoving: boolean;
+  hoverVelocity: number;
   pressedValue: TabValue | null;
   isDragging: boolean;
   dragPreviewValue: TabValue | null;
   isPillAnimating: boolean;
+  tabCount: number;
+}
+
+export type ReadonlyTabsStore = Pick<
+  StoreApi<TabsPhysicsState>,
+  "getState" | "subscribe" | "getInitialState"
+>;
+
+export interface TabSnapshotSlice {
+  mask: number;
+  effectiveDistance: number;
+  tabCount: number;
+  hoverVelocity: number;
+  isDragging: boolean;
+  isPillAnimating: boolean;
+}
+
+export interface TabSnapshotConfig {
+  orientation: TabOrientation;
+  isMobileNav: boolean;
+  prefersReducedMotion: boolean;
+}
+
+function evaluateTabFlags(
+  state: TabsPhysicsState,
+  val: TabValue,
+  isTouchDevice: boolean,
+) {
+  const isActive = state.activeValue === val;
+  const isTransitioning = isActive && state.activePhase === "flight";
+  const isLanding = isActive && state.activePhase === "landing";
+  const isHovered =
+    !isTouchDevice && !state.isDragging && state.hoveredValue === val;
+  const showHighlight =
+    !state.isDragging &&
+    shouldShowTabHighlight(
+      isActive,
+      isHovered,
+      state.hoveredValue,
+      isTouchDevice,
+    );
+  const isMovingHover = isHovered && state.hoverMoving;
+  const isPressed =
+    state.pressedValue === val ||
+    (state.isDragging &&
+      state.dragPreviewValue === val &&
+      state.pressedValue !== null);
+  const isDragPreview = state.isDragging && state.dragPreviewValue === val;
+  const hasDragPreview = state.dragPreviewValue !== null;
+  return {
+    isActive,
+    isTransitioning,
+    isLanding,
+    isHovered,
+    showHighlight,
+    isMovingHover,
+    isPressed,
+    isDragPreview,
+    hasDragPreview,
+  };
+}
+
+function computeTabStateMask(
+  state: TabsPhysicsState,
+  val: TabValue,
+  isTouchDevice: boolean,
+): number {
+  const flags = evaluateTabFlags(state, val, isTouchDevice);
+  return (
+    (flags.isActive ? 1 : 0) |
+    (flags.isTransitioning ? 2 : 0) |
+    (flags.isLanding ? 4 : 0) |
+    (flags.isHovered ? 8 : 0) |
+    (flags.showHighlight ? 16 : 0) |
+    (flags.isMovingHover ? 32 : 0) |
+    (flags.isPressed ? 64 : 0) |
+    (flags.isDragPreview ? 128 : 0) |
+    (flags.hasDragPreview ? 256 : 0)
+  );
+}
+
+/** Pure selector extracting the minimal per-tab snapshot slice from store state. */
+export function selectTabSnapshotSlice(
+  state: TabsPhysicsState,
+  val: TabValue,
+  isTouchDevice: boolean,
+): TabSnapshotSlice {
+  const mask = computeTabStateMask(state, val, isTouchDevice);
+  const isTransitioning = (mask & 2) !== 0;
+  const isMovingHover = (mask & 32) !== 0;
+
+  let effectiveDistance = 0;
+  if (isMovingHover) {
+    effectiveDistance = state.hoverDistance;
+  } else if (isTransitioning) {
+    effectiveDistance = state.activeDistance;
+  }
+
+  return {
+    mask,
+    effectiveDistance,
+    tabCount: effectiveDistance > 0 ? state.tabCount : 0,
+    hoverVelocity: isMovingHover ? state.hoverVelocity : 0,
+    isDragging: state.isDragging,
+    isPillAnimating: state.isPillAnimating,
+  };
+}
+
+/** Pure render-time tab snapshot computation with explicit reactive config inputs. */
+export function computeTabSnapshotFromSlice(
+  slice: TabSnapshotSlice,
+  dimensions: { width: number; height: number },
+  config: TabSnapshotConfig,
+): TabRenderSnapshot {
+  const isActive = (slice.mask & 1) !== 0;
+  const isTransitioning = (slice.mask & 2) !== 0;
+  const isLanding = (slice.mask & 4) !== 0;
+  const isHovered = (slice.mask & 8) !== 0;
+  const showHighlight = (slice.mask & 16) !== 0;
+  const isMovingHover = (slice.mask & 32) !== 0;
+  const isPressed = (slice.mask & 64) !== 0;
+  const isDragPreview = (slice.mask & 128) !== 0;
+  const hasDragPreview = (slice.mask & 256) !== 0;
+
+  const isHoverActive =
+    isHovered ||
+    isTransitioning ||
+    isLanding ||
+    slice.isDragging ||
+    slice.isPillAnimating;
+
+  const isTraveling = slice.effectiveDistance > 0;
+  const currentVelocity = isMovingHover ? slice.hoverVelocity : undefined;
+
+  const { targetScaleX, targetScaleY } = resolveTargetScales({
+    isPressed,
+    isHoverActive,
+    isTraveling,
+    orientation: config.orientation,
+    isMobileNav: config.isMobileNav,
+    dimensions,
+    tabDistance: slice.effectiveDistance,
+    prefersReducedMotion: config.prefersReducedMotion,
+    tabCount: isTraveling ? slice.tabCount : 0,
+    velocity: currentVelocity,
+  });
+
+  const scaleSpring =
+    isLanding || (targetScaleX === 1 && targetScaleY === 1)
+      ? SETTLE_SPRING
+      : SPRING.glassScale;
+
+  return {
+    isActive,
+    isDragPreview,
+    hasDragPreview,
+    showHighlight,
+    isNavbarActive: isHoverActive,
+    willChange:
+      isHoverActive || isPressed || slice.isDragging || slice.isPillAnimating,
+    targetScaleX,
+    targetScaleY,
+    scaleSpring,
+  };
 }
 
 export interface TabsPhysicsController {
@@ -568,7 +733,6 @@ export interface TabsPhysicsController {
   getTabSnapshot: (
     val: TabValue,
     dimensions: { width: number; height: number },
-    _cacheKey?: string | number,
   ) => TabRenderSnapshot;
 }
 
@@ -586,10 +750,12 @@ export function createTabsController({
     hoveredValue: null,
     hoverDistance: 0,
     hoverMoving: false,
+    hoverVelocity: 0,
     pressedValue: null,
     isDragging: false,
     dragPreviewValue: null,
     isPillAnimating: false,
+    tabCount: 0,
   }));
 
   let orientation: TabOrientation = initialOrientation;
@@ -653,7 +819,7 @@ export function createTabsController({
     updateState((state) =>
       state.activePhase === "idle"
         ? state
-        : { activePhase: "idle", activeDistance: 0 },
+        : { activePhase: "idle", activeDistance: 0, tabCount: 0 },
     );
   };
 
@@ -663,7 +829,7 @@ export function createTabsController({
       flightTimer = null;
     }
     if (destroyed || store.getState().activePhase !== "flight") return;
-    updateState({ activePhase: "landing", activeDistance: 0 });
+    updateState({ activePhase: "landing", activeDistance: 0, tabCount: 0 });
     if (landingTimer) {
       clearTimeout(landingTimer);
     }
@@ -678,7 +844,7 @@ export function createTabsController({
     hoverTimer = setTimeout(() => {
       hoverTimer = null;
       updateState((state) =>
-        state.hoverMoving ? { hoverMoving: false } : state,
+        state.hoverMoving ? { hoverMoving: false, hoverVelocity: 0 } : state,
       );
     }, TRAVEL_IMPULSE_MS);
   };
@@ -693,81 +859,45 @@ export function createTabsController({
       if (
         state.hoveredValue === null &&
         state.hoverDistance === 0 &&
-        !state.hoverMoving
+        !state.hoverMoving &&
+        state.hoverVelocity === 0
       ) {
         return null;
       }
-      return { hoveredValue: null, hoverDistance: 0, hoverMoving: false };
+      return {
+        hoveredValue: null,
+        hoverDistance: 0,
+        hoverMoving: false,
+        hoverVelocity: 0,
+      };
     }
 
     if (state.hoveredValue === val) {
       if (distance === 0 && state.hoverMoving) {
         clearHoverTimer();
-        return { hoverDistance: 0, hoverMoving: false };
+        return { hoverDistance: 0, hoverMoving: false, hoverVelocity: 0 };
       }
       return null;
     }
 
     if (distance > 0) {
       startHoverImpulse();
-      return { hoveredValue: val, hoverDistance: distance, hoverMoving: true };
+      return {
+        hoveredValue: val,
+        hoverDistance: distance,
+        hoverMoving: true,
+        hoverVelocity: mouseVelocity,
+        tabCount: tabOrder.length,
+      };
     }
 
     clearHoverTimer();
-    return { hoveredValue: val, hoverDistance: distance, hoverMoving: false };
-  };
-
-  const evaluateTabFlags = (state: TabsPhysicsState, val: TabValue) => {
-    const isActive = state.activeValue === val;
-    const isTransitioning = isActive && state.activePhase === "flight";
-    const isLanding = isActive && state.activePhase === "landing";
-    const isHovered =
-      !isTouchDevice && !state.isDragging && state.hoveredValue === val;
-    const showHighlight =
-      !state.isDragging &&
-      shouldShowTabHighlight(
-        isActive,
-        isHovered,
-        state.hoveredValue,
-        isTouchDevice,
-      );
-    const isMovingHover = isHovered && state.hoverMoving;
-    const isPressed =
-      state.pressedValue === val ||
-      (state.isDragging &&
-        state.dragPreviewValue === val &&
-        state.pressedValue !== null);
-    const isDragPreview = state.isDragging && state.dragPreviewValue === val;
-    const hasDragPreview = state.dragPreviewValue !== null;
     return {
-      isActive,
-      isTransitioning,
-      isLanding,
-      isHovered,
-      showHighlight,
-      isMovingHover,
-      isPressed,
-      isDragPreview,
-      hasDragPreview,
+      hoveredValue: val,
+      hoverDistance: distance,
+      hoverMoving: false,
+      hoverVelocity: 0,
     };
-  };
-
-  const getTabStateMaskFromState = (
-    state: TabsPhysicsState,
-    val: TabValue,
-  ): number => {
-    const flags = evaluateTabFlags(state, val);
-    return (
-      (flags.isActive ? 1 : 0) |
-      (flags.isTransitioning ? 2 : 0) |
-      (flags.isLanding ? 4 : 0) |
-      (flags.isHovered ? 8 : 0) |
-      (flags.showHighlight ? 16 : 0) |
-      (flags.isMovingHover ? 32 : 0) |
-      (flags.isPressed ? 64 : 0) |
-      (flags.isDragPreview ? 128 : 0) |
-      (flags.hasDragPreview ? 256 : 0)
-    );
   };
 
   return {
@@ -809,10 +939,12 @@ export function createTabsController({
           state.hoveredValue === null &&
           state.hoverDistance === 0 &&
           !state.hoverMoving &&
+          state.hoverVelocity === 0 &&
           state.pressedValue === null &&
           !state.isDragging &&
           state.dragPreviewValue === null &&
-          !state.isPillAnimating
+          !state.isPillAnimating &&
+          state.tabCount === 0
         ) {
           return state;
         }
@@ -822,10 +954,12 @@ export function createTabsController({
           hoveredValue: null,
           hoverDistance: 0,
           hoverMoving: false,
+          hoverVelocity: 0,
           pressedValue: null,
           isDragging: false,
           dragPreviewValue: null,
           isPillAnimating: false,
+          tabCount: 0,
         };
       });
     },
@@ -871,6 +1005,7 @@ export function createTabsController({
         activeValue: val,
         activeDistance: distance > 0 ? distance : 0,
         activePhase: distance > 0 ? "flight" : "idle",
+        tabCount: distance > 0 ? tabOrder.length : 0,
       });
     },
 
@@ -1013,8 +1148,10 @@ export function createTabsController({
         hoveredValue: null,
         hoverDistance: 0,
         hoverMoving: false,
+        hoverVelocity: 0,
         activePhase: "idle",
         activeDistance: 0,
+        tabCount: 0,
       });
     },
 
@@ -1049,9 +1186,11 @@ export function createTabsController({
         hoveredValue: null,
         hoverDistance: 0,
         hoverMoving: false,
+        hoverVelocity: 0,
         activeValue: val,
         activeDistance: distance > 0 ? distance : 0,
         activePhase: distance > 0 ? "flight" : "idle",
+        tabCount: distance > 0 ? tabOrder.length : 0,
       });
     },
 
@@ -1073,6 +1212,7 @@ export function createTabsController({
           hoveredValue: null,
           hoverDistance: 0,
           hoverMoving: false,
+          hoverVelocity: 0,
         };
       });
     },
@@ -1092,71 +1232,14 @@ export function createTabsController({
 
     getTabGeometries: () => tabGeometries,
 
-    getTabStateMaskFromState,
+    getTabStateMaskFromState: (state, val) =>
+      computeTabStateMask(state, val, isTouchDevice),
 
-    getTabSnapshot: (val, dimensions) => {
-      const state = store.getState();
-      const {
-        isActive,
-        isTransitioning,
-        isLanding,
-        isHovered,
-        showHighlight,
-        isMovingHover,
-        isPressed,
-        isDragPreview,
-        hasDragPreview,
-      } = evaluateTabFlags(state, val);
-
-      const isHoverActive =
-        isHovered ||
-        isTransitioning ||
-        isLanding ||
-        state.isDragging ||
-        state.isPillAnimating;
-      let effectiveDistance = 0;
-      if (isMovingHover) {
-        effectiveDistance = state.hoverDistance;
-      } else if (isTransitioning) {
-        effectiveDistance = state.activeDistance;
-      }
-
-      const isTraveling = effectiveDistance > 0;
-      const currentVelocity = isMovingHover ? mouseVelocity : undefined;
-
-      const { targetScaleX, targetScaleY } = resolveTargetScales({
-        isPressed,
-        isHoverActive,
-        isTraveling,
-        orientation,
-        isMobileNav,
+    getTabSnapshot: (val, dimensions) =>
+      computeTabSnapshotFromSlice(
+        selectTabSnapshotSlice(store.getState(), val, isTouchDevice),
         dimensions,
-        tabDistance: effectiveDistance,
-        prefersReducedMotion,
-        tabCount: isTraveling ? tabOrder.length : 0,
-        velocity: currentVelocity,
-      });
-
-      const scaleSpring =
-        isLanding || (targetScaleX === 1 && targetScaleY === 1)
-          ? SETTLE_SPRING
-          : SPRING.glassScale;
-
-      return {
-        isActive,
-        isDragPreview,
-        hasDragPreview,
-        showHighlight,
-        isNavbarActive: isHoverActive,
-        willChange:
-          isHoverActive ||
-          isPressed ||
-          state.isDragging ||
-          state.isPillAnimating,
-        targetScaleX,
-        targetScaleY,
-        scaleSpring,
-      };
-    },
+        { orientation, isMobileNav, prefersReducedMotion },
+      ),
   };
 }

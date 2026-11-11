@@ -71,7 +71,14 @@ export function useDraggableTabs({
 
   const [velocitySampler] = useState(() => createVelocitySampler());
 
-  const tabElementsRef = useRef<Map<TabValue, HTMLButtonElement>>(new Map());
+  const tabElementsRef = useRef<Map<TabValue, HTMLButtonElement> | null>(null);
+
+  const getTabElements = useCallback(() => {
+    if (!tabElementsRef.current) {
+      tabElementsRef.current = new Map<TabValue, HTMLButtonElement>();
+    }
+    return tabElementsRef.current;
+  }, []);
   const pendingVelocityRef = useRef(0);
   const animControlsRef = useRef<ReturnType<typeof animate> | null>(null);
   const animGenRef = useRef(0);
@@ -130,7 +137,7 @@ export function useDraggableTabs({
     if (containerRect.width <= 0 || containerRect.height <= 0) return;
 
     const nextTabs: TabGeometry[] = [];
-    for (const [val, el] of tabElementsRef.current.entries()) {
+    for (const [val, el] of getTabElements().entries()) {
       const rect = el.getBoundingClientRect();
       if (rect.width <= 0 || rect.height <= 0) continue;
       const left = rect.left - containerRect.left;
@@ -174,6 +181,7 @@ export function useDraggableTabs({
     containerRef,
     controller,
     enabled,
+    getTabElements,
     layoutVersionMv,
     pillCenterX,
     pillOpacity,
@@ -181,13 +189,14 @@ export function useDraggableTabs({
 
   const registerTabElement = useCallback(
     (val: TabValue, el: HTMLButtonElement | null) => {
+      const tabElements = getTabElements();
       if (el) {
-        tabElementsRef.current.set(val, el);
+        tabElements.set(val, el);
       } else {
-        tabElementsRef.current.delete(val);
+        tabElements.delete(val);
       }
     },
-    [],
+    [getTabElements],
   );
 
   const pillTargetValue = useStore(
@@ -250,9 +259,13 @@ export function useDraggableTabs({
     return () => {
       cleanupListenersRef.current?.();
       cleanupListenersRef.current = null;
+      hasActiveGrabRef.current = false;
       stopPillAnimation();
+      controller.cancelDrag();
+      isMeasuredRef.current = false;
+      pillOpacity.jump(0);
     };
-  }, [stopPillAnimation]);
+  }, [controller, pillOpacity, stopPillAnimation]);
 
   const consumeDragClickSuppression = useCallback(() => {
     if (!suppressNextClickRef.current) return false;

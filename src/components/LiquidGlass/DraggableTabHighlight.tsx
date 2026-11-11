@@ -1,36 +1,34 @@
-import {
-  memo,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  type CSSProperties,
-} from "react";
+import { memo, useLayoutEffect, useMemo, type CSSProperties } from "react";
 import { useStore } from "zustand";
-import {
-  animate,
-  motion,
-  useTransform,
-  type MotionValue,
-} from "motion/react";
+import { useShallow } from "zustand/react/shallow";
+import { animate, motion, useTransform, type MotionValue } from "motion/react";
 import { cn } from "../../utils/cn";
 import Ripple from "./Ripple";
 import {
   CAPSULE_HIGHLIGHT_RADIUS,
   resolveContextHighlightClass,
 } from "./liquidGlassUtils";
+import type { TabOrientation } from "./types";
 import {
   BASE_PILL_HEIGHT,
   BASE_PILL_WIDTH,
   REF_VELOCITY,
   computeDragVelocityScaleX,
   computeDragVelocityScaleY,
+  computeTabSnapshotFromSlice,
   interpolateTabField,
+  selectTabSnapshotSlice,
+  type ReadonlyTabsStore,
+  type TabGeometry,
   type TabValue,
-  type TabsPhysicsController,
 } from "./liquidGlassStore";
 
 interface DraggableTabHighlightProps {
-  controller: TabsPhysicsController;
+  store: ReadonlyTabsStore;
+  getTabGeometries: () => readonly TabGeometry[];
+  orientation: TabOrientation;
+  isMobileNav: boolean;
+  isTouchDevice: boolean;
   pillTargetValue: TabValue;
   pillCenterX: MotionValue<number>;
   smoothDragVelocity: MotionValue<number>;
@@ -53,7 +51,11 @@ interface DraggableTabHighlightProps {
 }
 
 const DraggableTabHighlight = memo(function DraggableTabHighlight({
-  controller,
+  store,
+  getTabGeometries,
+  orientation,
+  isMobileNav,
+  isTouchDevice,
   pillTargetValue,
   pillCenterX,
   smoothDragVelocity,
@@ -71,22 +73,20 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
   rippleScale,
   rippleOpacity,
 }: Readonly<DraggableTabHighlightProps>) {
-  const pillStateKey = useStore(
-    controller.store,
-    useCallback(
-      (state) =>
-        `${state.activeValue}|${state.hoveredValue}|${state.pressedValue}|${state.dragPreviewValue}|${state.activePhase}|${state.hoverMoving ? 1 : 0}|${state.isDragging ? 1 : 0}|${state.isPillAnimating ? 1 : 0}`,
-      [],
+  const isMotionReduced = Boolean(prefersReducedMotion);
+  const snapshotSlice = useStore(
+    store,
+    useShallow((state) =>
+      selectTabSnapshotSlice(state, pillTargetValue, isTouchDevice),
     ),
   );
 
-  const isMotionReduced = Boolean(prefersReducedMotion);
   const dimensions = getTabDimensionsForValue(pillTargetValue);
-  const snapshot = controller.getTabSnapshot(
-    pillTargetValue,
-    dimensions,
-    pillStateKey,
-  );
+  const snapshot = computeTabSnapshotFromSlice(snapshotSlice, dimensions, {
+    orientation,
+    isMobileNav,
+    prefersReducedMotion: isMotionReduced,
+  });
 
   useLayoutEffect(() => {
     if (isMotionReduced) {
@@ -112,7 +112,7 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
   const pillX = useTransform(() => pillCenterX.get() - BASE_PILL_WIDTH / 2);
   const pillY = useTransform(() => {
     layoutVersionMv.get();
-    const tabs = controller.getTabGeometries();
+    const tabs = getTabGeometries();
     const x = pillCenterX.get();
     const top = interpolateTabField(x, tabs, "top", 0);
     const height = interpolateTabField(x, tabs, "height", BASE_PILL_HEIGHT);
@@ -121,7 +121,7 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
 
   const totalScaleX = useTransform(() => {
     layoutVersionMv.get();
-    const tabs = controller.getTabGeometries();
+    const tabs = getTabGeometries();
     const width = interpolateTabField(pillCenterX.get(), tabs, "width", 120);
     const morphX = width / BASE_PILL_WIDTH;
     const stretchedX = computeDragVelocityScaleX(
@@ -136,7 +136,7 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
 
   const totalScaleY = useTransform(() => {
     layoutVersionMv.get();
-    const tabs = controller.getTabGeometries();
+    const tabs = getTabGeometries();
     const height = interpolateTabField(
       pillCenterX.get(),
       tabs,

@@ -17,6 +17,7 @@ import {
   type RefObject,
 } from "react";
 import { useStore } from "zustand";
+import { useShallow } from "zustand/react/shallow";
 import { mergeProps } from "@base-ui/react/merge-props";
 import {
   animate,
@@ -43,7 +44,10 @@ import {
 import { cn } from "../../utils/cn";
 import { DEFAULT_STYLE, type TabOrientation } from "./types";
 import {
+  computeTabSnapshotFromSlice,
   createTabsController,
+  selectTabSnapshotSlice,
+  type ReadonlyTabsStore,
   type TabsPhysicsController,
   type TabValue,
 } from "./liquidGlassStore";
@@ -79,9 +83,23 @@ interface LiquidGlassTabProps extends Omit<
   highlightClassName?: string;
 }
 
+interface DraggableTabBridge {
+  registerTabElement: (val: TabValue, el: HTMLButtonElement | null) => void;
+  measureTabs: () => void;
+  handleTabPointerDown: (
+    val: TabValue,
+    e: PointerEvent<HTMLButtonElement>,
+  ) => boolean;
+  consumeDragClickSuppression: () => boolean;
+  isGrabActive: () => boolean;
+}
+
 interface TabsContextValue {
   state: {
     variant: TabVariant;
+    orientation: TabOrientation;
+    isMobileNav: boolean;
+    isTouchDevice: boolean;
     isDraggable: boolean;
     roundedClass: string;
     highlightClassName: string;
@@ -99,24 +117,10 @@ interface TabsContextValue {
     selectTab: TabsPhysicsController["selectTab"];
     notifyLayoutComplete: TabsPhysicsController["notifyLayoutComplete"];
     onChange?: (value: TabValue) => void;
-    draggable?: {
-      registerTabElement: (
-        val: TabValue,
-        el: HTMLButtonElement | null,
-      ) => void;
-      measureTabs: () => void;
-      handleTabPointerDown: (
-        val: TabValue,
-        e: PointerEvent<HTMLButtonElement>,
-      ) => boolean;
-      consumeDragClickSuppression: () => boolean;
-      isGrabActive: () => boolean;
-    };
+    draggable?: DraggableTabBridge;
   };
   meta: {
-    store: TabsPhysicsController["store"];
-    getTabStateMaskFromState: TabsPhysicsController["getTabStateMaskFromState"];
-    getTabSnapshot: TabsPhysicsController["getTabSnapshot"];
+    store: ReadonlyTabsStore;
     layoutId: string;
     scaleX: MotionValue<number>;
     scaleY: MotionValue<number>;
@@ -180,6 +184,98 @@ function computeOuterHighlightStyle(
   } as CSSProperties;
 }
 
+interface DraggableTabsControllerProps {
+  controller: TabsPhysicsController;
+  containerRef: RefObject<HTMLDivElement | null>;
+  registerBridge: (bridge: DraggableTabBridge | null) => void;
+  scaleX: MotionValue<number>;
+  scaleY: MotionValue<number>;
+  orientation: TabOrientation;
+  isMobileNav: boolean;
+  isTouchDevice: boolean;
+  prefersReducedMotion: boolean | null;
+  onChange?: (value: TabValue) => void;
+  effectiveRoundedClass: string;
+  highlightClassName: string;
+  highlightStyle: CSSProperties;
+}
+
+function DraggableTabsController({
+  controller,
+  containerRef,
+  registerBridge,
+  scaleX,
+  scaleY,
+  orientation,
+  isMobileNav,
+  isTouchDevice,
+  prefersReducedMotion,
+  onChange,
+  effectiveRoundedClass,
+  highlightClassName,
+  highlightStyle,
+}: Readonly<DraggableTabsControllerProps>) {
+  const draggableRipple = useRipple(!prefersReducedMotion);
+
+  const draggable = useDraggableTabs({
+    enabled: true,
+    controller,
+    containerRef,
+    isTouchDevice,
+    prefersReducedMotion,
+    onChange,
+    triggerRippleAt: draggableRipple.triggerAt,
+  });
+
+  useResizeObserver(containerRef, draggable.measureTabs);
+
+  useLayoutEffect(() => {
+    registerBridge({
+      registerTabElement: draggable.registerTabElement,
+      measureTabs: draggable.measureTabs,
+      handleTabPointerDown: draggable.handleTabPointerDown,
+      consumeDragClickSuppression: draggable.consumeDragClickSuppression,
+      isGrabActive: draggable.isGrabActive,
+    });
+    return () => {
+      registerBridge(null);
+    };
+  }, [
+    registerBridge,
+    draggable.registerTabElement,
+    draggable.measureTabs,
+    draggable.handleTabPointerDown,
+    draggable.consumeDragClickSuppression,
+    draggable.isGrabActive,
+  ]);
+
+  return (
+    <DraggableTabHighlight
+      store={controller.store}
+      getTabGeometries={controller.getTabGeometries}
+      orientation={orientation}
+      isMobileNav={isMobileNav}
+      isTouchDevice={isTouchDevice}
+      pillTargetValue={draggable.pillTargetValue}
+      pillCenterX={draggable.pillCenterX}
+      smoothDragVelocity={draggable.smoothDragVelocity}
+      pillOpacity={draggable.pillOpacity}
+      layoutVersionMv={draggable.layoutVersionMv}
+      scaleX={scaleX}
+      scaleY={scaleY}
+      getTabDimensionsForValue={draggable.getTabDimensionsForValue}
+      effectiveRoundedClass={effectiveRoundedClass}
+      contextHighlightClass={highlightClassName}
+      contextHighlightStyle={highlightStyle}
+      prefersReducedMotion={prefersReducedMotion}
+      rippleX={draggableRipple.rippleX}
+      rippleY={draggableRipple.rippleY}
+      rippleScale={draggableRipple.rippleScale}
+      rippleOpacity={draggableRipple.rippleOpacity}
+    />
+  );
+}
+
 function TabsInner<T extends TabValue>({
   value,
   onChange,
@@ -199,6 +295,7 @@ function TabsInner<T extends TabValue>({
   const isMobile = useIsMobile();
   const isTouchDevice = useIsTouchDevice();
   const prefersReducedMotion = usePrefersReducedMotion();
+  const isReducedMotion = Boolean(prefersReducedMotion);
 
   const isMobileNav = Boolean(layoutId?.includes("mobile") || isMobile);
   const isDraggable = Boolean(
@@ -210,35 +307,28 @@ function TabsInner<T extends TabValue>({
       initialValue: value,
       orientation,
       isMobileNav,
-      prefersReducedMotion: Boolean(prefersReducedMotion),
+      prefersReducedMotion: isReducedMotion,
       isTouchDevice,
     }),
   );
 
-  controller.configure({
-    orientation,
-    isMobileNav,
-    prefersReducedMotion: Boolean(prefersReducedMotion),
-    isTouchDevice,
-  });
+  useLayoutEffect(() => {
+    controller.configure({
+      orientation,
+      isMobileNav,
+      prefersReducedMotion: isReducedMotion,
+      isTouchDevice,
+    });
+  }, [controller, orientation, isMobileNav, isReducedMotion, isTouchDevice]);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const bridgeRef = useRef<DraggableTabBridge | null>(null);
   const scaleX = useMotionValue(1);
   const scaleY = useMotionValue(1);
 
-  const draggableRipple = useRipple(!prefersReducedMotion && isDraggable);
-
-  const draggable = useDraggableTabs({
-    enabled: isDraggable,
-    controller,
-    containerRef,
-    isTouchDevice,
-    prefersReducedMotion,
-    onChange: onChange as ((val: TabValue) => void) | undefined,
-    triggerRippleAt: draggableRipple.triggerAt,
-  });
-
-  useResizeObserver(containerRef, draggable.measureTabs);
+  const registerBridge = useCallback((bridge: DraggableTabBridge | null) => {
+    bridgeRef.current = bridge;
+  }, []);
 
   useLayoutEffect(() => {
     controller.activate();
@@ -255,10 +345,33 @@ function TabsInner<T extends TabValue>({
 
   const effectiveRoundedClass = roundedClass ?? getDefaultTabRadius(variant);
 
+  const draggableActions = useMemo<DraggableTabBridge | undefined>(
+    () =>
+      isDraggable
+        ? {
+            registerTabElement: (val, el) => {
+              bridgeRef.current?.registerTabElement(val, el);
+            },
+            measureTabs: () => {
+              bridgeRef.current?.measureTabs();
+            },
+            handleTabPointerDown: (val, e) =>
+              bridgeRef.current?.handleTabPointerDown(val, e) ?? false,
+            consumeDragClickSuppression: () =>
+              bridgeRef.current?.consumeDragClickSuppression() ?? false,
+            isGrabActive: () => bridgeRef.current?.isGrabActive() ?? false,
+          }
+        : undefined,
+    [isDraggable],
+  );
+
   const contextValue = useMemo<TabsContextValue>(
     () => ({
       state: {
         variant,
+        orientation,
+        isMobileNav,
+        isTouchDevice,
         isDraggable,
         roundedClass: effectiveRoundedClass,
         highlightClassName,
@@ -276,21 +389,10 @@ function TabsInner<T extends TabValue>({
         selectTab: controller.selectTab,
         notifyLayoutComplete: controller.notifyLayoutComplete,
         onChange: onChange as ((val: TabValue) => void) | undefined,
-        draggable: isDraggable
-          ? {
-              registerTabElement: draggable.registerTabElement,
-              measureTabs: draggable.measureTabs,
-              handleTabPointerDown: draggable.handleTabPointerDown,
-              consumeDragClickSuppression:
-                draggable.consumeDragClickSuppression,
-              isGrabActive: draggable.isGrabActive,
-            }
-          : undefined,
+        draggable: draggableActions,
       },
       meta: {
         store: controller.store,
-        getTabStateMaskFromState: controller.getTabStateMaskFromState,
-        getTabSnapshot: controller.getTabSnapshot,
         layoutId,
         scaleX,
         scaleY,
@@ -301,12 +403,11 @@ function TabsInner<T extends TabValue>({
       scaleX,
       scaleY,
       onChange,
+      draggableActions,
+      orientation,
+      isMobileNav,
+      isTouchDevice,
       isDraggable,
-      draggable.registerTabElement,
-      draggable.measureTabs,
-      draggable.handleTabPointerDown,
-      draggable.consumeDragClickSuppression,
-      draggable.isGrabActive,
       layoutId,
       variant,
       effectiveRoundedClass,
@@ -317,50 +418,61 @@ function TabsInner<T extends TabValue>({
     ],
   );
 
+  const handleContainerMouseMove = useCallback(
+    (e: MouseEvent<HTMLDivElement>) => {
+      controller.recordPointerMove(e.clientX, e.clientY, performance.now());
+    },
+    [controller],
+  );
+
+  const handleContainerMouseLeave = (e: MouseEvent<HTMLDivElement>) => {
+    if (!(isDraggable && bridgeRef.current?.isGrabActive())) {
+      controller.leaveTabs();
+    }
+    rest.onMouseLeave?.(e);
+  };
+
+  const handleContainerClickCapture = (e: MouseEvent<HTMLDivElement>) => {
+    if (isDraggable && bridgeRef.current?.consumeDragClickSuppression()) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    rest.onClickCapture?.(e);
+  };
+
   const containerProps = mergeProps<"div">(rest, {
     role: role ?? undefined,
     "aria-orientation": role === "tablist" ? orientation : undefined,
     tabIndex: role === "tablist" ? -1 : undefined,
     className: cn("flex", isDraggable && "relative", className),
     style,
-    onMouseMove: (e) => {
-      controller.recordPointerMove(e.clientX, e.clientY, performance.now());
-    },
-    onMouseLeave: () => {
-      if (isDraggable && draggable.isGrabActive()) return;
-      controller.leaveTabs();
-    },
-    onClickCapture: (e) => {
-      if (isDraggable && draggable.consumeDragClickSuppression()) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    },
+    onMouseMove: handleContainerMouseMove,
   });
 
   return (
     <TabsContext value={contextValue}>
       <LayoutGroup id={layoutId} inherit={false}>
-        <div ref={containerRef} {...containerProps}>
+        <div
+          ref={containerRef}
+          {...containerProps}
+          onMouseLeave={handleContainerMouseLeave}
+          onClickCapture={handleContainerClickCapture}
+        >
           {isDraggable ? (
-            <DraggableTabHighlight
+            <DraggableTabsController
               controller={controller}
-              pillTargetValue={draggable.pillTargetValue}
-              pillCenterX={draggable.pillCenterX}
-              smoothDragVelocity={draggable.smoothDragVelocity}
-              pillOpacity={draggable.pillOpacity}
-              layoutVersionMv={draggable.layoutVersionMv}
+              containerRef={containerRef}
+              registerBridge={registerBridge}
               scaleX={scaleX}
               scaleY={scaleY}
-              getTabDimensionsForValue={draggable.getTabDimensionsForValue}
-              effectiveRoundedClass={effectiveRoundedClass}
-              contextHighlightClass={highlightClassName}
-              contextHighlightStyle={highlightStyle}
+              orientation={orientation}
+              isMobileNav={isMobileNav}
+              isTouchDevice={isTouchDevice}
               prefersReducedMotion={prefersReducedMotion}
-              rippleX={draggableRipple.rippleX}
-              rippleY={draggableRipple.rippleY}
-              rippleScale={draggableRipple.rippleScale}
-              rippleOpacity={draggableRipple.rippleOpacity}
+              onChange={onChange as ((val: TabValue) => void) | undefined}
+              effectiveRoundedClass={effectiveRoundedClass}
+              highlightClassName={highlightClassName}
+              highlightStyle={highlightStyle}
             />
           ) : null}
           {children}
@@ -620,6 +732,9 @@ function TabComponent({
   const { state, actions, meta } = useTabsContext();
   const {
     variant,
+    orientation,
+    isMobileNav,
+    isTouchDevice,
     isDraggable,
     roundedClass: contextRoundedClass,
     highlightClassName: contextHighlightClass,
@@ -639,25 +754,15 @@ function TabComponent({
     onChange,
     draggable,
   } = actions;
-  const {
-    store,
-    getTabStateMaskFromState,
-    getTabSnapshot,
-    layoutId,
-    scaleX,
-    scaleY,
-  } = meta;
+  const { store, layoutId, scaleX, scaleY } = meta;
 
   useLayoutEffect(() => {
     return registerTab(value);
   }, [registerTab, value]);
 
-  const tabStateMask = useStore(
+  const snapshotSlice = useStore(
     store,
-    useCallback(
-      (s) => getTabStateMaskFromState(s, value),
-      [getTabStateMaskFromState, value],
-    ),
+    useShallow((s) => selectTabSnapshotSlice(s, value, isTouchDevice)),
   );
 
   const effectiveRoundedClass = tabRoundedClass ?? contextRoundedClass;
@@ -692,7 +797,11 @@ function TabComponent({
     targetScaleX,
     targetScaleY,
     scaleSpring,
-  } = getTabSnapshot(value, dimensions, tabStateMask);
+  } = computeTabSnapshotFromSlice(snapshotSlice, dimensions, {
+    orientation,
+    isMobileNav,
+    prefersReducedMotion: Boolean(prefersReducedMotion),
+  });
 
   useTabScaleAnimation(
     showHighlight && !isDraggable,
