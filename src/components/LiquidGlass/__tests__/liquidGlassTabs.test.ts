@@ -16,6 +16,9 @@ import {
   computeDragVelocityScaleY,
   projectMomentum,
   clampCenterWithRubberBand,
+  clampPillCenterForEdgePull,
+  computeCapsuleEdgeOffsetX,
+  clampPillScaleXForTrack,
   interpolateTabField,
   resolveNearestTab,
   createVelocitySampler,
@@ -890,6 +893,45 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
 
       unsub();
       controller.destroy();
+    });
+
+    it("bounds pill edge pull inside the track and transfers overscroll to the capsule", () => {
+      expect(clampPillCenterForEdgePull(264, mockTabs)).toBe(264);
+      expect(computeCapsuleEdgeOffsetX(264, mockTabs)).toBe(0);
+
+      const leftPill = clampPillCenterForEdgePull(-100, mockTabs);
+      const leftCapsule = computeCapsuleEdgeOffsetX(-100, mockTabs);
+      expect(leftPill).toBeLessThan(100);
+      expect(leftPill).toBeGreaterThan(98);
+      expect(leftCapsule).toBeLessThan(0);
+      expect(leftCapsule).toBeGreaterThan(-4);
+
+      const rightPill = clampPillCenterForEdgePull(700, mockTabs);
+      const rightCapsule = computeCapsuleEdgeOffsetX(700, mockTabs);
+      expect(rightPill).toBeGreaterThan(446);
+      expect(rightPill).toBeLessThan(448);
+      expect(rightCapsule).toBeGreaterThan(0);
+      expect(rightCapsule).toBeLessThan(4);
+
+      expect(clampPillCenterForEdgePull(100, [])).toBe(0);
+      expect(computeCapsuleEdgeOffsetX(NaN, mockTabs)).toBe(0);
+    });
+
+    it("clamps horizontal stretch at outer track edges while leaving center stretch untouched", () => {
+      expect(clampPillScaleXForTrack(264, 100, 1.35, mockTabs)).toBeCloseTo(
+        1.35,
+        5,
+      );
+      // First tab is left=0, width=200, centerX=100 -> max overhang 5px => max width 210 => scale 2.1
+      expect(clampPillScaleXForTrack(100, 100, 2.5, mockTabs, 5)).toBeCloseTo(
+        2.1,
+        5,
+      );
+      // Last tab is left=400, width=92, centerX=446 -> max right 497 => half 51 => scale 1.02
+      expect(
+        clampPillScaleXForTrack(446, 100, 1.15, mockTabs, 5),
+      ).toBeCloseTo(1.02, 5);
+      expect(clampPillScaleXForTrack(100, 100, 1.2, [])).toBeCloseTo(1.2, 5);
     });
   });
 });

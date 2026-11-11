@@ -33,7 +33,9 @@ import {
 import { DEFAULT_STYLE, type TabOrientation } from "./internal/types";
 
 type DraggableTabsProps<T extends string | number = string | number> =
-  TabsShellProps<T>;
+  TabsShellProps<T> & {
+    capsuleOffsetX?: MotionValue<number>;
+  };
 
 type DraggableTabProps = TabButtonBaseProps;
 
@@ -57,6 +59,7 @@ const DraggableTabsContext = createContext<DraggableTabsContextValue | null>(
 interface DraggableTabsControllerProps {
   controller: TabsPhysicsController;
   containerRef: RefObject<HTMLDivElement | null>;
+  capsuleOffsetX?: MotionValue<number>;
   registerBridge: (bridge: DraggableTabBridge | null) => void;
   scaleX: MotionValue<number>;
   scaleY: MotionValue<number>;
@@ -73,6 +76,7 @@ interface DraggableTabsControllerProps {
 function DraggableTabsController({
   controller,
   containerRef,
+  capsuleOffsetX,
   registerBridge,
   scaleX,
   scaleY,
@@ -91,6 +95,7 @@ function DraggableTabsController({
     enabled: true,
     controller,
     containerRef,
+    capsuleOffsetX,
     isTouchDevice,
     prefersReducedMotion,
     onChange,
@@ -159,6 +164,7 @@ function DraggableTabsInner<T extends TabValue>({
   highlightStyle = DEFAULT_STYLE,
   style,
   role = "tablist",
+  capsuleOffsetX,
   ...rest
 }: Readonly<DraggableTabsProps<T>>) {
   const shell = useTabsShellController({
@@ -233,6 +239,7 @@ function DraggableTabsInner<T extends TabValue>({
           <DraggableTabsController
             controller={shell.controller}
             containerRef={shell.containerRef}
+            capsuleOffsetX={capsuleOffsetX}
             registerBridge={registerBridge}
             scaleX={shell.scaleX}
             scaleY={shell.scaleY}

@@ -21,6 +21,7 @@ import {
 import {
   BASE_PILL_HEIGHT,
   BASE_PILL_WIDTH,
+  clampPillScaleXForTrack,
   computeDragVelocityScaleY,
   interpolateTabField,
 } from "./tabDragPhysics";
@@ -124,7 +125,8 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
   const totalScaleX = useTransform(() => {
     layoutVersionMv.get();
     const tabs = getTabGeometries();
-    const width = interpolateTabField(pillCenterX.get(), tabs, "width", 120);
+    const centerX = pillCenterX.get();
+    const width = interpolateTabField(centerX, tabs, "width", 120);
     const morphX = width / BASE_PILL_WIDTH;
     const stretchedX = computeDragVelocityScaleX(
       smoothDragVelocity.get(),
@@ -133,7 +135,12 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
       isMotionReduced,
       REF_VELOCITY,
     );
-    return morphX * stretchedX;
+    return clampPillScaleXForTrack(
+      centerX,
+      BASE_PILL_WIDTH,
+      morphX * stretchedX,
+      tabs,
+    );
   });
 
   const totalScaleY = useTransform(() => {

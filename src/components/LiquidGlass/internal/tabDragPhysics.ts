@@ -80,6 +80,75 @@ export function clampCenterWithRubberBand(
   return rawCenterX;
 }
 
+/** Tightly bounds pill center within the track with a <= 1.8px inner cushion */
+export function clampPillCenterForEdgePull(
+  rawCenterX: number,
+  tabs: readonly TabGeometry[],
+): number {
+  if (tabs.length === 0 || !Number.isFinite(rawCenterX)) return 0;
+  const first = tabs[0];
+  const last = tabs[tabs.length - 1];
+
+  if (rawCenterX < first.centerX) {
+    const overshoot = rawCenterX - first.centerX;
+    return first.centerX + applyRubberBand(overshoot, 3, 0.4) * 0.6;
+  }
+  if (rawCenterX > last.centerX) {
+    const overshoot = rawCenterX - last.centerX;
+    return last.centerX + applyRubberBand(overshoot, 3, 0.4) * 0.6;
+  }
+  return rawCenterX;
+}
+
+/** Translates past-edge drag overshoot into a subtle whole-capsule horizontal rubber-band nudge (<= 4px) */
+export function computeCapsuleEdgeOffsetX(
+  rawCenterX: number,
+  tabs: readonly TabGeometry[],
+): number {
+  if (tabs.length === 0 || !Number.isFinite(rawCenterX)) return 0;
+  const first = tabs[0];
+  const last = tabs[tabs.length - 1];
+
+  if (rawCenterX < first.centerX) {
+    return applyRubberBand(rawCenterX - first.centerX, 16, 0.45) * 0.25;
+  }
+  if (rawCenterX > last.centerX) {
+    return applyRubberBand(rawCenterX - last.centerX, 16, 0.45) * 0.25;
+  }
+  return 0;
+}
+
+/** Clamps horizontal pill scale so velocity/flight stretch never escapes the outer end-caps */
+export function clampPillScaleXForTrack(
+  pillCenterX: number,
+  baseWidth: number,
+  candidateScaleX: number,
+  tabs: readonly TabGeometry[],
+  maxEdgeOverhangPx = 5,
+): number {
+  if (
+    tabs.length === 0 ||
+    !Number.isFinite(pillCenterX) ||
+    !Number.isFinite(baseWidth) ||
+    !Number.isFinite(candidateScaleX) ||
+    baseWidth <= 0
+  ) {
+    return candidateScaleX;
+  }
+
+  const first = tabs[0];
+  const last = tabs[tabs.length - 1];
+  const minLeft = first.left - maxEdgeOverhangPx;
+  const maxRight = last.left + last.width + maxEdgeOverhangPx;
+
+  const maxHalfLeft = Math.max(0, pillCenterX - minLeft);
+  const maxHalfRight = Math.max(0, maxRight - pillCenterX);
+  const allowedHalfWidth = Math.min(maxHalfLeft, maxHalfRight);
+  const maxScaleX = Math.max(1, (allowedHalfWidth * 2) / baseWidth);
+
+  return Math.min(candidateScaleX, maxScaleX);
+}
+
 /** Zero-allocation piecewise-linear interpolation of a tab box field along centerX */
 export function interpolateTabField(
   centerX: number,
