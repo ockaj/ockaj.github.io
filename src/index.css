@@ -930,30 +930,3 @@ p {
   color: var(--color-text-primary);
   white-space: nowrap;
 }
-
-/* Interactive Label Illumination*/
-@keyframes tab-label-bloom {
-  0% {
-    text-shadow:
-      0 0 14px rgba(255, 255, 255, 0.7),
-      0 0 24px rgba(122, 123, 191, 0.5);
-    color: #ffffff;
-  }
-  50% {
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.35);
-  }
-  100% {
-    text-shadow: 0 0 0 transparent;
-    color: var(--color-text-primary);
-  }
-}
-
-.tab-active-bloom {
-  animation: tab-label-bloom 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tab-active-bloom {
-    animation: none !important;
-  }
-}

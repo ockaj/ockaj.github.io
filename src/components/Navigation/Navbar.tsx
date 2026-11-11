@@ -147,7 +147,7 @@ export default function Navbar() {
               tabIndex={0}
               highlightClassName="hidden md:block"
               className="relative z-10 flex items-center gap-2 rounded-full py-1.5 pr-3 pl-1.5 text-sm text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset md:py-2.25 md:pr-3.75 md:pl-2.25"
-              activeClassName="text-text-primary tab-active-bloom"
+              activeClassName="text-text-primary"
               aria-label="Home"
             >
               <Avatar.Root className="relative z-10 flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/5 bg-bg">
@@ -179,7 +179,7 @@ export default function Navbar() {
                   value={link.id}
                   tabIndex={0}
                   className="relative z-10 rounded-full px-3 py-1.5 text-sm text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset md:px-4.75 md:py-2.75"
-                  activeClassName="text-text-primary tab-active-bloom"
+                  activeClassName="text-text-primary"
                 >
                   <span>{link.label}</span>
                 </Tab>
@@ -190,7 +190,7 @@ export default function Navbar() {
                 value="contact"
                 tabIndex={0}
                 className="relative z-10 rounded-full px-3 py-1.5 text-sm text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset md:px-4.75 md:py-2.75"
-                activeClassName="text-text-primary tab-active-bloom"
+                activeClassName="text-text-primary"
               >
                 <span>Contact</span>
               </Tab>
