@@ -47,6 +47,6 @@ Execute `npm run check` (or `npm run gate`) in the terminal and evaluate the res
 
 ## Step 5: Run the Full Verification Pipeline (`npm run verify`)
 
-Execute `$env:CI = "true"; npm run verify` and inspect the complete output across `gate`, `vitest`, `typecheck`, `eslint`, `react-doctor`, `knip`, and `vite build`.
+Execute `CI=true npm run verify` and inspect the complete output across every stage defined in `package.json`.
 
-**Completion criterion:** `npm run verify` exits `0` (**green**) with a 100/100 React Doctor score, zero warnings, zero Knip hints, and a clean production build.
+**Completion criterion:** `npm run verify` exits `0` (**green**) with zero React Compiler failures, a 100/100 React Doctor score, zero warnings, zero Knip hints, a clean production build, and passing E2E tests.
