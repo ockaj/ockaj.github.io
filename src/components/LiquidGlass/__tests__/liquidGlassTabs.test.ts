@@ -5,11 +5,21 @@ import { resolveContextHighlightClass } from "../liquidGlassUtils";
 import {
   createTabsController,
   computeVelocityScales,
+  computeDragVelocityScaleX,
+  computeDragVelocityScaleY,
+  projectMomentum,
+  clampCenterWithRubberBand,
+  interpolateTabField,
+  resolveNearestTab,
+  createVelocitySampler,
+  APPLE_DECELERATION_RATE,
+  DRAG_THRESHOLD_PX,
   REF_VELOCITY,
   SETTLE_SPRING,
   FLIGHT_SETTLE_MS,
   LANDING_PULSE_MS,
   TRAVEL_IMPULSE_MS,
+  type TabGeometry,
 } from "../liquidGlassStore";
 
 describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
@@ -649,6 +659,228 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
           true,
         ),
       ).toEqual(baseHovered);
+    });
+  });
+
+  describe("Draggable Navbar Pill Physics, Momentum Projection, Rubber-Banding, & Velocity Ring Buffer", () => {
+    const mockTabs: TabGeometry[] = [
+      {
+        value: "home",
+        left: 0,
+        top: 0,
+        width: 200,
+        height: 42,
+        centerX: 100,
+        centerY: 21,
+      },
+      {
+        value: "work",
+        left: 204,
+        top: 0,
+        width: 120,
+        height: 42,
+        centerX: 264,
+        centerY: 21,
+      },
+      {
+        value: "faq",
+        left: 328,
+        top: 0,
+        width: 68,
+        height: 42,
+        centerX: 362,
+        centerY: 21,
+      },
+      {
+        value: "contact",
+        left: 400,
+        top: 0,
+        width: 92,
+        height: 42,
+        centerX: 446,
+        centerY: 21,
+      },
+    ];
+
+    it("projects Apple 0.998 exponential momentum and handles invalid inputs safely", () => {
+      expect(DRAG_THRESHOLD_PX).toBe(10);
+      expect(APPLE_DECELERATION_RATE).toBeCloseTo(0.998, 5);
+      expect(projectMomentum(1000)).toBeCloseTo(499, 2);
+      expect(projectMomentum(-1000)).toBeCloseTo(-499, 2);
+      expect(projectMomentum(0)).toBe(0);
+      expect(projectMomentum(NaN)).toBe(0);
+      expect(projectMomentum(Infinity)).toBe(0);
+      expect(projectMomentum(500, 1)).toBe(0);
+      expect(projectMomentum(500, 0)).toBe(0);
+    });
+
+    it("clamps center with progressive rubber-band resistance at both bar edges", () => {
+      expect(clampCenterWithRubberBand(264, mockTabs)).toBe(264);
+
+      const leftPullSmall = clampCenterWithRubberBand(80, mockTabs);
+      const leftPullLarge = clampCenterWithRubberBand(-100, mockTabs);
+      expect(leftPullSmall).toBeLessThan(100);
+      expect(leftPullSmall).toBeGreaterThan(80);
+      expect(leftPullLarge).toBeLessThan(leftPullSmall);
+      expect(leftPullLarge).toBeGreaterThan(60);
+
+      const rightPullSmall = clampCenterWithRubberBand(466, mockTabs);
+      const rightPullLarge = clampCenterWithRubberBand(700, mockTabs);
+      expect(rightPullSmall).toBeGreaterThan(446);
+      expect(rightPullSmall).toBeLessThan(466);
+      expect(rightPullLarge).toBeGreaterThan(rightPullSmall);
+      expect(rightPullLarge).toBeLessThan(486);
+
+      expect(clampCenterWithRubberBand(100, [])).toBe(0);
+      expect(clampCenterWithRubberBand(NaN, mockTabs)).toBe(0);
+    });
+
+    it("continuously interpolates width across unequal tabs and resolves nearest tab", () => {
+      expect(interpolateTabField(100, mockTabs, "width", 120)).toBe(200);
+      expect(interpolateTabField(182, mockTabs, "width", 120)).toBeCloseTo(
+        160,
+        4,
+      );
+      expect(interpolateTabField(264, mockTabs, "width", 120)).toBe(120);
+      expect(interpolateTabField(362, mockTabs, "width", 120)).toBe(68);
+      expect(interpolateTabField(0, mockTabs, "width", 120)).toBe(200);
+      expect(interpolateTabField(999, mockTabs, "width", 120)).toBe(92);
+      expect(interpolateTabField(100, [], "width", 120)).toBe(120);
+      expect(interpolateTabField(NaN, mockTabs, "width", 120)).toBe(120);
+
+      expect(resolveNearestTab(150, mockTabs)).toBe("home");
+      expect(resolveNearestTab(240, mockTabs)).toBe("work");
+      expect(resolveNearestTab(355, mockTabs)).toBe("faq");
+      expect(resolveNearestTab(500, mockTabs)).toBe("contact");
+      expect(resolveNearestTab(100, [])).toBeNull();
+      expect(resolveNearestTab(NaN, mockTabs)).toBe("home");
+    });
+
+    it("samples recent pointer velocity in a zero-allocation ring buffer and zeros on pause", () => {
+      const sampler = createVelocitySampler();
+      sampler.reset(100, 1000);
+      expect(sampler.sample(1010)).toBe(0);
+
+      for (let i = 1; i <= 15; i++) {
+        sampler.push(100 + i * 16, 1000 + i * 16);
+      }
+      expect(sampler.sample(1240)).toBeCloseTo(1000, 0);
+
+      // Paused > 80ms before release drops release velocity to 0
+      expect(sampler.sample(1350)).toBe(0);
+
+      // Extreme spike caps at 4000 px/s
+      sampler.reset(0, 2000);
+      sampler.push(1000, 2010);
+      expect(sampler.sample(2010)).toBe(4000);
+
+      // Invalid/NaN inputs are safely ignored
+      sampler.reset(NaN, 3000);
+      sampler.push(NaN, 3010);
+      expect(sampler.sample(3010)).toBe(0);
+    });
+
+    it("preserves expanded drag scaleY while stretching X and respects reduced motion", () => {
+      const expandedY = 1.214;
+      const sx = computeDragVelocityScaleX(REF_VELOCITY, 7, 1.05, false);
+      const sy = computeDragVelocityScaleY(REF_VELOCITY, 7, expandedY, false);
+      expect(sx).toBeGreaterThan(1.05);
+      expect(sy).toBeGreaterThan(1.18);
+      expect(sy).toBeLessThan(expandedY);
+
+      expect(
+        computeDragVelocityScaleX(REF_VELOCITY, 7, 1.05, true),
+      ).toBeCloseTo(1.05, 5);
+      expect(
+        computeDragVelocityScaleY(REF_VELOCITY, 7, expandedY, true),
+      ).toBeCloseTo(expandedY, 5);
+    });
+
+    it("enforces drag origin rules, maintains press expansion during drag, and settles cleanly to idle", () => {
+      const controller = createTabsController({ initialValue: "home" });
+      for (const tab of mockTabs) {
+        controller.registerTab(tab.value);
+      }
+
+      // Mouse cannot grab unhovered inactive tab, but can grab active or hovered tab
+      expect(controller.canGrabTab("faq", false, "mouse")).toBe(false);
+      expect(controller.canGrabTab("home", false, "mouse")).toBe(true);
+
+      controller.hoverTab("work");
+      expect(controller.canGrabTab("work", false, "mouse")).toBe(true);
+
+      // Touch (768px+ touchscreen) only allows grabbing active tab, unless live mid-flight hit
+      expect(controller.canGrabTab("work", false, "touch")).toBe(false);
+      expect(controller.canGrabTab("home", false, "touch")).toBe(true);
+      expect(controller.canGrabTab("faq", true, "touch")).toBe(true);
+
+      // Start press + drag from home -> work -> faq
+      controller.pressTab("home", "mouse");
+      controller.startDrag("home");
+
+      let notifications = 0;
+      const unsub = controller.store.subscribe(() => {
+        notifications++;
+      });
+
+      // Deduplicates identical drag preview updates (no per-frame re-renders)
+      controller.setDragPreview("home");
+      expect(notifications).toBe(0);
+
+      controller.setDragPreview("faq");
+      expect(notifications).toBe(1);
+
+      // Hover events during drag are ignored
+      controller.hoverTab("work");
+      expect(controller.getHoveredValue()).toBeNull();
+
+      // Expanded press state persists on dragPreviewValue ("faq")
+      const faqDragSnap = controller.getTabSnapshot("faq", {
+        width: 68,
+        height: 42,
+      });
+      expect(faqDragSnap.isPressed).toBe(true);
+      expect(faqDragSnap.isDragPreview).toBe(true);
+      expect(faqDragSnap.targetScaleY).toBeGreaterThan(1.15);
+
+      // Commit drag and verify setActiveValue("faq") from React sync does NOT kill flightTimer
+      controller.commitDrag("faq");
+      controller.setActiveValue("faq");
+      expect(controller.getActiveValue()).toBe("faq");
+      expect(controller.getActivePhase()).toBe("flight");
+
+      // Post-release synthetic hoverTab is suppressed until real mouse movement
+      controller.hoverTab("work");
+      expect(controller.getHoveredValue()).toBeNull();
+      controller.recordPointerMove(250, 20, 100);
+      controller.hoverTab("work");
+      expect(controller.getHoveredValue()).toBe("work");
+
+      // Flight -> landing -> idle lifecycle completes cleanly
+      vi.advanceTimersByTime(FLIGHT_SETTLE_MS);
+      expect(controller.getActivePhase()).toBe("landing");
+      vi.advanceTimersByTime(LANDING_PULSE_MS);
+      expect(controller.getActivePhase()).toBe("idle");
+
+      // Cancel drag resets drag/preview/press without changing activeValue
+      controller.pressTab("work", "mouse");
+      controller.startDrag("work");
+      controller.cancelDrag();
+      expect(controller.getActiveValue()).toBe("faq");
+      expect(controller.store.getState().isDragging).toBe(false);
+      expect(controller.store.getState().dragPreviewValue).toBeNull();
+      expect(controller.store.getState().pressedValue).toBeNull();
+
+      // Explicit 0-distance commit (slow/paused release at target) avoids fake flight stretch
+      controller.pressTab("faq", "mouse");
+      controller.startDrag("contact");
+      controller.commitDrag("contact", 0);
+      expect(controller.getActiveValue()).toBe("contact");
+      expect(controller.getActivePhase()).toBe("idle");
+      expect(controller.getActiveDistance()).toBe(0);
+
+      unsub();
+      controller.destroy();
     });
   });
 });

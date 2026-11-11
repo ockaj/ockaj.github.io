@@ -22,7 +22,6 @@ import {
   animate,
   motion,
   useMotionValue,
-  useReducedMotion,
   LayoutGroup,
   type Transition,
   type MotionValue,
@@ -30,7 +29,11 @@ import {
 import { SPRING } from "../../utils/springConfig";
 import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";
-import { useIsMobile, useIsTouchDevice } from "../../hooks/useMediaQuery";
+import {
+  useIsMobile,
+  useIsTouchDevice,
+  usePrefersReducedMotion,
+} from "../../hooks/useMediaQuery";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 import {
   getEntryDimensions,
@@ -43,6 +46,8 @@ import {
   type TabsPhysicsController,
   type TabValue,
 } from "./liquidGlassStore";
+import DraggableTabHighlight from "./DraggableTabHighlight";
+import { useDraggableTabs } from "./useDraggableTabs";
 
 type TabVariant = "capsule" | "segmented";
 
@@ -55,6 +60,7 @@ interface LiquidGlassTabsProps<
   layoutId: string;
   orientation?: TabOrientation;
   hoverSlide?: boolean;
+  draggablePill?: boolean;
   ripple?: boolean;
   roundedClass?: string;
   variant?: TabVariant;
@@ -71,6 +77,7 @@ interface LiquidGlassTabProps extends Omit<
   value: string | number;
   children?: ReactNode;
   activeClassName?: string;
+  previewClassName?: string;
   roundedClass?: string;
   highlightClassName?: string;
   highlightStyle?: CSSProperties;
@@ -82,10 +89,21 @@ interface TabsContextValue {
   scaleX: MotionValue<number>;
   scaleY: MotionValue<number>;
   onChange?: (value: TabValue) => void;
+  draggable?: {
+    registerTabElement: (val: TabValue, el: HTMLButtonElement | null) => void;
+    measureTabs: () => void;
+    handleTabPointerDown: (
+      val: TabValue,
+      e: PointerEvent<HTMLButtonElement>,
+    ) => boolean;
+    consumeDragClickSuppression: () => boolean;
+    isGrabActive: () => boolean;
+  };
   config: {
     layoutId: string;
     variant: TabVariant;
     ripple: boolean;
+    isDraggable: boolean;
     roundedClass: string;
     highlightClassName?: string;
     highlightStyle?: CSSProperties;
@@ -161,6 +179,7 @@ function TabsInner<T extends TabValue>({
   orientation = "horizontal",
   children,
   hoverSlide = true,
+  draggablePill = false,
   ripple = true,
   variant = "capsule",
   roundedClass,
@@ -174,9 +193,12 @@ function TabsInner<T extends TabValue>({
 }: Readonly<LiquidGlassTabsProps<T>>) {
   const isMobile = useIsMobile();
   const isTouchDevice = useIsTouchDevice();
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   const isMobileNav = Boolean(layoutId?.includes("mobile") || isMobile);
+  const isDraggable = Boolean(
+    draggablePill && orientation === "horizontal" && !isMobileNav,
+  );
   const hasNavbarActiveClass = Boolean(
     highlightClassName?.includes("navbar-highlight-active"),
   );
@@ -202,8 +224,26 @@ function TabsInner<T extends TabValue>({
     hasNavbarActiveClass,
   });
 
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const scaleX = useMotionValue(1);
   const scaleY = useMotionValue(1);
+
+  const draggableRipple = useRipple(
+    ripple && !prefersReducedMotion && isDraggable,
+  );
+
+  const draggable = useDraggableTabs({
+    enabled: isDraggable,
+    controller,
+    containerRef,
+    isTouchDevice,
+    hoverSlide,
+    prefersReducedMotion,
+    onChange: onChange as ((val: TabValue) => void) | undefined,
+    triggerRippleAt: draggableRipple.triggerAt,
+  });
+
+  useResizeObserver(containerRef, draggable.measureTabs);
 
   useLayoutEffect(() => {
     controller.activate();
@@ -226,10 +266,20 @@ function TabsInner<T extends TabValue>({
       scaleX,
       scaleY,
       onChange: onChange as ((val: TabValue) => void) | undefined,
+      draggable: isDraggable
+        ? {
+            registerTabElement: draggable.registerTabElement,
+            measureTabs: draggable.measureTabs,
+            handleTabPointerDown: draggable.handleTabPointerDown,
+            consumeDragClickSuppression: draggable.consumeDragClickSuppression,
+            isGrabActive: draggable.isGrabActive,
+          }
+        : undefined,
       config: {
         layoutId,
         variant,
         ripple,
+        isDraggable,
         roundedClass: effectiveRoundedClass,
         highlightClassName,
         highlightStyle,
@@ -243,6 +293,12 @@ function TabsInner<T extends TabValue>({
       scaleX,
       scaleY,
       onChange,
+      isDraggable,
+      draggable.registerTabElement,
+      draggable.measureTabs,
+      draggable.handleTabPointerDown,
+      draggable.consumeDragClickSuppression,
+      draggable.isGrabActive,
       layoutId,
       variant,
       ripple,
@@ -259,20 +315,51 @@ function TabsInner<T extends TabValue>({
     role: role ?? undefined,
     "aria-orientation": role === "tablist" ? orientation : undefined,
     tabIndex: role === "tablist" ? -1 : undefined,
-    className: cn("flex", className),
+    className: cn("flex", isDraggable && "relative", className),
     style,
     onMouseMove: (e) => {
       controller.recordPointerMove(e.clientX, e.clientY, performance.now());
     },
     onMouseLeave: () => {
+      if (isDraggable && draggable.isGrabActive()) return;
       controller.leaveTabs();
+    },
+    onClickCapture: (e) => {
+      if (isDraggable && draggable.consumeDragClickSuppression()) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
     },
   });
 
   return (
     <TabsContext value={contextValue}>
       <LayoutGroup id={layoutId} inherit={false}>
-        <div {...containerProps}>{children}</div>
+        <div ref={containerRef} {...containerProps}>
+          {isDraggable ? (
+            <DraggableTabHighlight
+              controller={controller}
+              pillTargetValue={draggable.pillTargetValue}
+              pillCenterX={draggable.pillCenterX}
+              smoothDragVelocity={draggable.smoothDragVelocity}
+              pillOpacity={draggable.pillOpacity}
+              layoutVersionMv={draggable.layoutVersionMv}
+              scaleX={scaleX}
+              scaleY={scaleY}
+              getTabDimensionsForValue={draggable.getTabDimensionsForValue}
+              effectiveRoundedClass={effectiveRoundedClass}
+              contextHighlightClass={highlightClassName}
+              contextHighlightStyle={highlightStyle}
+              prefersReducedMotion={prefersReducedMotion}
+              ripple={ripple}
+              rippleX={draggableRipple.rippleX}
+              rippleY={draggableRipple.rippleY}
+              rippleScale={draggableRipple.rippleScale}
+              rippleOpacity={draggableRipple.rippleOpacity}
+            />
+          ) : null}
+          {children}
+        </div>
       </LayoutGroup>
     </TabsContext>
   );
@@ -365,7 +452,10 @@ function resolveTabRole(
 
 const HIGHLIGHT_TRANSITION = { layout: SPRING.highlight } as const;
 
-function useTabDimensions(buttonRef: RefObject<HTMLButtonElement | null>) {
+function useTabDimensions(
+  buttonRef: RefObject<HTMLButtonElement | null>,
+  onLayoutChange?: () => void,
+) {
   const [dimensions, setDimensions] = useState({ width: 120, height: 36 });
 
   useResizeObserver(buttonRef, (entry) => {
@@ -376,6 +466,7 @@ function useTabDimensions(buttonRef: RefObject<HTMLButtonElement | null>) {
           ? prev
           : { width, height },
       );
+      onLayoutChange?.();
     }
   });
 
@@ -510,11 +601,33 @@ const TabHighlight = memo(function TabHighlight({
 });
 TabHighlight.displayName = "TabHighlight";
 
+function resolveTabLabelClass(
+  hasDragPreview: boolean,
+  isDragPreview: boolean,
+  isActive: boolean,
+  previewClassName: string | undefined,
+  activeClassName: string,
+): string {
+  if (hasDragPreview) {
+    return isDragPreview ? (previewClassName ?? "text-text-primary") : "";
+  }
+  return isActive ? activeClassName : "";
+}
+
+function resolveTabTouchClass(
+  isDraggable: boolean,
+  showHighlight: boolean,
+): string {
+  if (!isDraggable) return "";
+  return showHighlight ? "touch-none" : "touch-pan-y";
+}
+
 function TabComponent({
   value,
   children,
   className = "",
   activeClassName = "",
+  previewClassName,
   roundedClass: tabRoundedClass,
   highlightClassName = "",
   highlightStyle = DEFAULT_STYLE,
@@ -523,11 +636,13 @@ function TabComponent({
   disabled = false,
   ...rest
 }: Readonly<LiquidGlassTabProps>) {
-  const { controller, scaleX, scaleY, onChange, config } = useTabsContext();
+  const { controller, scaleX, scaleY, onChange, draggable, config } =
+    useTabsContext();
   const {
     layoutId,
     variant,
     ripple,
+    isDraggable,
     roundedClass: contextRoundedClass,
     highlightClassName: contextHighlightClass,
     highlightStyle: contextHighlightStyle,
@@ -540,7 +655,7 @@ function TabComponent({
     return controller.registerTab(value);
   }, [controller, value]);
 
-  useStore(
+  const tabStateMask = useStore(
     controller.store,
     useCallback(
       (state) => controller.getTabStateMaskFromState(state, value),
@@ -551,7 +666,7 @@ function TabComponent({
   const effectiveRoundedClass = tabRoundedClass ?? contextRoundedClass;
 
   const { rippleX, rippleY, rippleScale, rippleOpacity, onPointerDown } =
-    useRipple(ripple && !prefersReducedMotion);
+    useRipple(ripple && !prefersReducedMotion && !isDraggable);
 
   const layoutTransition = useTabLayoutTransition(
     prefersReducedMotion,
@@ -560,20 +675,31 @@ function TabComponent({
   );
 
   const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const dimensions = useTabDimensions(buttonRef);
+  const dimensions = useTabDimensions(buttonRef, draggable?.measureTabs);
+
+  useLayoutEffect(() => {
+    if (!isDraggable || !draggable) return;
+    draggable.registerTabElement(value, buttonRef.current);
+    draggable.measureTabs();
+    return () => {
+      draggable.registerTabElement(value, null);
+    };
+  }, [draggable, isDraggable, value]);
 
   const {
     isActive,
+    isDragPreview,
+    hasDragPreview,
     showHighlight,
     isNavbarActive,
     willChange,
     targetScaleX,
     targetScaleY,
     scaleSpring,
-  } = controller.getTabSnapshot(value, dimensions);
+  } = controller.getTabSnapshot(value, dimensions, tabStateMask);
 
   useTabScaleAnimation(
-    showHighlight,
+    showHighlight && !isDraggable,
     prefersReducedMotion,
     scaleX,
     scaleY,
@@ -585,22 +711,28 @@ function TabComponent({
   const handlePointerDown = useCallback(
     (e: PointerEvent<HTMLButtonElement>) => {
       if (disabled) return;
+      if (isDraggable && draggable) {
+        draggable.handleTabPointerDown(value, e);
+        return;
+      }
       onPointerDown(e);
       controller.pressTab(value, e.pointerType);
     },
-    [controller, disabled, onPointerDown, value],
+    [controller, disabled, draggable, isDraggable, onPointerDown, value],
   );
 
   const handlePointerUp = useCallback(
     (e: PointerEvent<HTMLButtonElement>) => {
+      if (isDraggable && draggable?.isGrabActive()) return;
       controller.releaseTab(value, e.pointerType);
     },
-    [controller, value],
+    [controller, draggable, isDraggable, value],
   );
 
   const handleMouseLeave = useCallback(() => {
+    if (isDraggable && draggable?.isGrabActive()) return;
     controller.leaveTab(value);
-  }, [controller, value]);
+  }, [controller, draggable, isDraggable, value]);
 
   const handleMouseEnter = useCallback(() => {
     if (disabled) return;
@@ -610,11 +742,15 @@ function TabComponent({
   const selectOption = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       if (disabled) return;
+      if (isDraggable && draggable?.consumeDragClickSuppression()) {
+        e.preventDefault();
+        return;
+      }
       controller.selectTab(value);
       onChange?.(value);
       onClick?.(e);
     },
-    [controller, disabled, onChange, onClick, value],
+    [controller, disabled, draggable, isDraggable, onChange, onClick, value],
   );
 
   const tabRole = resolveTabRole(rest.role, parentRole);
@@ -623,25 +759,18 @@ function TabComponent({
   const outerHighlightClass =
     `absolute inset-0 z-[-1] pointer-events-none ${effectiveRoundedClass}`.trim();
 
-  const outerHighlightStyle = useMemo(
-    () =>
-      computeOuterHighlightStyle(
+  const shouldRenderTabHighlight = showHighlight && !isDraggable;
+
+  const outerHighlightStyle = shouldRenderTabHighlight
+    ? computeOuterHighlightStyle(
         variant,
         effectiveRoundedClass,
         dimensions.height,
         willChange,
         contextHighlightStyle,
         highlightStyle,
-      ),
-    [
-      variant,
-      effectiveRoundedClass,
-      dimensions.height,
-      willChange,
-      contextHighlightStyle,
-      highlightStyle,
-    ],
-  );
+      )
+    : undefined;
 
   const resolvedContextHighlightClass = resolveContextHighlightClass(
     contextHighlightClass,
@@ -669,6 +798,14 @@ function TabComponent({
     isActive,
   );
 
+  const resolvedLabelClass = resolveTabLabelClass(
+    hasDragPreview,
+    isDragPreview,
+    isActive,
+    previewClassName,
+    activeClassName,
+  );
+
   const buttonProps = mergeProps<typeof motion.button>(rest, {
     type: "button",
     disabled,
@@ -680,8 +817,9 @@ function TabComponent({
     onMouseEnter: handleMouseEnter,
     className: cn(
       "relative z-10 transition-colors duration-200 select-none focus-visible:outline-none",
+      resolveTabTouchClass(isDraggable, showHighlight),
       className,
-      isActive && activeClassName,
+      resolvedLabelClass,
     ),
     role: tabRole,
     "aria-selected": computedAriaSelected,
@@ -694,7 +832,7 @@ function TabComponent({
 
   return (
     <motion.button ref={buttonRef} {...buttonProps}>
-      {showHighlight ? (
+      {outerHighlightStyle ? (
         <TabHighlight
           layoutId={layoutId}
           layoutTransition={layoutTransition}

@@ -11,6 +11,200 @@ export const FLIGHT_SETTLE_MS = 150;
 export const LANDING_PULSE_MS = 300;
 export const REF_VELOCITY = 1800;
 
+export const BASE_PILL_WIDTH = 100;
+export const BASE_PILL_HEIGHT = 42;
+export const DRAG_THRESHOLD_PX = 10;
+export const APPLE_DECELERATION_RATE = 0.998;
+const VELOCITY_BUFFER_SIZE = 12;
+const VELOCITY_WINDOW_MS = 100;
+const VELOCITY_PAUSE_TIMEOUT_MS = 80;
+const MAX_RELEASE_VELOCITY = 4000;
+
+export interface TabGeometry {
+  value: TabValue;
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  centerX: number;
+  centerY: number;
+}
+
+export interface VelocitySampler {
+  reset: (x: number, nowMs: number) => void;
+  push: (x: number, nowMs: number) => void;
+  sample: (nowMs: number) => number;
+}
+
+/** Apple Designing Fluid Interfaces exponential momentum projection */
+export function projectMomentum(
+  velocityPxPerSec: number,
+  decelerationRate = APPLE_DECELERATION_RATE,
+): number {
+  if (
+    !Number.isFinite(velocityPxPerSec) ||
+    !Number.isFinite(decelerationRate) ||
+    decelerationRate <= 0 ||
+    decelerationRate >= 1
+  ) {
+    return 0;
+  }
+  return (
+    ((velocityPxPerSec / 1000) * decelerationRate) / (1 - decelerationRate)
+  );
+}
+
+/** Apple soft-boundary progressive edge resistance */
+function applyRubberBand(
+  overshoot: number,
+  dimension: number,
+  constant = 0.55,
+): number {
+  if (
+    !Number.isFinite(overshoot) ||
+    !Number.isFinite(dimension) ||
+    !Number.isFinite(constant) ||
+    dimension <= 0 ||
+    constant <= 0
+  ) {
+    return 0;
+  }
+  return (
+    (overshoot * dimension * constant) /
+    (dimension + constant * Math.abs(overshoot))
+  );
+}
+
+export function clampCenterWithRubberBand(
+  rawCenterX: number,
+  tabs: readonly TabGeometry[],
+): number {
+  if (tabs.length === 0 || !Number.isFinite(rawCenterX)) return 0;
+  const first = tabs[0];
+  const last = tabs[tabs.length - 1];
+
+  if (rawCenterX < first.centerX) {
+    const overshoot = rawCenterX - first.centerX;
+    const dim = Math.min(Math.max(first.width * 0.4, 24), 40);
+    return first.centerX + applyRubberBand(overshoot, dim);
+  }
+  if (rawCenterX > last.centerX) {
+    const overshoot = rawCenterX - last.centerX;
+    const dim = Math.min(Math.max(last.width * 0.4, 24), 40);
+    return last.centerX + applyRubberBand(overshoot, dim);
+  }
+  return rawCenterX;
+}
+
+/** Zero-allocation piecewise-linear interpolation of a tab box field along centerX */
+export function interpolateTabField(
+  centerX: number,
+  tabs: readonly TabGeometry[],
+  field: "width" | "height" | "top",
+  fallback: number,
+): number {
+  if (tabs.length === 0 || !Number.isFinite(centerX)) {
+    return fallback;
+  }
+  const first = tabs[0];
+  if (tabs.length === 1 || centerX <= first.centerX) {
+    return first[field];
+  }
+  const last = tabs[tabs.length - 1];
+  if (centerX >= last.centerX) {
+    return last[field];
+  }
+
+  for (let i = 0; i < tabs.length - 1; i++) {
+    const a = tabs[i];
+    const b = tabs[i + 1];
+    if (centerX <= b.centerX) {
+      const span = b.centerX - a.centerX;
+      const t = span > 0 ? clamp(0, 1, (centerX - a.centerX) / span) : 0;
+      return a[field] + (b[field] - a[field]) * t;
+    }
+  }
+  return last[field];
+}
+
+export function resolveNearestTab(
+  targetCenterX: number,
+  tabs: readonly TabGeometry[],
+): TabValue | null {
+  if (tabs.length === 0) return null;
+  if (!Number.isFinite(targetCenterX)) return tabs[0].value;
+
+  let bestTab = tabs[0].value;
+  let bestDist = Math.abs(tabs[0].centerX - targetCenterX);
+
+  for (let i = 1; i < tabs.length; i++) {
+    const dist = Math.abs(tabs[i].centerX - targetCenterX);
+    if (dist < bestDist) {
+      bestDist = dist;
+      bestTab = tabs[i].value;
+    }
+  }
+  return bestTab;
+}
+
+/** Pre-allocated circular ring buffer for zero-allocation drag velocity sampling */
+export function createVelocitySampler(): VelocitySampler {
+  const xs = new Float64Array(VELOCITY_BUFFER_SIZE);
+  const ts = new Float64Array(VELOCITY_BUFFER_SIZE);
+  let head = 0;
+  let count = 0;
+
+  return {
+    reset: (x, nowMs) => {
+      if (!Number.isFinite(x) || !Number.isFinite(nowMs)) {
+        head = 0;
+        count = 0;
+        return;
+      }
+      xs[0] = x;
+      ts[0] = nowMs;
+      head = 1;
+      count = 1;
+    },
+    push: (x, nowMs) => {
+      if (!Number.isFinite(x) || !Number.isFinite(nowMs)) return;
+      xs[head] = x;
+      ts[head] = nowMs;
+      head = (head + 1) % VELOCITY_BUFFER_SIZE;
+      if (count < VELOCITY_BUFFER_SIZE) {
+        count++;
+      }
+    },
+    sample: (nowMs) => {
+      if (count < 2 || !Number.isFinite(nowMs)) return 0;
+      const newestIdx =
+        (head - 1 + VELOCITY_BUFFER_SIZE) % VELOCITY_BUFFER_SIZE;
+      const newestT = ts[newestIdx];
+      const newestX = xs[newestIdx];
+
+      if (nowMs - newestT > VELOCITY_PAUSE_TIMEOUT_MS) {
+        return 0;
+      }
+
+      let oldestIdx = newestIdx;
+      for (let offset = 1; offset < count; offset++) {
+        const idx =
+          (newestIdx - offset + VELOCITY_BUFFER_SIZE) % VELOCITY_BUFFER_SIZE;
+        if (newestT - ts[idx] > VELOCITY_WINDOW_MS) {
+          break;
+        }
+        oldestIdx = idx;
+      }
+
+      const dt = newestT - ts[oldestIdx];
+      if (dt < 4) return 0;
+
+      const velocity = ((newestX - xs[oldestIdx]) / dt) * 1000;
+      return clamp(-MAX_RELEASE_VELOCITY, MAX_RELEASE_VELOCITY, velocity);
+    },
+  };
+}
+
 /** Critically damped spring for gentle, non-bouncy settle to idle (zero undershoot) */
 export const SETTLE_SPRING = {
   type: "spring" as const,
@@ -24,6 +218,91 @@ interface BaseScales {
   scaleY: number;
 }
 
+function computeHorizontalVelocityScaleX(
+  velocity: number,
+  tabCount: number,
+  baseScaleX: number,
+  prefersReducedMotion = false,
+  refVelocity = REF_VELOCITY,
+): number {
+  if (prefersReducedMotion || Math.abs(velocity) < 5) return baseScaleX;
+  const isBinary = tabCount > 0 && tabCount <= 2;
+  const countMult = tabCount > 0 ? clamp(0.4, 1.0, (tabCount - 1) / 3) : 1.0;
+  const ratio = Math.min(1.0, Math.abs(velocity) / refVelocity);
+  const maxX = isBinary ? 0.035 : 0.12;
+  return baseScaleX * (1 + maxX * ratio * countMult);
+}
+
+function computeHorizontalVelocityScaleY(
+  velocity: number,
+  tabCount: number,
+  baseScaleY: number,
+  prefersReducedMotion = false,
+  refVelocity = REF_VELOCITY,
+): number {
+  if (prefersReducedMotion || Math.abs(velocity) < 5) return baseScaleY;
+  const isBinary = tabCount > 0 && tabCount <= 2;
+  const countMult = tabCount > 0 ? clamp(0.4, 1.0, (tabCount - 1) / 3) : 1.0;
+  const ratio = Math.min(1.0, Math.abs(velocity) / refVelocity);
+  const maxYCompress = isBinary ? 0.0 : 0.018;
+  const travelCompressY = 1 - maxYCompress * ratio * countMult;
+  return baseScaleY > 1.001
+    ? 1 + (baseScaleY - 1) * 0.45 * travelCompressY
+    : travelCompressY;
+}
+
+export function computeDragVelocityScaleX(
+  velocity: number,
+  tabCount: number,
+  baseScaleX: number,
+  prefersReducedMotion = false,
+  refVelocity = REF_VELOCITY,
+): number {
+  return computeHorizontalVelocityScaleX(
+    velocity,
+    tabCount,
+    baseScaleX,
+    prefersReducedMotion,
+    refVelocity,
+  );
+}
+
+export function computeDragVelocityScaleY(
+  velocity: number,
+  tabCount: number,
+  baseScaleY: number,
+  prefersReducedMotion = false,
+  refVelocity = REF_VELOCITY,
+): number {
+  if (prefersReducedMotion || Math.abs(velocity) < 5) return baseScaleY;
+  const isBinary = tabCount > 0 && tabCount <= 2;
+  const countMult = tabCount > 0 ? clamp(0.4, 1.0, (tabCount - 1) / 3) : 1.0;
+  const ratio = Math.min(1.0, Math.abs(velocity) / refVelocity);
+  const maxYCompress = isBinary ? 0.0 : 0.018;
+  return baseScaleY * (1 - maxYCompress * ratio * countMult);
+}
+
+function computeVerticalVelocityScales(
+  velocity: number,
+  tabCount: number,
+  baseScales: BaseScales,
+  refVelocity: number,
+): BaseScales {
+  const isBinary = tabCount > 0 && tabCount <= 2;
+  const countMult = tabCount > 0 ? clamp(0.4, 1.0, (tabCount - 1) / 3) : 1.0;
+  const ratio = Math.min(1.0, Math.abs(velocity) / refVelocity);
+  const maxY = isBinary ? 0.035 : 0.1;
+  const maxXCompress = isBinary ? 0.0 : 0.018;
+  const travelStretchY = 1 + maxY * ratio * countMult;
+  const travelCompressX = 1 - maxXCompress * ratio * countMult;
+
+  const scaleX =
+    baseScales.scaleX > 1.001
+      ? 1 + (baseScales.scaleX - 1) * 0.45 * travelCompressX
+      : travelCompressX;
+  return { scaleX, scaleY: baseScales.scaleY * travelStretchY };
+}
+
 export function computeVelocityScales(
   velocity: number,
   orientation: TabOrientation,
@@ -31,41 +310,34 @@ export function computeVelocityScales(
   baseScales: BaseScales = { scaleX: 1, scaleY: 1 },
   refVelocity = REF_VELOCITY,
   prefersReducedMotion = false,
-): { scaleX: number; scaleY: number } {
-  if (prefersReducedMotion) return baseScales;
-
-  const speed = Math.abs(velocity);
-  if (speed < 5) return baseScales;
-
-  const isBinary = tabCount > 0 && tabCount <= 2;
-  const countMult = tabCount > 0 ? clamp(0.4, 1.0, (tabCount - 1) / 3) : 1.0;
-  const ratio = Math.min(1.0, speed / refVelocity);
-
-  if (orientation === "vertical") {
-    const maxY = isBinary ? 0.035 : 0.1;
-    const maxXCompress = isBinary ? 0.0 : 0.018;
-    const travelStretchY = 1 + maxY * ratio * countMult;
-    const travelCompressX = 1 - maxXCompress * ratio * countMult;
-
-    const scaleX =
-      baseScales.scaleX > 1.001
-        ? 1 + (baseScales.scaleX - 1) * 0.45 * travelCompressX
-        : travelCompressX;
-    const scaleY = baseScales.scaleY * travelStretchY;
-    return { scaleX, scaleY };
+): BaseScales {
+  if (prefersReducedMotion || Math.abs(velocity) < 5) {
+    return baseScales;
   }
-
-  const maxX = isBinary ? 0.035 : 0.12;
-  const maxYCompress = isBinary ? 0.0 : 0.018;
-  const travelStretchX = 1 + maxX * ratio * countMult;
-  const travelCompressY = 1 - maxYCompress * ratio * countMult;
-
-  const scaleX = baseScales.scaleX * travelStretchX;
-  const scaleY =
-    baseScales.scaleY > 1.001
-      ? 1 + (baseScales.scaleY - 1) * 0.45 * travelCompressY
-      : travelCompressY;
-  return { scaleX, scaleY };
+  if (orientation === "vertical") {
+    return computeVerticalVelocityScales(
+      velocity,
+      tabCount,
+      baseScales,
+      refVelocity,
+    );
+  }
+  return {
+    scaleX: computeHorizontalVelocityScaleX(
+      velocity,
+      tabCount,
+      baseScales.scaleX,
+      false,
+      refVelocity,
+    ),
+    scaleY: computeHorizontalVelocityScaleY(
+      velocity,
+      tabCount,
+      baseScales.scaleY,
+      false,
+      refVelocity,
+    ),
+  };
 }
 
 function computeTravelScales(
@@ -263,6 +535,10 @@ interface TabRenderSnapshot {
   isTransitioning: boolean;
   isLanding: boolean;
   isHoverMoving: boolean;
+  isDragPreview: boolean;
+  hasDragPreview: boolean;
+  isDragging: boolean;
+  isPillAnimating: boolean;
   showHighlight: boolean;
   isNavbarActive: boolean;
   willChange: boolean;
@@ -279,6 +555,9 @@ interface TabsPhysicsState {
   hoverDistance: number;
   hoverMoving: boolean;
   pressedValue: TabValue | null;
+  isDragging: boolean;
+  dragPreviewValue: TabValue | null;
+  isPillAnimating: boolean;
 }
 
 export interface TabsPhysicsController {
@@ -298,6 +577,7 @@ export interface TabsPhysicsController {
   getVelocity: () => number;
   getTabCount: () => number;
   getTabDistance: (from: TabValue | null, to: TabValue | null) => number;
+  getPillTargetValue: () => TabValue;
 
   setActiveValue: (val: TabValue, explicitDistance?: number) => void;
   hoverTab: (val: TabValue | null, explicitDistance?: number) => void;
@@ -311,12 +591,26 @@ export interface TabsPhysicsController {
   notifyLayoutComplete: () => void;
   completeFlight: () => void;
 
+  canGrabTab: (
+    val: TabValue,
+    isLiveHit: boolean,
+    pointerType?: string,
+  ) => boolean;
+  startDrag: (initialPreview: TabValue | null) => void;
+  setDragPreview: (val: TabValue | null) => void;
+  commitDrag: (val: TabValue, explicitDistance?: number) => void;
+  cancelDrag: () => void;
+  setPillAnimating: (animating: boolean) => void;
+  setTabGeometries: (tabs: TabGeometry[]) => void;
+  getTabGeometries: () => readonly TabGeometry[];
+
   getTabStateMask: (val: TabValue) => number;
   getTabStateMaskFromState: (state: TabsPhysicsState, val: TabValue) => number;
   getServerTabStateMask: (val: TabValue) => number;
   getTabSnapshot: (
     val: TabValue,
     dimensions: { width: number; height: number },
+    _cacheKey?: string | number,
   ) => TabRenderSnapshot;
 }
 
@@ -340,6 +634,9 @@ export function createTabsController({
     hoverDistance: 0,
     hoverMoving: false,
     pressedValue: null,
+    isDragging: false,
+    dragPreviewValue: null,
+    isPillAnimating: false,
   }));
 
   let orientation: TabOrientation = initialOrientation;
@@ -350,7 +647,9 @@ export function createTabsController({
   let hasNavbarActiveClass = initialNavbarActiveClass;
 
   const tabOrder: TabValue[] = [];
+  let tabGeometries: TabGeometry[] = [];
   let destroyed = false;
+  let suppressHoverUntilMouseMove = false;
 
   let mouseVelocity = 0;
   let lastMousePos: { x: number; y: number; time: number } | null = null;
@@ -473,16 +772,25 @@ export function createTabsController({
     const isActive = state.activeValue === val;
     const isTransitioning = isActive && state.activePhase === "flight";
     const isLanding = isActive && state.activePhase === "landing";
-    const isHovered = !isTouchDevice && state.hoveredValue === val;
-    const showHighlight = shouldShowTabHighlight(
-      isActive,
-      isHovered,
-      state.hoveredValue,
-      hoverSlide,
-      isTouchDevice,
-    );
+    const isHovered =
+      !isTouchDevice && !state.isDragging && state.hoveredValue === val;
+    const showHighlight =
+      !state.isDragging &&
+      shouldShowTabHighlight(
+        isActive,
+        isHovered,
+        state.hoveredValue,
+        hoverSlide,
+        isTouchDevice,
+      );
     const isMovingHover = isHovered && state.hoverMoving;
-    const isPressed = state.pressedValue === val;
+    const isPressed =
+      state.pressedValue === val ||
+      (state.isDragging &&
+        state.dragPreviewValue === val &&
+        state.pressedValue !== null);
+    const isDragPreview = state.isDragging && state.dragPreviewValue === val;
+    const hasDragPreview = state.dragPreviewValue !== null;
     return {
       isActive,
       isTransitioning,
@@ -491,6 +799,8 @@ export function createTabsController({
       showHighlight,
       isMovingHover,
       isPressed,
+      isDragPreview,
+      hasDragPreview,
     };
   };
 
@@ -506,7 +816,9 @@ export function createTabsController({
       (flags.isHovered ? 8 : 0) |
       (flags.showHighlight ? 16 : 0) |
       (flags.isMovingHover ? 32 : 0) |
-      (flags.isPressed ? 64 : 0)
+      (flags.isPressed ? 64 : 0) |
+      (flags.isDragPreview ? 128 : 0) |
+      (flags.hasDragPreview ? 256 : 0)
     );
   };
 
@@ -544,6 +856,7 @@ export function createTabsController({
       destroyed = false;
       clearActiveTimers();
       clearHoverTimer();
+      suppressHoverUntilMouseMove = false;
       mouseVelocity = 0;
       lastMousePos = null;
       updateState((state) => {
@@ -553,7 +866,10 @@ export function createTabsController({
           state.hoveredValue === null &&
           state.hoverDistance === 0 &&
           !state.hoverMoving &&
-          state.pressedValue === null
+          state.pressedValue === null &&
+          !state.isDragging &&
+          state.dragPreviewValue === null &&
+          !state.isPillAnimating
         ) {
           return state;
         }
@@ -564,6 +880,9 @@ export function createTabsController({
           hoverDistance: 0,
           hoverMoving: false,
           pressedValue: null,
+          isDragging: false,
+          dragPreviewValue: null,
+          isPillAnimating: false,
         };
       });
     },
@@ -572,6 +891,7 @@ export function createTabsController({
       destroyed = true;
       clearActiveTimers();
       clearHoverTimer();
+      suppressHoverUntilMouseMove = false;
       mouseVelocity = 0;
       lastMousePos = null;
     },
@@ -585,18 +905,29 @@ export function createTabsController({
     getVelocity: () => mouseVelocity,
     getTabCount: () => tabOrder.length,
     getTabDistance,
+    getPillTargetValue: () => {
+      const state = store.getState();
+      if (state.isDragging && state.dragPreviewValue !== null) {
+        return state.dragPreviewValue;
+      }
+      if (!isTouchDevice && hoverSlide && state.hoveredValue !== null) {
+        return state.hoveredValue;
+      }
+      return state.activeValue;
+    },
 
     setActiveValue: (val, explicitDistance) => {
       if (destroyed) return;
-      clearActiveTimers();
       const state = store.getState();
       if (state.activeValue === val) {
         if (explicitDistance === 0 && state.activePhase !== "idle") {
+          clearActiveTimers();
           updateState({ activePhase: "idle", activeDistance: 0 });
         }
         return;
       }
 
+      clearActiveTimers();
       const hoverPatch = computeHoverPatch(state, null, 0);
       const distance =
         explicitDistance ?? getTabDistance(state.activeValue, val);
@@ -618,10 +949,12 @@ export function createTabsController({
 
     hoverTab: (val, explicitDistance) => {
       if (destroyed) return;
+      if (store.getState().isDragging) return;
       if (val === null) {
         updateState((state) => computeHoverPatch(state, null, 0) ?? state);
         return;
       }
+      if (suppressHoverUntilMouseMove) return;
       if (!hoverSlide || isTouchDevice) return;
       updateState((state) => {
         const currentAnchor = state.hoveredValue ?? state.activeValue;
@@ -672,6 +1005,7 @@ export function createTabsController({
     cancelTabPress: () => {
       if (destroyed) return;
       updateState((state) => {
+        if (state.isDragging) return state;
         const hadState =
           state.pressedValue !== null ||
           state.hoveredValue !== null ||
@@ -688,12 +1022,16 @@ export function createTabsController({
     leaveTab: (val) => {
       if (destroyed) return;
       updateState((state) =>
-        state.pressedValue === val ? { pressedValue: null } : state,
+        !state.isDragging && state.pressedValue === val
+          ? { pressedValue: null }
+          : state,
       );
     },
 
     leaveTabs: () => {
       if (destroyed) return;
+      if (store.getState().isDragging) return;
+      suppressHoverUntilMouseMove = false;
       mouseVelocity = 0;
       lastMousePos = null;
       updateState((state) =>
@@ -705,6 +1043,7 @@ export function createTabsController({
 
     recordPointerMove: (clientX, clientY, nowMs) => {
       if (destroyed) return;
+      suppressHoverUntilMouseMove = false;
       if (lastMousePos) {
         const dt = nowMs - lastMousePos.time;
         if (dt > 8 && dt < 200) {
@@ -726,6 +1065,109 @@ export function createTabsController({
 
     completeFlight,
 
+    canGrabTab: (val, isLiveHit, pointerType) => {
+      if (destroyed) return false;
+      if (isLiveHit) return true;
+      const state = store.getState();
+      const isTouch = isTouchDevice || pointerType === "touch";
+      return shouldShowTabHighlight(
+        state.activeValue === val,
+        !isTouch && state.hoveredValue === val,
+        state.hoveredValue,
+        hoverSlide,
+        isTouch,
+      );
+    },
+
+    startDrag: (initialPreview) => {
+      if (destroyed) return;
+      clearActiveTimers();
+      clearHoverTimer();
+      updateState({
+        isDragging: true,
+        dragPreviewValue: initialPreview,
+        hoveredValue: null,
+        hoverDistance: 0,
+        hoverMoving: false,
+        activePhase: "idle",
+        activeDistance: 0,
+      });
+    },
+
+    setDragPreview: (val) => {
+      if (destroyed) return;
+      updateState((state) => {
+        if (!state.isDragging || state.dragPreviewValue === val) return state;
+        return { dragPreviewValue: val };
+      });
+    },
+
+    commitDrag: (val, explicitDistance) => {
+      if (destroyed) return;
+      clearActiveTimers();
+      clearHoverTimer();
+      suppressHoverUntilMouseMove = true;
+      const state = store.getState();
+      const distance =
+        explicitDistance ?? getTabDistance(state.activeValue, val);
+
+      if (distance > 0) {
+        flightTimer = setTimeout(() => {
+          flightTimer = null;
+          beginLanding();
+        }, flightMs);
+      }
+
+      updateState({
+        isDragging: false,
+        dragPreviewValue: null,
+        pressedValue: null,
+        hoveredValue: null,
+        hoverDistance: 0,
+        hoverMoving: false,
+        activeValue: val,
+        activeDistance: distance > 0 ? distance : 0,
+        activePhase: distance > 0 ? "flight" : "idle",
+      });
+    },
+
+    cancelDrag: () => {
+      if (destroyed) return;
+      clearHoverTimer();
+      updateState((state) => {
+        if (
+          !state.isDragging &&
+          state.dragPreviewValue === null &&
+          state.pressedValue === null
+        ) {
+          return state;
+        }
+        return {
+          isDragging: false,
+          dragPreviewValue: null,
+          pressedValue: null,
+          hoveredValue: null,
+          hoverDistance: 0,
+          hoverMoving: false,
+        };
+      });
+    },
+
+    setPillAnimating: (animating) => {
+      if (destroyed) return;
+      updateState((state) =>
+        state.isPillAnimating === animating
+          ? state
+          : { isPillAnimating: animating },
+      );
+    },
+
+    setTabGeometries: (tabs) => {
+      tabGeometries = tabs;
+    },
+
+    getTabGeometries: () => tabGeometries,
+
     getTabStateMask: (val) => getTabStateMaskFromState(store.getState(), val),
 
     getTabStateMaskFromState,
@@ -743,10 +1185,17 @@ export function createTabsController({
         showHighlight,
         isMovingHover,
         isPressed,
+        isDragPreview,
+        hasDragPreview,
       } = evaluateTabFlags(state, val);
 
       const isHoverActive =
-        isHovered || isTransitioning || isLanding || hasNavbarActiveClass;
+        isHovered ||
+        isTransitioning ||
+        isLanding ||
+        state.isDragging ||
+        state.isPillAnimating ||
+        hasNavbarActiveClass;
       let effectiveDistance = 0;
       if (isMovingHover) {
         effectiveDistance = state.hoverDistance;
@@ -782,9 +1231,17 @@ export function createTabsController({
         isTransitioning,
         isLanding,
         isHoverMoving: isMovingHover,
+        isDragPreview,
+        hasDragPreview,
+        isDragging: state.isDragging,
+        isPillAnimating: state.isPillAnimating,
         showHighlight,
         isNavbarActive: isHoverActive,
-        willChange: isHoverActive || isPressed,
+        willChange:
+          isHoverActive ||
+          isPressed ||
+          state.isDragging ||
+          state.isPillAnimating,
         targetScaleX,
         targetScaleY,
         scaleSpring,

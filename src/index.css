@@ -111,15 +111,17 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-a,
-button,
-[role="button"] {
-  touch-action: manipulation;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: auto;
+@layer base {
+  a,
+  button,
+  [role="button"] {
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: auto;
+  }
 }
 
 input,

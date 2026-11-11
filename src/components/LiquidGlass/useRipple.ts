@@ -8,19 +8,15 @@ export function useRipple(enabled: boolean) {
   const rippleScale = useMotionValue(0);
   const rippleOpacity = useMotionValue(0);
 
-  const handlePointerDown = useCallback(
-    (e: PointerEvent<HTMLElement>) => {
+  const triggerAt = useCallback(
+    (x: number, y: number, width: number, height: number) => {
       if (!enabled) return;
-
-      const rect = e.currentTarget.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
 
       rippleX.set(x);
       rippleY.set(y);
 
       const maxRadius =
-        Math.max(rect.width, rect.height) * rippleCfg.maxRadiusMultiplier;
+        Math.max(width, height) * rippleCfg.maxRadiusMultiplier;
       const targetScale = maxRadius / 96;
 
       animate(rippleScale, [0, targetScale], springs.ripple);
@@ -33,11 +29,27 @@ export function useRipple(enabled: boolean) {
     [enabled, rippleX, rippleY, rippleScale, rippleOpacity],
   );
 
+  const handlePointerDown = useCallback(
+    (e: PointerEvent<HTMLElement>) => {
+      if (!enabled) return;
+
+      const rect = e.currentTarget.getBoundingClientRect();
+      triggerAt(
+        e.clientX - rect.left,
+        e.clientY - rect.top,
+        rect.width,
+        rect.height,
+      );
+    },
+    [enabled, triggerAt],
+  );
+
   return {
     rippleX,
     rippleY,
     rippleScale,
     rippleOpacity,
     onPointerDown: handlePointerDown,
+    triggerAt,
   };
 }
