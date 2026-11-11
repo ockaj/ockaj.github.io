@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Architecture, SPA routing, Zustand store state, canonical seams, strongly-typed domain data, concentric corner geometry, and React 19 invariants. Use when modifying route sections, navigation, global state, overlays, browser API calls, types, or architecture tiers.
+description: Architecture, SPA routing, Zustand state, canonical seams, React 19 invariants, error recovery, and breakpoints. Use when modifying src/ components, hooks, state, overlays, navigation, browser APIs, types, or architecture tiers.
 ---
 
 # Codebase Architecture
@@ -137,6 +137,9 @@ Enforce unified seams, strong typing, and modern React patterns across all modul
 - **Security**: The `dangerouslySetInnerHTML` prop is prohibited across all components.
 - **Data Immutability**: Use `.toSorted()` instead of mutating `.sort()` within `src/data/`.
 - **HTML Nesting**: Never nest interactive elements like `<button>` inside `<Tab>` or another `<button>`.
+- **Explicit Error Recovery**: Handle every `catch` and Promise `.catch()` with a fallback return value, state rollback, or recovery action.
+- **Breakpoint Alignment**: Match `useIsMobile` (`768px`) with `md:` and `useIsDesktop` (`1024px`) with `lg:` Tailwind prefixes.
+- **No Pass-Through Wrappers**: Inline single-caller wrapper hooks, single-action reducers, and pass-through components into their parent caller.
 
 ---
 
