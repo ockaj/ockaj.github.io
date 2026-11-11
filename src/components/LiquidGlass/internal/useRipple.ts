@@ -1,6 +1,6 @@
 import { useCallback, type PointerEvent } from "react";
 import { useMotionValue, animate } from "motion/react";
-import { SPRING } from "../../utils/springConfig";
+import { SPRING } from "../../../utils/springConfig";
 import { ripple as rippleCfg } from "./config";
 
 export function useRipple(enabled: boolean) {

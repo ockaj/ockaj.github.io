@@ -8,7 +8,7 @@ import {
   type AnimationPlaybackControlsWithThen,
   type MotionStyle,
 } from "motion/react";
-import { useResizeObserver } from "../../hooks/useResizeObserver";
+import { useResizeObserver } from "../../../hooks/useResizeObserver";
 
 import Ripple from "./Ripple";
 import { useRipple } from "./useRipple";

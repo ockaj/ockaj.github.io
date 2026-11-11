@@ -1,9 +1,7 @@
 import { Toast, type ToastManager } from "@base-ui/react/toast";
 import { X } from "lucide-react";
-import {
-  InteractiveGlass,
-  LiquidGlassButton,
-} from "../LiquidGlass/LiquidGlass";
+import { InteractiveGlass } from "../LiquidGlass/Glass";
+import { LiquidGlassButton } from "../LiquidGlass/Button";
 import BpmnNodeBadge from "./BpmnNodeBadge";
 import { cn } from "../../utils/cn";
 

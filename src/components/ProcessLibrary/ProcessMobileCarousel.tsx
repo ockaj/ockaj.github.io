@@ -6,7 +6,7 @@ import {
   animate,
   type MotionValue,
 } from "motion/react";
-import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
+import { InteractiveGlass } from "../LiquidGlass/Glass";
 import { PROCESS_TOPICS, type ProcessTopic } from "../../data/processItems";
 import { cn } from "../../utils/cn";
 import { useResizeObserver } from "../../hooks/useResizeObserver";

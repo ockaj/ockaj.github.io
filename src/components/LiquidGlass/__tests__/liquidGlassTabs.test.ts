@@ -1,10 +1,18 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { SPRING } from "../../../utils/springConfig";
-import { resolveContextHighlightClass } from "../liquidGlassUtils";
+import { resolveContextHighlightClass } from "../internal/liquidGlassUtils";
 import {
   createTabsController,
   computeVelocityScales,
   computeDragVelocityScaleX,
+  REF_VELOCITY,
+  SETTLE_SPRING,
+  FLIGHT_SETTLE_MS,
+  LANDING_PULSE_MS,
+  TRAVEL_IMPULSE_MS,
+  type TabGeometry,
+} from "../internal/liquidGlassStore";
+import {
   computeDragVelocityScaleY,
   projectMomentum,
   clampCenterWithRubberBand,
@@ -13,13 +21,7 @@ import {
   createVelocitySampler,
   APPLE_DECELERATION_RATE,
   DRAG_THRESHOLD_PX,
-  REF_VELOCITY,
-  SETTLE_SPRING,
-  FLIGHT_SETTLE_MS,
-  LANDING_PULSE_MS,
-  TRAVEL_IMPULSE_MS,
-  type TabGeometry,
-} from "../liquidGlassStore";
+} from "../internal/tabDragPhysics";
 
 describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
   const dimensions = { width: 120, height: 36 };

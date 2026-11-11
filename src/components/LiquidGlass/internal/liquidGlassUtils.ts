@@ -10,8 +10,8 @@ import {
 } from "react";
 import { clamp, motion, type MotionStyle } from "motion/react";
 import { mergeProps } from "@base-ui/react/merge-props";
-import { cn } from "../../utils/cn";
-import { SPRING } from "../../utils/springConfig";
+import { cn } from "../../../utils/cn";
+import { SPRING } from "../../../utils/springConfig";
 import { INNER_GLASS_STYLE } from "./config";
 import {
   DEFAULT_STYLE,
@@ -19,6 +19,7 @@ import {
   type LiquidGlassAnimationProps,
   type LiquidGlassDomProps,
 } from "./types";
+import type { TabVariant } from "./TabsShell";
 
 export const CAPSULE_HIGHLIGHT_RADIUS =
   "calc((var(--base-radius) * var(--scale-y)) / var(--scale-x)) / var(--base-radius)";
@@ -300,4 +301,51 @@ export function resolveContextHighlightClass(
     );
   }
   return contextHighlightClass;
+}
+
+export function getDefaultTabRadius(variant: TabVariant): string {
+  return variant === "segmented" ? "rounded-lg" : "rounded-full";
+}
+
+const RADIUS_BY_CLASS = [
+  ["rounded-xl", "12px"],
+  ["rounded-lg", "8px"],
+  ["rounded-md", "6px"],
+  ["rounded-sm", "4px"],
+] as const;
+
+function resolveBaseRadius(
+  variant: TabVariant,
+  roundedClass: string,
+  height: number,
+): string {
+  if (variant === "capsule" || roundedClass.includes("rounded-full")) {
+    return "9999px";
+  }
+  if (roundedClass.includes("rounded-2xl")) {
+    return `${Math.min(height / 2, 16)}px`;
+  }
+  if (roundedClass.includes("rounded-3xl")) {
+    return `${Math.min(height / 2, 24)}px`;
+  }
+  for (const [cls, radius] of RADIUS_BY_CLASS) {
+    if (roundedClass.includes(cls)) return radius;
+  }
+  return "8px";
+}
+
+export function computeOuterHighlightStyle(
+  variant: TabVariant,
+  roundedClass: string,
+  height: number,
+  willChange: boolean,
+  contextHighlightStyle?: CSSProperties,
+): CSSProperties {
+  const baseRadius = resolveBaseRadius(variant, roundedClass, height);
+  return {
+    "--base-radius": baseRadius,
+    "--pill-h": `${height}px`,
+    ...contextHighlightStyle,
+    willChange: willChange ? "transform" : "auto",
+  } as CSSProperties;
 }

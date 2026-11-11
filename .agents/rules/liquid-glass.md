@@ -17,10 +17,11 @@ Import named exports directly from `src/components/LiquidGlass/`.
 
 | Component | Path | Use Case | Physics & Motion |
 |---|---|---|---|
-| `InteractiveGlass` | `src/components/LiquidGlass/LiquidGlass` | Cards, landmark containers, clickable surfaces (`CaseStudyCard`, `JournalEntry`, `FaqItem`, `ProcessDesktopCard`, `Skills` badges) | Dynamic desktop physics (tilt, magnetic pull, clamped specular glow, resting 1.0x scale, hold expansion, and dual-stage physical recoil) and mobile touch handling. |
-| `StaticGlass` | `src/components/LiquidGlass/LiquidGlassStatic` | Non-interactive containers, toolbars, controls, layout shells (`ProcessMobileControls`) | Zero physics overhead. Stripped of motion listeners and spring calculations for optimal performance. |
-| `LiquidGlassButton` | `src/components/LiquidGlass/LiquidGlass` | Tactile interactive buttons and anchor links | Pre-configured `InteractiveGlass` with `as={href ? "a" : "button"}`, resting 1.0x scale, hold-expansion physics, magnetic pull, and keyboard accessibility. |
-| `Tabs`, `Tab` | `src/components/LiquidGlass/LiquidGlassTabs` | Segmented controls, filter bars, view switchers | Sliding highlight pill with spring physics, 2 variants (`"capsule"` and `"segmented"`), and keyboard navigation. |
+| `InteractiveGlass` | `src/components/LiquidGlass/Glass` | Cards, landmark containers, clickable surfaces (`CaseStudyCard`, `JournalEntry`, `FaqItem`, `ProcessDesktopCard`, `Skills` badges) | Dynamic desktop physics (tilt, magnetic pull, clamped specular glow, resting 1.0x scale, hold expansion, and dual-stage physical recoil) and mobile touch handling. |
+| `StaticGlass` | `src/components/LiquidGlass/StaticGlass` | Non-interactive containers, toolbars, controls, layout shells (`ProcessMobileControls`) | Zero physics overhead. Stripped of motion listeners and spring calculations for optimal performance. |
+| `LiquidGlassButton` | `src/components/LiquidGlass/Button` | Tactile interactive buttons and anchor links | Pre-configured `InteractiveGlass` with `as={href ? "a" : "button"}`, resting 1.0x scale, hold-expansion physics, magnetic pull, and keyboard accessibility. |
+| `Tabs`, `Tab` | `src/components/LiquidGlass/Tabs` | Segmented controls, filter bars, view switchers | Sliding highlight pill with spring physics, 2 variants (`"capsule"` and `"segmented"`), and keyboard navigation. |
+| `DraggableTabs`, `DraggableTab` | `src/components/LiquidGlass/DraggableTabs` | Top navigation bars with interactive draggable pill (`Navbar`) | Extends `Tabs`/`Tab` behavior with pointer-draggable active highlight pill and rubber-band overscroll on desktop. |
 
 ### Anti-Patterns and Prohibitions
 
@@ -42,7 +43,9 @@ Import named exports directly from `src/components/LiquidGlass/`.
    - Use `StaticGlass` for layout shells, fixed toolbars, and non-interactive containers.
    - Use `Tabs` and `Tab` for segmented controls, filter bars, and view switchers.
 2. **Named Imports**:
-   - Use named imports: `import { InteractiveGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";`
+   - Use named imports from each primitive's module:
+     `import { InteractiveGlass } from "../LiquidGlass/Glass";`
+     `import { LiquidGlassButton } from "../LiquidGlass/Button";`
    - Avoid namespace-style access (`LiquidGlass.Button`).
 3. **Props Allocation**:
    - Reserve physics props (`springScale`, `tilt`, `magnetic`, `magneticStrength`) for `InteractiveGlass` and `LiquidGlassButton`.

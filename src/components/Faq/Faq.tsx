@@ -2,10 +2,8 @@ import { memo, useCallback } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowDown } from "lucide-react";
 import { Accordion } from "@base-ui/react/accordion";
-import {
-  InteractiveGlass,
-  LiquidGlassButton,
-} from "../LiquidGlass/LiquidGlass";
+import { InteractiveGlass } from "../LiquidGlass/Glass";
+import { LiquidGlassButton } from "../LiquidGlass/Button";
 import { FaqItem } from "./FaqItem";
 import { FAQ_ITEMS } from "../../data/faqData";
 import { isBoneyardBuild } from "../../utils/boneyard";

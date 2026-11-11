@@ -8,7 +8,12 @@ import {
 } from "react";
 import { useStore } from "zustand";
 import { animate, useMotionValue, useSpring } from "motion/react";
-import { SPRING } from "../../utils/springConfig";
+import { SPRING } from "../../../utils/springConfig";
+import type {
+  TabGeometry,
+  TabValue,
+  TabsPhysicsController,
+} from "./liquidGlassStore";
 import {
   APPLE_DECELERATION_RATE,
   BASE_PILL_HEIGHT,
@@ -19,10 +24,7 @@ import {
   interpolateTabField,
   projectMomentum,
   resolveNearestTab,
-  type TabGeometry,
-  type TabValue,
-  type TabsPhysicsController,
-} from "./liquidGlassStore";
+} from "./tabDragPhysics";
 
 const LIVE_PILL_HIT_SLOP = 8;
 const CLICK_SUPPRESS_MS = 120;

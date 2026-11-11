@@ -1,17 +1,17 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import type { LiquidGlassDomProps } from "../types";
+import type { LiquidGlassDomProps } from "../internal/types";
 import {
   resolveGlassSurfaceProps,
   TAP_PRESS_TRANSITION,
   TAP_RELEASE_TRANSITION,
   computeGlisseBaseScale,
   computeReactiveSheenBoxShadow,
-} from "../liquidGlassUtils";
+} from "../internal/liquidGlassUtils";
 import {
   computeAnisotropicStretch,
   createGlassGestureEngine,
-} from "../useLiquidGlassPhysics";
-import { glassFeel, INNER_GLASS_STYLE } from "../config";
+} from "../internal/useLiquidGlassPhysics";
+import { glassFeel, INNER_GLASS_STYLE } from "../internal/config";
 import { SPRING } from "../../../utils/springConfig";
 
 describe("LiquidGlass gesture physics engine, surface resolution, and stretch math", () => {

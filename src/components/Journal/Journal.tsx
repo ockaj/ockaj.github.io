@@ -4,7 +4,7 @@ import { ARTICLES, ARTICLES_BY_ID } from "../../data/articles";
 import { useEntityModal } from "../../hooks/useEntityModal";
 import JournalEntry from "./JournalEntry";
 import JournalDrawer from "./JournalDrawer";
-import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
+import { InteractiveGlass } from "../LiquidGlass/Glass";
 
 import { isBoneyardBuild } from "../../utils/boneyard";
 import {

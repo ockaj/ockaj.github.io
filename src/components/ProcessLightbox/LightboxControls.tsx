@@ -6,7 +6,7 @@ import {
   useTransformEffect,
 } from "react-zoom-pan-pinch";
 import { Plus, Minus, X } from "lucide-react";
-import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import { LiquidGlassButton } from "../LiquidGlass/Button";
 
 interface LightboxControlsProps {
   isMobile: boolean;

@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { ArrowUpRight } from "lucide-react";
 import type { CaseStudyDetail } from "../../data/caseStudies";
-import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
+import { InteractiveGlass } from "../LiquidGlass/Glass";
 import MetricCountUp from "./MetricCountUp";
 
 interface CardProps {

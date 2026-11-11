@@ -8,8 +8,8 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { clamp, frame, useMotionValue, useSpring } from "motion/react";
-import { useResizeObserver } from "../../hooks/useResizeObserver";
-import { SPRING } from "../../utils/springConfig";
+import { useResizeObserver } from "../../../hooks/useResizeObserver";
+import { SPRING } from "../../../utils/springConfig";
 import { tilt as tiltConfig, glassFeel } from "./config";
 import { getEntryDimensions } from "./liquidGlassUtils";
 

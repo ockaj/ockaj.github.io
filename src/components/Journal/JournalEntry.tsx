@@ -2,7 +2,7 @@ import { memo } from "react";
 import { Avatar } from "@base-ui/react/avatar";
 import { Clock, ArrowUpRight, FileText } from "lucide-react";
 import type { Article } from "../../data/articles";
-import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
+import { InteractiveGlass } from "../LiquidGlass/Glass";
 
 interface EntryProps {
   article: Article;

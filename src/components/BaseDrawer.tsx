@@ -17,7 +17,7 @@ import {
   PanInfo,
 } from "motion/react";
 import { X } from "lucide-react";
-import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
+import { LiquidGlassButton } from "./LiquidGlass/Button";
 import { SPRING } from "../utils/springConfig";
 import {
   getBackdropTransition,

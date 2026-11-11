@@ -1,6 +1,6 @@
 import { type CSSProperties } from "react";
 import { motion, type MotionValue } from "motion/react";
-import { cn } from "../../utils/cn";
+import { cn } from "../../../utils/cn";
 
 export function InnerBorderOverlay({
   borderActiveClasses,

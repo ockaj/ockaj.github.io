@@ -7,7 +7,7 @@ import {
 } from "../../data/processItems";
 import { useEntityModal } from "../../hooks/useEntityModal";
 import ProcessLightbox from "../ProcessLightbox/ProcessLightbox";
-import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
+import { InteractiveGlass } from "../LiquidGlass/Glass";
 import { prefetchAsset } from "../../utils/quicklink";
 import { requestIdle, cancelIdle } from "../../utils/idleCallback";
 import { isConnectionConstrained } from "../../utils/connection";

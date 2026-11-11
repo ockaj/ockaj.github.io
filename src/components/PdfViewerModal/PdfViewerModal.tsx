@@ -9,8 +9,8 @@ import {
   Loader2,
   Sparkles,
 } from "lucide-react";
-import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
-import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
+import { LiquidGlassButton } from "../LiquidGlass/Button";
+import { Tabs, Tab } from "../LiquidGlass/Tabs";
 import {
   useIsMobile,
   usePrefersReducedMotion,

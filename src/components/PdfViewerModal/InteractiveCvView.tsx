@@ -1,9 +1,9 @@
 import { memo, useCallback } from "react";
 import { motion, LayoutGroup } from "motion/react";
 import { Mail, Phone, MapPin, Languages } from "lucide-react";
-import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
-import { StaticGlass } from "../LiquidGlass/LiquidGlassStatic";
-import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
+import { LiquidGlassButton } from "../LiquidGlass/Button";
+import { StaticGlass } from "../LiquidGlass/StaticGlass";
+import { Tabs, Tab } from "../LiquidGlass/Tabs";
 import { usePrefersReducedMotion } from "../../hooks/useMediaQuery";
 import { SPRING } from "../../utils/springConfig";
 import { cn } from "../../utils/cn";

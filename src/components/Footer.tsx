@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { ArrowUp } from "lucide-react";
-import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
+import { LiquidGlassButton } from "./LiquidGlass/Button";
 import { isReducedMotionPreferred } from "../hooks/useMediaQuery";
 
 function scrollToTop(): void {

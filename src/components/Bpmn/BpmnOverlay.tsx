@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Dialog } from "@base-ui/react/dialog";
 import { Toast } from "@base-ui/react/toast";
 import { X } from "lucide-react";
-import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import { LiquidGlassButton } from "../LiquidGlass/Button";
 import BpmnHotkeyToast from "./BpmnHotkeyToast";
 import BpmnDiagram from "./BpmnDiagram";
 import { getSessionStorageItem, setSessionStorageItem } from "./bpmnStorage";

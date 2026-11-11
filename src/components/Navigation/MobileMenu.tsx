@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
+import { Tabs, Tab } from "../LiquidGlass/Tabs";
 import {
   mobileMenuBackdropVariants,
   mobileMenuPanelVariants,

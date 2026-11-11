@@ -1,40 +1,10 @@
 import { memo } from "react";
-import { useIsMobile } from "../../hooks/useMediaQuery";
-import LiquidGlassMobile from "./LiquidGlassMobile";
-import LiquidGlassDesktop from "./LiquidGlassDesktop";
-import {
-  type InteractiveGlassPropsWithRef,
-  type GlassButtonPropsWithRef,
-} from "./types";
+import { InteractiveGlass } from "./Glass";
+import { type GlassButtonPropsWithRef } from "./internal/types";
 
 /**
- * Dynamic glass surface with desktop physics and mobile touch support.
+ * Tactile glass button and anchor primitive with physical spring feedback.
  */
-export const InteractiveGlass = memo(function InteractiveGlass({
-  ref,
-  magnetic,
-  tilt,
-  magneticStrength,
-  ...props
-}: Readonly<InteractiveGlassPropsWithRef>) {
-  const isMobile = useIsMobile();
-
-  if (isMobile) {
-    return <LiquidGlassMobile ref={ref} {...props} />;
-  }
-  return (
-    <LiquidGlassDesktop
-      ref={ref}
-      magnetic={magnetic}
-      tilt={tilt}
-      magneticStrength={magneticStrength}
-      {...props}
-    />
-  );
-});
-
-InteractiveGlass.displayName = "InteractiveGlass";
-
 export const LiquidGlassButton = memo(function LiquidGlassButton({
   href,
   springScale,
@@ -62,4 +32,5 @@ export const LiquidGlassButton = memo(function LiquidGlassButton({
     />
   );
 });
+
 LiquidGlassButton.displayName = "LiquidGlassButton";

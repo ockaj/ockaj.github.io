@@ -8,7 +8,7 @@ import {
   Palette,
   FileText,
 } from "lucide-react";
-import { InteractiveGlass } from "./LiquidGlass/LiquidGlass";
+import { InteractiveGlass } from "./LiquidGlass/Glass";
 import BpmnNodeBadge from "./Bpmn/BpmnNodeBadge";
 import { isBoneyardBuild } from "../utils/boneyard";
 import { cn } from "../utils/cn";

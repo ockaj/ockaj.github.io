@@ -7,8 +7,8 @@ import {
   useMemo,
 } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
-import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import { Tabs, Tab } from "../LiquidGlass/Tabs";
+import { LiquidGlassButton } from "../LiquidGlass/Button";
 import { ChevronDown } from "lucide-react";
 import { PROCESS_TOPICS } from "../../data/processItems";
 import { cn } from "../../utils/cn";

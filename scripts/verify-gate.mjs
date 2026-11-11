@@ -72,7 +72,9 @@ for (const [
 ] of featureRules.entries()) {
   const documentedNames = new Set();
   for (const ref of [...publicEntries, ...privateEntries]) {
-    const modName = ref.includes("/") ? ref.split("/")[1] : ref;
+    const modName = ref.startsWith(`${featureDir}/`)
+      ? ref.slice(featureDir.length + 1)
+      : ref;
     documentedNames.add(modName);
     const relBase = `src/components/${featureDir}/${modName}`;
     const exists =
@@ -87,23 +89,31 @@ for (const [
     }
   }
 
-  const absFeatureDir = path.join(ROOT, "src/components", featureDir);
-  if (fs.existsSync(absFeatureDir)) {
-    for (const entry of fs.readdirSync(absFeatureDir, {
-      withFileTypes: true,
-    })) {
-      if (entry.isDirectory()) continue;
+  function collectFeatureModules(absDir, relPrefix = "") {
+    if (!fs.existsSync(absDir)) return;
+    for (const entry of fs.readdirSync(absDir, { withFileTypes: true })) {
+      if (entry.isDirectory()) {
+        if (entry.name === "__tests__") continue;
+        const nextPrefix = relPrefix
+          ? `${relPrefix}/${entry.name}`
+          : entry.name;
+        collectFeatureModules(path.join(absDir, entry.name), nextPrefix);
+        continue;
+      }
       if (!entry.name.endsWith(".ts") && !entry.name.endsWith(".tsx")) continue;
       const stem = entry.name.replace(/\.(?:ts|tsx)$/, "");
-      if (!documentedNames.has(stem)) {
+      const modRef = relPrefix ? `${relPrefix}/${stem}` : stem;
+      if (!documentedNames.has(modRef)) {
         fail(
           "Undocumented Feature Module",
-          `src/components/${featureDir}/${entry.name}`,
-          `Module "${stem}" is missing from .agents/rules/component-imports.md table.`,
+          `src/components/${featureDir}/${modRef}${path.extname(entry.name)}`,
+          `Module "${modRef}" is missing from .agents/rules/component-imports.md table.`,
         );
       }
     }
   }
+
+  collectFeatureModules(path.join(ROOT, "src/components", featureDir));
 }
 
 // 2. Repo-Wide Source File Invariants (Seam Discipline, Error Handling, React 19, Anti-Bloat)
@@ -342,11 +352,15 @@ for (const [file, content] of allSourceCorpus.entries()) {
 
   // Nested Interactive HTML in TSX
   if (file.endsWith(".tsx")) {
-    if (/<Tab\b[\s\S]*?<button\b[\s\S]*?<\/Tab>/.test(content)) {
+    if (
+      /<(?:Tab|DraggableTab)\b[\s\S]*?<button\b[\s\S]*?<\/(?:Tab|DraggableTab)>/.test(
+        content,
+      )
+    ) {
       fail(
         "Valid HTML Nesting",
         file,
-        "Do not nest a <button> element inside a <Tab> button.",
+        "Do not nest a <button> element inside a <Tab> or <DraggableTab> button.",
       );
     }
     if (/<button\b[^>]*>[\s\S]*?<button\b[\s\S]*?<\/button>/.test(content)) {

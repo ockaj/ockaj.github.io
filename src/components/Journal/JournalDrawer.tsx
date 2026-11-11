@@ -2,7 +2,7 @@ import { memo } from "react";
 import { motion } from "motion/react";
 import { BookOpen, MessageSquare } from "lucide-react";
 import type { Article } from "../../data/articles";
-import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import { LiquidGlassButton } from "../LiquidGlass/Button";
 import BaseDrawer from "../BaseDrawer";
 import {
   drawerContentVariants,

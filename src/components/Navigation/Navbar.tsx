@@ -2,8 +2,8 @@ import { useEffect, useCallback, useState, useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Avatar } from "@base-ui/react/avatar";
 import { Menu, X } from "lucide-react";
-import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
-import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
+import { LiquidGlassButton } from "../LiquidGlass/Button";
+import { DraggableTabs, DraggableTab } from "../LiquidGlass/DraggableTabs";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import { useModal, navigateTo } from "../../hooks/useAppNavigation";
 import { useAppStore } from "../../store/useAppStore";
@@ -133,16 +133,15 @@ export default function Navbar() {
             scrolled && "bg-surface/60",
           )}
         >
-          <Tabs
+          <DraggableTabs
             value={active}
             onChange={handleNav}
             layoutId="active-nav-highlight"
-            draggablePill={!isMobile}
             role={null}
             className="flex items-center gap-1 md:gap-1.5"
           >
             {/* Home Button (Avatar + Name) */}
-            <Tab
+            <DraggableTab
               value="home"
               tabIndex={0}
               highlightClassName="hidden md:block"
@@ -169,12 +168,12 @@ export default function Navbar() {
               <span className="xs:max-w-none max-w-35 truncate py-0.5 text-sm leading-normal font-semibold">
                 Ondrej Michal Očkaj
               </span>
-            </Tab>
+            </DraggableTab>
 
             {/* Nav links (Desktop Only) */}
             <div className="hidden items-center gap-0.5 md:flex">
               {NAV_LINKS.map((link) => (
-                <Tab
+                <DraggableTab
                   key={link.id}
                   value={link.id}
                   tabIndex={0}
@@ -182,20 +181,20 @@ export default function Navbar() {
                   activeClassName="text-text-primary"
                 >
                   <span>{link.label}</span>
-                </Tab>
+                </DraggableTab>
               ))}
 
               {/* Contact link (Desktop Only) */}
-              <Tab
+              <DraggableTab
                 value="contact"
                 tabIndex={0}
                 className="relative z-10 rounded-full px-3 py-1.5 text-sm text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset md:px-4.75 md:py-2.75"
                 activeClassName="text-text-primary"
               >
                 <span>Contact</span>
-              </Tab>
+              </DraggableTab>
             </div>
-          </Tabs>
+          </DraggableTabs>
 
           {/* Hamburger Menu Toggle (Mobile Only) */}
           <div className="flex md:hidden">

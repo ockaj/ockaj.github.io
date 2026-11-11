@@ -1,8 +1,8 @@
 import { type ElementType, type Ref } from "react";
 import { cn } from "../../utils/cn";
-import { INNER_GLASS_STYLE } from "./config";
-import { type StaticGlassPropsWithRef } from "./types";
-import { InnerBorderOverlay } from "./LiquidGlassOverlays";
+import { INNER_GLASS_STYLE } from "./internal/config";
+import { type StaticGlassPropsWithRef } from "./internal/types";
+import { InnerBorderOverlay } from "./internal/LiquidGlassOverlays";
 
 /**
  * Static glass surface with layout and styling properties.

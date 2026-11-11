@@ -4,7 +4,7 @@ import { CASE_STUDIES, CASE_STUDIES_BY_ID } from "../../data/caseStudies";
 import { useEntityModal } from "../../hooks/useEntityModal";
 import CaseStudyCard from "./CaseStudyCard";
 import CaseStudyDrawer from "./CaseStudyDrawer";
-import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
+import { InteractiveGlass } from "../LiquidGlass/Glass";
 import { isBoneyardBuild } from "../../utils/boneyard";
 import {
   containerStaggerVariants,

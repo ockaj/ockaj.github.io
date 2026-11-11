@@ -49,7 +49,7 @@ Feature modules encapsulate internal implementation. ESLint (`no-restricted-impo
 | `Navigation` | `Navigation/Navbar` | `MobileMenu` |
 | `PdfViewerModal` | `PdfViewerModal/PdfViewerModal` | `InteractiveCvView` |
 | `Bpmn` | `Bpmn/BpmnOverlay`, `Bpmn/BpmnNodeBadge` | `BpmnDiagram`, `BpmnHotkeyToast`, `bpmnStorage` |
-| `LiquidGlass` | `LiquidGlass/LiquidGlass`, `LiquidGlass/LiquidGlassStatic`, `LiquidGlass/LiquidGlassTabs` | `config`, `liquidGlassStore`, `liquidGlassUtils`, `Ripple`, `types`, `useRipple`, `useLiquidGlassPhysics`, `LiquidGlassDesktop`, `LiquidGlassMobile`, `LiquidGlassOverlays`, `DraggableTabHighlight`, `useDraggableTabs` |
+| `LiquidGlass` | `LiquidGlass/Glass`, `LiquidGlass/Button`, `LiquidGlass/StaticGlass`, `LiquidGlass/Tabs`, `LiquidGlass/DraggableTabs` | `internal/config`, `internal/types`, `internal/liquidGlassStore`, `internal/tabDragPhysics`, `internal/liquidGlassUtils`, `internal/useLiquidGlassPhysics`, `internal/LiquidGlassDesktop`, `internal/LiquidGlassMobile`, `internal/LiquidGlassOverlays`, `internal/Ripple`, `internal/useRipple`, `internal/TabsShell`, `internal/TabButton`, `internal/TabHighlight`, `internal/DraggableTabHighlight`, `internal/useDraggableTabs` |
 
 Cross-cutting UI primitives live directly in `src/components/` (e.g. `BaseDrawer.tsx`, `Tooltip.tsx`, `LazySection.tsx`).
 
@@ -59,10 +59,12 @@ Cross-cutting UI primitives live directly in `src/components/` (e.g. `BaseDrawer
 
 Import LiquidGlass primitives via named exports from their specific public modules:
 
-- **Interactive Surface Primitives**: Import `InteractiveGlass` and `LiquidGlassButton` from [`src/components/LiquidGlass/LiquidGlass`](../../src/components/LiquidGlass/LiquidGlass.tsx).
-- **Static Surface Primitive**: Import `StaticGlass` from [`src/components/LiquidGlass/LiquidGlassStatic`](../../src/components/LiquidGlass/LiquidGlassStatic.tsx).
-- **Tab Primitives**: Import `Tabs` and `Tab` from [`src/components/LiquidGlass/LiquidGlassTabs`](../../src/components/LiquidGlass/LiquidGlassTabs.tsx).
-- **Encapsulation**: Avoid namespace access (`LiquidGlass.Button`). Import internal types, physics hooks, ripples, or overlay files only within `src/components/LiquidGlass/`.
+- **Interactive Surface Primitive**: Import `InteractiveGlass` from [`src/components/LiquidGlass/Glass`](../../src/components/LiquidGlass/Glass.tsx).
+- **Button Primitive**: Import `LiquidGlassButton` from [`src/components/LiquidGlass/Button`](../../src/components/LiquidGlass/Button.tsx).
+- **Static Surface Primitive**: Import `StaticGlass` from [`src/components/LiquidGlass/StaticGlass`](../../src/components/LiquidGlass/StaticGlass.tsx).
+- **Tab Primitives**: Import `Tabs` and `Tab` from [`src/components/LiquidGlass/Tabs`](../../src/components/LiquidGlass/Tabs.tsx).
+- **Draggable Tab Primitives**: Import `DraggableTabs` and `DraggableTab` from [`src/components/LiquidGlass/DraggableTabs`](../../src/components/LiquidGlass/DraggableTabs.tsx).
+- **Encapsulation**: Avoid namespace access (`LiquidGlass.Button`). Everything inside `src/components/LiquidGlass/internal/` is private; import internal types, physics hooks, ripples, tab shells, or overlay files only within `src/components/LiquidGlass/`.
 
 For component selection criteria, physics, and props allocation, see [LiquidGlass Rules](./liquid-glass.md).
 

@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { SPRING } from "../../utils/springConfig";
+import { SPRING } from "../../../utils/springConfig";
 
 const CHROMATIC_DISPERSION =
   "inset 0 1.5px 2px -0.5px var(--color-dispersion-cyan), inset 0 -1.5px 2px -0.5px var(--color-dispersion-amber)";
@@ -45,5 +45,3 @@ export const hoverDelta = {
   mobile: 1.5,
   desktop: 2.5,
 } as const;
-
-

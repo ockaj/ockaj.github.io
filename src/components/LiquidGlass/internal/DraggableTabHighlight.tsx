@@ -2,7 +2,7 @@ import { memo, useLayoutEffect, useMemo, type CSSProperties } from "react";
 import { useStore } from "zustand";
 import { useShallow } from "zustand/react/shallow";
 import { animate, motion, useTransform, type MotionValue } from "motion/react";
-import { cn } from "../../utils/cn";
+import { cn } from "../../../utils/cn";
 import Ripple from "./Ripple";
 import {
   CAPSULE_HIGHLIGHT_RADIUS,
@@ -10,18 +10,20 @@ import {
 } from "./liquidGlassUtils";
 import type { TabOrientation } from "./types";
 import {
-  BASE_PILL_HEIGHT,
-  BASE_PILL_WIDTH,
   REF_VELOCITY,
   computeDragVelocityScaleX,
-  computeDragVelocityScaleY,
   computeTabSnapshotFromSlice,
-  interpolateTabField,
   selectTabSnapshotSlice,
   type ReadonlyTabsStore,
   type TabGeometry,
   type TabValue,
 } from "./liquidGlassStore";
+import {
+  BASE_PILL_HEIGHT,
+  BASE_PILL_WIDTH,
+  computeDragVelocityScaleY,
+  interpolateTabField,
+} from "./tabDragPhysics";
 
 interface DraggableTabHighlightProps {
   store: ReadonlyTabsStore;

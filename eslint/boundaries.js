@@ -51,9 +51,9 @@ const featureBoundaryPatterns = [
   },
   {
     regex:
-      "(?:^|[./])LiquidGlass/(?!(?:LiquidGlass|LiquidGlassStatic|LiquidGlassTabs)(?:\\.tsx?)?$)",
+      "(?:^|[./])LiquidGlass/(?!(?:Glass|Button|StaticGlass|Tabs|DraggableTabs)(?:\\.tsx?)?$)",
     message:
-      "Deep Module Violation: Private child components of LiquidGlass cannot be imported from outside. Import only from LiquidGlass/LiquidGlass, LiquidGlass/LiquidGlassStatic, or LiquidGlass/LiquidGlassTabs. See .agents/rules/component-imports.md.",
+      "Deep Module Violation: Private child components of LiquidGlass cannot be imported from outside. Import only from LiquidGlass/Glass, LiquidGlass/Button, LiquidGlass/StaticGlass, LiquidGlass/Tabs, or LiquidGlass/DraggableTabs. See .agents/rules/component-imports.md.",
   },
 ];
 

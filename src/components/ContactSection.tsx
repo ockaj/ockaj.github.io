@@ -2,7 +2,7 @@ import { memo } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import BpmnNodeBadge from "./Bpmn/BpmnNodeBadge";
-import { LiquidGlassButton } from "./LiquidGlass/LiquidGlass";
+import { LiquidGlassButton } from "./LiquidGlass/Button";
 import { CONTACT_EMAIL } from "../constants/contact";
 
 import {

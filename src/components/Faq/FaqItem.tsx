@@ -1,10 +1,8 @@
 import { memo, useCallback } from "react";
 import { ChevronDown, ArrowUpRight } from "lucide-react";
 import { Accordion } from "@base-ui/react/accordion";
-import {
-  InteractiveGlass,
-  LiquidGlassButton,
-} from "../LiquidGlass/LiquidGlass";
+import { InteractiveGlass } from "../LiquidGlass/Glass";
+import { LiquidGlassButton } from "../LiquidGlass/Button";
 import { useAppStore } from "../../store/useAppStore";
 import { navigateTo } from "../../hooks/useAppNavigation";
 import { cn } from "../../utils/cn";

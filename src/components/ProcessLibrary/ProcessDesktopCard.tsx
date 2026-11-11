@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { motion, AnimatePresence, type Variants } from "motion/react";
-import { InteractiveGlass } from "../LiquidGlass/LiquidGlass";
+import { InteractiveGlass } from "../LiquidGlass/Glass";
 import ProcessCardHeader from "./ProcessCardHeader";
 import ProcessVariantStage from "./ProcessVariantStage";
 import {

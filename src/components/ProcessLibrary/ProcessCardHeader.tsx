@@ -1,5 +1,5 @@
 import { memo, useCallback } from "react";
-import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
+import { Tabs, Tab } from "../LiquidGlass/Tabs";
 import { cn } from "../../utils/cn";
 
 interface ProcessCardHeaderProps {
