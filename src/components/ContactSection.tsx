@@ -66,7 +66,7 @@ function ContactSection() {
                 <LiquidGlassButton
                   href={`mailto:${CONTACT_EMAIL}`}
                   className="group/email-btn w-full justify-center px-4 py-3.5 text-sm sm:w-auto sm:px-8 sm:py-4 sm:text-base sm:whitespace-nowrap"
-                  ariaLabel="Send email"
+                  ariaLabel={`Send email to ${CONTACT_EMAIL}`}
                   magnetic
                   tilt
                   magneticStrength={0.02}

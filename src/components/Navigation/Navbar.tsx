@@ -147,7 +147,7 @@ export default function Navbar() {
               highlightClassName="hidden md:block"
               className="relative z-10 flex items-center gap-2 rounded-full py-1.5 pr-3 pl-1.5 text-sm text-muted transition-colors duration-200 select-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset md:py-2.25 md:pr-3.75 md:pl-2.25"
               activeClassName="text-text-primary"
-              aria-label="Home"
+              aria-label="Ondrej Michal Očkaj — Home"
             >
               <Avatar.Root className="relative z-10 flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/5 bg-bg">
                 <Avatar.Image
@@ -203,7 +203,7 @@ export default function Navbar() {
               onClick={handleToggle}
               aria-label={isOpen ? "Close menu" : "Open menu"}
               aria-expanded={isOpen}
-              aria-controls="mobile-nav-panel"
+              aria-controls={isOpen ? "mobile-nav-panel" : undefined}
               className="size-11 p-0"
             >
               <span className="pointer-events-none relative flex size-4 items-center justify-center">

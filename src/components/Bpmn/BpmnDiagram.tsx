@@ -112,9 +112,10 @@ function BpmnTaskNode({
 }: Readonly<BpmnTaskNodeProps>) {
   return (
     <g
+      role="button"
       className="group/node cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent focus-visible:outline-solid"
       tabIndex={0}
-      aria-label={ariaLabel}
+      aria-label={`${label} — ${ariaLabel}`}
       onClick={() => onTaskClick(sectionId)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {

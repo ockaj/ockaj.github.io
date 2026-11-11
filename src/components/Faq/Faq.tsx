@@ -88,7 +88,7 @@ function Faq() {
                   onClick={handleScrollToContact}
                   roundedClass="rounded-full"
                   className="group/contact-btn flex min-h-11 cursor-pointer items-center justify-center px-7 py-3 text-sm font-semibold whitespace-nowrap text-text-primary shadow-sm transition-colors"
-                  ariaLabel="Scroll down to contact section"
+                  ariaLabel="Get in Touch — scroll to contact section"
                   magnetic
                   tilt
                   magneticStrength={0.03}

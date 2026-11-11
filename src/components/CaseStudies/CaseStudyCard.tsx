@@ -104,7 +104,7 @@ const CaseStudyCard = memo(function CaseStudyCard({
                 e.stopPropagation();
                 onOpen(study);
               }}
-              aria-label={`View ${study.title} case study`}
+              aria-label={`View project: ${study.title}`}
               className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-accent transition-colors duration-200 group-hover:text-accent/80 focus-visible:underline focus-visible:outline-none"
             >
               <span>View project</span>

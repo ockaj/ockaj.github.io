@@ -81,6 +81,7 @@ function ProcessDesktopControls() {
             orientation="vertical"
             variant="segmented"
             roundedClass="rounded-2xl"
+            aria-label="Process topics"
             className="flex w-full flex-col justify-center gap-2.5"
           >
             {visibleTopics.map((topic, idx) => {
@@ -88,8 +89,9 @@ function ProcessDesktopControls() {
               return (
                 <Tab
                   key={topic.id}
+                  id={`tab-${topic.id}`}
                   value={topic.id}
-                  aria-controls={`tabpanel-${topic.id}`}
+                  aria-controls={isActive ? `tabpanel-${topic.id}` : undefined}
                   className={cn(
                     "group relative flex w-full cursor-pointer items-center gap-3.5 rounded-2xl px-7 py-4.5 text-left transition-colors duration-300 select-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:outline-none focus-visible:ring-inset",
                     isActive

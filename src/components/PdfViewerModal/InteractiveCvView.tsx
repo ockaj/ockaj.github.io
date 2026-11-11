@@ -537,6 +537,7 @@ export const InteractiveCvView = memo(function InteractiveCvView({
                 layoutId="cv-language-pill"
                 variant="segmented"
                 roundedClass="rounded-xl"
+                aria-label="CV language"
                 className="isolate inline-flex transform-gpu items-center rounded-xl bg-surface/80 p-1.25 shadow-inset-border backdrop-blur-md select-none"
               >
                 <Tab
