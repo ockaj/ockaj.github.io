@@ -348,6 +348,18 @@ function createQuadBuffers(gl: WebGL2RenderingContext): {
   return { vao, buffer };
 }
 
+function createAuroraResources(gl: WebGL2RenderingContext): {
+  program: AuroraProgram;
+  quad: { vao: WebGLVertexArrayObject; buffer: WebGLBuffer };
+} | null {
+  const program = createAuroraProgram(gl);
+  const quad = createQuadBuffers(gl);
+  if (!program || !quad.vao || !quad.buffer) {
+    return null;
+  }
+  return { program, quad: { vao: quad.vao, buffer: quad.buffer } };
+}
+
 function updatePointerFollow(
   dt: number,
   pointer: { x: number; y: number; inside: boolean },
@@ -762,9 +774,8 @@ function useAuroraCanvas(
         console.log("[DevTools] WebGL Context Restored event received!");
       }
       try {
-        const nextProgram = createAuroraProgram(activeGl);
-        const nextQuad = createQuadBuffers(activeGl);
-        if (!nextProgram || !nextQuad.vao || !nextQuad.buffer) {
+        const restored = createAuroraResources(activeGl);
+        if (!restored) {
           console.warn(
             "WebGL resource restoration failed. Maintaining SVG fallback.",
           );
@@ -772,8 +783,8 @@ function useAuroraCanvas(
           setIsContextLost(true);
           return;
         }
-        programData = nextProgram;
-        quadData = nextQuad;
+        programData = restored.program;
+        quadData = restored.quad;
         prevStops = null;
         configDirty = true;
         isContextLostRef.current = false;
