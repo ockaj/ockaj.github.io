@@ -9,11 +9,24 @@ import { type MotionStyle } from "motion/react";
 
 export const DEFAULT_STYLE: CSSProperties = {};
 
+type NonInteractiveHtmlProps =
+  | "as"
+  | "onClick"
+  | "href"
+  | "download"
+  | "target"
+  | "rel"
+  | "type"
+  | "disabled";
+
 /**
  * Pure layout and glass styling properties.
  * Does not include physics or motion properties.
  */
-interface StaticGlassProps extends AllHTMLAttributes<HTMLElement> {
+interface StaticGlassProps extends Omit<
+  AllHTMLAttributes<HTMLElement>,
+  NonInteractiveHtmlProps
+> {
   children?: ReactNode;
   as?: "div" | "span";
   className?: string;
@@ -31,6 +44,8 @@ interface InteractiveGlassProps extends Omit<StaticGlassProps, "as"> {
   download?: string;
   target?: string;
   rel?: string;
+  type?: "button" | "submit" | "reset";
+  disabled?: boolean;
   ariaLabel?: string;
   onClick?: (e: MouseEvent<HTMLElement>) => void;
   springScale?: boolean;
@@ -59,6 +74,9 @@ export interface GlassButtonPropsWithRef extends GlassButtonProps {
 export interface LiquidGlassAnimationProps {
   whileTap?: unknown;
   transition?: unknown;
+  onTapStart?: () => void;
+  onTap?: () => void;
+  onTapCancel?: () => void;
   onMouseEnter?: (e: MouseEvent<HTMLElement>) => void;
   onMouseMove?: (e: MouseEvent<HTMLElement>) => void;
   onMouseLeave?: (e: MouseEvent<HTMLElement>) => void;
@@ -83,6 +101,9 @@ export interface LiquidGlassTagProps extends Omit<
   style?: MotionStyle | CSSProperties;
   whileTap?: unknown;
   transition?: unknown;
+  onTapStart?: () => void;
+  onTap?: () => void;
+  onTapCancel?: () => void;
 }
 
 export type TabOrientation = "horizontal" | "vertical";

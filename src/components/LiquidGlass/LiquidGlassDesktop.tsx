@@ -52,6 +52,7 @@ function computeTagStyle(
   effectiveMagnetic: boolean,
   effectiveTilt: boolean,
   effectiveSpringScale: boolean,
+  isActive: boolean,
   springPullX: MotionValue<number>,
   springPullY: MotionValue<number>,
   springTiltX: MotionValue<number>,
@@ -61,10 +62,12 @@ function computeTagStyle(
 ): MotionStyle {
   const hasTransform =
     effectiveMagnetic || effectiveTilt || effectiveSpringScale;
+  const activeWillChange = isActive ? "transform" : "auto";
+  const resolvedWillChange = hasTransform ? activeWillChange : undefined;
   return {
     WebkitBackfaceVisibility: hasTransform ? "hidden" : undefined,
     backfaceVisibility: hasTransform ? "hidden" : undefined,
-    willChange: style?.willChange ?? (hasTransform ? "transform" : undefined),
+    willChange: style?.willChange ?? resolvedWillChange,
     x: effectiveMagnetic ? springPullX : undefined,
     y: effectiveMagnetic ? springPullY : undefined,
     scaleX: effectiveSpringScale ? springScaleX : undefined,
@@ -146,6 +149,8 @@ export default function LiquidGlassDesktop({
 
   const handleKeyDown = useKeyboardClick(onClick);
 
+  const isPhysicsActive = physics.isHovered || physics.isHolding;
+
   const tagStyle = useMemo(
     () =>
       computeTagStyle(
@@ -153,6 +158,7 @@ export default function LiquidGlassDesktop({
         effectiveMagnetic,
         effectiveTilt,
         effectiveSpringScale,
+        isPhysicsActive,
         physics.springPullX,
         physics.springPullY,
         physics.springTiltX,
@@ -165,6 +171,7 @@ export default function LiquidGlassDesktop({
       effectiveMagnetic,
       effectiveTilt,
       effectiveSpringScale,
+      isPhysicsActive,
       physics.springPullX,
       physics.springPullY,
       physics.springTiltX,
@@ -221,7 +228,7 @@ export default function LiquidGlassDesktop({
     target,
     rel,
     ariaLabel,
-    onClick: handleClick,
+    onClick: href || onClick ? handleClick : undefined,
     onKeyDown: handleKeyDown,
     className,
     innerClassName,

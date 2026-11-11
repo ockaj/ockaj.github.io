@@ -1,13 +1,8 @@
-import { type CSSProperties, type ElementType, type Ref } from "react";
+import { type ElementType, type Ref } from "react";
 import { cn } from "../../utils/cn";
 import { INNER_GLASS_STYLE } from "./config";
 import { type StaticGlassPropsWithRef } from "./types";
 import { InnerBorderOverlay } from "./LiquidGlassOverlays";
-
-const STATIC_BACKFACE_STYLE: CSSProperties = {
-  WebkitBackfaceVisibility: "hidden",
-  backfaceVisibility: "hidden",
-};
 
 /**
  * Static glass surface with layout and styling properties.
@@ -25,15 +20,12 @@ export function StaticGlass({
   const isInline = as === "span";
   const ContentTag = isInline ? "span" : "div";
   const Tag = as as ElementType;
-  const tagStyle = style
-    ? { ...STATIC_BACKFACE_STYLE, ...style }
-    : STATIC_BACKFACE_STYLE;
 
   return (
     <Tag
-      ref={ref as Ref<HTMLDivElement>}
+      ref={ref as Ref<HTMLDivElement | HTMLSpanElement>}
       draggable={false}
-      style={tagStyle}
+      style={style}
       className={cn(
         "group relative isolate inline-flex cursor-default items-center justify-center overflow-hidden bg-surface/35 text-text-primary backdrop-blur-sm backdrop-saturate-150 select-none [-webkit-user-drag:none] [user-drag:none] md:backdrop-blur-lg",
         roundedClass,

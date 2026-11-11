@@ -51,7 +51,7 @@ export function useKeyboardClick(
   );
 }
 
-const SEMANTIC_CONTAINERS = new Set(["article"]);
+export const SEMANTIC_CONTAINERS = new Set(["article"]);
 
 export const TAG_MAP: { readonly [tag: string]: ElementType | undefined } = {
   a: motion.a,
@@ -109,23 +109,33 @@ function applyInteractiveElementProps(
   onClick: unknown,
   onKeyDown: ((e: KeyboardEvent<HTMLElement>) => void) | undefined,
   domProps: LiquidGlassDomProps | undefined,
+  isDisabled: boolean,
 ): void {
   if (href) {
     tagProps.href = href;
     tagProps.download = download;
     tagProps.target = target;
     tagProps.rel = rel;
-    tagProps.onClick = onClick as MouseEventHandler<HTMLAnchorElement>;
+    tagProps.onClick = isDisabled
+      ? undefined
+      : (onClick as MouseEventHandler<HTMLAnchorElement>);
     return;
   }
 
   if (as === "button") {
-    tagProps.type = "button";
-    tagProps.onClick = onClick as MouseEventHandler<HTMLButtonElement>;
+    tagProps.type = domProps?.type ?? "button";
+    tagProps.onClick = isDisabled
+      ? undefined
+      : (onClick as MouseEventHandler<HTMLButtonElement>);
     return;
   }
 
-  if (!onClick) return;
+  if (isDisabled || !onClick) {
+    if (isDisabled) {
+      tagProps.onClick = undefined;
+    }
+    return;
+  }
 
   tagProps.onClick = onClick as MouseEventHandler<HTMLElement>;
   if (as !== "a" && !SEMANTIC_CONTAINERS.has(as)) {
@@ -153,7 +163,13 @@ export function resolveGlassSurfaceProps({
   domProps,
 }: GlassSurfaceOptions): ResolvedGlassSurface {
   const borderActiveClasses = resolveBorderActiveClass(isHovered);
-  const isInteractive = Boolean(as === "button" || href || onClick);
+  const isDisabled = Boolean(
+    domProps?.disabled ||
+      domProps?.["aria-disabled"] === true ||
+      domProps?.["aria-disabled"] === "true",
+  );
+  const isInteractive =
+    !isDisabled && Boolean(as === "button" || href || onClick);
   const cursorAndFocusClasses = isInteractive
     ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
     : "cursor-default";
@@ -198,6 +214,7 @@ export function resolveGlassSurfaceProps({
     onClick,
     onKeyDown,
     domProps,
+    isDisabled,
   );
 
   return {

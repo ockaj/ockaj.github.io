@@ -3,6 +3,7 @@ import {
   useRef,
   useCallback,
   useEffect,
+  useLayoutEffect,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
@@ -570,12 +571,20 @@ export function useLiquidGlassPhysics({
     }),
   );
 
-  engine.configure({
+  useLayoutEffect(() => {
+    engine.configure({
+      effectiveMagnetic,
+      effectiveTilt,
+      effectiveSpringScale,
+      magneticStrength,
+    });
+  }, [
+    engine,
     effectiveMagnetic,
     effectiveTilt,
     effectiveSpringScale,
     magneticStrength,
-  });
+  ]);
 
   useEffect(() => {
     return () => {
@@ -796,6 +805,7 @@ export function useLiquidGlassPhysics({
     width,
     height,
     isHovered,
+    isHolding,
     springX,
     springY,
     springScaleX,

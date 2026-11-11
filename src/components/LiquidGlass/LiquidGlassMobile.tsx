@@ -1,5 +1,13 @@
-import { useState, useRef, useMemo, type CSSProperties } from "react";
-import { motion, useComposedRefs, useReducedMotion } from "motion/react";
+import { useRef, useMemo, useCallback, useLayoutEffect } from "react";
+import {
+  animate,
+  motion,
+  useComposedRefs,
+  useMotionValue,
+  useReducedMotion,
+  type AnimationPlaybackControlsWithThen,
+  type MotionStyle,
+} from "motion/react";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 
 import Ripple from "./Ripple";
@@ -9,6 +17,7 @@ import { glassFeel } from "./config";
 import {
   TAP_PRESS_TRANSITION,
   TAP_RELEASE_TRANSITION,
+  SEMANTIC_CONTAINERS,
   useKeyboardClick,
   TAG_MAP,
   resolveGlassSurfaceProps,
@@ -17,8 +26,104 @@ import {
 } from "./liquidGlassUtils";
 import { InnerBorderOverlay } from "./LiquidGlassOverlays";
 
+type LiquidGlassMobileProps = Omit<
+  InteractiveGlassPropsWithRef,
+  "magnetic" | "tilt" | "magneticStrength"
+>;
+
+function useMobileTapScale(
+  elementRef: React.RefObject<HTMLElement | null>,
+  enableTapGestures: boolean,
+) {
+  const dimensionsRef = useRef({ width: 120, height: 36 });
+  const isTappingRef = useRef(false);
+  const animationsRef = useRef<{
+    x: AnimationPlaybackControlsWithThen | null;
+    y: AnimationPlaybackControlsWithThen | null;
+  }>({ x: null, y: null });
+
+  const scaleX = useMotionValue(1);
+  const scaleY = useMotionValue(1);
+  const tapWillChange = useMotionValue<"auto" | "transform">("auto");
+
+  useResizeObserver(enableTapGestures ? elementRef : null, (entry) => {
+    const { width: newWidth, height: newHeight } = getEntryDimensions(entry);
+    if (newWidth > 0 && newHeight > 0) {
+      dimensionsRef.current.width = newWidth;
+      dimensionsRef.current.height = newHeight;
+    }
+  });
+
+  const stopScaleAnimations = useCallback(() => {
+    animationsRef.current.x?.stop();
+    animationsRef.current.y?.stop();
+    animationsRef.current.x = null;
+    animationsRef.current.y = null;
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!enableTapGestures) {
+      isTappingRef.current = false;
+      stopScaleAnimations();
+      scaleX.set(1);
+      scaleY.set(1);
+      tapWillChange.set("auto");
+    }
+    return () => {
+      stopScaleAnimations();
+    };
+  }, [enableTapGestures, scaleX, scaleY, stopScaleAnimations, tapWillChange]);
+
+  const handleTapStart = useCallback(() => {
+    isTappingRef.current = true;
+    tapWillChange.set("transform");
+    stopScaleAnimations();
+    const tapScale = computeGlisseBaseScale(
+      dimensionsRef.current.width,
+      dimensionsRef.current.height,
+      glassFeel.touch.grow,
+    );
+    animationsRef.current.x = animate(
+      scaleX,
+      tapScale,
+      TAP_PRESS_TRANSITION.scaleX,
+    );
+    animationsRef.current.y = animate(
+      scaleY,
+      tapScale,
+      TAP_PRESS_TRANSITION.scaleY,
+    );
+  }, [scaleX, scaleY, stopScaleAnimations, tapWillChange]);
+
+  const handleTapEnd = useCallback(() => {
+    isTappingRef.current = false;
+    stopScaleAnimations();
+    animationsRef.current.x = animate(scaleX, 1, {
+      ...TAP_RELEASE_TRANSITION.scaleX,
+      onComplete: () => {
+        if (!isTappingRef.current) {
+          tapWillChange.set("auto");
+        }
+      },
+    });
+    animationsRef.current.y = animate(
+      scaleY,
+      1,
+      TAP_RELEASE_TRANSITION.scaleY,
+    );
+  }, [scaleX, scaleY, stopScaleAnimations, tapWillChange]);
+
+  return {
+    scaleX,
+    scaleY,
+    tapWillChange,
+    handleTapStart,
+    handleTapEnd,
+  };
+}
+
 export default function LiquidGlassMobile(
-  props: Readonly<InteractiveGlassPropsWithRef>,
+  props: Readonly<LiquidGlassMobileProps>,
 ) {
   const {
     children,
@@ -34,9 +139,6 @@ export default function LiquidGlassMobile(
     style = DEFAULT_STYLE,
     springScale = false,
     roundedClass = "rounded-full",
-    magnetic: _magnetic,
-    tilt: _tilt,
-    magneticStrength: _magneticStrength,
     ref,
     ...domProps
   } = props;
@@ -44,24 +146,21 @@ export default function LiquidGlassMobile(
   const prefersReducedMotion = useReducedMotion();
   const isMotionReduced = !!prefersReducedMotion;
   const effectiveSpringScale = springScale && !isMotionReduced;
+  const isDisabled = Boolean(
+    domProps.disabled ||
+      domProps["aria-disabled"] === true ||
+      domProps["aria-disabled"] === "true",
+  );
+  const enableTapGestures =
+    effectiveSpringScale && !isDisabled && !SEMANTIC_CONTAINERS.has(as);
 
   const elementRef = useRef<HTMLElement | null>(null);
-  const [dimensions, setDimensions] = useState({ width: 120, height: 36 });
-
   const handleRef = useComposedRefs(elementRef, ref);
 
-  useResizeObserver(effectiveSpringScale ? elementRef : null, (entry) => {
-    const { width: newWidth, height: newHeight } = getEntryDimensions(entry);
-    if (newWidth > 0 && newHeight > 0) {
-      setDimensions((prev) =>
-        prev.width === newWidth && prev.height === newHeight
-          ? prev
-          : { width: newWidth, height: newHeight },
-      );
-    }
-  });
+  const { scaleX, scaleY, tapWillChange, handleTapStart, handleTapEnd } =
+    useMobileTapScale(elementRef, enableTapGestures);
 
-  const rendersRipple = effectiveSpringScale;
+  const rendersRipple = effectiveSpringScale && !isDisabled;
 
   const {
     rippleX,
@@ -73,35 +172,32 @@ export default function LiquidGlassMobile(
 
   const handleKeyDown = useKeyboardClick(onClick);
 
-  const tagStyle = useMemo<CSSProperties>(() => {
+  const tagStyle = useMemo<MotionStyle>(() => {
     return {
-      WebkitBackfaceVisibility: effectiveSpringScale ? "hidden" : undefined,
-      backfaceVisibility: effectiveSpringScale ? "hidden" : undefined,
+      WebkitBackfaceVisibility: enableTapGestures ? "hidden" : undefined,
+      backfaceVisibility: enableTapGestures ? "hidden" : undefined,
       willChange:
-        style?.willChange ?? (effectiveSpringScale ? "transform" : undefined),
+        style?.willChange ?? (enableTapGestures ? tapWillChange : undefined),
+      scaleX: enableTapGestures ? scaleX : undefined,
+      scaleY: enableTapGestures ? scaleY : undefined,
       ...style,
     };
-  }, [effectiveSpringScale, style]);
-
-  const tapScale = computeGlisseBaseScale(
-    dimensions.width,
-    dimensions.height,
-    glassFeel.touch.grow,
-  );
+  }, [enableTapGestures, scaleX, scaleY, style, tapWillChange]);
 
   const sharedAnimationProps = useMemo(
     () => ({
-      whileTap: effectiveSpringScale
-        ? {
-            scaleX: tapScale,
-            scaleY: tapScale,
-            transition: TAP_PRESS_TRANSITION,
-          }
-        : undefined,
-      transition: effectiveSpringScale ? TAP_RELEASE_TRANSITION : undefined,
-      onPointerDown: handlePointerDown,
+      onTapStart: enableTapGestures ? handleTapStart : undefined,
+      onTap: enableTapGestures ? handleTapEnd : undefined,
+      onTapCancel: enableTapGestures ? handleTapEnd : undefined,
+      onPointerDown: rendersRipple ? handlePointerDown : undefined,
     }),
-    [effectiveSpringScale, handlePointerDown, tapScale],
+    [
+      enableTapGestures,
+      handlePointerDown,
+      handleTapEnd,
+      handleTapStart,
+      rendersRipple,
+    ],
   );
 
   const {
