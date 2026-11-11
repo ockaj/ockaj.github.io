@@ -15,38 +15,34 @@ export const DEFAULT_STYLE: CSSProperties = {};
  */
 interface StaticGlassProps extends AllHTMLAttributes<HTMLElement> {
   children?: ReactNode;
-  as?: "div" | "button" | "a" | "article" | "section" | "span";
+  as?: "div" | "span";
+  className?: string;
+  innerClassName?: string;
+  style?: CSSProperties;
+  roundedClass?: string;
+}
+
+/**
+ * Interactive glass properties with physics and motion settings.
+ */
+interface InteractiveGlassProps extends Omit<StaticGlassProps, "as"> {
+  as?: "div" | "button" | "a" | "article" | "span";
   href?: string;
   download?: string;
   target?: string;
   rel?: string;
   ariaLabel?: string;
   onClick?: (e: MouseEvent<HTMLElement>) => void;
-  className?: string;
-  innerClassName?: string;
-  style?: CSSProperties;
-  roundedClass?: string;
-  variant?: "flat" | "sunken" | "beveled";
-  active?: boolean;
-}
-
-/**
- * Interactive glass properties with physics and motion settings.
- */
-interface InteractiveGlassProps extends StaticGlassProps {
   springScale?: boolean;
   magnetic?: boolean;
   tilt?: boolean;
   magneticStrength?: number;
-  tiltStrength?: number;
-  ripple?: boolean;
-  specularGlow?: boolean;
 }
 
 /**
  * Specialized interactive button and anchor properties.
  */
-type GlassButtonProps = Omit<InteractiveGlassProps, "as" | "springScale">;
+type GlassButtonProps = Omit<InteractiveGlassProps, "as">;
 
 export interface StaticGlassPropsWithRef extends StaticGlassProps {
   ref?: Ref<HTMLElement | null>;
@@ -61,7 +57,6 @@ export interface GlassButtonPropsWithRef extends GlassButtonProps {
 }
 
 export interface LiquidGlassAnimationProps {
-  whileHover?: unknown;
   whileTap?: unknown;
   transition?: unknown;
   onMouseEnter?: (e: MouseEvent<HTMLElement>) => void;
@@ -86,7 +81,6 @@ export interface LiquidGlassTagProps extends Omit<
   tabIndex?: number;
   role?: string;
   style?: MotionStyle | CSSProperties;
-  whileHover?: unknown;
   whileTap?: unknown;
   transition?: unknown;
 }

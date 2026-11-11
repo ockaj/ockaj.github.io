@@ -37,7 +37,6 @@ function BpmnHotkeyToastList() {
           roundedClass="rounded-xl"
           className="bg-surface/90 p-3"
           innerClassName="flex w-full items-center gap-3"
-          specularGlow
         >
           <BpmnNodeBadge type="script-task" className="shrink-0" />
           <div className="flex-1 text-left">

@@ -1,6 +1,7 @@
 import { useCallback, type PointerEvent } from "react";
 import { useMotionValue, animate } from "motion/react";
-import { springs, ripple as rippleCfg } from "./config";
+import { SPRING } from "../../utils/springConfig";
+import { ripple as rippleCfg } from "./config";
 
 export function useRipple(enabled: boolean) {
   const rippleX = useMotionValue(0);
@@ -19,7 +20,7 @@ export function useRipple(enabled: boolean) {
         Math.max(width, height) * rippleCfg.maxRadiusMultiplier;
       const targetScale = maxRadius / 96;
 
-      animate(rippleScale, [0, targetScale], springs.ripple);
+      animate(rippleScale, [0, targetScale], SPRING.glassRipple);
 
       animate(rippleOpacity, [rippleCfg.initialOpacity, 0], {
         duration: rippleCfg.opacityDuration,

@@ -1,5 +1,3 @@
-"use client";
-
 import {
   useMemo,
   useCallback,
@@ -34,7 +32,6 @@ interface MotionFlagOptions {
   magnetic: boolean;
   tilt: boolean;
   springScale: boolean;
-  ripple: boolean;
 }
 
 function getEffectiveMotionFlags(
@@ -47,7 +44,6 @@ function getEffectiveMotionFlags(
     effectiveMagnetic: options.magnetic && !isReduced,
     effectiveTilt: options.tilt && !isReduced,
     effectiveSpringScale: options.springScale && !isReduced,
-    effectiveRipple: options.ripple && !isReduced,
   };
 }
 
@@ -98,11 +94,6 @@ export default function LiquidGlassDesktop({
   magnetic = false,
   tilt = false,
   magneticStrength = 0.02,
-  tiltStrength = 2,
-  ripple = true,
-  variant = "flat",
-  active = false,
-  specularGlow = false,
   ref,
   ...domProps
 }: Readonly<InteractiveGlassPropsWithRef>) {
@@ -112,21 +103,17 @@ export default function LiquidGlassDesktop({
     effectiveMagnetic,
     effectiveTilt,
     effectiveSpringScale,
-    effectiveRipple,
   } = getEffectiveMotionFlags(prefersReducedMotion, {
     magnetic,
     tilt,
     springScale,
-    ripple,
   });
 
   const physics = useLiquidGlassPhysics({
-    interactive: true,
     effectiveMagnetic,
     effectiveTilt,
     effectiveSpringScale,
     magneticStrength,
-    tiltStrength,
   });
 
   const {
@@ -140,7 +127,7 @@ export default function LiquidGlassDesktop({
 
   const handleRef = useComposedRefs(setElementRef, ref);
 
-  const rendersRipple = effectiveSpringScale && effectiveRipple;
+  const rendersRipple = effectiveSpringScale;
   const {
     rippleX,
     rippleY,
@@ -239,10 +226,7 @@ export default function LiquidGlassDesktop({
     className,
     innerClassName,
     roundedClass,
-    variant,
-    active,
     isHovered: physics.isHovered,
-    specularGlow,
     tagStyle,
     animationProps: sharedAnimationProps,
     domProps,
@@ -257,8 +241,8 @@ export default function LiquidGlassDesktop({
       physics.springX.get(),
       physics.springY.get(),
       physics.springHolding.get(),
-      physics.dimensions.width,
-      physics.dimensions.height,
+      physics.width.get(),
+      physics.height.get(),
     ),
   );
 

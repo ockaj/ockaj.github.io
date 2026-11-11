@@ -49,7 +49,7 @@ Feature modules encapsulate internal implementation. ESLint (`no-restricted-impo
 | `Navigation` | `Navigation/Navbar` | `MobileMenu` |
 | `PdfViewerModal` | `PdfViewerModal/PdfViewerModal` | `InteractiveCvView` |
 | `Bpmn` | `Bpmn/BpmnOverlay`, `Bpmn/BpmnNodeBadge` | `BpmnDiagram`, `BpmnHotkeyToast`, `bpmnStorage` |
-| `LiquidGlass` | `LiquidGlass/LiquidGlass`, `LiquidGlass/LiquidGlassTabs`, `LiquidGlass/types` | `config`, `liquidGlassStore`, `liquidGlassUtils`, `Ripple`, `useRipple`, `useLiquidGlassPhysics`, `LiquidGlassDesktop`, `LiquidGlassMobile`, `LiquidGlassOverlays`, `LiquidGlassStatic`, `DraggableTabHighlight`, `useDraggableTabs` |
+| `LiquidGlass` | `LiquidGlass/LiquidGlass`, `LiquidGlass/LiquidGlassStatic`, `LiquidGlass/LiquidGlassTabs` | `config`, `liquidGlassStore`, `liquidGlassUtils`, `Ripple`, `types`, `useRipple`, `useLiquidGlassPhysics`, `LiquidGlassDesktop`, `LiquidGlassMobile`, `LiquidGlassOverlays`, `DraggableTabHighlight`, `useDraggableTabs` |
 
 Cross-cutting UI primitives live directly in `src/components/` (e.g. `BaseDrawer.tsx`, `Tooltip.tsx`, `LazySection.tsx`).
 
@@ -59,10 +59,10 @@ Cross-cutting UI primitives live directly in `src/components/` (e.g. `BaseDrawer
 
 Import LiquidGlass primitives via named exports from their specific public modules:
 
-- **Surface Primitives**: Import `InteractiveGlass`, `StaticGlass`, and `LiquidGlassButton` from [`src/components/LiquidGlass/LiquidGlass`](../../src/components/LiquidGlass/LiquidGlass.tsx).
+- **Interactive Surface Primitives**: Import `InteractiveGlass` and `LiquidGlassButton` from [`src/components/LiquidGlass/LiquidGlass`](../../src/components/LiquidGlass/LiquidGlass.tsx).
+- **Static Surface Primitive**: Import `StaticGlass` from [`src/components/LiquidGlass/LiquidGlassStatic`](../../src/components/LiquidGlass/LiquidGlassStatic.tsx).
 - **Tab Primitives**: Import `Tabs` and `Tab` from [`src/components/LiquidGlass/LiquidGlassTabs`](../../src/components/LiquidGlass/LiquidGlassTabs.tsx).
-- **Type Definitions**: Import prop types from [`src/components/LiquidGlass/types`](../../src/components/LiquidGlass/types.ts).
-- **Encapsulation**: Avoid namespace access (`LiquidGlass.Button`). Import internal physics hooks, ripples, or overlay files only within `src/components/LiquidGlass/`.
+- **Encapsulation**: Avoid namespace access (`LiquidGlass.Button`). Import internal types, physics hooks, ripples, or overlay files only within `src/components/LiquidGlass/`.
 
 For component selection criteria, physics, and props allocation, see [LiquidGlass Rules](./liquid-glass.md).
 

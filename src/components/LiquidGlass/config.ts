@@ -1,40 +1,12 @@
 import type { CSSProperties } from "react";
 import { SPRING } from "../../utils/springConfig";
 
-export type LiquidGlassVariant = "flat" | "sunken" | "beveled";
-
 const CHROMATIC_DISPERSION =
   "inset 0 1.5px 2px -0.5px var(--color-dispersion-cyan), inset 0 -1.5px 2px -0.5px var(--color-dispersion-amber)";
 
-export function getInnerGlassStyle(
-  variant: LiquidGlassVariant = "flat",
-  active = false,
-): CSSProperties {
-  if (variant === "sunken") {
-    return {
-      boxShadow: active
-        ? `inset 0 3px 8px rgba(0, 0, 0, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.12), inset 0 -1px 2px rgba(255, 255, 255, 0.05), ${CHROMATIC_DISPERSION}, 0 4px 12px rgba(0, 0, 0, 0.2)`
-        : `inset 0 2px 5px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.05), inset 0 -1px 1px rgba(255, 255, 255, 0.03), ${CHROMATIC_DISPERSION}, 0 1px 2px rgba(255, 255, 255, 0.02)`,
-    };
-  }
-  if (variant === "beveled") {
-    return {
-      boxShadow: active
-        ? `inset 0 1px 2px rgba(255, 255, 255, 0.35), inset 0 -1px 2px rgba(255, 255, 255, 0.15), inset 0 6px 12px rgba(255, 255, 255, 0.06), ${CHROMATIC_DISPERSION}, 0 8px 16px rgba(0, 0, 0, 0.15)`
-        : `inset 0 1px 1px rgba(255, 255, 255, 0.2), inset 0 -1px 1px rgba(255, 255, 255, 0.09), inset 0 4px 8px rgba(255, 255, 255, 0.03), ${CHROMATIC_DISPERSION}, 0 4px 10px rgba(0, 0, 0, 0.08)`,
-    };
-  }
-  return {
-    boxShadow: active
-      ? `inset 0 1px 2px rgba(255, 255, 255, 0.3), inset 0 -1px 2px rgba(255, 255, 255, 0.12), inset 0 6px 12px rgba(255, 255, 255, 0.04), ${CHROMATIC_DISPERSION}, 0 6px 14px rgba(0, 0, 0, 0.15)`
-      : `inset 0 1px 1px rgba(255, 255, 255, 0.18), inset 0 -1px 1px rgba(255, 255, 255, 0.08), inset 0 4px 8px rgba(255, 255, 255, 0.03), ${CHROMATIC_DISPERSION}, 0 4px 12px rgba(0, 0, 0, 0.12)`,
-  };
-}
-
-export const springs = {
-  scale: SPRING.glassScale,
-  ripple: SPRING.glassRipple,
-} as const;
+export const INNER_GLASS_STYLE: CSSProperties = {
+  boxShadow: `inset 0 1px 1px rgba(255, 255, 255, 0.18), inset 0 -1px 1px rgba(255, 255, 255, 0.08), inset 0 4px 8px rgba(255, 255, 255, 0.03), ${CHROMATIC_DISPERSION}, 0 4px 12px rgba(0, 0, 0, 0.12)`,
+};
 
 export const glassFeel = {
   pointer: {
@@ -53,6 +25,7 @@ export const glassFeel = {
 export const tilt = {
   referenceWidth: 240,
   maxStrength: 12,
+  defaultStrength: 2,
 } as const;
 
 // Ripple

@@ -64,7 +64,6 @@ function ProcessCardHeader({
             "isolate inline-flex transform-gpu items-center rounded-xl p-1.25 shadow-inset-border backdrop-blur-md select-none",
             isMobile ? "bg-surface/80 shadow-md" : "bg-surface/90 shadow-lg",
           )}
-          highlightClassName="navbar-highlight-flat"
         >
           <Tab
             value="source"

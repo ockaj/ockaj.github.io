@@ -42,7 +42,6 @@ interface UseDraggableTabsOptions {
   controller: TabsPhysicsController;
   containerRef: RefObject<HTMLDivElement | null>;
   isTouchDevice: boolean;
-  hoverSlide: boolean;
   prefersReducedMotion: boolean | null;
   onChange?: (value: TabValue) => void;
   triggerRippleAt: (
@@ -58,7 +57,6 @@ export function useDraggableTabs({
   controller,
   containerRef,
   isTouchDevice,
-  hoverSlide,
   prefersReducedMotion,
   onChange,
   triggerRippleAt,
@@ -144,7 +142,6 @@ export function useDraggableTabs({
         width: rect.width,
         height: rect.height,
         centerX: left + rect.width / 2,
-        centerY: top + rect.height / 2,
       });
     }
     nextTabs.sort((a, b) => a.centerX - b.centerX);
@@ -200,12 +197,12 @@ export function useDraggableTabs({
         if (state.isDragging && state.dragPreviewValue !== null) {
           return state.dragPreviewValue;
         }
-        if (!isTouchDevice && hoverSlide && state.hoveredValue !== null) {
+        if (!isTouchDevice && state.hoveredValue !== null) {
           return state.hoveredValue;
         }
         return state.activeValue;
       },
-      [hoverSlide, isTouchDevice],
+      [isTouchDevice],
     ),
   );
 
@@ -428,7 +425,7 @@ export function useDraggableTabs({
           : liveX + projectMomentum(releaseVelocity, APPLE_DECELERATION_RATE);
         const targetTab =
           resolveNearestTab(projectedX, currentTabs) ??
-          controller.getActiveValue();
+          controller.store.getState().activeValue;
         const targetRect = currentTabs.find((t) => t.value === targetTab);
         const remainingPx = targetRect
           ? Math.abs(targetRect.centerX - liveX)

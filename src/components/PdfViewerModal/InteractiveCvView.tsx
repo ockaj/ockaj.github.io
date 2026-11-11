@@ -1,7 +1,8 @@
 import { memo, useCallback } from "react";
 import { motion, LayoutGroup } from "motion/react";
 import { Mail, Phone, MapPin, Languages } from "lucide-react";
-import { LiquidGlassButton, StaticGlass } from "../LiquidGlass/LiquidGlass";
+import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import { StaticGlass } from "../LiquidGlass/LiquidGlassStatic";
 import { Tabs, Tab } from "../LiquidGlass/LiquidGlassTabs";
 import { usePrefersReducedMotion } from "../../hooks/useMediaQuery";
 import { SPRING } from "../../utils/springConfig";
@@ -537,7 +538,6 @@ export const InteractiveCvView = memo(function InteractiveCvView({
                 variant="segmented"
                 roundedClass="rounded-xl"
                 className="isolate inline-flex transform-gpu items-center rounded-xl bg-surface/80 p-1.25 shadow-inset-border backdrop-blur-md select-none"
-                highlightClassName="navbar-highlight-flat"
               >
                 <Tab
                   value="en"

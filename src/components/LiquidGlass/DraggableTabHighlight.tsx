@@ -14,7 +14,10 @@ import {
 } from "motion/react";
 import { cn } from "../../utils/cn";
 import Ripple from "./Ripple";
-import { resolveContextHighlightClass } from "./liquidGlassUtils";
+import {
+  CAPSULE_HIGHLIGHT_RADIUS,
+  resolveContextHighlightClass,
+} from "./liquidGlassUtils";
 import {
   BASE_PILL_HEIGHT,
   BASE_PILL_WIDTH,
@@ -25,9 +28,6 @@ import {
   type TabValue,
   type TabsPhysicsController,
 } from "./liquidGlassStore";
-
-const CAPSULE_HIGHLIGHT_RADIUS =
-  "calc((var(--base-radius) * var(--scale-y)) / var(--scale-x)) / var(--base-radius)";
 
 interface DraggableTabHighlightProps {
   controller: TabsPhysicsController;
@@ -46,7 +46,6 @@ interface DraggableTabHighlightProps {
   contextHighlightClass: string;
   contextHighlightStyle?: CSSProperties;
   prefersReducedMotion: boolean | null;
-  ripple: boolean;
   rippleX: MotionValue<number>;
   rippleY: MotionValue<number>;
   rippleScale: MotionValue<number>;
@@ -67,7 +66,6 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
   contextHighlightClass,
   contextHighlightStyle,
   prefersReducedMotion,
-  ripple,
   rippleX,
   rippleY,
   rippleScale,
@@ -96,11 +94,11 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
       scaleY.jump(snapshot.targetScaleY);
       return;
     }
-    const animX = animate(scaleX, snapshot.targetScaleX, snapshot.scaleSpring);
-    const animY = animate(scaleY, snapshot.targetScaleY, snapshot.scaleSpring);
+    animate(scaleX, snapshot.targetScaleX, snapshot.scaleSpring);
+    animate(scaleY, snapshot.targetScaleY, snapshot.scaleSpring);
     return () => {
-      animX.stop();
-      animY.stop();
+      scaleX.stop();
+      scaleY.stop();
     };
   }, [
     isMotionReduced,
@@ -214,7 +212,7 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
       style={outerStyle}
     >
       <motion.span className={innerClass} style={innerStyle}>
-        {ripple ? (
+        {!isMotionReduced ? (
           <Ripple
             rippleX={rippleX}
             rippleY={rippleY}

@@ -170,7 +170,6 @@ const PdfModalTabs = memo(function PdfModalTabs({
         value={activeTab}
         onChange={onTabChange}
         layoutId="active-viewer-tab"
-        highlightClassName="navbar-highlight-flat"
         className="isolate flex transform-gpu items-center gap-0.5 overflow-hidden rounded-full border border-white/5 bg-white/3 p-1.5"
       >
         <Tab

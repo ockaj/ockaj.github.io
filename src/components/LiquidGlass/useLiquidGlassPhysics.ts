@@ -1,5 +1,3 @@
-"use client";
-
 import {
   useState,
   useRef,
@@ -15,16 +13,16 @@ import { tilt as tiltConfig, glassFeel } from "./config";
 import { getEntryDimensions } from "./liquidGlassUtils";
 
 interface LiquidGlassPhysicsParams {
-  interactive: boolean;
   effectiveMagnetic: boolean;
   effectiveTilt: boolean;
   effectiveSpringScale?: boolean;
   magneticStrength: number;
-  tiltStrength: number;
 }
 
-function computeEffectiveTiltStrength(width: number, strength: number): number {
-  const raw = strength * (tiltConfig.referenceWidth / Math.max(width, 1));
+function computeEffectiveTiltStrength(width: number): number {
+  const raw =
+    tiltConfig.defaultStrength *
+    (tiltConfig.referenceWidth / Math.max(width, 1));
   return Math.min(raw, tiltConfig.maxStrength);
 }
 
@@ -109,7 +107,6 @@ interface GlassPhysicsTargets {
 
 interface GlassGestureEngine {
   configure: (config: LiquidGlassPhysicsParams) => void;
-  getState: () => GlassPhysicsTargets;
   pointerDown: (input: {
     pointerId: number;
     pointerType: string;
@@ -213,8 +210,6 @@ export function createGlassGestureEngine(
       };
     },
 
-    getState: () => state,
-
     pointerDown: ({
       pointerId,
       pointerType,
@@ -224,7 +219,7 @@ export function createGlassGestureEngine(
       clientY,
       rect,
     }) => {
-      if (!config.interactive || button !== 0 || isPrimary === false) {
+      if (button !== 0 || isPrimary === false) {
         return null;
       }
 
@@ -336,7 +331,6 @@ export function createGlassGestureEngine(
 
       const effectiveTiltStrength = computeEffectiveTiltStrength(
         targetRect.width,
-        config.tiltStrength,
       );
       const maxPull = config.effectiveMagnetic
         ? 8 * (config.magneticStrength / 0.02)
@@ -427,7 +421,6 @@ export function createGlassGestureEngine(
     },
 
     mouseEnter: ({ clientX, clientY, rect }) => {
-      if (!config.interactive) return null;
       state.isHovered = true;
 
       if (rect.width > 0 && rect.height > 0) {
@@ -451,7 +444,7 @@ export function createGlassGestureEngine(
     },
 
     mouseMove: ({ clientX, clientY, rect }) => {
-      if (!config.interactive || state.isHolding || !state.isHovered) {
+      if (state.isHolding || !state.isHovered) {
         return null;
       }
       if (rect.width > 0 && rect.height > 0) {
@@ -466,7 +459,7 @@ export function createGlassGestureEngine(
     },
 
     mouseLeave: () => {
-      if (!config.interactive || state.isHolding) return null;
+      if (state.isHolding) return null;
       state.isHovered = false;
       state.pullX = 0;
       state.pullY = 0;
@@ -556,37 +549,32 @@ export function createGlassGestureEngine(
 }
 
 export function useLiquidGlassPhysics({
-  interactive,
   effectiveMagnetic,
   effectiveTilt,
   effectiveSpringScale = true,
   magneticStrength,
-  tiltStrength,
 }: LiquidGlassPhysicsParams) {
   const elementRef = useRef<HTMLElement | null>(null);
-  const [dimensions, setDimensions] = useState({ width: 120, height: 36 });
+  const width = useMotionValue(120);
+  const height = useMotionValue(36);
   const [isHovered, setIsHovered] = useState(false);
   const [isHolding, setIsHolding] = useState(false);
   const [pointerType, setPointerType] = useState<"mouse" | "touch">("mouse");
 
   const [engine] = useState(() =>
     createGlassGestureEngine({
-      interactive,
       effectiveMagnetic,
       effectiveTilt,
       effectiveSpringScale,
       magneticStrength,
-      tiltStrength,
     }),
   );
 
   engine.configure({
-    interactive,
     effectiveMagnetic,
     effectiveTilt,
     effectiveSpringScale,
     magneticStrength,
-    tiltStrength,
   });
 
   useEffect(() => {
@@ -648,20 +636,27 @@ export function useLiquidGlassPhysics({
     ],
   );
 
-  const handleResize = useCallback(
-    (entry: ResizeObserverEntry) => {
-      const { width, height } = getEntryDimensions(entry);
-      const committed = engine.resize(width, height, (debounced) => {
-        setDimensions(debounced);
-      });
-      if (committed) {
-        setDimensions(committed);
-      }
+  const syncDimensions = useCallback(
+    (dims: { width: number; height: number }) => {
+      if (width.get() !== dims.width) width.set(dims.width);
+      if (height.get() !== dims.height) height.set(dims.height);
     },
-    [engine],
+    [height, width],
   );
 
-  useResizeObserver(interactive && isHovered ? elementRef : null, handleResize);
+  const handleResize = useCallback(
+    (entry: ResizeObserverEntry) => {
+      const { width: nextWidth, height: nextHeight } =
+        getEntryDimensions(entry);
+      const committed = engine.resize(nextWidth, nextHeight, syncDimensions);
+      if (committed) {
+        syncDimensions(committed);
+      }
+    },
+    [engine, syncDimensions],
+  );
+
+  useResizeObserver(isHovered ? elementRef : null, handleResize);
 
   const endHold = useCallback(
     (e?: Event) => {
@@ -716,7 +711,7 @@ export function useLiquidGlassPhysics({
 
   const handlePointerDown = useCallback(
     (e: ReactPointerEvent<HTMLElement>) => {
-      if (!interactive || e.button !== 0 || e.isPrimary === false) return;
+      if (e.button !== 0 || e.isPrimary === false) return;
       const target = e.currentTarget;
       const {
         pointerId,
@@ -743,21 +738,15 @@ export function useLiquidGlassPhysics({
           rect,
         });
         if (!next) return;
-        setDimensions((prev) =>
-          prev.width === next.dimensions.width &&
-          prev.height === next.dimensions.height
-            ? prev
-            : next.dimensions,
-        );
+        syncDimensions(next.dimensions);
         syncMotionTargets(next);
       });
     },
-    [engine, interactive, syncMotionTargets],
+    [engine, syncDimensions, syncMotionTargets],
   );
 
   const handleMouseEnter = useCallback(
     (e: ReactMouseEvent<HTMLElement>) => {
-      if (!interactive) return;
       const currentTarget = e.currentTarget;
       const { clientX, clientY } = e;
       setIsHovered(true);
@@ -767,21 +756,16 @@ export function useLiquidGlassPhysics({
         const rect = currentTarget.getBoundingClientRect();
         const next = engine.mouseEnter({ clientX, clientY, rect });
         if (!next) return;
-        setDimensions((prev) =>
-          prev.width === next.dimensions.width &&
-          prev.height === next.dimensions.height
-            ? prev
-            : next.dimensions,
-        );
+        syncDimensions(next.dimensions);
         syncMotionTargets(next);
       });
     },
-    [engine, interactive, syncMotionTargets],
+    [engine, syncDimensions, syncMotionTargets],
   );
 
   const handleMouseMove = useCallback(
     (e: ReactMouseEvent<HTMLElement>) => {
-      if (!interactive || isHolding) return;
+      if (isHolding) return;
       const currentTarget = e.currentTarget;
       const { clientX, clientY } = e;
 
@@ -793,16 +777,15 @@ export function useLiquidGlassPhysics({
         syncMotionTargets(next);
       });
     },
-    [engine, interactive, isHolding, syncMotionTargets],
+    [engine, isHolding, syncMotionTargets],
   );
 
   const handleMouseLeave = useCallback(() => {
-    if (!interactive) return;
     const next = engine.mouseLeave();
     if (!next) return;
     setIsHovered(false);
     syncMotionTargets(next);
-  }, [engine, interactive, syncMotionTargets]);
+  }, [engine, syncMotionTargets]);
 
   const setElementRef = useCallback((node: HTMLElement | null) => {
     elementRef.current = node;
@@ -810,7 +793,8 @@ export function useLiquidGlassPhysics({
 
   return {
     setElementRef,
-    dimensions,
+    width,
+    height,
     isHovered,
     springX,
     springY,

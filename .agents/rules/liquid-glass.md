@@ -18,7 +18,7 @@ Import named exports directly from `src/components/LiquidGlass/`.
 | Component | Path | Use Case | Physics & Motion |
 |---|---|---|---|
 | `InteractiveGlass` | `src/components/LiquidGlass/LiquidGlass` | Cards, landmark containers, clickable surfaces (`CaseStudyCard`, `JournalEntry`, `FaqItem`, `ProcessDesktopCard`, `Skills` badges) | Dynamic desktop physics (tilt, magnetic pull, clamped specular glow, resting 1.0x scale, hold expansion, and dual-stage physical recoil) and mobile touch handling. |
-| `StaticGlass` | `src/components/LiquidGlass/LiquidGlass` | Non-interactive containers, toolbars, controls, layout shells (`ProcessMobileControls`) | Zero physics overhead. Stripped of motion listeners and spring calculations for optimal performance. |
+| `StaticGlass` | `src/components/LiquidGlass/LiquidGlassStatic` | Non-interactive containers, toolbars, controls, layout shells (`ProcessMobileControls`) | Zero physics overhead. Stripped of motion listeners and spring calculations for optimal performance. |
 | `LiquidGlassButton` | `src/components/LiquidGlass/LiquidGlass` | Tactile interactive buttons and anchor links | Pre-configured `InteractiveGlass` with `as={href ? "a" : "button"}`, resting 1.0x scale, hold-expansion physics, magnetic pull, and keyboard accessibility. |
 | `Tabs`, `Tab` | `src/components/LiquidGlass/LiquidGlassTabs` | Segmented controls, filter bars, view switchers | Sliding highlight pill with spring physics, 2 variants (`"capsule"` and `"segmented"`), and keyboard navigation. |
 
@@ -45,8 +45,8 @@ Import named exports directly from `src/components/LiquidGlass/`.
    - Use named imports: `import { InteractiveGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";`
    - Avoid namespace-style access (`LiquidGlass.Button`).
 3. **Props Allocation**:
-   - Reserve physics props (`springScale`, `tilt`, `magnetic`, `ripple`) for `InteractiveGlass`.
-   - On `InteractiveGlass`, use the `as` prop (`"div"`, `"button"`, `"a"`, `"article"`, `"section"`, `"span"`) to ensure semantic HTML.
+   - Reserve physics props (`springScale`, `tilt`, `magnetic`, `magneticStrength`) for `InteractiveGlass` and `LiquidGlassButton`.
+   - On `InteractiveGlass`, use the `as` prop (`"div"`, `"button"`, `"a"`, `"article"`, `"span"`) to ensure semantic HTML; on `StaticGlass`, use `"div"` or `"span"`.
    - Use `roundedClass` (e.g. `rounded-2xl`, `rounded-full`, `rounded-xl`, `rounded-lg`) to specify border curvature.
 4. **Tabs Variants**:
    - Use `variant="capsule"` (default) for floating stadium pill navigation bars and modals (`rounded-full`).

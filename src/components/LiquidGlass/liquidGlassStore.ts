@@ -1,6 +1,7 @@
 import { createStore, type StoreApi } from "zustand/vanilla";
 import { clamp, type Transition } from "motion/react";
-import { hoverDelta, scaleDeltas, springs } from "./config";
+import { SPRING } from "../../utils/springConfig";
+import { hoverDelta, scaleDeltas } from "./config";
 import type { TabOrientation } from "./types";
 
 export type TabValue = string | number;
@@ -27,10 +28,9 @@ export interface TabGeometry {
   width: number;
   height: number;
   centerX: number;
-  centerY: number;
 }
 
-export interface VelocitySampler {
+interface VelocitySampler {
   reset: (x: number, nowMs: number) => void;
   push: (x: number, nowMs: number) => void;
   sample: (nowMs: number) => number;
@@ -218,7 +218,7 @@ interface BaseScales {
   scaleY: number;
 }
 
-function computeHorizontalVelocityScaleX(
+export function computeDragVelocityScaleX(
   velocity: number,
   tabCount: number,
   baseScaleX: number,
@@ -249,22 +249,6 @@ function computeHorizontalVelocityScaleY(
   return baseScaleY > 1.001
     ? 1 + (baseScaleY - 1) * 0.45 * travelCompressY
     : travelCompressY;
-}
-
-export function computeDragVelocityScaleX(
-  velocity: number,
-  tabCount: number,
-  baseScaleX: number,
-  prefersReducedMotion = false,
-  refVelocity = REF_VELOCITY,
-): number {
-  return computeHorizontalVelocityScaleX(
-    velocity,
-    tabCount,
-    baseScaleX,
-    prefersReducedMotion,
-    refVelocity,
-  );
 }
 
 export function computeDragVelocityScaleY(
@@ -323,7 +307,7 @@ export function computeVelocityScales(
     );
   }
   return {
-    scaleX: computeHorizontalVelocityScaleX(
+    scaleX: computeDragVelocityScaleX(
       velocity,
       tabCount,
       baseScales.scaleX,
@@ -503,10 +487,9 @@ function shouldShowTabHighlight(
   isActive: boolean,
   isHovered: boolean,
   hoveredValue: TabValue | null,
-  hoverSlide: boolean,
   isTouchDevice: boolean,
 ): boolean {
-  if (isTouchDevice || !hoverSlide) {
+  if (isTouchDevice) {
     return isActive;
   }
   return isHovered || (isActive && hoveredValue === null);
@@ -514,31 +497,19 @@ function shouldShowTabHighlight(
 
 interface TabsControllerConfig {
   orientation?: TabOrientation;
-  hoverSlide?: boolean;
   isMobileNav?: boolean;
   prefersReducedMotion?: boolean;
   isTouchDevice?: boolean;
-  hasNavbarActiveClass?: boolean;
 }
 
 interface TabsControllerOptions extends TabsControllerConfig {
   initialValue: TabValue;
-  flightMs?: number;
-  landingMs?: number;
-  impulseMs?: number;
 }
 
 interface TabRenderSnapshot {
   isActive: boolean;
-  isHovered: boolean;
-  isPressed: boolean;
-  isTransitioning: boolean;
-  isLanding: boolean;
-  isHoverMoving: boolean;
   isDragPreview: boolean;
   hasDragPreview: boolean;
-  isDragging: boolean;
-  isPillAnimating: boolean;
   showHighlight: boolean;
   isNavbarActive: boolean;
   willChange: boolean;
@@ -562,25 +533,15 @@ interface TabsPhysicsState {
 
 export interface TabsPhysicsController {
   store: StoreApi<TabsPhysicsState>;
-  subscribe: (listener: () => void) => () => void;
   registerTab: (val: TabValue) => () => void;
   configure: (config: TabsControllerConfig) => void;
   activate: () => void;
   destroy: () => void;
 
-  getActiveValue: () => TabValue;
-  getActivePhase: () => TabFlightPhase;
-  getActiveDistance: () => number;
-  getHoveredValue: () => TabValue | null;
-  getHoverDistance: () => number;
-  isHoverMoving: () => boolean;
-  getVelocity: () => number;
-  getTabCount: () => number;
-  getTabDistance: (from: TabValue | null, to: TabValue | null) => number;
   getPillTargetValue: () => TabValue;
 
-  setActiveValue: (val: TabValue, explicitDistance?: number) => void;
-  hoverTab: (val: TabValue | null, explicitDistance?: number) => void;
+  setActiveValue: (val: TabValue) => void;
+  hoverTab: (val: TabValue | null) => void;
   selectTab: (val: TabValue) => void;
   pressTab: (val: TabValue, pointerType?: string) => void;
   releaseTab: (val: TabValue, pointerType?: string) => void;
@@ -589,7 +550,6 @@ export interface TabsPhysicsController {
   leaveTabs: () => void;
   recordPointerMove: (clientX: number, clientY: number, nowMs: number) => void;
   notifyLayoutComplete: () => void;
-  completeFlight: () => void;
 
   canGrabTab: (
     val: TabValue,
@@ -604,9 +564,7 @@ export interface TabsPhysicsController {
   setTabGeometries: (tabs: TabGeometry[]) => void;
   getTabGeometries: () => readonly TabGeometry[];
 
-  getTabStateMask: (val: TabValue) => number;
   getTabStateMaskFromState: (state: TabsPhysicsState, val: TabValue) => number;
-  getServerTabStateMask: (val: TabValue) => number;
   getTabSnapshot: (
     val: TabValue,
     dimensions: { width: number; height: number },
@@ -617,14 +575,9 @@ export interface TabsPhysicsController {
 export function createTabsController({
   initialValue,
   orientation: initialOrientation = "horizontal",
-  hoverSlide: initialHoverSlide = true,
   isMobileNav: initialIsMobileNav = false,
   prefersReducedMotion: initialReducedMotion = false,
   isTouchDevice: initialIsTouchDevice = false,
-  hasNavbarActiveClass: initialNavbarActiveClass = false,
-  flightMs = FLIGHT_SETTLE_MS,
-  landingMs = LANDING_PULSE_MS,
-  impulseMs = TRAVEL_IMPULSE_MS,
 }: TabsControllerOptions): TabsPhysicsController {
   const store = createStore<TabsPhysicsState>(() => ({
     activeValue: initialValue,
@@ -640,11 +593,9 @@ export function createTabsController({
   }));
 
   let orientation: TabOrientation = initialOrientation;
-  let hoverSlide = initialHoverSlide;
   let isMobileNav = initialIsMobileNav;
   let prefersReducedMotion = initialReducedMotion;
   let isTouchDevice = initialIsTouchDevice;
-  let hasNavbarActiveClass = initialNavbarActiveClass;
 
   const tabOrder: TabValue[] = [];
   let tabGeometries: TabGeometry[] = [];
@@ -713,15 +664,13 @@ export function createTabsController({
     }
     if (destroyed || store.getState().activePhase !== "flight") return;
     updateState({ activePhase: "landing", activeDistance: 0 });
-    if (landingMs > 0) {
-      if (landingTimer) {
-        clearTimeout(landingTimer);
-      }
-      landingTimer = setTimeout(() => {
-        landingTimer = null;
-        completeFlight();
-      }, landingMs);
+    if (landingTimer) {
+      clearTimeout(landingTimer);
     }
+    landingTimer = setTimeout(() => {
+      landingTimer = null;
+      completeFlight();
+    }, LANDING_PULSE_MS);
   };
 
   const startHoverImpulse = () => {
@@ -731,7 +680,7 @@ export function createTabsController({
       updateState((state) =>
         state.hoverMoving ? { hoverMoving: false } : state,
       );
-    }, impulseMs);
+    }, TRAVEL_IMPULSE_MS);
   };
 
   const computeHoverPatch = (
@@ -780,7 +729,6 @@ export function createTabsController({
         isActive,
         isHovered,
         state.hoveredValue,
-        hoverSlide,
         isTouchDevice,
       );
     const isMovingHover = isHovered && state.hoverMoving;
@@ -824,7 +772,6 @@ export function createTabsController({
 
   return {
     store,
-    subscribe: store.subscribe,
 
     registerTab: (val) => {
       if (!tabOrder.includes(val)) {
@@ -840,15 +787,11 @@ export function createTabsController({
 
     configure: (next) => {
       if (next.orientation !== undefined) orientation = next.orientation;
-      if (next.hoverSlide !== undefined) hoverSlide = next.hoverSlide;
       if (next.isMobileNav !== undefined) isMobileNav = next.isMobileNav;
       if (next.prefersReducedMotion !== undefined) {
         prefersReducedMotion = next.prefersReducedMotion;
       }
       if (next.isTouchDevice !== undefined) isTouchDevice = next.isTouchDevice;
-      if (next.hasNavbarActiveClass !== undefined) {
-        hasNavbarActiveClass = next.hasNavbarActiveClass;
-      }
     },
 
     activate: () => {
@@ -896,47 +839,31 @@ export function createTabsController({
       lastMousePos = null;
     },
 
-    getActiveValue: () => store.getState().activeValue,
-    getActivePhase: () => store.getState().activePhase,
-    getActiveDistance: () => store.getState().activeDistance,
-    getHoveredValue: () => store.getState().hoveredValue,
-    getHoverDistance: () => store.getState().hoverDistance,
-    isHoverMoving: () => store.getState().hoverMoving,
-    getVelocity: () => mouseVelocity,
-    getTabCount: () => tabOrder.length,
-    getTabDistance,
     getPillTargetValue: () => {
       const state = store.getState();
       if (state.isDragging && state.dragPreviewValue !== null) {
         return state.dragPreviewValue;
       }
-      if (!isTouchDevice && hoverSlide && state.hoveredValue !== null) {
+      if (!isTouchDevice && state.hoveredValue !== null) {
         return state.hoveredValue;
       }
       return state.activeValue;
     },
 
-    setActiveValue: (val, explicitDistance) => {
+    setActiveValue: (val) => {
       if (destroyed) return;
       const state = store.getState();
-      if (state.activeValue === val) {
-        if (explicitDistance === 0 && state.activePhase !== "idle") {
-          clearActiveTimers();
-          updateState({ activePhase: "idle", activeDistance: 0 });
-        }
-        return;
-      }
+      if (state.activeValue === val) return;
 
       clearActiveTimers();
       const hoverPatch = computeHoverPatch(state, null, 0);
-      const distance =
-        explicitDistance ?? getTabDistance(state.activeValue, val);
+      const distance = getTabDistance(state.activeValue, val);
 
       if (distance > 0) {
         flightTimer = setTimeout(() => {
           flightTimer = null;
           beginLanding();
-        }, flightMs);
+        }, FLIGHT_SETTLE_MS);
       }
 
       updateState({
@@ -947,7 +874,7 @@ export function createTabsController({
       });
     },
 
-    hoverTab: (val, explicitDistance) => {
+    hoverTab: (val) => {
       if (destroyed) return;
       if (store.getState().isDragging) return;
       if (val === null) {
@@ -955,10 +882,11 @@ export function createTabsController({
         return;
       }
       if (suppressHoverUntilMouseMove) return;
-      if (!hoverSlide || isTouchDevice) return;
+      if (isTouchDevice) return;
       updateState((state) => {
+        if (state.hoveredValue === val) return state;
         const currentAnchor = state.hoveredValue ?? state.activeValue;
-        const distance = explicitDistance ?? getTabDistance(currentAnchor, val);
+        const distance = getTabDistance(currentAnchor, val);
         return computeHoverPatch(state, val, distance) ?? state;
       });
     },
@@ -976,8 +904,7 @@ export function createTabsController({
       if (destroyed) return;
       const isTouch = isTouchDevice || pointerType === "touch";
       updateState((state) => {
-        const hoverPatch =
-          hoverSlide && !isTouch ? computeHoverPatch(state, val, 0) : null;
+        const hoverPatch = !isTouch ? computeHoverPatch(state, val, 0) : null;
         if (state.pressedValue === val) {
           return hoverPatch ?? state;
         }
@@ -1063,8 +990,6 @@ export function createTabsController({
       }
     },
 
-    completeFlight,
-
     canGrabTab: (val, isLiveHit, pointerType) => {
       if (destroyed) return false;
       if (isLiveHit) return true;
@@ -1074,7 +999,6 @@ export function createTabsController({
         state.activeValue === val,
         !isTouch && state.hoveredValue === val,
         state.hoveredValue,
-        hoverSlide,
         isTouch,
       );
     },
@@ -1115,7 +1039,7 @@ export function createTabsController({
         flightTimer = setTimeout(() => {
           flightTimer = null;
           beginLanding();
-        }, flightMs);
+        }, FLIGHT_SETTLE_MS);
       }
 
       updateState({
@@ -1168,12 +1092,7 @@ export function createTabsController({
 
     getTabGeometries: () => tabGeometries,
 
-    getTabStateMask: (val) => getTabStateMaskFromState(store.getState(), val),
-
     getTabStateMaskFromState,
-
-    getServerTabStateMask: (val) =>
-      getTabStateMaskFromState(store.getInitialState(), val),
 
     getTabSnapshot: (val, dimensions) => {
       const state = store.getState();
@@ -1194,8 +1113,7 @@ export function createTabsController({
         isTransitioning ||
         isLanding ||
         state.isDragging ||
-        state.isPillAnimating ||
-        hasNavbarActiveClass;
+        state.isPillAnimating;
       let effectiveDistance = 0;
       if (isMovingHover) {
         effectiveDistance = state.hoverDistance;
@@ -1222,19 +1140,12 @@ export function createTabsController({
       const scaleSpring =
         isLanding || (targetScaleX === 1 && targetScaleY === 1)
           ? SETTLE_SPRING
-          : springs.scale;
+          : SPRING.glassScale;
 
       return {
         isActive,
-        isHovered,
-        isPressed,
-        isTransitioning,
-        isLanding,
-        isHoverMoving: isMovingHover,
         isDragPreview,
         hasDragPreview,
-        isDragging: state.isDragging,
-        isPillAnimating: state.isPillAnimating,
         showHighlight,
         isNavbarActive: isHoverActive,
         willChange:

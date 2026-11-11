@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useRef, useMemo, type CSSProperties } from "react";
 import { motion, useComposedRefs, useReducedMotion } from "motion/react";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
@@ -36,14 +34,9 @@ export default function LiquidGlassMobile(
     style = DEFAULT_STYLE,
     springScale = false,
     roundedClass = "rounded-full",
-    ripple = true,
-    variant = "flat",
-    active = false,
-    specularGlow = false,
     magnetic: _magnetic,
     tilt: _tilt,
     magneticStrength: _magneticStrength,
-    tiltStrength: _tiltStrength,
     ref,
     ...domProps
   } = props;
@@ -51,7 +44,6 @@ export default function LiquidGlassMobile(
   const prefersReducedMotion = useReducedMotion();
   const isMotionReduced = !!prefersReducedMotion;
   const effectiveSpringScale = springScale && !isMotionReduced;
-  const effectiveRipple = ripple && !isMotionReduced;
 
   const elementRef = useRef<HTMLElement | null>(null);
   const [dimensions, setDimensions] = useState({ width: 120, height: 36 });
@@ -69,7 +61,7 @@ export default function LiquidGlassMobile(
     }
   });
 
-  const rendersRipple = effectiveSpringScale && effectiveRipple;
+  const rendersRipple = effectiveSpringScale;
 
   const {
     rippleX,
@@ -130,9 +122,6 @@ export default function LiquidGlassMobile(
     className,
     innerClassName,
     roundedClass,
-    variant,
-    active,
-    specularGlow,
     tagStyle,
     animationProps: sharedAnimationProps,
     domProps,

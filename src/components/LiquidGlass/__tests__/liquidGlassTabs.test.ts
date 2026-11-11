@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { SPRING } from "../../../utils/springConfig";
-import { springs } from "../config";
 import { resolveContextHighlightClass } from "../liquidGlassUtils";
 import {
   createTabsController,
@@ -47,9 +46,10 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       controller.registerTab("home");
       controller.registerTab("work");
 
-      expect(controller.getActiveValue()).toBe("home");
-      expect(controller.getActivePhase()).toBe("idle");
-      expect(controller.getActiveDistance()).toBe(0);
+      const initial = controller.store.getState();
+      expect(initial.activeValue).toBe("home");
+      expect(initial.activePhase).toBe("idle");
+      expect(initial.activeDistance).toBe(0);
 
       const homeSnap = controller.getTabSnapshot("home", dimensions);
       expect(homeSnap.isActive).toBe(true);
@@ -61,9 +61,21 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       const workSnap = controller.getTabSnapshot("work", dimensions);
       expect(workSnap.isActive).toBe(false);
       expect(workSnap.showHighlight).toBe(false);
-      expect(controller.getTabStateMask("work")).toBe(0);
-      expect(controller.getServerTabStateMask("home")).toBeGreaterThan(0);
-      expect(controller.getServerTabStateMask("work")).toBe(0);
+      expect(
+        controller.getTabStateMaskFromState(initial, "work"),
+      ).toBe(0);
+      expect(
+        controller.getTabStateMaskFromState(
+          controller.store.getInitialState(),
+          "home",
+        ),
+      ).toBeGreaterThan(0);
+      expect(
+        controller.getTabStateMaskFromState(
+          controller.store.getInitialState(),
+          "work",
+        ),
+      ).toBe(0);
 
       controller.destroy();
     });
@@ -75,44 +87,44 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       }
 
       let notifications = 0;
-      controller.subscribe(() => {
+      controller.store.subscribe(() => {
         notifications++;
       });
 
       // 1-tab hop (t1 -> t2)
       controller.setActiveValue("t2");
-      expect(controller.getActivePhase()).toBe("flight");
-      expect(controller.getActiveDistance()).toBe(1);
+      expect(controller.store.getState().activePhase).toBe("flight");
+      expect(controller.store.getState().activeDistance).toBe(1);
       expect(notifications).toBe(1);
 
       const hop1 = controller.getTabSnapshot("t2", dimensions);
-      expect(hop1.isTransitioning).toBe(true);
+      expect(hop1.isNavbarActive).toBe(true);
       expect(hop1.targetScaleX).toBeGreaterThan(1);
       expect(hop1.targetScaleY).toBeGreaterThan(1);
-      expect(hop1.scaleSpring).toBe(springs.scale);
+      expect(hop1.scaleSpring).toBe(SPRING.glassScale);
 
       // 3-tab hop (t2 -> t5) stretches wider along X than 1-tab hop
       controller.setActiveValue("t5");
-      expect(controller.getActiveDistance()).toBe(3);
+      expect(controller.store.getState().activeDistance).toBe(3);
       const hop3 = controller.getTabSnapshot("t5", dimensions);
       expect(hop3.targetScaleX).toBeGreaterThan(hop1.targetScaleX);
 
       // Flight timer transitions to landing bloom (hover geometry with SETTLE_SPRING)
       vi.advanceTimersByTime(FLIGHT_SETTLE_MS);
-      expect(controller.getActivePhase()).toBe("landing");
-      expect(controller.getActiveDistance()).toBe(0);
+      expect(controller.store.getState().activePhase).toBe("landing");
+      expect(controller.store.getState().activeDistance).toBe(0);
 
       const landingSnap = controller.getTabSnapshot("t5", dimensions);
-      expect(landingSnap.isLanding).toBe(true);
+      expect(landingSnap.isNavbarActive).toBe(true);
       expect(landingSnap.targetScaleX).toBeCloseTo(1 + 5 / 120, 4);
       expect(landingSnap.targetScaleY).toBeCloseTo(1 + 5 / 36, 4);
       expect(landingSnap.scaleSpring).toBe(SETTLE_SPRING);
 
       // Landing dwell settles to resting 1.0 idle state
       vi.advanceTimersByTime(LANDING_PULSE_MS);
-      expect(controller.getActivePhase()).toBe("idle");
+      expect(controller.store.getState().activePhase).toBe("idle");
       const settledSnap = controller.getTabSnapshot("t5", dimensions);
-      expect(settledSnap.isLanding).toBe(false);
+      expect(settledSnap.isNavbarActive).toBe(false);
       expect(settledSnap.targetScaleX).toBe(1);
       expect(settledSnap.targetScaleY).toBe(1);
       expect(settledSnap.scaleSpring).toBe(SETTLE_SPRING);
@@ -143,14 +155,12 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
     it("dampens stretch for binary 2-tab toggles compared to multi-tab bars", () => {
       const binary = createTabsController({
         initialValue: "a",
-        hoverSlide: false,
       });
       binary.registerTab("a");
       binary.registerTab("b");
 
       const multi = createTabsController({
         initialValue: "a",
-        hoverSlide: false,
       });
       for (const id of ["a", "b", "c", "d"]) {
         multi.registerTab(id);
@@ -176,32 +186,35 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       // Record fast horizontal pointer movement (90px over 50ms = 1800 px/s)
       controller.recordPointerMove(0, 10, 100);
       controller.recordPointerMove(90, 10, 150);
-      expect(controller.getVelocity()).toBeGreaterThan(1000);
 
       controller.hoverTab("t2");
+      expect(controller.store.getState().hoverMoving).toBe(true);
       const fastGlide = controller.getTabSnapshot("t2", dimensions);
       expect(fastGlide.showHighlight).toBe(true);
-      expect(fastGlide.isHoverMoving).toBe(true);
       expect(fastGlide.targetScaleX).toBeGreaterThan(1 + 5 / 120);
       expect(fastGlide.targetScaleY).toBeLessThan(1 + 5 / 36);
 
       // After impulse window expires, settles to resting hover expansion
       vi.advanceTimersByTime(TRAVEL_IMPULSE_MS);
+      expect(controller.store.getState().hoverMoving).toBe(false);
       const restingHover = controller.getTabSnapshot("t2", dimensions);
-      expect(restingHover.isHoverMoving).toBe(false);
       expect(restingHover.targetScaleX).toBeCloseTo(1 + 5 / 120, 4);
       expect(restingHover.targetScaleY).toBeCloseTo(1 + 5 / 36, 4);
 
       // Leaving tabs container resets velocity and returns highlight to active tab t1
       controller.leaveTabs();
-      expect(controller.getVelocity()).toBe(0);
-      expect(controller.getHoveredValue()).toBeNull();
+      expect(controller.store.getState().hoveredValue).toBeNull();
       expect(controller.getTabSnapshot("t1", dimensions).showHighlight).toBe(
         true,
       );
       expect(controller.getTabSnapshot("t2", dimensions).showHighlight).toBe(
         false,
       );
+
+      // Re-hovering t2 without new pointer movement uses reset 0 velocity (distance stretch, not 1800px/s)
+      controller.hoverTab("t2");
+      const zeroVelHover = controller.getTabSnapshot("t2", dimensions);
+      expect(zeroVelHover.targetScaleX).toBeLessThan(fastGlide.targetScaleX);
 
       controller.destroy();
     });
@@ -212,14 +225,14 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       desktop.registerTab("t2");
 
       desktop.pressTab("t2", "mouse");
+      expect(desktop.store.getState().pressedValue).toBe("t2");
       const pressedDesktop = desktop.getTabSnapshot("t2", dimensions);
-      expect(pressedDesktop.isPressed).toBe(true);
       expect(pressedDesktop.targetScaleX).toBeGreaterThan(1);
       expect(pressedDesktop.targetScaleY).toBeGreaterThan(1);
       expect(pressedDesktop.willChange).toBe(true);
 
       desktop.releaseTab("t2", "mouse");
-      expect(desktop.getTabSnapshot("t2", dimensions).isPressed).toBe(false);
+      expect(desktop.store.getState().pressedValue).toBeNull();
 
       // Mobile / touch press and release
       const mobile = createTabsController({
@@ -239,46 +252,45 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       );
 
       mobile.releaseTab("t1", "touch");
-      expect(mobile.getHoveredValue()).toBeNull();
-      expect(mobile.getTabSnapshot("t1", dimensions).isPressed).toBe(false);
+      expect(mobile.store.getState().hoveredValue).toBeNull();
+      expect(mobile.store.getState().pressedValue).toBeNull();
 
       desktop.destroy();
       mobile.destroy();
     });
 
-    it("supports early notifyLayoutComplete, completeFlight, cancelTabPress, and unregistering tabs", () => {
+    it("supports early notifyLayoutComplete, landing completion, cancelTabPress, and unregistering tabs", () => {
       const controller = createTabsController({ initialValue: "t1" });
       const unregisterT1 = controller.registerTab("t1");
       const unregisterT2 = controller.registerTab("t2");
-      expect(controller.getTabCount()).toBe(2);
+      const unregisterT3 = controller.registerTab("t3");
 
-      controller.setActiveValue("t2");
-      expect(controller.getActivePhase()).toBe("flight");
+      controller.setActiveValue("t3");
+      expect(controller.store.getState().activePhase).toBe("flight");
+      expect(controller.store.getState().activeDistance).toBe(2);
 
-      // Layout completes early at 60ms
+      // Layout completes early at 60ms -> transitions to landing
       vi.advanceTimersByTime(60);
       controller.notifyLayoutComplete();
-      expect(controller.getActivePhase()).toBe("landing");
+      expect(controller.store.getState().activePhase).toBe("landing");
 
-      // Force immediate flight completion
-      controller.completeFlight();
-      expect(controller.getActivePhase()).toBe("idle");
-
-      // Setting same active value with explicit 0 distance resets flight
-      controller.setActiveValue("t1");
-      expect(controller.getActivePhase()).toBe("flight");
-      controller.setActiveValue("t1", 0);
-      expect(controller.getActivePhase()).toBe("idle");
+      // Landing pulse timer settles to idle
+      vi.advanceTimersByTime(LANDING_PULSE_MS);
+      expect(controller.store.getState().activePhase).toBe("idle");
 
       // Cancel press clears both press and hover
       controller.pressTab("t2", "mouse");
       controller.cancelTabPress();
-      expect(controller.getHoveredValue()).toBeNull();
-      expect(controller.getTabSnapshot("t2", dimensions).isPressed).toBe(false);
+      expect(controller.store.getState().hoveredValue).toBeNull();
+      expect(controller.store.getState().pressedValue).toBeNull();
+
+      // Unregistering middle tab t2 reduces hop distance between t3 and t1 from 2 to 1
+      unregisterT2();
+      controller.setActiveValue("t1");
+      expect(controller.store.getState().activeDistance).toBe(1);
 
       unregisterT1();
-      unregisterT2();
-      expect(controller.getTabCount()).toBe(0);
+      unregisterT3();
       controller.destroy();
     });
 
@@ -318,7 +330,9 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
           controller.store.getInitialState(),
           "t1",
         ),
-      ).toBe(controller.getServerTabStateMask("t1"));
+      ).toBe(
+        controller.getTabStateMaskFromState(controller.store.getState(), "t1"),
+      );
       expect(
         controller.getTabStateMaskFromState(
           controller.store.getInitialState(),
@@ -329,14 +343,13 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       // No-op operations must not notify subscribers
       controller.setActiveValue("t1");
       controller.leaveTabs();
-      controller.completeFlight();
       controller.hoverTab(null);
       expect(notifications).toBe(0);
 
-      // Hovering t2 starts impulse; passing non-zero distance or re-hovering after settle is a no-op
+      // Hovering t2 starts impulse; re-hovering same tab during or after impulse is a no-op
       controller.hoverTab("t2");
       expect(notifications).toBe(1);
-      controller.hoverTab("t2", 1);
+      controller.hoverTab("t2");
       expect(notifications).toBe(1);
       vi.advanceTimersByTime(TRAVEL_IMPULSE_MS);
       expect(notifications).toBe(2);
@@ -360,7 +373,7 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
 
       controller.setActiveValue("t2");
       expect(notifications).toBe(1);
-      expect(controller.getActivePhase()).toBe("flight");
+      expect(controller.store.getState().activePhase).toBe("flight");
 
       controller.destroy();
       vi.advanceTimersByTime(FLIGHT_SETTLE_MS + LANDING_PULSE_MS);
@@ -368,8 +381,8 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       controller.hoverTab("t1");
       controller.pressTab("t1", "mouse");
       expect(notifications).toBe(1);
-      expect(controller.getActivePhase()).toBe("flight");
-      expect(controller.getHoveredValue()).toBeNull();
+      expect(controller.store.getState().activePhase).toBe("flight");
+      expect(controller.store.getState().hoveredValue).toBeNull();
     });
 
     it("reactivates cleanly after idle destroy() with zero notifications and restores mutations", () => {
@@ -387,26 +400,25 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       // Pointer moves while destroyed are ignored
       controller.recordPointerMove(0, 10, 100);
       controller.recordPointerMove(90, 10, 150);
-      expect(controller.getVelocity()).toBe(0);
 
       // Re-activating from idle emits 0 notifications
       controller.activate();
       expect(notifications).toBe(0);
-      expect(controller.getActiveValue()).toBe("t1");
-      expect(controller.getActivePhase()).toBe("idle");
+      expect(controller.store.getState().activeValue).toBe("t1");
+      expect(controller.store.getState().activePhase).toBe("idle");
 
       // Subsequent mutations work normally
       controller.hoverTab("t2");
       expect(notifications).toBe(1);
-      expect(controller.getHoveredValue()).toBe("t2");
+      expect(controller.store.getState().hoveredValue).toBe("t2");
 
       controller.setActiveValue("t2");
       expect(notifications).toBe(2);
-      expect(controller.getActiveValue()).toBe("t2");
-      expect(controller.getActivePhase()).toBe("flight");
+      expect(controller.store.getState().activeValue).toBe("t2");
+      expect(controller.store.getState().activePhase).toBe("flight");
 
       vi.advanceTimersByTime(FLIGHT_SETTLE_MS + LANDING_PULSE_MS);
-      expect(controller.getActivePhase()).toBe("idle");
+      expect(controller.store.getState().activePhase).toBe("idle");
 
       controller.destroy();
     });
@@ -419,16 +431,15 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
 
       controller.recordPointerMove(0, 10, 100);
       controller.recordPointerMove(90, 10, 150);
-      expect(controller.getVelocity()).toBeGreaterThan(0);
 
       controller.setActiveValue("t2");
       controller.hoverTab("t3");
       controller.pressTab("t3", "mouse");
 
-      expect(controller.getActiveValue()).toBe("t2");
-      expect(controller.getActivePhase()).toBe("flight");
-      expect(controller.getActiveDistance()).toBe(1);
-      expect(controller.getHoveredValue()).toBe("t3");
+      expect(controller.store.getState().activeValue).toBe("t2");
+      expect(controller.store.getState().activePhase).toBe("flight");
+      expect(controller.store.getState().activeDistance).toBe(1);
+      expect(controller.store.getState().hoveredValue).toBe("t3");
       expect(controller.store.getState().pressedValue).toBe("t3");
 
       let notifications = 0;
@@ -437,26 +448,25 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       });
 
       controller.destroy();
-      expect(controller.getVelocity()).toBe(0);
 
       controller.activate();
       expect(notifications).toBe(1);
-      expect(controller.getActiveValue()).toBe("t2");
-      expect(controller.getActivePhase()).toBe("idle");
-      expect(controller.getActiveDistance()).toBe(0);
-      expect(controller.getHoveredValue()).toBeNull();
-      expect(controller.getHoverDistance()).toBe(0);
-      expect(controller.isHoverMoving()).toBe(false);
-      expect(controller.store.getState().pressedValue).toBeNull();
-      expect(controller.getVelocity()).toBe(0);
+      const resetState = controller.store.getState();
+      expect(resetState.activeValue).toBe("t2");
+      expect(resetState.activePhase).toBe("idle");
+      expect(resetState.activeDistance).toBe(0);
+      expect(resetState.hoveredValue).toBeNull();
+      expect(resetState.hoverDistance).toBe(0);
+      expect(resetState.hoverMoving).toBe(false);
+      expect(resetState.pressedValue).toBeNull();
 
       // Subsequent interactions work after mid-interaction reactivation
       controller.setActiveValue("t3");
-      expect(controller.getActiveValue()).toBe("t3");
-      expect(controller.getActivePhase()).toBe("flight");
+      expect(controller.store.getState().activeValue).toBe("t3");
+      expect(controller.store.getState().activePhase).toBe("flight");
 
       vi.advanceTimersByTime(FLIGHT_SETTLE_MS + LANDING_PULSE_MS);
-      expect(controller.getActivePhase()).toBe("idle");
+      expect(controller.store.getState().activePhase).toBe("idle");
 
       controller.destroy();
     });
@@ -481,11 +491,11 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       // Must not clear in-flight/hover state or notify when already active
       controller.activate();
       expect(notifications).toBe(2);
-      expect(controller.getActivePhase()).toBe("flight");
-      expect(controller.getHoveredValue()).toBe("t1");
+      expect(controller.store.getState().activePhase).toBe("flight");
+      expect(controller.store.getState().hoveredValue).toBe("t1");
 
       vi.advanceTimersByTime(FLIGHT_SETTLE_MS);
-      expect(controller.getActivePhase()).toBe("landing");
+      expect(controller.store.getState().activePhase).toBe("landing");
 
       controller.destroy();
     });
@@ -501,18 +511,16 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       unreg2();
       unreg3();
       controller.destroy();
-      expect(controller.getTabCount()).toBe(0);
 
       // Simulate StrictMode remount: children register before parent activate() runs
       const remountUnreg1 = controller.registerTab("t1");
       const remountUnreg2 = controller.registerTab("t2");
       const remountUnreg3 = controller.registerTab("t3");
-      expect(controller.getTabCount()).toBe(3);
 
       controller.activate();
       controller.setActiveValue("t3");
-      expect(controller.getActivePhase()).toBe("flight");
-      expect(controller.getActiveDistance()).toBe(2);
+      expect(controller.store.getState().activePhase).toBe("flight");
+      expect(controller.store.getState().activeDistance).toBe(2);
 
       remountUnreg1();
       remountUnreg2();
@@ -671,7 +679,6 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
         width: 200,
         height: 42,
         centerX: 100,
-        centerY: 21,
       },
       {
         value: "work",
@@ -680,7 +687,6 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
         width: 120,
         height: 42,
         centerX: 264,
-        centerY: 21,
       },
       {
         value: "faq",
@@ -689,7 +695,6 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
         width: 68,
         height: 42,
         centerX: 362,
-        centerY: 21,
       },
       {
         value: "contact",
@@ -698,7 +703,6 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
         width: 92,
         height: 42,
         centerX: 446,
-        centerY: 21,
       },
     ];
 
@@ -832,41 +836,44 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
 
       // Hover events during drag are ignored
       controller.hoverTab("work");
-      expect(controller.getHoveredValue()).toBeNull();
+      expect(controller.store.getState().hoveredValue).toBeNull();
 
       // Expanded press state persists on dragPreviewValue ("faq")
+      expect(
+        controller.getTabStateMaskFromState(controller.store.getState(), "faq") &
+          64,
+      ).toBe(64);
       const faqDragSnap = controller.getTabSnapshot("faq", {
         width: 68,
         height: 42,
       });
-      expect(faqDragSnap.isPressed).toBe(true);
       expect(faqDragSnap.isDragPreview).toBe(true);
       expect(faqDragSnap.targetScaleY).toBeGreaterThan(1.15);
 
       // Commit drag and verify setActiveValue("faq") from React sync does NOT kill flightTimer
       controller.commitDrag("faq");
       controller.setActiveValue("faq");
-      expect(controller.getActiveValue()).toBe("faq");
-      expect(controller.getActivePhase()).toBe("flight");
+      expect(controller.store.getState().activeValue).toBe("faq");
+      expect(controller.store.getState().activePhase).toBe("flight");
 
       // Post-release synthetic hoverTab is suppressed until real mouse movement
       controller.hoverTab("work");
-      expect(controller.getHoveredValue()).toBeNull();
+      expect(controller.store.getState().hoveredValue).toBeNull();
       controller.recordPointerMove(250, 20, 100);
       controller.hoverTab("work");
-      expect(controller.getHoveredValue()).toBe("work");
+      expect(controller.store.getState().hoveredValue).toBe("work");
 
       // Flight -> landing -> idle lifecycle completes cleanly
       vi.advanceTimersByTime(FLIGHT_SETTLE_MS);
-      expect(controller.getActivePhase()).toBe("landing");
+      expect(controller.store.getState().activePhase).toBe("landing");
       vi.advanceTimersByTime(LANDING_PULSE_MS);
-      expect(controller.getActivePhase()).toBe("idle");
+      expect(controller.store.getState().activePhase).toBe("idle");
 
       // Cancel drag resets drag/preview/press without changing activeValue
       controller.pressTab("work", "mouse");
       controller.startDrag("work");
       controller.cancelDrag();
-      expect(controller.getActiveValue()).toBe("faq");
+      expect(controller.store.getState().activeValue).toBe("faq");
       expect(controller.store.getState().isDragging).toBe(false);
       expect(controller.store.getState().dragPreviewValue).toBeNull();
       expect(controller.store.getState().pressedValue).toBeNull();
@@ -875,9 +882,9 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       controller.pressTab("faq", "mouse");
       controller.startDrag("contact");
       controller.commitDrag("contact", 0);
-      expect(controller.getActiveValue()).toBe("contact");
-      expect(controller.getActivePhase()).toBe("idle");
-      expect(controller.getActiveDistance()).toBe(0);
+      expect(controller.store.getState().activeValue).toBe("contact");
+      expect(controller.store.getState().activePhase).toBe("idle");
+      expect(controller.store.getState().activeDistance).toBe(0);
 
       unsub();
       controller.destroy();

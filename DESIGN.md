@@ -165,9 +165,6 @@ The palette pairs deep neutral obsidian layers with a singular, luminous periwin
 ### Optical & Material Tokens
 - **Cyan Dispersion** (`--color-dispersion-cyan: oklch(85% 0.12 215 / 0.08)`): Prismatic cool edge refraction margin.
 - **Amber Dispersion** (`--color-dispersion-amber: oklch(85% 0.14 75 / 0.06)`): Prismatic warm edge refraction margin.
-- **Specular Core** (`--color-glass-sheen-core: oklch(100% 0 0 / 0.45)`): Peak highlight luminance.
-- **Specular Mid** (`--color-glass-sheen-mid: oklch(100% 0 0 / 0.12)`): Internal material bounce falloff.
-- **Specular Edge** (`--color-glass-sheen-edge: oklch(100% 0 0 / 0.0)`): Transparent boundary decay.
 
 ### Named Rules
 - **The Restrained Accent Rule.** The system restricts the primary accent to interactive controls and critical process indicators. Accent coverage must not exceed 5% of any viewport.
@@ -211,9 +208,8 @@ The layout enforces responsive viewport boundaries through theme tokens (`max-w-
 The system uses a hybrid tactile glass architecture. Rather than relying on heavy opaque drop shadows, surfaces convey depth through translucency (`backdrop-blur-sm md:backdrop-blur-lg`), specular edge highlights, and subtle inner reflections.
 
 ### Shadow Vocabulary
-- **LiquidGlass Flat** (`box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.18), inset 0 4px 8px rgba(255, 255, 255, 0.03), 0 4px 12px rgba(0, 0, 0, 0.12)`): Resting elevation for glass cards, containers, and non-active controls.
-- **LiquidGlass Sunken** (`box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 1px 2px rgba(255, 255, 255, 0.02)`): Pressed controls, active tab recesses, and indented indicator wells.
-- **LiquidGlass Beveled Active** (`box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3), inset 0 6px 12px rgba(255, 255, 255, 0.04), inset 1.5px 0 2px -0.5px var(--color-dispersion-cyan), inset -1.5px 0 2px -0.5px var(--color-dispersion-amber), 0 6px 14px rgba(0, 0, 0, 0.15)`): Highlighted callouts, hovered cards, and active navigation pills.
+- **LiquidGlass Flat** (`box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.18), inset 0 -1px 1px rgba(255, 255, 255, 0.08), inset 0 4px 8px rgba(255, 255, 255, 0.03), inset 0 1.5px 2px -0.5px var(--color-dispersion-cyan), inset 0 -1.5px 2px -0.5px var(--color-dispersion-amber), 0 4px 12px rgba(0, 0, 0, 0.12)`): Hoisted resting elevation (`INNER_GLASS_STYLE`) for glass cards, containers, and controls.
+- **Highlight Pill Active / Flat** (`.highlight-pill`, `.navbar-highlight-flat`, `.navbar-highlight-active`): Specular rim and chromatic dispersion elevation for sliding tab and navigation pills.
 - **Drawer Structural Shadow** (`--shadow-drawer: 0 4px 16px rgba(0, 0, 0, 0.6)`): Deep elevation for slide-out drawers and bottom sheets.
 - **Accent Glow** (`--shadow-glow-accent: 0 0 10px hsla(var(--accent), 0.8)`): High-contrast focal illumination for active elements.
 

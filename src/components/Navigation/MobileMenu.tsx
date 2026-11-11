@@ -107,7 +107,6 @@ function MobileMenu({
                 layoutId="active-mobile-nav-highlight"
                 orientation="vertical"
                 role={null}
-                highlightClassName="navbar-highlight-flat"
                 highlightStyle={HIGHLIGHT_STYLE}
                 className="flex flex-col gap-1.5"
               >

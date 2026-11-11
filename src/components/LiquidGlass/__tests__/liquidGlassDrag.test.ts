@@ -5,14 +5,13 @@ import {
   TAP_PRESS_TRANSITION,
   TAP_RELEASE_TRANSITION,
   computeGlisseBaseScale,
-  computeInnerGlassStyle,
   computeReactiveSheenBoxShadow,
 } from "../liquidGlassUtils";
 import {
   computeAnisotropicStretch,
   createGlassGestureEngine,
 } from "../useLiquidGlassPhysics";
-import { glassFeel } from "../config";
+import { glassFeel, INNER_GLASS_STYLE } from "../config";
 import { SPRING } from "../../../utils/springConfig";
 
 describe("LiquidGlass gesture physics engine, surface resolution, and stretch math", () => {
@@ -57,12 +56,10 @@ describe("LiquidGlass gesture physics engine, surface resolution, and stretch ma
 
     it("expands on pointerDown and does NOT suppress click when movement stays <= 5px", () => {
       const engine = createGlassGestureEngine({
-        interactive: true,
         effectiveMagnetic: true,
         effectiveTilt: true,
         effectiveSpringScale: true,
         magneticStrength: 0.02,
-        tiltStrength: 2,
       });
 
       const downState = engine.pointerDown({
@@ -115,12 +112,10 @@ describe("LiquidGlass gesture physics engine, surface resolution, and stretch ma
 
     it("suppresses synthetic click after dragging > 5px and expires suppression after 100ms", () => {
       const engine = createGlassGestureEngine({
-        interactive: true,
         effectiveMagnetic: true,
         effectiveTilt: true,
         effectiveSpringScale: true,
         magneticStrength: 0.02,
-        tiltStrength: 2,
       });
 
       engine.pointerDown({
@@ -185,12 +180,10 @@ describe("LiquidGlass gesture physics engine, surface resolution, and stretch ma
 
     it("keeps scale at 1 when effectiveSpringScale is false while preserving magnetic pull and tilt", () => {
       const engine = createGlassGestureEngine({
-        interactive: true,
         effectiveMagnetic: true,
         effectiveTilt: true,
         effectiveSpringScale: false,
         magneticStrength: 0.02,
-        tiltStrength: 2,
       });
 
       const downState = engine.pointerDown({
@@ -219,12 +212,10 @@ describe("LiquidGlass gesture physics engine, surface resolution, and stretch ma
 
     it("tracks hover mouseEnter/mouseMove/mouseLeave and debounces height-only resizes", () => {
       const engine = createGlassGestureEngine({
-        interactive: true,
         effectiveMagnetic: false,
         effectiveTilt: false,
         effectiveSpringScale: true,
         magneticStrength: 0.02,
-        tiltStrength: 2,
       });
 
       const enter = engine.mouseEnter({ clientX: 180, clientY: 72, rect });
@@ -444,7 +435,7 @@ describe("LiquidGlass gesture physics engine, surface resolution, and stretch ma
     });
   });
 
-  describe("computeGlisseBaseScale, computeInnerGlassStyle, and computeReactiveSheenBoxShadow", () => {
+  describe("computeGlisseBaseScale, INNER_GLASS_STYLE, and computeReactiveSheenBoxShadow", () => {
     it("computes uniform scale and falls back safely for NaN/zero dimensions", () => {
       expect(computeGlisseBaseScale(140, 44, 6)).toBeCloseTo(1 + 6 / 140, 5);
       expect(computeGlisseBaseScale(0, 0, 6)).toBeCloseTo(1 + 6 / 20, 5);
@@ -452,15 +443,11 @@ describe("LiquidGlass gesture physics engine, surface resolution, and stretch ma
       expect(computeGlisseBaseScale(100, 40, NaN)).toBe(1);
     });
 
-    it("adds specular glow shadow when variant is flat, active is true, and specularGlow is true", () => {
-      const style = computeInnerGlassStyle("flat", true, true);
-      expect(style.boxShadow).toContain(
-        "inset 0 1px 2px rgba(255, 255, 255, 0.24)",
+    it("provides a hoisted flat inner glass boxShadow with chromatic dispersion", () => {
+      expect(INNER_GLASS_STYLE.boxShadow).toContain(
+        "inset 0 1px 1px rgba(255, 255, 255, 0.18)",
       );
-      const baseStyle = computeInnerGlassStyle("flat", true, false);
-      expect(baseStyle.boxShadow).not.toContain(
-        "inset 0 1px 2px rgba(255, 255, 255, 0.24)",
-      );
+      expect(INNER_GLASS_STYLE.boxShadow).toContain("--color-dispersion-cyan");
     });
 
     it("clamps reactive sheen travel when holding = 1 vs stock hover holding = 0", () => {

@@ -12,12 +12,16 @@ import { clamp, motion, type MotionStyle } from "motion/react";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { cn } from "../../utils/cn";
 import { SPRING } from "../../utils/springConfig";
-import { getInnerGlassStyle, type LiquidGlassVariant } from "./config";
+import { INNER_GLASS_STYLE } from "./config";
 import {
+  DEFAULT_STYLE,
   type LiquidGlassTagProps,
   type LiquidGlassAnimationProps,
   type LiquidGlassDomProps,
 } from "./types";
+
+export const CAPSULE_HIGHLIGHT_RADIUS =
+  "calc((var(--base-radius) * var(--scale-y)) / var(--scale-x)) / var(--base-radius)";
 
 export const TAP_PRESS_TRANSITION = {
   scaleX: SPRING.glassTouchPress,
@@ -47,15 +51,7 @@ export function useKeyboardClick(
   );
 }
 
-const SEMANTIC_CONTAINERS = new Set([
-  "article",
-  "section",
-  "nav",
-  "aside",
-  "header",
-  "footer",
-  "main",
-]);
+const SEMANTIC_CONTAINERS = new Set(["article"]);
 
 export const TAG_MAP: { readonly [tag: string]: ElementType | undefined } = {
   a: motion.a,
@@ -63,7 +59,6 @@ export const TAG_MAP: { readonly [tag: string]: ElementType | undefined } = {
   div: motion.div,
   span: motion.span,
   article: motion.article,
-  section: motion.section,
 };
 
 type GlassTagElement = (props: LiquidGlassTagProps) => ReactNode;
@@ -72,21 +67,7 @@ function preventDefaultOnDragStart(e: DragEvent<HTMLElement>): void {
   (e as { preventDefault?: () => void }).preventDefault?.();
 }
 
-export function computeInnerGlassStyle(
-  variant: LiquidGlassVariant = "flat",
-  isActive = false,
-  specularGlow = false,
-): CSSProperties {
-  const baseStyle = getInnerGlassStyle(variant, isActive);
-  if (specularGlow && isActive && variant === "flat") {
-    return {
-      boxShadow: `inset 0 1px 2px rgba(255, 255, 255, 0.24), inset 0 8px 16px rgba(255, 255, 255, 0.06), ${baseStyle.boxShadow ?? ""}`,
-    };
-  }
-  return baseStyle;
-}
-
-type GlassTagType = "div" | "button" | "a" | "article" | "section" | "span";
+type GlassTagType = "div" | "button" | "a" | "article" | "span";
 
 interface GlassSurfaceOptions {
   as?: GlassTagType;
@@ -100,10 +81,7 @@ interface GlassSurfaceOptions {
   className?: string;
   innerClassName?: string;
   roundedClass?: string;
-  variant?: LiquidGlassVariant;
-  active?: boolean;
   isHovered?: boolean;
-  specularGlow?: boolean;
   tagStyle?: CSSProperties | MotionStyle;
   animationProps?: LiquidGlassAnimationProps;
   domProps?: LiquidGlassDomProps;
@@ -117,10 +95,8 @@ interface ResolvedGlassSurface {
   innerGlassStyle: CSSProperties;
 }
 
-function resolveBorderActiveClass(active: boolean, isHovered: boolean): string {
-  if (active) return "bg-white/[0.05]";
-  if (isHovered) return "bg-white/[0.03]";
-  return "bg-white/[0.015]";
+function resolveBorderActiveClass(isHovered: boolean): string {
+  return isHovered ? "bg-white/[0.03]" : "bg-white/[0.015]";
 }
 
 function applyInteractiveElementProps(
@@ -171,15 +147,12 @@ export function resolveGlassSurfaceProps({
   className = "",
   innerClassName = "",
   roundedClass = "rounded-full",
-  variant = "flat",
-  active = false,
   isHovered = false,
-  specularGlow = false,
-  tagStyle = {},
+  tagStyle = DEFAULT_STYLE,
   animationProps,
   domProps,
 }: GlassSurfaceOptions): ResolvedGlassSurface {
-  const borderActiveClasses = resolveBorderActiveClass(active, isHovered);
+  const borderActiveClasses = resolveBorderActiveClass(isHovered);
   const isInteractive = Boolean(as === "button" || href || onClick);
   const cursorAndFocusClasses = isInteractive
     ? "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
@@ -227,14 +200,12 @@ export function resolveGlassSurfaceProps({
     domProps,
   );
 
-  const innerGlassStyle = computeInnerGlassStyle(variant, active, specularGlow);
-
   return {
     isInline,
     tagProps,
     contentClasses,
     borderActiveClasses,
-    innerGlassStyle,
+    innerGlassStyle: INNER_GLASS_STYLE,
   };
 }
 

@@ -70,7 +70,6 @@ function ContactSection() {
                   magnetic
                   tilt
                   magneticStrength={0.02}
-                  specularGlow
                 >
                   <span className="flex w-full items-center justify-center gap-2">
                     <span className="break-all sm:break-normal">
@@ -98,7 +97,6 @@ function ContactSection() {
                     magnetic
                     tilt
                     magneticStrength={0.02}
-                    specularGlow
                   >
                     <span className="flex w-full items-center justify-center gap-2">
                       <svg

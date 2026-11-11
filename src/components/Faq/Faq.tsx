@@ -94,7 +94,6 @@ function Faq() {
                   magnetic
                   tilt
                   magneticStrength={0.03}
-                  specularGlow
                 >
                   <span className="flex items-center gap-2">
                     <span>Get in Touch</span>

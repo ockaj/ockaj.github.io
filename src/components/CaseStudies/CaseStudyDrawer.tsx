@@ -2,7 +2,8 @@ import { memo } from "react";
 import { motion } from "motion/react";
 import { Activity, FileText } from "lucide-react";
 import type { CaseStudyDetail } from "../../data/caseStudies";
-import { LiquidGlassButton, StaticGlass } from "../LiquidGlass/LiquidGlass";
+import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import { StaticGlass } from "../LiquidGlass/LiquidGlassStatic";
 import BaseDrawer from "../BaseDrawer";
 import {
   drawerContentVariants,

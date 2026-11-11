@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { StaticGlass, LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import { LiquidGlassButton } from "../LiquidGlass/LiquidGlass";
+import { StaticGlass } from "../LiquidGlass/LiquidGlassStatic";
 import { PROCESS_TOPICS } from "../../data/processItems";
 import {
   useProcessStore,

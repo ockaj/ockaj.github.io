@@ -279,7 +279,6 @@ function Hero() {
               magnetic
               tilt
               magneticStrength={0.02}
-              specularGlow
             >
               View CV
               {CV_BUTTON_ICON}
@@ -292,7 +291,6 @@ function Hero() {
             magnetic
             tilt
             magneticStrength={0.02}
-            specularGlow
             onClick={handleViewWork}
           >
             View Case Studies

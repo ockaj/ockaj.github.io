@@ -36,7 +36,6 @@ export const FaqItem = memo(function FaqItem({ item }: FaqItemProps) {
         roundedClass="rounded-2xl"
         className="w-full text-left"
         tilt={false}
-        specularGlow
       >
         <div className="p-6 md:p-7">
           <Accordion.Header className="m-0 flex w-full items-center justify-between gap-4 p-0 font-normal">
@@ -87,7 +86,6 @@ export const FaqItem = memo(function FaqItem({ item }: FaqItemProps) {
                     magnetic
                     tilt
                     magneticStrength={0.03}
-                    specularGlow
                   >
                     <span className="flex items-center gap-2">
                       <span>{item.actionLink.label}</span>

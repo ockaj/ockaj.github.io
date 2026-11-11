@@ -81,7 +81,6 @@ function ProcessDesktopControls() {
             orientation="vertical"
             variant="segmented"
             roundedClass="rounded-2xl"
-            highlightClassName="navbar-highlight-flat"
             className="flex w-full flex-col justify-center gap-2.5"
           >
             {visibleTopics.map((topic, idx) => {
@@ -145,7 +144,6 @@ function ProcessDesktopControls() {
                   magnetic
                   tilt
                   magneticStrength={0.02}
-                  specularGlow
                 >
                   <span className="flex items-center gap-1.5">
                     <span>

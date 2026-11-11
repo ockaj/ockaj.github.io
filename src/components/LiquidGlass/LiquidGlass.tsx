@@ -1,5 +1,3 @@
-"use client";
-
 import { memo } from "react";
 import { useIsMobile } from "../../hooks/useMediaQuery";
 import LiquidGlassMobile from "./LiquidGlassMobile";
@@ -26,48 +24,20 @@ export const InteractiveGlass = memo(function InteractiveGlass({
 
 InteractiveGlass.displayName = "InteractiveGlass";
 
-function LiquidGlassButtonComponent({
-  children,
-  onClick,
-  className = "",
+export const LiquidGlassButton = memo(function LiquidGlassButton({
   href,
-  download,
-  target,
-  rel,
-  ariaLabel,
-  magnetic,
-  tilt,
-  magneticStrength,
-  tiltStrength,
-  ref,
-  ...rest
+  springScale,
+  disabled,
+  ...props
 }: Readonly<GlassButtonPropsWithRef>) {
   return (
     <InteractiveGlass
-      ref={ref}
       as={href ? "a" : "button"}
       href={href}
-      download={download}
-      target={target}
-      rel={rel}
-      onClick={onClick}
-      className={className}
-      ariaLabel={ariaLabel}
-      springScale
-      magnetic={magnetic}
-      tilt={tilt}
-      magneticStrength={magneticStrength}
-      tiltStrength={tiltStrength}
-      {...rest}
-    >
-      {children}
-    </InteractiveGlass>
+      disabled={disabled}
+      springScale={springScale ?? !disabled}
+      {...props}
+    />
   );
-}
-
-LiquidGlassButtonComponent.displayName = "LiquidGlassButtonComponent";
-
-export const LiquidGlassButton = memo(LiquidGlassButtonComponent);
+});
 LiquidGlassButton.displayName = "LiquidGlassButton";
-
-export { StaticGlass } from "./LiquidGlassStatic";
