@@ -13,7 +13,9 @@ test.describe("BaseDrawer & Entity Modals", () => {
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
 
-    await page.locator(".fixed.inset-0.z-90").click({ position: { x: 50, y: 50 } });
+    await page
+      .locator(".fixed.inset-0.z-90")
+      .click({ position: { x: 50, y: 50 } });
     await expect(dialog).toBeHidden();
     await expect(page).toHaveURL(/#work$/);
   });
@@ -36,6 +38,29 @@ test.describe("BaseDrawer & Entity Modals", () => {
     await expect(dialog).toBeHidden();
   });
 
+  test("keeps drawer content vertically scrollable", async ({ page }) => {
+    await page.goto("/#case-study-1", { waitUntil: "domcontentloaded" });
+
+    const dialog = page.getByRole("dialog");
+    const content = dialog.locator(".overflow-y-auto").first();
+    await expect(content).toBeVisible();
+    await expect
+      .poll(() =>
+        content.evaluate((element) => ({
+          canScroll: element.scrollHeight > element.clientHeight,
+          scrollTop: element.scrollTop,
+        })),
+      )
+      .toMatchObject({ canScroll: true, scrollTop: 0 });
+
+    await content.hover();
+    await page.mouse.wheel(0, 500);
+
+    await expect
+      .poll(() => content.evaluate((element) => element.scrollTop))
+      .toBeGreaterThan(0);
+  });
+
   test("recovers from invalid case study deep link to #work", async ({
     page,
   }) => {
@@ -52,7 +77,9 @@ test.describe("BaseDrawer & Entity Modals", () => {
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
 
-    await page.locator(".fixed.inset-0.z-90").click({ position: { x: 50, y: 50 } });
+    await page
+      .locator(".fixed.inset-0.z-90")
+      .click({ position: { x: 50, y: 50 } });
     await expect(dialog).toBeHidden();
     await expect(page).toHaveURL(/#journal$/);
   });
@@ -68,7 +95,9 @@ test.describe("BaseDrawer & Entity Modals", () => {
       const dialog = page.getByRole("dialog");
       await expect(dialog).toBeVisible();
 
-      await page.locator(".fixed.inset-0.z-90").click({ position: { x: 50, y: 50 } });
+      await page
+        .locator(".fixed.inset-0.z-90")
+        .click({ position: { x: 50, y: 50 } });
       await expect(dialog).toBeHidden();
     });
   });
