@@ -9,10 +9,6 @@ import {
 import { usePrefersReducedMotion } from "../../hooks/useMediaQuery";
 import { useAppStore } from "../../store/useAppStore";
 
-const HIGHLIGHT_STYLE = {
-  boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.15)",
-} as const;
-
 interface NavLinkItem {
   id: string;
   label: string;
@@ -107,7 +103,6 @@ function MobileMenu({
                 layoutId="active-mobile-nav-highlight"
                 orientation="vertical"
                 role={null}
-                highlightStyle={HIGHLIGHT_STYLE}
                 className="flex flex-col gap-1.5"
               >
                 {allLinks.map((link) => (

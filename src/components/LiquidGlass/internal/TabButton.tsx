@@ -368,7 +368,6 @@ export const TabButton = memo(function TabButton({
         effectiveRoundedClass,
         dimensions.height,
         willChange,
-        contextHighlightStyle,
       )
     : undefined;
 
@@ -434,6 +433,7 @@ export const TabButton = memo(function TabButton({
           scaleX={scaleX}
           scaleY={scaleY}
           innerHighlightClass={innerHighlightClass}
+          innerHighlightStyle={contextHighlightStyle}
           willChange={willChange}
           ripple={rendersRipple}
           rippleX={rippleX}

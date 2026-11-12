@@ -12,6 +12,7 @@ interface TabHighlightProps {
   scaleX: MotionValue<number>;
   scaleY: MotionValue<number>;
   innerHighlightClass: string;
+  innerHighlightStyle?: CSSProperties;
   willChange: boolean;
   ripple: boolean;
   rippleX: MotionValue<number>;
@@ -33,6 +34,7 @@ export const TabHighlight = memo(function TabHighlight({
   scaleX,
   scaleY,
   innerHighlightClass,
+  innerHighlightStyle,
   willChange,
   ripple,
   rippleX,
@@ -65,6 +67,7 @@ export const TabHighlight = memo(function TabHighlight({
                 : CAPSULE_HIGHLIGHT_RADIUS,
             transformOrigin: "center center",
             willChange: willChange ? "transform" : "auto",
+            ...innerHighlightStyle,
           } as unknown as CSSProperties
         }
       >

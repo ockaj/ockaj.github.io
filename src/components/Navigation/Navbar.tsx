@@ -91,7 +91,7 @@ export default function Navbar() {
 
   useEffect(() => {
     let isLiftedTransform = false;
-    return capsuleOffsetX.on("change", (latest) => {
+    const unsubscribe = capsuleOffsetX.on("change", (latest) => {
       const next = Math.abs(latest) > 0.005;
       if (next === isLiftedTransform) return;
       isLiftedTransform = next;
@@ -100,6 +100,7 @@ export default function Navbar() {
         capsule.style.willChange = next ? "transform" : "auto";
       }
     });
+    return () => unsubscribe();
   }, [capsuleOffsetX]);
 
   // Track scroll depth for the navbar backdrop collapse effect

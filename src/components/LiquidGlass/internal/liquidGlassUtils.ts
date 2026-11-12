@@ -339,13 +339,11 @@ export function computeOuterHighlightStyle(
   roundedClass: string,
   height: number,
   willChange: boolean,
-  contextHighlightStyle?: CSSProperties,
 ): CSSProperties {
   const baseRadius = resolveBaseRadius(variant, roundedClass, height);
   return {
     "--base-radius": baseRadius,
     "--pill-h": `${height}px`,
-    ...contextHighlightStyle,
     willChange: willChange ? "transform" : "auto",
   } as CSSProperties;
 }
