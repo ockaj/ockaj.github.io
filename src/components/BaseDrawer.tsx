@@ -4,6 +4,8 @@ import {
   useMemo,
   useCallback,
   useState,
+  useRef,
+  useEffect,
   ReactNode,
   memo,
 } from "react";
@@ -29,6 +31,7 @@ import {
   usePrefersReducedMotion,
 } from "../hooks/useMediaQuery";
 import { useOverlay } from "../hooks/useAppNavigation";
+import { isVirtualClick } from "../utils/virtualClick";
 import { cn } from "../utils/cn";
 
 interface BaseDrawerProps {
@@ -99,6 +102,59 @@ const drawerVariants: Variants = {
 const DRAG_CONSTRAINTS = { left: 0, right: 0 } as const;
 const DRAG_ELASTIC = { left: 0.05, right: 1 } as const;
 
+function useSyntheticClickSuppression() {
+  const cleanupRef = useRef<() => void>(() => {});
+
+  useEffect(() => {
+    return () => {
+      cleanupRef.current();
+    };
+  }, []);
+
+  const suppressSyntheticClick = useCallback(() => {
+    cleanupRef.current();
+
+    if (typeof document === "undefined") return;
+
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    function cleanup() {
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId);
+        timeoutId = undefined;
+      }
+      cleanupRef.current = () => {};
+      document.removeEventListener("pointerdown", restore, true);
+      document.removeEventListener("click", restore, true);
+    }
+
+    function restore(event: MouseEvent | PointerEvent) {
+      if (event.type === "click") {
+        const mouseEvent = event as MouseEvent;
+        if (mouseEvent.detail !== 0 && !isVirtualClick(mouseEvent)) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation?.();
+        }
+        cleanup();
+        return;
+      }
+
+      if (event.type === "pointerdown") {
+        cleanup();
+      }
+    }
+
+    cleanupRef.current = cleanup;
+    timeoutId = setTimeout(cleanup, 500);
+
+    document.addEventListener("pointerdown", restore, true);
+    document.addEventListener("click", restore, true);
+  }, []);
+
+  return suppressSyntheticClick;
+}
+
 function DrawerBackdrop() {
   const { onClose } = useDrawerContext();
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -132,6 +188,9 @@ function DrawerHeader({ title, icon }: DrawerHeaderProps) {
     if ((e.target as HTMLElement).closest("button, a, [role='button']")) {
       return;
     }
+    if (e.cancelable && e.pointerType !== "touch") {
+      e.preventDefault();
+    }
     dragControls.start(e);
   };
 
@@ -162,11 +221,18 @@ function DrawerEdgeDragHandle() {
   const { canDrag, dragControls } = useDrawerContext();
   if (!canDrag) return null;
 
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.cancelable && e.pointerType !== "touch") {
+      e.preventDefault();
+    }
+    dragControls.start(e);
+  };
+
   return (
     <div
       className="absolute inset-y-0 left-0 z-40 w-16 cursor-grab touch-none select-none active:cursor-grabbing"
       aria-hidden="true"
-      onPointerDown={(e) => dragControls.start(e)}
+      onPointerDown={handlePointerDown}
     />
   );
 }
@@ -176,6 +242,7 @@ function useDrawerDrag(open: boolean, onClose: () => void) {
   const isTouchDevice = useIsTouchDevice();
   const canDrag = isMobile || isTouchDevice;
   const dragControls = useDragControls();
+  const suppressSyntheticClick = useSyntheticClickSuppression();
   const [exitVelocityX, setExitVelocityX] = useState<number | undefined>(
     undefined,
   );
@@ -195,11 +262,12 @@ function useDrawerDrag(open: boolean, onClose: () => void) {
       const isDeliberateSwipe = info.offset.x > 60;
       const reachedThreshold = projectedX > 200 || info.velocity.x > 750;
       if (isDeliberateSwipe && reachedThreshold) {
+        suppressSyntheticClick();
         setExitVelocityX(info.velocity.x);
         onClose();
       }
     },
-    [onClose],
+    [onClose, suppressSyntheticClick],
   );
 
   return { canDrag, dragControls, exitVelocityX, handleDragEnd };
