@@ -269,6 +269,7 @@ const BaseDrawer = memo(function BaseDrawer({
                     dragConstraints={DRAG_CONSTRAINTS}
                     dragElastic={DRAG_ELASTIC}
                     onDragEnd={handleDragEnd}
+                    style={{ touchAction: canDrag ? "pan-y" : undefined }}
                     className={cn(
                       "fixed top-0 right-0 z-100 flex size-full flex-col overflow-hidden overscroll-contain border-l border-white/10 bg-surface shadow-drawer md:bg-surface/90 md:backdrop-blur-2xl",
                       maxWidthClass,
