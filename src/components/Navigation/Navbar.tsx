@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState, useRef } from "react";
-import { motion, useMotionValue, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { Avatar } from "@base-ui/react/avatar";
 import { Menu, X } from "lucide-react";
 import { LiquidGlassButton } from "../LiquidGlass/Button";
@@ -45,7 +45,6 @@ export default function Navbar() {
   const isMotionReduced = !!prefersReducedMotion;
   const localSentinelRef = useRef<HTMLDivElement>(null);
   const capsuleRef = useRef<HTMLDivElement>(null);
-  const capsuleOffsetX = useMotionValue(0);
 
   const active = useAppStore((state) => state.activeSection);
   const {
@@ -89,20 +88,6 @@ export default function Navbar() {
     };
   }, [isMobile]);
 
-  useEffect(() => {
-    let isLiftedTransform = false;
-    const unsubscribe = capsuleOffsetX.on("change", (latest) => {
-      const next = Math.abs(latest) > 0.005;
-      if (next === isLiftedTransform) return;
-      isLiftedTransform = next;
-      const capsule = capsuleRef.current;
-      if (capsule) {
-        capsule.style.willChange = next ? "transform" : "auto";
-      }
-    });
-    return () => unsubscribe();
-  }, [capsuleOffsetX]);
-
   // Track scroll depth for the navbar backdrop collapse effect
   useEffect(() => {
     const sentinel = localSentinelRef.current;
@@ -143,7 +128,6 @@ export default function Navbar() {
       >
         <motion.div
           ref={capsuleRef}
-          style={{ x: capsuleOffsetX }}
           className={cn(
             "navbar-capsule pointer-events-auto relative isolate z-50 flex w-full max-w-85vw items-center justify-between gap-1 overflow-hidden rounded-full bg-surface/40 p-1.75 backdrop-blur-md backdrop-saturate-150 md:w-auto md:max-w-95vw md:justify-start md:gap-1.5 md:overflow-visible",
             scrolled && "bg-surface/60",
@@ -154,7 +138,6 @@ export default function Navbar() {
             onChange={handleNav}
             layoutId="active-nav-highlight"
             role={null}
-            capsuleOffsetX={capsuleOffsetX}
             className="flex items-center gap-1 md:gap-1.5"
           >
             {/* Home Button (Avatar + Name) */}

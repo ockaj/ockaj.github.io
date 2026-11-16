@@ -27,15 +27,126 @@ import {
   BASE_PILL_WIDTH,
   DRAG_THRESHOLD_PX,
   clampPillCenterForEdgePull,
-  computeCapsuleEdgeOffsetX,
+  computeBoundarySquish,
   createVelocitySampler,
   interpolateTabField,
   projectMomentum,
   resolveNearestTab,
+  resolveReleaseRecoilVelocity,
 } from "./tabDragPhysics";
 
 const LIVE_PILL_HIT_SLOP = 8;
 const CLICK_SUPPRESS_MS = 120;
+
+function computeOverdragDistance(
+  rawCenter: number,
+  tabs: readonly TabGeometry[],
+): number {
+  if (tabs.length === 0) return 0;
+  const first = tabs[0];
+  const last = tabs[tabs.length - 1];
+  if (rawCenter < first.centerX) {
+    return rawCenter - first.centerX;
+  }
+  if (rawCenter > last.centerX) {
+    return rawCenter - last.centerX;
+  }
+  return 0;
+}
+
+function isPointerOutsideElement(
+  clientX: number,
+  clientY: number,
+  rect: DOMRect,
+): boolean {
+  return (
+    clientX < rect.left ||
+    clientX > rect.right ||
+    clientY < rect.top ||
+    clientY > rect.bottom
+  );
+}
+
+interface RecoilHandoff {
+  velocity: number;
+  spring: typeof SPRING.highlight | typeof SPRING.pillWallRecoil;
+}
+
+function resolveReleaseRecoilHandoff(
+  overdragPx: number,
+  releaseVelocity: number,
+  isMotionReduced: boolean,
+): RecoilHandoff {
+  if (isMotionReduced) {
+    return { velocity: 0, spring: SPRING.highlight };
+  }
+  if (Math.abs(overdragPx) > 0.5) {
+    return {
+      velocity: resolveReleaseRecoilVelocity(overdragPx, releaseVelocity),
+      spring: SPRING.pillWallRecoil,
+    };
+  }
+  return {
+    velocity: releaseVelocity,
+    spring: SPRING.highlight,
+  };
+}
+
+function computeDragStepPillState(
+  rawCenter: number,
+  currentTabs: readonly TabGeometry[],
+  isMotionReduced: boolean,
+): {
+  center: number;
+  scaleX: number;
+  scaleY: number;
+  capsuleOffset: number;
+} {
+  if (isMotionReduced) {
+    return {
+      center: clampPillCenterForEdgePull(rawCenter, currentTabs),
+      scaleX: 1,
+      scaleY: 1,
+      capsuleOffset: 0,
+    };
+  }
+  const squish = computeBoundarySquish(rawCenter, BASE_PILL_WIDTH, currentTabs);
+  return {
+    center: squish.centerX,
+    scaleX: squish.squishScaleX,
+    scaleY: squish.squishScaleY,
+    capsuleOffset: 0,
+  };
+}
+
+function handleNonEngagedRelease(
+  session: DragSession,
+  endEvent: PointerEvent,
+  containerEl: HTMLDivElement,
+  controller: TabsPhysicsController,
+  currentTabs: readonly TabGeometry[],
+  pillCenterX: MotionValue<number>,
+  animateCapsuleToZero: () => void,
+  animatePillTo: (x: number, v?: number) => void,
+) {
+  animateCapsuleToZero();
+  controller.releaseTab(session.val, session.pointerType);
+  if (
+    isPointerOutsideElement(
+      endEvent.clientX,
+      endEvent.clientY,
+      containerEl.getBoundingClientRect(),
+    )
+  ) {
+    controller.leaveTabs();
+  }
+  const targetRect = currentTabs.find(
+    (t) => t.value === controller.getPillTargetValue(),
+  );
+  if (targetRect && Math.abs(pillCenterX.get() - targetRect.centerX) >= 0.5) {
+    animatePillTo(targetRect.centerX, 0);
+  }
+}
 
 interface DragSession {
   val: TabValue;
@@ -76,6 +187,8 @@ export function useDraggableTabs({
   const isMotionReduced = Boolean(prefersReducedMotion);
 
   const pillCenterX = useMotionValue(0);
+  const squishScaleX = useMotionValue(1);
+  const squishScaleY = useMotionValue(1);
   const fallbackCapsuleOffsetX = useMotionValue(0);
   const resolvedCapsuleOffsetX = capsuleOffsetX ?? fallbackCapsuleOffsetX;
   const isDraggingMv = useMotionValue(0);
@@ -83,7 +196,10 @@ export function useDraggableTabs({
   const activeDragVelocity = useTransform(() =>
     isMotionReduced ? 0 : isDraggingMv.get() * rawPillVelocity.get(),
   );
-  const smoothDragVelocity = useSpring(activeDragVelocity, SPRING.highlight);
+  const smoothDragVelocity = useSpring(
+    activeDragVelocity,
+    SPRING.fluidDragStretch,
+  );
   const pillOpacity = useMotionValue(0);
   const layoutVersionMv = useMotionValue(0);
 
@@ -98,8 +214,12 @@ export function useDraggableTabs({
     return tabElementsRef.current;
   }, []);
   const pendingVelocityRef = useRef(0);
+  const pendingSpringRef = useRef<
+    typeof SPRING.highlight | typeof SPRING.pillWallRecoil | null
+  >(null);
   const animControlsRef = useRef<ReturnType<typeof animate> | null>(null);
   const animGenRef = useRef(0);
+  const squishAnimControlsRef = useRef<ReturnType<typeof animate>[]>([]);
   const capsuleAnimControlsRef = useRef<ReturnType<typeof animate> | null>(
     null,
   );
@@ -109,6 +229,34 @@ export function useDraggableTabs({
   const suppressClickUntilRef = useRef(0);
   const suppressNextClickRef = useRef(false);
   const cleanupListenersRef = useRef<(() => void) | null>(null);
+
+  const stopSquishAnimation = useCallback(() => {
+    squishAnimControlsRef.current.forEach((c) => c.stop());
+    squishAnimControlsRef.current = [];
+    squishScaleX.stop();
+    squishScaleY.stop();
+  }, [squishScaleX, squishScaleY]);
+
+  const animateSquishToRest = useCallback(
+    (
+      springConfig: typeof SPRING.highlight | typeof SPRING.pillWallRecoil,
+      isReduced: boolean,
+    ) => {
+      stopSquishAnimation();
+      if (isReduced) {
+        squishScaleX.jump(1);
+        squishScaleY.jump(1);
+        return;
+      }
+      if (squishScaleX.get() !== 1 || squishScaleY.get() !== 1) {
+        squishAnimControlsRef.current = [
+          animate(squishScaleX, 1, springConfig),
+          animate(squishScaleY, 1, springConfig),
+        ];
+      }
+    },
+    [squishScaleX, squishScaleY, stopSquishAnimation],
+  );
 
   const stopCapsuleReturn = useCallback(() => {
     capsuleAnimGenRef.current += 1;
@@ -147,24 +295,46 @@ export function useDraggableTabs({
   }, [controller, pillCenterX]);
 
   const animatePillTo = useCallback(
-    (targetX: number, velocity = 0) => {
+    (
+      targetX: number,
+      velocity = 0,
+      customSpring?: typeof SPRING.highlight | typeof SPRING.pillWallRecoil,
+    ) => {
       stopPillAnimation();
+      stopSquishAnimation();
       if (isMotionReduced) {
         pillCenterX.jump(targetX);
+        squishScaleX.jump(1);
+        squishScaleY.jump(1);
         return;
       }
       const currentX = pillCenterX.get();
-      if (Math.abs(targetX - currentX) < 0.25 && Math.abs(velocity) < 10) {
+      const hasSquish =
+        Math.abs(squishScaleX.get() - 1) > 0.005 ||
+        Math.abs(squishScaleY.get() - 1) > 0.005;
+      if (
+        !hasSquish &&
+        Math.abs(targetX - currentX) < 0.25 &&
+        Math.abs(velocity) < 10
+      ) {
         pillCenterX.jump(targetX);
+        squishScaleX.jump(1);
+        squishScaleY.jump(1);
         return;
       }
       const gen = ++animGenRef.current;
       controller.setPillAnimating(true);
+      const springConfig = customSpring ?? SPRING.highlight;
       const controls = animate(pillCenterX, targetX, {
-        ...SPRING.highlight,
+        ...springConfig,
         velocity,
       });
       animControlsRef.current = controls;
+
+      if (hasSquish) {
+        animateSquishToRest(springConfig, isMotionReduced);
+      }
+
       const finish = () => {
         if (animGenRef.current === gen) {
           animControlsRef.current = null;
@@ -173,7 +343,16 @@ export function useDraggableTabs({
       };
       controls.then(finish, finish);
     },
-    [controller, isMotionReduced, pillCenterX, stopPillAnimation],
+    [
+      animateSquishToRest,
+      controller,
+      isMotionReduced,
+      pillCenterX,
+      squishScaleX,
+      squishScaleY,
+      stopPillAnimation,
+      stopSquishAnimation,
+    ],
   );
 
   const measureTabs = useCallback(() => {
@@ -272,8 +451,11 @@ export function useDraggableTabs({
       hasActiveGrabRef.current = false;
       isDraggingMv.jump(0);
       stopPillAnimation();
+      stopSquishAnimation();
       stopCapsuleReturn();
       resolvedCapsuleOffsetX.jump(0);
+      squishScaleX.jump(1);
+      squishScaleY.jump(1);
       controller.cancelDrag();
       isMeasuredRef.current = false;
       pillOpacity.jump(0);
@@ -287,8 +469,11 @@ export function useDraggableTabs({
     measureTabs,
     pillOpacity,
     resolvedCapsuleOffsetX,
+    squishScaleX,
+    squishScaleY,
     stopCapsuleReturn,
     stopPillAnimation,
+    stopSquishAnimation,
   ]);
 
   useLayoutEffect(() => {
@@ -305,7 +490,9 @@ export function useDraggableTabs({
     if (!targetRect) return;
     const handoffVelocity = pendingVelocityRef.current;
     pendingVelocityRef.current = 0;
-    animatePillTo(targetRect.centerX, handoffVelocity);
+    const handoffSpring = pendingSpringRef.current ?? SPRING.highlight;
+    pendingSpringRef.current = null;
+    animatePillTo(targetRect.centerX, handoffVelocity, handoffSpring);
   }, [
     enabled,
     isDragging,
@@ -322,8 +509,11 @@ export function useDraggableTabs({
       hasActiveGrabRef.current = false;
       isDraggingMv.jump(0);
       stopPillAnimation();
+      stopSquishAnimation();
       stopCapsuleReturn();
       resolvedCapsuleOffsetX.jump(0);
+      squishScaleX.jump(1);
+      squishScaleY.jump(1);
       controller.cancelDrag();
       isMeasuredRef.current = false;
       pillOpacity.jump(0);
@@ -333,8 +523,11 @@ export function useDraggableTabs({
     isDraggingMv,
     pillOpacity,
     resolvedCapsuleOffsetX,
+    squishScaleX,
+    squishScaleY,
     stopCapsuleReturn,
     stopPillAnimation,
+    stopSquishAnimation,
   ]);
 
   const consumeDragClickSuppression = useCallback(() => {
@@ -397,6 +590,7 @@ export function useDraggableTabs({
 
       const currentCapsuleOffset = resolvedCapsuleOffsetX.get();
       stopPillAnimation();
+      stopSquishAnimation();
       stopCapsuleReturn();
       hasActiveGrabRef.current = true;
       velocitySampler.reset(e.clientX, performance.now());
@@ -441,10 +635,15 @@ export function useDraggableTabs({
           } catch {
             // Ignore in synthetic environments without active pointerId
           }
-          const initialCenter = clampPillCenterForEdgePull(
-            moveEvent.clientX - session.containerLeft - session.grabOffset,
-            currentTabs,
-          );
+          const rawInitialCenter =
+            moveEvent.clientX - session.containerLeft - session.grabOffset;
+          const initialCenter = isMotionReduced
+            ? clampPillCenterForEdgePull(rawInitialCenter, currentTabs)
+            : computeBoundarySquish(
+                rawInitialCenter,
+                BASE_PILL_WIDTH,
+                currentTabs,
+              ).centerX;
           const initialPreview =
             resolveNearestTab(initialCenter, currentTabs) ?? session.val;
           controller.startDrag(initialPreview);
@@ -454,17 +653,18 @@ export function useDraggableTabs({
         velocitySampler.push(moveEvent.clientX, now);
         const rawCenter =
           moveEvent.clientX - session.containerLeft - session.grabOffset;
-        const clampedCenter = clampPillCenterForEdgePull(
+
+        const step = computeDragStepPillState(
           rawCenter,
           currentTabs,
+          isMotionReduced,
         );
-        const nextCapsuleOffsetX = isMotionReduced
-          ? 0
-          : computeCapsuleEdgeOffsetX(rawCenter, currentTabs);
-        pillCenterX.set(clampedCenter);
-        resolvedCapsuleOffsetX.set(nextCapsuleOffsetX);
+        pillCenterX.set(step.center);
+        squishScaleX.set(step.scaleX);
+        squishScaleY.set(step.scaleY);
+        resolvedCapsuleOffsetX.set(step.capsuleOffset);
 
-        const nearest = resolveNearestTab(clampedCenter, currentTabs);
+        const nearest = resolveNearestTab(step.center, currentTabs);
         if (nearest !== null) {
           controller.setDragPreview(nearest);
         }
@@ -476,26 +676,16 @@ export function useDraggableTabs({
         const currentTabs = controller.getTabGeometries();
 
         if (!session.engaged) {
-          animateCapsuleToZero();
-          controller.releaseTab(session.val, session.pointerType);
-          const rect = containerEl.getBoundingClientRect();
-          const outside =
-            endEvent.clientX < rect.left ||
-            endEvent.clientX > rect.right ||
-            endEvent.clientY < rect.top ||
-            endEvent.clientY > rect.bottom;
-          if (outside) {
-            controller.leaveTabs();
-          }
-          const targetRect = currentTabs.find(
-            (t) => t.value === controller.getPillTargetValue(),
+          handleNonEngagedRelease(
+            session,
+            endEvent,
+            containerEl,
+            controller,
+            currentTabs,
+            pillCenterX,
+            animateCapsuleToZero,
+            animatePillTo,
           );
-          if (
-            targetRect &&
-            Math.abs(pillCenterX.get() - targetRect.centerX) >= 0.5
-          ) {
-            animatePillTo(targetRect.centerX, 0);
-          }
           return;
         }
 
@@ -504,16 +694,29 @@ export function useDraggableTabs({
 
         if (endEvent.type === "pointercancel") {
           controller.cancelDrag();
+          animateSquishToRest(SPRING.pillWallRecoil, isMotionReduced);
           return;
         }
 
         suppressNextClickRef.current = true;
         suppressClickUntilRef.current = performance.now() + CLICK_SUPPRESS_MS;
 
-        const now = performance.now();
+        const rawCenter =
+          endEvent.clientX - session.containerLeft - session.grabOffset;
+        const overdragPx = computeOverdragDistance(rawCenter, currentTabs);
         const releaseVelocity = isMotionReduced
           ? 0
-          : velocitySampler.sample(now);
+          : velocitySampler.sample(performance.now());
+        const handoff = resolveReleaseRecoilHandoff(
+          overdragPx,
+          releaseVelocity,
+          isMotionReduced,
+        );
+
+        pendingVelocityRef.current = handoff.velocity;
+        pendingSpringRef.current = handoff.spring;
+        animateSquishToRest(handoff.spring, isMotionReduced);
+
         const liveX = pillCenterX.get();
         const projectedX = isMotionReduced
           ? liveX
@@ -530,15 +733,14 @@ export function useDraggableTabs({
             ? 0
             : 1;
 
-        pendingVelocityRef.current = releaseVelocity;
         controller.commitDrag(targetTab, explicitDistance);
-        const rect = containerEl.getBoundingClientRect();
-        const outside =
-          endEvent.clientX < rect.left ||
-          endEvent.clientX > rect.right ||
-          endEvent.clientY < rect.top ||
-          endEvent.clientY > rect.bottom;
-        if (outside) {
+        if (
+          isPointerOutsideElement(
+            endEvent.clientX,
+            endEvent.clientY,
+            containerEl.getBoundingClientRect(),
+          )
+        ) {
           controller.leaveTabs();
         }
         onChange?.(targetTab);
@@ -556,6 +758,7 @@ export function useDraggableTabs({
     [
       animateCapsuleToZero,
       animatePillTo,
+      animateSquishToRest,
       containerRef,
       controller,
       enabled,
@@ -564,8 +767,11 @@ export function useDraggableTabs({
       onChange,
       pillCenterX,
       resolvedCapsuleOffsetX,
+      squishScaleX,
+      squishScaleY,
       stopCapsuleReturn,
       stopPillAnimation,
+      stopSquishAnimation,
       triggerRippleAt,
       velocitySampler,
     ],
@@ -585,6 +791,8 @@ export function useDraggableTabs({
 
   return {
     pillCenterX,
+    squishScaleX,
+    squishScaleY,
     smoothDragVelocity,
     pillOpacity,
     layoutVersionMv,

@@ -18,6 +18,22 @@ export const SPRING = {
     mass: 0.7,
     restDelta: 0.001,
   },
+  /** Drag stretch & fluid blob relaxation when pointer motion stops (Apple Design fluid blob) */
+  fluidDragStretch: {
+    type: "spring" as const,
+    stiffness: 280,
+    damping: 28,
+    mass: 0.9,
+    restDelta: 0.001,
+  },
+  /** Highlight pill wall collision damped harmonic snap-back recoil (iOS SwiftUI .snappy 300/30) */
+  pillWallRecoil: {
+    type: "spring" as const,
+    stiffness: 300,
+    damping: 30,
+    mass: 1,
+    restDelta: 0.001,
+  },
   /** Drawers sliding in from edge (Smooth 350ms physical spring) */
   drawer: {
     type: "spring" as const,

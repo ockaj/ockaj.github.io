@@ -37,6 +37,8 @@ interface DraggableTabHighlightProps {
   smoothDragVelocity: MotionValue<number>;
   pillOpacity: MotionValue<number>;
   layoutVersionMv: MotionValue<number>;
+  squishScaleX?: MotionValue<number>;
+  squishScaleY?: MotionValue<number>;
   scaleX: MotionValue<number>;
   scaleY: MotionValue<number>;
   getTabDimensionsForValue: (val: TabValue) => {
@@ -64,6 +66,8 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
   smoothDragVelocity,
   pillOpacity,
   layoutVersionMv,
+  squishScaleX,
+  squishScaleY,
   scaleX,
   scaleY,
   getTabDimensionsForValue,
@@ -135,10 +139,11 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
       isMotionReduced,
       REF_VELOCITY,
     );
+    const squishX = squishScaleX ? squishScaleX.get() : 1;
     return clampPillScaleXForTrack(
       centerX,
       BASE_PILL_WIDTH,
-      morphX * stretchedX,
+      morphX * stretchedX * squishX,
       tabs,
     );
   });
@@ -160,7 +165,8 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
       isMotionReduced,
       REF_VELOCITY,
     );
-    return morphY * stretchedY;
+    const squishY = squishScaleY ? squishScaleY.get() : 1;
+    return morphY * stretchedY * squishY;
   });
 
   const rippleScaleX = useTransform(

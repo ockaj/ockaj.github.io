@@ -133,6 +133,8 @@ function DraggableTabsController({
       smoothDragVelocity={draggable.smoothDragVelocity}
       pillOpacity={draggable.pillOpacity}
       layoutVersionMv={draggable.layoutVersionMv}
+      squishScaleX={draggable.squishScaleX}
+      squishScaleY={draggable.squishScaleY}
       scaleX={scaleX}
       scaleY={scaleY}
       getTabDimensionsForValue={draggable.getTabDimensionsForValue}
@@ -185,7 +187,8 @@ function DraggableTabsInner<T extends TabValue>({
   );
 
   const shouldSuppressClickCapture = useCallback(
-    () => Boolean(isDraggable && bridgeRef.current?.consumeDragClickSuppression()),
+    () =>
+      Boolean(isDraggable && bridgeRef.current?.consumeDragClickSuppression()),
     [isDraggable],
   );
 
@@ -271,7 +274,9 @@ DraggableTabs.displayName = "DraggableTabs";
 function DraggableTabComponent(props: Readonly<DraggableTabProps>) {
   const draggableCtx = use(DraggableTabsContext);
   if (!draggableCtx) {
-    throw new Error("DraggableTab must be used within a DraggableTabs component");
+    throw new Error(
+      "DraggableTab must be used within a DraggableTabs component",
+    );
   }
   return (
     <TabButton

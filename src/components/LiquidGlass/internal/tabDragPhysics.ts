@@ -9,10 +9,18 @@ export const BASE_PILL_WIDTH = 100;
 export const BASE_PILL_HEIGHT = 42;
 export const DRAG_THRESHOLD_PX = 10;
 export const APPLE_DECELERATION_RATE = 0.998;
+export const MAX_BOUNDARY_SQUISH_SCALE_X = 0.12;
+const BOUNDARY_SQUISH_CONSTANT = 0.45;
 const VELOCITY_BUFFER_SIZE = 12;
 const VELOCITY_WINDOW_MS = 100;
 const VELOCITY_PAUSE_TIMEOUT_MS = 80;
 const MAX_RELEASE_VELOCITY = 4000;
+
+export interface BoundarySquishResult {
+  centerX: number;
+  squishScaleX: number;
+  squishScaleY: number;
+}
 
 interface VelocitySampler {
   reset: (x: number, nowMs: number) => void;
@@ -78,6 +86,111 @@ export function clampCenterWithRubberBand(
     return last.centerX + applyRubberBand(overshoot, dim);
   }
   return rawCenterX;
+}
+
+function resolveSquishWidth(tabWidth: number, fallbackWidth: number): number {
+  if (tabWidth > 0) return tabWidth;
+  if (Number.isFinite(fallbackWidth) && fallbackWidth > 0) return fallbackWidth;
+  return BASE_PILL_WIDTH;
+}
+
+function computeLeftWallSquish(
+  overshoot: number,
+  first: TabGeometry,
+  baseWidth: number,
+): BoundarySquishResult {
+  const safeWidth = resolveSquishWidth(first.width, baseWidth);
+  const maxSquishPx = safeWidth * MAX_BOUNDARY_SQUISH_SCALE_X;
+  const squishPx = applyRubberBand(
+    Math.abs(overshoot),
+    maxSquishPx,
+    BOUNDARY_SQUISH_CONSTANT,
+  );
+  const squishScaleX = Math.max(0.01, 1 - squishPx / safeWidth);
+  const effectiveWidth = safeWidth * squishScaleX;
+  const centerX = first.left + effectiveWidth / 2;
+
+  return { centerX, squishScaleX, squishScaleY: 1 };
+}
+
+function computeRightWallSquish(
+  overshoot: number,
+  last: TabGeometry,
+  baseWidth: number,
+): BoundarySquishResult {
+  const safeWidth = resolveSquishWidth(last.width, baseWidth);
+  const maxSquishPx = safeWidth * MAX_BOUNDARY_SQUISH_SCALE_X;
+  const squishPx = applyRubberBand(
+    Math.abs(overshoot),
+    maxSquishPx,
+    BOUNDARY_SQUISH_CONSTANT,
+  );
+  const squishScaleX = Math.max(0.01, 1 - squishPx / safeWidth);
+  const effectiveWidth = safeWidth * squishScaleX;
+  const centerX = last.left + last.width - effectiveWidth / 2;
+
+  return { centerX, squishScaleX, squishScaleY: 1 };
+}
+
+/**
+ * Computes boundary collision squish physics when a tab pill is dragged past track endpoints.
+ * The outer edge remains firmly pinned against the wall (first.left or last.right)
+ * while only the trailing inner edge squishes inward with subtle, physical rubber resistance (~10%-12% max).
+ */
+export function computeBoundarySquish(
+  rawCenterX: number,
+  baseWidth: number,
+  tabs: readonly TabGeometry[],
+): BoundarySquishResult {
+  if (tabs.length === 0 || !Number.isFinite(rawCenterX)) {
+    return {
+      centerX: Number.isFinite(rawCenterX) ? rawCenterX : 0,
+      squishScaleX: 1,
+      squishScaleY: 1,
+    };
+  }
+
+  const first = tabs[0];
+  if (rawCenterX < first.centerX) {
+    return computeLeftWallSquish(rawCenterX - first.centerX, first, baseWidth);
+  }
+
+  const last = tabs[tabs.length - 1];
+  if (rawCenterX > last.centerX) {
+    return computeRightWallSquish(rawCenterX - last.centerX, last, baseWidth);
+  }
+
+  return {
+    centerX: rawCenterX,
+    squishScaleX: 1,
+    squishScaleY: 1,
+  };
+}
+
+/**
+ * Resolves rebound recoil velocity to supply to the spring oscillator upon pointer release
+ * from an overdrag boundary state.
+ *
+ * @param overdragPx Signed past-boundary displacement (negative at left boundary, positive at right boundary, 0 in-bounds).
+ * @param releaseVelocity Pointer release velocity in px/s.
+ * @returns Rebound velocity in px/s, directed inward towards the track.
+ */
+export function resolveReleaseRecoilVelocity(
+  overdragPx: number,
+  releaseVelocity: number,
+): number {
+  const safeVel = Number.isFinite(releaseVelocity) ? releaseVelocity : 0;
+  if (!Number.isFinite(overdragPx) || Math.abs(overdragPx) < 0.001) {
+    return clamp(-MAX_RELEASE_VELOCITY, MAX_RELEASE_VELOCITY, safeVel);
+  }
+
+  // If pointer was moving outward deeper into the wall, clamp to 0 so the inward spring immediately accelerates it back.
+  // If moving inward back toward the track, pass the natural inward momentum into the spring.
+  const isOutward =
+    (overdragPx > 0 && safeVel > 0) || (overdragPx < 0 && safeVel < 0);
+  const velocity = isOutward ? 0 : safeVel;
+
+  return clamp(-MAX_RELEASE_VELOCITY, MAX_RELEASE_VELOCITY, velocity);
 }
 
 /** Tightly bounds pill center within the track with a <= 1.8px inner cushion */
