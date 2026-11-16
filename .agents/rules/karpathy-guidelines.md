@@ -53,13 +53,14 @@ The test: Every changed line should trace directly to the user's request.
 
 ## 4. Goal-Driven Execution
 
-**Define success criteria. Loop until verified.**
+**Define checkable criteria. Verify with evidence, not assertion.**
 
 Transform tasks into verifiable goals:
 
 - "Add validation" → "Write tests for invalid inputs, then make them pass"
 - "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
+- "Refactor X" → "Differential equivalence: assert `old(input) === new(input)` across test vectors before replacing"
+- "State & Data" → "Invariant properties: test idempotency `f(f(x)) === f(x)` and round-trip fidelity `decode(encode(x)) === x`"
 
 For multi-step tasks, state a brief plan:
 
@@ -69,4 +70,4 @@ For multi-step tasks, state a brief plan:
 3. [Step] → verify: [check]
 ```
 
-Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+A step completes only when the verification command exits with code 0 and output is visible in context.

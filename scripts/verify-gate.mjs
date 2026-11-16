@@ -180,7 +180,10 @@ for (const [file, content] of allSourceCorpus.entries()) {
       );
     }
 
-    if (file !== "src/utils/quicklink.ts" && /from\s+["']quicklink["']/.test(line)) {
+    if (
+      file !== "src/utils/quicklink.ts" &&
+      /from\s+["']quicklink["']/.test(line)
+    ) {
       fail(
         "Quicklink Seam",
         loc,
@@ -201,6 +204,27 @@ for (const [file, content] of allSourceCorpus.entries()) {
         "Zero innerHTML",
         loc,
         "dangerouslySetInnerHTML is prohibited by architecture security invariants.",
+      );
+    }
+
+    // Anti-Suppression & Integrity Invariants (Zero Compiler/Linter Silencing in Source)
+    if (/@(?:ts-ignore|ts-expect-error)\b/.test(line)) {
+      fail(
+        "No TypeScript Suppression",
+        loc,
+        "Do not silence TypeScript diagnostics with @ts-ignore or @ts-expect-error in application source code.",
+      );
+    }
+
+    if (
+      /\b(?:eslint-disable|eslint-disable-next-line|eslint-disable-line)\b/.test(
+        line,
+      )
+    ) {
+      fail(
+        "No ESLint Suppression",
+        loc,
+        "Do not silence linter rules with eslint-disable comments in application source code.",
       );
     }
 
@@ -295,7 +319,9 @@ for (const [file, content] of allSourceCorpus.entries()) {
       "Empty catch block without fallback return, recovery state, or rationale.",
     );
   }
-  if (/\.catch\(\s*\([^)]*\)\s*=>\s*\{\s*(?:\/\/[^\n]*\s*)*\}\s*\)/.test(content)) {
+  if (
+    /\.catch\(\s*\([^)]*\)\s*=>\s*\{\s*(?:\/\/[^\n]*\s*)*\}\s*\)/.test(content)
+  ) {
     fail(
       "No Silent Promise Catch",
       file,
@@ -316,9 +342,7 @@ for (const [file, content] of allSourceCorpus.entries()) {
     );
   }
 
-  if (
-    /useEffect\(\(\)\s*=>\s*\{\s*set[A-Z]\w*\(/.test(content)
-  ) {
+  if (/useEffect\(\(\)\s*=>\s*\{\s*set[A-Z]\w*\(/.test(content)) {
     fail(
       "No Sync setState in useEffect",
       file,
@@ -493,7 +517,11 @@ for (const testFile of testFiles) {
     );
   }
 
-  if (/expect\(\s*(?:true|false|1|0)\s*\)\.toBe\(\s*(?:true|false|1|0)\s*\)/.test(content)) {
+  if (
+    /expect\(\s*(?:true|false|1|0)\s*\)\.toBe\(\s*(?:true|false|1|0)\s*\)/.test(
+      content,
+    )
+  ) {
     fail(
       "No Tautological Assertions",
       testFile,

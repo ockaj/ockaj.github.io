@@ -8,10 +8,12 @@ Single-page React portfolio showcasing business analysis and process optimizatio
 
 Verify with atomic, canonical commands only:
 
-- **Cosmetic changes**: Finish the turn immediately without running commands (CSS, Tailwind classes, colors, spacing, copy, markdown).
+- **Cosmetic changes**: Finish cosmetic turns immediately without running commands (CSS, Tailwind classes, colors, spacing, copy, markdown).
 - **Inner loop (development)**: Run `npm run check` (gate + typecheck in <2s) during logic, routing, or state edits. Once green, stop immediately.
 - **Outer loop (task exit)**: Run `npm run verify` once at task completion for logic, structural, or dependency edits. A zero exit code satisfies completion.
 - **Browser & End-to-End**: Run `npm run test:e2e` or `npm run test:a11y` exclusively when explicitly requested or verifying responsive layout morphs.
+- **Integrity**: Satisfy the existing suite by fixing application code. Treat tests, linters, and exit gates as immutable specifications.
+- **Circuit breaker**: Halt after 3 failed verification attempts on the same issue. State the failing check, root cause hypothesis, and await direction.
 
 ---
 
