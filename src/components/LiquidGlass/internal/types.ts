@@ -50,7 +50,6 @@ interface InteractiveGlassProps extends Omit<StaticGlassProps, "as"> {
   onClick?: (e: MouseEvent<HTMLElement>) => void;
   springScale?: boolean;
   magnetic?: boolean;
-  tilt?: boolean;
   magneticStrength?: number;
 }
 

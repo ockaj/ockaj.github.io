@@ -29,7 +29,6 @@ function Journal() {
             as="div"
             roundedClass="rounded-2xl"
             className="flex min-h-60 w-full flex-col items-center justify-center p-8 text-center text-muted sm:min-h-72"
-            tilt
           >
             <p className="text-base">
               No journal articles currently available.

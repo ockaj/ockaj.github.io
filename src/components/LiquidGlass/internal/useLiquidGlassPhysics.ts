@@ -10,21 +10,13 @@ import {
 import { clamp, frame, useMotionValue, useSpring } from "motion/react";
 import { useResizeObserver } from "../../../hooks/useResizeObserver";
 import { SPRING } from "../../../utils/springConfig";
-import { tilt as tiltConfig, glassFeel } from "./config";
+import { glassFeel } from "./config";
 import { getEntryDimensions } from "./liquidGlassUtils";
 
 interface LiquidGlassPhysicsParams {
   effectiveMagnetic: boolean;
-  effectiveTilt: boolean;
   effectiveSpringScale?: boolean;
   magneticStrength: number;
-}
-
-function computeEffectiveTiltStrength(width: number): number {
-  const raw =
-    tiltConfig.defaultStrength *
-    (tiltConfig.referenceWidth / Math.max(width, 1));
-  return Math.min(raw, tiltConfig.maxStrength);
 }
 
 interface StretchMetrics {
@@ -96,8 +88,6 @@ interface GlassPhysicsTargets {
   dimensions: { width: number; height: number };
   pullX: number;
   pullY: number;
-  tiltX: number;
-  tiltY: number;
   scaleX: number;
   scaleY: number;
   mouseX: number;
@@ -182,8 +172,6 @@ export function createGlassGestureEngine(
     dimensions: { width: 120, height: 36 },
     pullX: 0,
     pullY: 0,
-    tiltX: 0,
-    tiltY: 0,
     scaleX: 1,
     scaleY: 1,
     mouseX: 0,
@@ -284,8 +272,6 @@ export function createGlassGestureEngine(
 
       state.pullX = 0;
       state.pullY = 0;
-      state.tiltX = 0;
-      state.tiltY = 0;
       state.mouseX = clientX - rect.left - width / 2;
       state.mouseY = clientY - rect.top - height / 2;
       state.sheenOpacity = 1;
@@ -330,18 +316,12 @@ export function createGlassGestureEngine(
         state.scaleY = 1;
       }
 
-      const effectiveTiltStrength = computeEffectiveTiltStrength(
-        targetRect.width,
-      );
       const maxPull = config.effectiveMagnetic
         ? 8 * (config.magneticStrength / 0.02)
         : 0;
-      const maxTilt = config.effectiveTilt ? effectiveTiltStrength * 4 : 0;
 
       state.pullX = metrics.nx * maxPull * metrics.rubber;
       state.pullY = metrics.ny * maxPull * metrics.rubber;
-      state.tiltX = -metrics.ny * maxTilt * metrics.rubber;
-      state.tiltY = metrics.nx * maxTilt * metrics.rubber;
 
       const localX = clientX - targetRect.left;
       const localY = clientY - targetRect.top;
@@ -383,8 +363,6 @@ export function createGlassGestureEngine(
 
       state.pullX = 0;
       state.pullY = 0;
-      state.tiltX = 0;
-      state.tiltY = 0;
       state.scaleX = 1;
       state.scaleY = 1;
 
@@ -464,8 +442,6 @@ export function createGlassGestureEngine(
       state.isHovered = false;
       state.pullX = 0;
       state.pullY = 0;
-      state.tiltX = 0;
-      state.tiltY = 0;
       state.scaleX = 1;
       state.scaleY = 1;
       state.sheenOpacity = 0;
@@ -551,7 +527,6 @@ export function createGlassGestureEngine(
 
 export function useLiquidGlassPhysics({
   effectiveMagnetic,
-  effectiveTilt,
   effectiveSpringScale = true,
   magneticStrength,
 }: LiquidGlassPhysicsParams) {
@@ -565,7 +540,6 @@ export function useLiquidGlassPhysics({
   const [engine] = useState(() =>
     createGlassGestureEngine({
       effectiveMagnetic,
-      effectiveTilt,
       effectiveSpringScale,
       magneticStrength,
     }),
@@ -574,17 +548,10 @@ export function useLiquidGlassPhysics({
   useLayoutEffect(() => {
     engine.configure({
       effectiveMagnetic,
-      effectiveTilt,
       effectiveSpringScale,
       magneticStrength,
     });
-  }, [
-    engine,
-    effectiveMagnetic,
-    effectiveTilt,
-    effectiveSpringScale,
-    magneticStrength,
-  ]);
+  }, [engine, effectiveMagnetic, effectiveSpringScale, magneticStrength]);
 
   useEffect(() => {
     return () => {
@@ -594,8 +561,6 @@ export function useLiquidGlassPhysics({
 
   const rawPullX = useMotionValue(0);
   const rawPullY = useMotionValue(0);
-  const rawTiltX = useMotionValue(0);
-  const rawTiltY = useMotionValue(0);
   const rawScaleX = useMotionValue(1);
   const rawScaleY = useMotionValue(1);
   const mouseX = useMotionValue(0);
@@ -609,8 +574,6 @@ export function useLiquidGlassPhysics({
 
   const springPullX = useSpring(rawPullX, activeSpringConfig);
   const springPullY = useSpring(rawPullY, activeSpringConfig);
-  const springTiltX = useSpring(rawTiltX, activeSpringConfig);
-  const springTiltY = useSpring(rawTiltY, activeSpringConfig);
   const springScaleX = useSpring(rawScaleX, activeSpringConfig);
   const springScaleY = useSpring(rawScaleY, activeSpringConfig);
   const springX = useSpring(mouseX, activeSheenSpring);
@@ -622,8 +585,6 @@ export function useLiquidGlassPhysics({
     (targets: GlassPhysicsTargets) => {
       rawPullX.set(targets.pullX);
       rawPullY.set(targets.pullY);
-      rawTiltX.set(targets.tiltX);
-      rawTiltY.set(targets.tiltY);
       rawScaleX.set(targets.scaleX);
       rawScaleY.set(targets.scaleY);
       mouseX.set(targets.mouseX);
@@ -640,8 +601,6 @@ export function useLiquidGlassPhysics({
       rawScaleX,
       rawScaleY,
       rawSheenOpacity,
-      rawTiltX,
-      rawTiltY,
     ],
   );
 
@@ -814,8 +773,6 @@ export function useLiquidGlassPhysics({
     sheenOpacity,
     springPullX,
     springPullY,
-    springTiltX,
-    springTiltY,
     handleMouseEnter,
     handleMouseMove,
     handleMouseLeave,

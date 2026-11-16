@@ -19,7 +19,6 @@ const JournalEntry = memo(function JournalEntry({
       onClick={() => onOpen(article)}
       roundedClass="rounded-[28px]"
       className="w-full"
-      tilt
     >
       <div className="space-y-4 p-5 md:p-6">
         {/* Thumbnail + title */}

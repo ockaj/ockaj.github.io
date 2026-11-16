@@ -28,7 +28,7 @@ import { InnerBorderOverlay } from "./LiquidGlassOverlays";
 
 type LiquidGlassMobileProps = Omit<
   InteractiveGlassPropsWithRef,
-  "magnetic" | "tilt" | "magneticStrength"
+  "magnetic" | "magneticStrength"
 >;
 
 function useMobileTapScale(
@@ -106,11 +106,7 @@ function useMobileTapScale(
         }
       },
     });
-    animationsRef.current.y = animate(
-      scaleY,
-      1,
-      TAP_RELEASE_TRANSITION.scaleY,
-    );
+    animationsRef.current.y = animate(scaleY, 1, TAP_RELEASE_TRANSITION.scaleY);
   }, [scaleX, scaleY, stopScaleAnimations, tapWillChange]);
 
   return {
@@ -148,8 +144,8 @@ export default function LiquidGlassMobile(
   const effectiveSpringScale = springScale && !isMotionReduced;
   const isDisabled = Boolean(
     domProps.disabled ||
-      domProps["aria-disabled"] === true ||
-      domProps["aria-disabled"] === "true",
+    domProps["aria-disabled"] === true ||
+    domProps["aria-disabled"] === "true",
   );
   const enableTapGestures =
     effectiveSpringScale && !isDisabled && !SEMANTIC_CONTAINERS.has(as);

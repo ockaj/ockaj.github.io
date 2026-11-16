@@ -57,7 +57,6 @@ describe("LiquidGlass gesture physics engine, surface resolution, and stretch ma
     it("expands on pointerDown and does NOT suppress click when movement stays <= 5px", () => {
       const engine = createGlassGestureEngine({
         effectiveMagnetic: true,
-        effectiveTilt: true,
         effectiveSpringScale: true,
         magneticStrength: 0.02,
       });
@@ -113,7 +112,6 @@ describe("LiquidGlass gesture physics engine, surface resolution, and stretch ma
     it("suppresses synthetic click after dragging > 5px and expires suppression after 100ms", () => {
       const engine = createGlassGestureEngine({
         effectiveMagnetic: true,
-        effectiveTilt: true,
         effectiveSpringScale: true,
         magneticStrength: 0.02,
       });
@@ -135,7 +133,6 @@ describe("LiquidGlass gesture physics engine, surface resolution, and stretch ma
       });
       expect(moveState?.scaleX).toBeGreaterThan(moveState?.scaleY ?? 1);
       expect(moveState?.pullX).toBeGreaterThan(0);
-      expect(moveState?.tiltY).toBeGreaterThan(0);
 
       // Release outside element bounds (clientX = 400)
       const releaseState = engine.pointerUpOrCancel({
@@ -178,10 +175,9 @@ describe("LiquidGlass gesture physics engine, surface resolution, and stretch ma
       engine.destroy();
     });
 
-    it("keeps scale at 1 when effectiveSpringScale is false while preserving magnetic pull and tilt", () => {
+    it("keeps scale at 1 when effectiveSpringScale is false while preserving magnetic pull", () => {
       const engine = createGlassGestureEngine({
         effectiveMagnetic: true,
-        effectiveTilt: true,
         effectiveSpringScale: false,
         magneticStrength: 0.02,
       });
@@ -205,7 +201,6 @@ describe("LiquidGlass gesture physics engine, surface resolution, and stretch ma
       expect(moveState?.scaleX).toBe(1);
       expect(moveState?.scaleY).toBe(1);
       expect(moveState?.pullX).toBeGreaterThan(0);
-      expect(moveState?.tiltY).toBeGreaterThan(0);
 
       engine.destroy();
     });
@@ -213,7 +208,6 @@ describe("LiquidGlass gesture physics engine, surface resolution, and stretch ma
     it("tracks hover mouseEnter/mouseMove/mouseLeave and debounces height-only resizes", () => {
       const engine = createGlassGestureEngine({
         effectiveMagnetic: false,
-        effectiveTilt: false,
         effectiveSpringScale: true,
         magneticStrength: 0.02,
       });

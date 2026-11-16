@@ -86,7 +86,6 @@ function ProcessDesktopCard({
             as="div"
             roundedClass="rounded-2xl"
             className="w-full touch-pan-y flex-col items-stretch justify-start p-8 text-left"
-            tilt
           >
             <ProcessCardHeader
               topicId={activeTopic.id}

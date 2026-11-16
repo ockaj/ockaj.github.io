@@ -10,7 +10,6 @@ import { type InteractiveGlassPropsWithRef } from "./internal/types";
 export const InteractiveGlass = memo(function InteractiveGlass({
   ref,
   magnetic,
-  tilt,
   magneticStrength,
   ...props
 }: Readonly<InteractiveGlassPropsWithRef>) {
@@ -23,7 +22,6 @@ export const InteractiveGlass = memo(function InteractiveGlass({
     <LiquidGlassDesktop
       ref={ref}
       magnetic={magnetic}
-      tilt={tilt}
       magneticStrength={magneticStrength}
       {...props}
     />

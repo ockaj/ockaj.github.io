@@ -41,7 +41,6 @@ function Faq() {
             as="div"
             roundedClass="rounded-2xl"
             className="flex min-h-48 w-full flex-col items-center justify-center p-8 text-center text-muted sm:min-h-56"
-            tilt
           >
             <p className="text-base">
               No frequently asked questions currently available.
@@ -67,7 +66,6 @@ function Faq() {
             as="div"
             roundedClass="rounded-2xl"
             className="w-full text-left"
-            tilt
           >
             <div className="flex flex-col items-start justify-between gap-6 p-7 sm:p-8 md:flex-row md:items-center md:gap-8">
               <div className="flex flex-col gap-1.5">
@@ -89,9 +87,6 @@ function Faq() {
                   roundedClass="rounded-full"
                   className="group/contact-btn flex min-h-11 cursor-pointer items-center justify-center px-7 py-3 text-sm font-semibold whitespace-nowrap text-text-primary shadow-sm transition-colors"
                   ariaLabel="Get in Touch — scroll to contact section"
-                  magnetic
-                  tilt
-                  magneticStrength={0.03}
                 >
                   <span className="flex items-center gap-2">
                     <span>Get in Touch</span>

@@ -276,9 +276,6 @@ function Hero() {
               onFocus={handleCvPreload}
               className="px-6 py-3.5 sm:px-8 sm:py-4"
               ariaLabel="View CV"
-              magnetic
-              tilt
-              magneticStrength={0.02}
             >
               View CV
               {CV_BUTTON_ICON}
@@ -288,9 +285,6 @@ function Hero() {
             href="#work"
             className="px-6 py-3.5 sm:px-8 sm:py-4"
             ariaLabel="View Case Studies"
-            magnetic
-            tilt
-            magneticStrength={0.02}
             onClick={handleViewWork}
           >
             View Case Studies

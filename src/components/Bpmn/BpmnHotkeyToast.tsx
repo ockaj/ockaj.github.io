@@ -26,7 +26,7 @@ function BpmnHotkeyToastList() {
         "data-ending-style:translate-y-5 data-ending-style:scale-95 data-ending-style:opacity-0",
         "data-[swipe-direction=right]:data-ending-style:translate-x-full data-[swipe-direction=right]:data-ending-style:translate-y-0 data-[swipe-direction=right]:data-ending-style:scale-100",
         "data-[swipe-direction=down]:data-ending-style:translate-y-full data-[swipe-direction=down]:data-ending-style:scale-100",
-        "motion-reduce:duration-150 motion-reduce:ease-out motion-reduce:data-starting-style:translate-y-0 motion-reduce:data-starting-style:scale-100 motion-reduce:data-ending-style:translate-y-0 motion-reduce:data-ending-style:scale-100",
+        "motion-reduce:duration-150 motion-reduce:ease-out motion-reduce:data-ending-style:translate-y-0 motion-reduce:data-ending-style:scale-100 motion-reduce:data-starting-style:translate-y-0 motion-reduce:data-starting-style:scale-100",
       )}
     >
       <Toast.Content>
@@ -53,8 +53,6 @@ function BpmnHotkeyToastList() {
                 className="flex size-10 items-center justify-center text-muted hover:text-text-primary"
                 roundedClass="rounded-full"
                 ariaLabel="Dismiss tip"
-                magnetic
-                magneticStrength={0.03}
               >
                 <X size={14} />
               </LiquidGlassButton>

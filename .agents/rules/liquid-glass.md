@@ -5,7 +5,7 @@ description: UI primitives (LiquidGlassButton, InteractiveGlass, StaticGlass, Ta
 
 # LiquidGlass Primitives & Guidelines
 
-Tactile glass design system providing responsive physical feedback, specular highlight glows, dynamic tilt, magnetic pull, and smooth sliding tabs.
+Tactile glass design system providing responsive physical feedback, specular highlight glows, 2D magnetic pull, spring scale bloom, and smooth sliding tabs.
 
 ---
 
@@ -17,7 +17,7 @@ Import named exports directly from `src/components/LiquidGlass/`.
 
 | Component | Path | Use Case | Physics & Motion |
 |---|---|---|---|
-| `InteractiveGlass` | `src/components/LiquidGlass/Glass` | Cards, landmark containers, clickable surfaces (`CaseStudyCard`, `JournalEntry`, `FaqItem`, `ProcessDesktopCard`, `Skills` badges) | Dynamic desktop physics (tilt, magnetic pull, clamped specular glow, resting 1.0x scale, hold expansion, and dual-stage physical recoil) and mobile touch handling. |
+| `InteractiveGlass` | `src/components/LiquidGlass/Glass` | Cards, landmark containers, clickable surfaces (`CaseStudyCard`, `JournalEntry`, `FaqItem`, `ProcessDesktopCard`, `Skills` badges) | Dynamic desktop physics (2D magnetic pull, clamped specular glow, resting 1.0x scale, hold expansion, and dual-stage physical recoil) and mobile touch handling. |
 | `StaticGlass` | `src/components/LiquidGlass/StaticGlass` | Non-interactive containers, toolbars, controls, layout shells (`ProcessMobileControls`) | Zero physics overhead. Stripped of motion listeners and spring calculations for optimal performance. |
 | `LiquidGlassButton` | `src/components/LiquidGlass/Button` | Tactile interactive buttons and anchor links | Pre-configured `InteractiveGlass` with `as={href ? "a" : "button"}`, resting 1.0x scale, hold-expansion physics, magnetic pull, and keyboard accessibility. |
 | `Tabs`, `Tab` | `src/components/LiquidGlass/Tabs` | Segmented controls, filter bars, view switchers | Sliding highlight pill with spring physics, 2 variants (`"capsule"` and `"segmented"`), and keyboard navigation. |
@@ -29,7 +29,7 @@ Import named exports directly from `src/components/LiquidGlass/`.
 |---|---|---|
 | `<button className="...">` | `<LiquidGlassButton>` | Standard buttons lack physical spring recoil and magnetic feedback. |
 | `<a href="..." className="...">` (CTA) | `<LiquidGlassButton href="...">` | CTAs require consistent glass styling and keyboard accessibility. |
-| `<div className="... rounded-2xl border ...">` (Card) | `<InteractiveGlass as="article">` | Cards require 3D desktop tilt and specular highlight edges. |
+| `<div className="... rounded-2xl border ...">` (Card) | `<InteractiveGlass as="article">` | Cards require kinetic 2D spring response and specular highlight edges. |
 | `<div className="... border ...">` (Toolbar) | `<StaticGlass>` | Glass toolbars require unified blur, depth, and inset borders. |
 | Custom tab buttons | `<Tabs>` and `<Tab>` | Tabs require shared spring-animated highlight pills. |
 
@@ -48,7 +48,7 @@ Import named exports directly from `src/components/LiquidGlass/`.
      `import { LiquidGlassButton } from "../LiquidGlass/Button";`
    - Avoid namespace-style access (`LiquidGlass.Button`).
 3. **Props Allocation**:
-   - Reserve physics props (`springScale`, `tilt`, `magnetic`, `magneticStrength`) for `InteractiveGlass` and `LiquidGlassButton`.
+   - Reserve physics props (`springScale`, `magnetic`, `magneticStrength`) for `InteractiveGlass` and `LiquidGlassButton`.
    - On `InteractiveGlass`, use the `as` prop (`"div"`, `"button"`, `"a"`, `"article"`, `"span"`) to ensure semantic HTML; on `StaticGlass`, use `"div"` or `"span"`.
    - Use `roundedClass` (e.g. `rounded-2xl`, `rounded-full`, `rounded-xl`, `rounded-lg`) to specify border curvature.
 4. **Tabs Variants**:

@@ -21,13 +21,6 @@ export const glassFeel = {
   },
 } as const;
 
-// Tilt
-export const tilt = {
-  referenceWidth: 240,
-  maxStrength: 12,
-  defaultStrength: 2,
-} as const;
-
 // Ripple
 export const ripple = {
   maxRadiusMultiplier: 2.2,

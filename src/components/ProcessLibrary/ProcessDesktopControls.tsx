@@ -143,9 +143,6 @@ function ProcessDesktopControls() {
                   roundedClass="rounded-full"
                   className="group/more-btn flex min-h-10 cursor-pointer items-center justify-center px-5 py-2.5 text-xs font-semibold whitespace-nowrap text-text-primary shadow-sm transition-colors"
                   ariaLabel="Show more process topics"
-                  magnetic
-                  tilt
-                  magneticStrength={0.02}
                 >
                   <span className="flex items-center gap-1.5">
                     <span>

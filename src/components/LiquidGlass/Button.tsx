@@ -13,6 +13,8 @@ export const LiquidGlassButton = memo(function LiquidGlassButton({
   role,
   tabIndex,
   "aria-disabled": ariaDisabled,
+  magnetic = true,
+  magneticStrength = 0.02,
   ...props
 }: Readonly<GlassButtonPropsWithRef>) {
   const isLink = Boolean(href);
@@ -29,6 +31,8 @@ export const LiquidGlassButton = memo(function LiquidGlassButton({
       tabIndex={isDisabledLink ? -1 : tabIndex}
       onClick={isDisabledLink ? undefined : onClick}
       springScale={springScale ?? !disabled}
+      magnetic={disabled ? false : magnetic}
+      magneticStrength={magneticStrength}
     />
   );
 });

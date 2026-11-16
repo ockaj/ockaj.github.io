@@ -19,7 +19,6 @@ const CaseStudyCard = memo(function CaseStudyCard({
       roundedClass="rounded-2xl"
       className="w-full cursor-pointer items-stretch justify-start text-left"
       onClick={() => onOpen(study)}
-      tilt
     >
       {/* Content grid */}
       <div className="relative z-10 grid size-full grid-cols-1 gap-6 p-6 md:grid-cols-12 md:gap-8 md:p-8">

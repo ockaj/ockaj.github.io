@@ -30,7 +30,6 @@ import {
 
 interface MotionFlagOptions {
   magnetic: boolean;
-  tilt: boolean;
   springScale: boolean;
 }
 
@@ -42,7 +41,6 @@ function getEffectiveMotionFlags(
   return {
     isMotionReduced: isReduced,
     effectiveMagnetic: options.magnetic && !isReduced,
-    effectiveTilt: options.tilt && !isReduced,
     effectiveSpringScale: options.springScale && !isReduced,
   };
 }
@@ -50,18 +48,14 @@ function getEffectiveMotionFlags(
 function computeTagStyle(
   style: MotionStyle | CSSProperties | undefined,
   effectiveMagnetic: boolean,
-  effectiveTilt: boolean,
   effectiveSpringScale: boolean,
   isActive: boolean,
   springPullX: MotionValue<number>,
   springPullY: MotionValue<number>,
-  springTiltX: MotionValue<number>,
-  springTiltY: MotionValue<number>,
   springScaleX: MotionValue<number>,
   springScaleY: MotionValue<number>,
 ): MotionStyle {
-  const hasTransform =
-    effectiveMagnetic || effectiveTilt || effectiveSpringScale;
+  const hasTransform = effectiveMagnetic || effectiveSpringScale;
   const activeWillChange = isActive ? "transform" : "auto";
   const resolvedWillChange = hasTransform ? activeWillChange : undefined;
   return {
@@ -72,10 +66,6 @@ function computeTagStyle(
     y: effectiveMagnetic ? springPullY : undefined,
     scaleX: effectiveSpringScale ? springScaleX : undefined,
     scaleY: effectiveSpringScale ? springScaleY : undefined,
-    rotateX: effectiveTilt ? springTiltX : undefined,
-    rotateY: effectiveTilt ? springTiltY : undefined,
-    transformStyle: effectiveTilt ? "preserve-3d" : undefined,
-    transformPerspective: effectiveTilt ? 1000 : undefined,
     ...style,
   };
 }
@@ -95,26 +85,19 @@ export default function LiquidGlassDesktop({
   springScale = false,
   roundedClass = "rounded-full",
   magnetic = false,
-  tilt = false,
   magneticStrength = 0.02,
   ref,
   ...domProps
 }: Readonly<InteractiveGlassPropsWithRef>) {
   const prefersReducedMotion = useReducedMotion();
-  const {
-    isMotionReduced,
-    effectiveMagnetic,
-    effectiveTilt,
-    effectiveSpringScale,
-  } = getEffectiveMotionFlags(prefersReducedMotion, {
-    magnetic,
-    tilt,
-    springScale,
-  });
+  const { isMotionReduced, effectiveMagnetic, effectiveSpringScale } =
+    getEffectiveMotionFlags(prefersReducedMotion, {
+      magnetic,
+      springScale,
+    });
 
   const physics = useLiquidGlassPhysics({
     effectiveMagnetic,
-    effectiveTilt,
     effectiveSpringScale,
     magneticStrength,
   });
@@ -156,26 +139,20 @@ export default function LiquidGlassDesktop({
       computeTagStyle(
         style,
         effectiveMagnetic,
-        effectiveTilt,
         effectiveSpringScale,
         isPhysicsActive,
         physics.springPullX,
         physics.springPullY,
-        physics.springTiltX,
-        physics.springTiltY,
         physics.springScaleX,
         physics.springScaleY,
       ),
     [
       style,
       effectiveMagnetic,
-      effectiveTilt,
       effectiveSpringScale,
       isPhysicsActive,
       physics.springPullX,
       physics.springPullY,
-      physics.springTiltX,
-      physics.springTiltY,
       physics.springScaleX,
       physics.springScaleY,
     ],

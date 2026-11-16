@@ -33,7 +33,6 @@ export const FaqItem = memo(function FaqItem({ item }: FaqItemProps) {
         as="div"
         roundedClass="rounded-2xl"
         className="w-full text-left"
-        tilt={false}
       >
         <div className="p-6 md:p-7">
           <Accordion.Header className="m-0 flex w-full items-center justify-between gap-4 p-0 font-normal">
@@ -81,9 +80,6 @@ export const FaqItem = memo(function FaqItem({ item }: FaqItemProps) {
                     roundedClass="rounded-full"
                     className="group/action-btn flex min-h-11 cursor-pointer items-center justify-center px-6 py-2.5 text-sm font-semibold text-text-primary shadow-sm transition-colors"
                     ariaLabel={item.actionLink.label}
-                    magnetic
-                    tilt
-                    magneticStrength={0.03}
                   >
                     <span className="flex items-center gap-2">
                       <span>{item.actionLink.label}</span>

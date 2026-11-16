@@ -167,7 +167,6 @@ function Skills() {
               className="px-4 py-2"
               innerClassName="flex items-center gap-3"
               magnetic={false}
-              tilt
             >
               <span className="text-sm font-semibold text-text-primary">
                 {lang.language}
@@ -216,7 +215,6 @@ const WideSkillCard = memo(function WideSkillCard({
       as="div"
       roundedClass="rounded-2xl"
       className="size-full flex-col items-stretch justify-start p-6 text-left md:p-8"
-      tilt
     >
       <div className="flex size-full flex-col md:flex-row md:justify-between md:gap-8">
         <div className="mb-5 shrink-0 md:mb-0 md:max-w-2/5">
@@ -251,7 +249,6 @@ const CompactSkillCard = memo(function CompactSkillCard({
       as="div"
       roundedClass="rounded-2xl"
       className="size-full flex-col items-stretch justify-start p-6 text-left md:p-8"
-      tilt
     >
       <div className="flex size-full flex-col">
         <div className="mb-5">

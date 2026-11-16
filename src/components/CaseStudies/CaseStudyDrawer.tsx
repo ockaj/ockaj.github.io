@@ -50,10 +50,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
         className="flex-1 touch-pan-y space-y-8 overflow-y-auto overscroll-contain p-6 pb-safe-6 select-text md:p-8 md:pb-8"
       >
         {/* Header */}
-        <motion.div
-          variants={drawerItemVariants}
-          custom={prefersReducedMotion}
-        >
+        <motion.div variants={drawerItemVariants} custom={prefersReducedMotion}>
           <div className="mb-2 flex items-center gap-2">
             <span className="size-1.5 rounded-full bg-accent" />
             <span className="text-sm font-bold tracking-wider text-accent uppercase">
@@ -235,9 +232,6 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
           <LiquidGlassButton
             href={`mailto:${CONTACT_EMAIL}`}
             className="px-6 py-3.5 text-sm"
-            magnetic
-            tilt
-            magneticStrength={0.02}
           >
             Request project details ↗
           </LiquidGlassButton>

@@ -32,9 +32,6 @@ function Footer() {
           onClick={scrollToTop}
           className="group/top-btn px-4 py-3 text-sm"
           ariaLabel="Scroll back to top"
-          magnetic
-          tilt
-          magneticStrength={0.02}
         >
           <span className="flex items-center gap-1.5">
             Back to Top

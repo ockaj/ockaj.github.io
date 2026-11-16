@@ -44,7 +44,7 @@ const JournalDrawer = memo(function JournalDrawer({
         initial="hidden"
         animate="visible"
         custom={prefersReducedMotion}
-        className="flex-1 touch-pan-y overscroll-contain space-y-8 overflow-y-auto p-6 pb-safe-6 select-text md:p-8 md:pb-8"
+        className="flex-1 touch-pan-y space-y-8 overflow-y-auto overscroll-contain p-6 pb-safe-6 select-text md:p-8 md:pb-8"
       >
         <motion.div
           variants={drawerItemVariants}
@@ -84,9 +84,6 @@ const JournalDrawer = memo(function JournalDrawer({
           <LiquidGlassButton
             href={`mailto:${CONTACT_EMAIL}?subject=Regarding Article: ${encodeURIComponent(article.title)}`}
             className="px-6 py-3.5 text-sm"
-            magnetic
-            tilt
-            magneticStrength={0.02}
           >
             Discuss this thought piece
             <MessageSquare size={13} />
