@@ -34,11 +34,15 @@ export const selectIsAnyModalOpen = (state: AppState): boolean =>
   state.activeModal !== null;
 
 const getInitialLoading = (): boolean => {
-  if (isBoneyardBuild() || isReducedMotionPreferred()) {
+  if (
+    isBoneyardBuild() ||
+    isReducedMotionPreferred() ||
+    typeof window === "undefined"
+  ) {
     return false;
   }
   try {
-    return !localStorage.getItem("portfolio_loaded");
+    return !window.localStorage.getItem("portfolio_loaded");
   } catch {
     return true;
   }
@@ -79,7 +83,9 @@ export const useAppStore = create<AppState>((set) => ({
   activeModal: initialModal,
   completeLoading: () => {
     try {
-      localStorage.setItem("portfolio_loaded", "true");
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("portfolio_loaded", "true");
+      }
     } catch {
       // Ignore errors (e.g. private browsing restrictions)
     }
