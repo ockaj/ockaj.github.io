@@ -15,3 +15,6 @@ export const PdfViewerModal = lazy(loadPdfViewerModal);
 export const BpmnOverlay = lazy(
   () => import("./components/Bpmn/BpmnOverlay.tsx"),
 );
+export const TulipsOverlay = lazy(
+  () => import("./easterEgg/TulipsOverlay.tsx"),
+);

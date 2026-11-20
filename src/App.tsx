@@ -22,6 +22,7 @@ import {
   Faq,
   PdfViewerModal,
   BpmnOverlay,
+  TulipsOverlay,
 } from "./lazyComponents";
 
 interface AppSectionHeaderProps {
@@ -54,6 +55,16 @@ function DesktopBpmnOverlay() {
   return (
     <Suspense fallback={null}>
       <BpmnOverlay />
+    </Suspense>
+  );
+}
+
+function EasterEggOverlay() {
+  const isOpen = useAppStore((state) => state.activeModal === "bpmn-process");
+  if (!isOpen) return null;
+  return (
+    <Suspense fallback={null}>
+      <TulipsOverlay />
     </Suspense>
   );
 }
@@ -177,6 +188,8 @@ function App() {
           ) : null}
 
           {!isLoading ? <DesktopBpmnOverlay /> : null}
+
+          <EasterEggOverlay />
         </main>
       </BaseTooltip.Provider>
     </>

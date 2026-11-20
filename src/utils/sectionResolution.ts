@@ -104,6 +104,7 @@ export function resolveSectionFromHash(hash: string): string {
   if (
     clean === "cv" ||
     clean === "bpmn" ||
+    clean === "bpmn-process" ||
     clean === "nav" ||
     clean === "menu"
   ) {
@@ -123,6 +124,7 @@ export function isValidModalHash(hash: string): boolean {
   if (
     clean === "cv" ||
     clean === "bpmn" ||
+    clean === "bpmn-process" ||
     clean === "nav" ||
     clean === "menu"
   ) {
