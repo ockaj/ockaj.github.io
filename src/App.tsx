@@ -1,4 +1,10 @@
-import { Suspense, useCallback, memo, type ComponentProps } from "react";
+import {
+  Suspense,
+  useCallback,
+  useState,
+  memo,
+  type ComponentProps,
+} from "react";
 import { AnimatePresence } from "motion/react";
 import { Tooltip as BaseTooltip } from "@base-ui/react/tooltip";
 
@@ -22,6 +28,7 @@ import {
   Faq,
   PdfViewerModal,
   BpmnOverlay,
+  TulipsOverlay,
 } from "./lazyComponents";
 
 interface AppSectionHeaderProps {
@@ -54,6 +61,23 @@ function DesktopBpmnOverlay() {
   return (
     <Suspense fallback={null}>
       <BpmnOverlay />
+    </Suspense>
+  );
+}
+
+function EasterEggOverlay() {
+  const isOpen = useAppStore((state) => state.activeModal === "bpmn-process");
+  const [hasMounted, setHasMounted] = useState(isOpen);
+
+  if (isOpen && !hasMounted) {
+    setHasMounted(true);
+  }
+
+  if (!hasMounted) return null;
+
+  return (
+    <Suspense fallback={null}>
+      <TulipsOverlay />
     </Suspense>
   );
 }
@@ -177,6 +201,8 @@ function App() {
           ) : null}
 
           {!isLoading ? <DesktopBpmnOverlay /> : null}
+
+          <EasterEggOverlay />
         </main>
       </BaseTooltip.Provider>
     </>
