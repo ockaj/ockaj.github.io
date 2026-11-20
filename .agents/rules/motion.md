@@ -29,10 +29,10 @@ When creating, modifying, or auditing animations:
 
 3. **Exit Transitions**:
    - Wrap unmounting components in `<AnimatePresence>`.
-   - Pass `keepMounted` to `<Dialog.Portal keepMounted>` when animating Base UI dialog exits.
+   - For Base UI dialog portal exit retention (`keepMounted`), see [Base UI Guidelines](./base-ui.md).
 
 4. **Accessibility & Reduced Motion**:
-   - Honor user motion preferences with `useReducedMotion()`.
+   - Honor user motion preferences with `useReducedMotion()` from `motion/react` or `usePrefersReducedMotion()` from [`src/hooks/useMediaQuery.ts`](../../src/hooks/useMediaQuery.ts).
    - Provide non-vestibular 150ms opacity cross-fades via `REDUCED_MOTION_TRANSITION`.
    - Suppress child item stagger delays and spring bounce when reduced motion is active.
 
@@ -42,9 +42,8 @@ When creating, modifying, or auditing animations:
 
 All UI spring animations and transitions reuse standardized configurations:
 
-- Reuse preset physics from the `SPRING` object in [`src/utils/springConfig.ts`](../../src/utils/springConfig.ts): `highlight`, `drawer`, `modal`, `exit`, `hero`, `snappyMenu`, `glassScale`, `glassRipple`, `glassPress`, `glassRelease`, `glassTouchPress`, `glassTouchRelease`, `glassMouse`, `glassOpacity`, `nudge`, `stage`, and `stageExit`.
-- Maintain references in `src/` for all `SPRING` presets (enforced by exit gate invariant).
-- Reuse standardized easing curves from `EASE` (`EASE.out`, `EASE.exit`, `EASE.inOut`).
+- Reuse preset physics from `SPRING` and easing curves from `EASE` in [`src/utils/springConfig.ts`](../../src/utils/springConfig.ts).
+- Maintain references in `src/` for every `SPRING` preset (enforced by exit gate invariant in `scripts/verify-gate.mjs`).
 - Reuse centralized animation variants from [`src/utils/motionVariants.ts`](../../src/utils/motionVariants.ts).
 - Center modals (`PdfViewerModal`, `BpmnOverlay`, `ProcessLightbox`) must reuse `modalVariants` with `y: 0` and `transformOrigin: "center center"`.
 - Drawer child containers using `drawerItemVariants` must pass `custom={prefersReducedMotion}`.

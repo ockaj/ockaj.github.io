@@ -13,19 +13,19 @@ Single-page React portfolio (no router) built with React 19, Vite 8, TypeScript 
 
 - **No Router**: Navigation is managed via custom hooks in [`src/hooks/useAppNavigation.ts`](../../src/hooks/useAppNavigation.ts).
 - **Section IDs**: `home`, `work`, `skills`, `processes`, `journal`, `faq`, and `contact`. They are mapped in `LABEL_MAP` and set on section containers.
-- **Scroll Spy**: `useScrollSpy` uses an `IntersectionObserver` to track the visible section and sync address bar hash via `safeReplaceState("#<sectionId>")` (wrapped in React 19 `startTransition`).
+- **Scroll Spy**: `useScrollSpy` uses an `IntersectionObserver` to track the visible section and sync address bar hash via `safeReplaceState("#<sectionId>")`.
 - **Programmatic Navigation**: `handleNavClick` scrolls via `scrollIntoView({ behavior: isReduced ? "auto" : "smooth" })` and syncs URL hash using `safePushState`. Initial hash alignment and modal parent section alignments use `behavior: "instant"`.
 - **Synchronous Scroll Restoration & Anchor Alignment**: [main.tsx](../../src/main.tsx) sets `window.history.scrollRestoration = "manual"` at module scope before `createRoot`. [index.css](../../src/index.css) sets `html { scroll-behavior: auto; }` to eliminate browser reload scroll races. [useNavigation](../../src/hooks/useAppNavigation.ts) applies `requestAnimationFrame` alignment confirmation on initial load for deep links (`#contact`, `#faq`, etc.) to lock anchor positioning after layout calculations settle.
-- **Modal & Overlay Hash Sync**: [`useModal`](../../src/hooks/useAppNavigation.ts), [`useOverlay`](../../src/hooks/useAppNavigation.ts), and [`useEntityModal`](../../src/hooks/useEntityModal.ts) synchronize modal and drawer visibility with URL hash fragments (`#cv`, `#bpmn`, `#case-study-<id>`, `#article-<id>`, `#lightbox-<id>`). Centralized hash parsing in [`src/utils/sectionResolution.ts`](../../src/utils/sectionResolution.ts) maps modal hashes to their parent sections. On browser reload with an active overlay hash, the parent section hydrates on Frame 1, aligning scroll non-destructively. Invalid deep links and transient menus (`#nav`, `#menu`) dismiss cleanly.
+- **Modal & Overlay Hash Sync**: [`useModal`](../../src/hooks/useAppNavigation.ts), [`useOverlay`](../../src/hooks/useAppNavigation.ts), and [`useEntityModal`](../../src/hooks/useEntityModal.ts) synchronize modal and drawer visibility with URL hash fragments (`#cv`, `#bpmn`, `#bpmn-process`, `#case-study-<id>`, `#article-<id>`, `#lightbox-<id>`). Centralized hash parsing in [`src/utils/sectionResolution.ts`](../../src/utils/sectionResolution.ts) maps modal hashes to their parent sections. On browser reload with an active overlay hash, the parent section hydrates on Frame 1, aligning scroll non-destructively. Invalid deep links and transient menus (`#nav`, `#menu`) dismiss cleanly.
 - **Browser Translation Safety**: [applyDomTranslatePatch](../../src/utils/domTranslatePatch.ts) runs in [main.tsx](../../src/main.tsx) to prevent React reconciliation crashes from Chrome Translate DOM mutations. Complex interactive diagrams and badges must use `className="notranslate"` and `translate="no"`.
 
 ---
 
 ## 2. State Management
 
-- **App Store**: [`src/store/useAppStore.ts`](../../src/store/useAppStore.ts) is a Zustand store managing `{ isLoading, hasCvMounted, activeSection, activeModal }`. CV preferences are encapsulated in [`src/store/useCvStore.ts`](../../src/store/useCvStore.ts). `activeModal: string | null` acts as the single source of truth for all modal and drawer overlays. `getInitialActiveModal()` initializes state directly from `window.location.hash` using `normalizeHash()` and `isValidModalHash()`.
+- **App, CV & Process Stores**: [`src/store/useAppStore.ts`](../../src/store/useAppStore.ts) is a Zustand store managing `{ isLoading, hasCvMounted, activeSection, activeModal }`. CV preferences live in [`src/store/useCvStore.ts`](../../src/store/useCvStore.ts), and Process Library state (`activeTopicId`, `direction`, `viewModes`) lives in [`src/store/useProcessStore.ts`](../../src/store/useProcessStore.ts). `activeModal: string | null` acts as the single source of truth for all modal and drawer overlays. `getInitialActiveModal()` initializes state directly from `window.location.hash` using `normalizeHash()` and `isValidModalHash()`.
 - **Selector Isolation**: Landmark sections subscribe only to narrow, derived selectors (e.g. `state.activeModal?.startsWith("case-study-")` or `selectIsAnyModalOpen`) to prevent cascade re-renders across landmark sections when overlays open or close.
-- **Zero-Flash Initial Load**: `getInitialLoading()` checks `localStorage.getItem("portfolio_loaded")` to bypass the loading screen on repeat visits.
+- **Zero-Flash Initial Load**: `getInitialLoading()` skips the loading screen when `isBoneyardBuild()`, `isReducedMotionPreferred()`, SSR, or `localStorage.getItem("portfolio_loaded")` is active.
 - **Boneyard Suspense Integration**: Skips loading screen during Boneyard CLI capture (`isBoneyardBuild()`).
 
 ---
@@ -36,7 +36,7 @@ Single-page React portfolio (no router) built with React 19, Vite 8, TypeScript 
 - **Four-Tier Boneyard Content Skeletons**: `boneyard.config.json` captures four responsive breakpoint tiers (`[375, 768, 1024, 1280]`). `LazySection` wraps content boundaries in `<BoneSuspense>` with responsive skeleton coordinates resolved from `.bones.json`. Minimum heights (`--skeleton-min-h-mob`, `--skeleton-min-h-tab`, `--skeleton-min-h-desk`, `--skeleton-min-h-wide`) are computed via `getSkeletonStyle()` in [`src/utils/bonesHelper.ts`](../../src/utils/bonesHelper.ts), applying `xl:min-h-(--skeleton-min-h-wide)` to match full $1200\text{ px}$ container desktop sizes and eliminate layout shifts (CLS = 0).
 - **Standards-Compliant Viewport Intersection Gating**: `LazySection` gates component loading using an `IntersectionObserver` with a connection-aware three-tier `rootMargin` matrix from [`src/utils/connection.ts`](../../src/utils/connection.ts) (`400px 0px` on constrained networks such as `Save-Data` and 2G, `800px 0px` on 3G, and `1200px 0px` on 4G/unconstrained/SSR), dispatching module activation via `requestIdle` with a 1000 ms timeout (`{ timeout: 1000 }`). Pre-renders fixed-height Boneyard `<Skeleton loading={true}>` placeholders to guarantee CLS = 0 and immediately loads any deep-linked hash (`window.location.hash`) or navbar click target (`activeSection`).
 - **Intentional Speculative Idle Preload of CV Modal**: [`Hero.tsx`](../../src/components/Hero.tsx) schedules an intentional idle prefetch of `PdfViewerModal` using `requestIdle` with a 2000 ms timeout (`{ timeout: 2000 }`), triggering `loadPdfViewerModal()`. This ensures 0 ms instant modal opening on both touch devices and desktop without loading the chunk during Frame 1 critical rendering path.
-- **Strategic Dynamic Imports at Root**: Root-level overlays (`PdfViewerModal`, `BpmnOverlay`) and landmark sections (`CaseStudies`, `Skills`, `ProcessLibrary`, `Journal`, `Faq`) load on demand via standard `React.lazy()` dynamic imports in `src/lazyComponents.ts` to keep the initial page bundle under 50 kB brotli.
+- **Strategic Dynamic Imports at Root**: Root-level overlays (`PdfViewerModal`, `BpmnOverlay`, `TulipsOverlay`) and landmark sections (`CaseStudies`, `Skills`, `ProcessLibrary`, `Journal`, `Faq`) load on demand via standard `React.lazy()` dynamic imports in `src/lazyComponents.ts` to keep the initial page bundle under 50 kB brotli.
 - **Static Frame 1 Landmark Invariants**: [`Hero.tsx`](../../src/components/Hero.tsx), [`ContactSection.tsx`](../../src/components/ContactSection.tsx), and [`Aurora.tsx`](../../src/components/Aurora/Aurora.tsx) remain statically imported in [`src/App.tsx`](../../src/App.tsx). This guarantees instantaneous Frame 1 render, zero layout shift (CLS = 0), and Boneyard skeleton stability. Never lazy-load `ContactSection`, `Hero`, or `Aurora`.
 - **No Micro-Splitting Inside Lazy Sections (Anti Over-Splitting)**: Feature drawers and dialogs (`CaseStudyDrawer`, `JournalDrawer`, `ProcessLightbox`) are bundled inside their parent section chunks. Because each section chunk is small (< 26 kB brotli), co-locating drawers eliminates extra network round-trips. This prevents interaction delay and guarantees instant drawer opening on slow mobile connections.
 - **Media Query Registry Reuse**: Components and hooks checking viewport dimensions must use `useMediaQuery` or `useIsMobile` from [`src/hooks/useMediaQuery.ts`](../../src/hooks/useMediaQuery.ts) which uses the shared `stores` map. Never invoke `window.matchMedia` inline with ad-hoc queries.
@@ -46,15 +46,10 @@ Single-page React portfolio (no router) built with React 19, Vite 8, TypeScript 
 
 ## 4. Overlays, Dialogs & Modals
 
-- **Base UI Primitives**: Built using unstyled `@base-ui/react` primitives imported from direct subpaths:
-  - Dialogs: `@base-ui/react/dialog` (`Dialog.Root`, `Dialog.Portal`, `Dialog.Backdrop`, `Dialog.Popup`, `Dialog.Title`, `Dialog.Description`, `Dialog.Close`)
-  - Tooltips: `@base-ui/react/tooltip`
-  - Accordions: `@base-ui/react/accordion` (`Accordion.Root`, `Accordion.Item`, `Accordion.Header`, `Accordion.Trigger`, `Accordion.Panel`)
-- **Exit Transitions**: Always pass `keepMounted` to `<Dialog.Portal keepMounted>` when wrapping with `motion/react` `<AnimatePresence>` to allow exit animations to complete.
-- **Tooltip Animations**: Tooltips use exclusively CSS transitions (`[&[data-starting-style]]`, `[&[data-ending-style]]`, `[&[data-instant]]`). Tooltips do not use `motion/react` or `<AnimatePresence>`. Base UI detects native `transitionend` events to manage entrance and unmount timing with zero JavaScript animation overhead.
+- **Base UI Primitives & Transitions**: Built with `@base-ui/react` subpath primitives. For subpath imports, `keepMounted` portal exits, and pure-CSS tooltip/accordion transition rules, see [Base UI Guidelines](./base-ui.md).
 - **Universal Modal Hooks**:
   - `useModal(id)`: Combines `activeModal` in Zustand and `useOverlay` to provide `{ isOpen, open, close }` while synchronizing URL hash history for standalone overlays (`#cv`, `#bpmn`, `#nav`).
-  - `useEntityModal(prefix, lookup, options)`: Dedicated hook in [`src/hooks/useEntityModal.ts`](../../src/hooks/useEntityModal.ts) for entity-backed drawers and modals (`#case-study-<id>`, `#article-<id>`, `#lightbox-<id>`). Handles content buffering during exit animations, derived store subscriptions, and URL hash repair.
+  - `useEntityModal(prefix, lookup, options)`: Dedicated hook in [`src/hooks/useEntityModal.ts`](../../src/hooks/useEntityModal.ts) for entity-backed drawers and modals (`#case-study-<id>`, `#article-<id>`, `#lightbox-<id>`). Handles content buffering during exit animations, derived store subscriptions, and invalid-hash repair (while `BaseDrawer` / `ProcessLightbox` invoke `useOverlay` for `popstate`/hash sync).
 - **Implementations**:
   - `BaseDrawer`: Slide-over drawer with swipe-to-dismiss (`drag="x"`).
   - `PdfViewerModal`: CV viewer modal in [`src/components/PdfViewerModal/PdfViewerModal.tsx`](../../src/components/PdfViewerModal/PdfViewerModal.tsx) with native `<object>` and interactive fallback view. It preloads during Hero idle time, deferring native mount by 350 ms to preserve frame rate.
@@ -124,7 +119,7 @@ Enforce unified seams, strong typing, and modern React patterns across all modul
 - **Animation Source**: Import animations exclusively from `motion/react`. The legacy `framer-motion` package is prohibited.
 
 ### Strongly-Typed Domain Data & Types
-- **Forbid Loose Record**: Avoid untyped dictionary types like `Record<string, unknown>` or `Record<string, any>`. Parse incoming data or dynamic objects into explicit interfaces or index signatures at the earliest I/O boundary.
+- **Forbid `Record<K, V>`**: Replace all `Record<K, V>` types with explicit interfaces or index signatures (enforced by `scripts/verify-gate.mjs`). Parse incoming data or dynamic objects into explicit interfaces at the earliest I/O boundary.
 - **Shared Domain Models**: Place domain interfaces in `types.ts` (or component-specific `types.ts`).
 
 ### React 19 & Anti-Bloat Invariants
@@ -147,7 +142,7 @@ Enforce unified seams, strong typing, and modern React patterns across all modul
 
 - **Tailwind CSS v4 Configuration**:
   - Theme tokens reside in the `@theme` directive in [`src/index.css`](../../src/index.css). Tailwind v4 does not use `tailwind.config.js` or `postcss.config.js`.
-  - Nested corner radius: Follow concentric corner geometry manually ($R_{\text{inner}} = R_{\text{outer}} - \text{padding}$, e.g. outer `rounded-xl` with `p-1.25` padding and inner `rounded-lg`).
+  - Nested corner radius: Follow concentric corner geometry — see [LiquidGlass Rules](./liquid-glass.md).
   - Use theme tokens or native Tailwind scales instead of arbitrary values. Prettier with `prettier-plugin-tailwindcss` sorts class names automatically.
 - **Boneyard Suspense**: `src/bones/registry.ts` is imported in `src/main.tsx` (do not delete). Components check `isBoneyardBuild()` from `src/utils/boneyard.ts` (`window.__BONEYARD_BUILD`) to skip dynamic animations during skeleton capture.
 - **Bundler & React Compiler**:

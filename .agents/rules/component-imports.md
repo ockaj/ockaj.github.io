@@ -55,16 +55,9 @@ Cross-cutting UI primitives live directly in `src/components/` (e.g. `BaseDrawer
 
 ---
 
-## 4. LiquidGlass Import Locations
+## 4. LiquidGlass Imports & Encapsulation
 
-Import LiquidGlass primitives via named exports from their specific public modules:
-
-- **Interactive Surface Primitive**: Import `InteractiveGlass` from [`src/components/LiquidGlass/Glass`](../../src/components/LiquidGlass/Glass.tsx).
-- **Button Primitive**: Import `LiquidGlassButton` from [`src/components/LiquidGlass/Button`](../../src/components/LiquidGlass/Button.tsx).
-- **Static Surface Primitive**: Import `StaticGlass` from [`src/components/LiquidGlass/StaticGlass`](../../src/components/LiquidGlass/StaticGlass.tsx).
-- **Tab Primitives**: Import `Tabs` and `Tab` from [`src/components/LiquidGlass/Tabs`](../../src/components/LiquidGlass/Tabs.tsx).
-- **Draggable Tab Primitives**: Import `DraggableTabs` and `DraggableTab` from [`src/components/LiquidGlass/DraggableTabs`](../../src/components/LiquidGlass/DraggableTabs.tsx).
-- **Encapsulation**: Avoid namespace access (`LiquidGlass.Button`). Everything inside `src/components/LiquidGlass/internal/` is private; import internal types, physics hooks, ripples, tab shells, or overlay files only within `src/components/LiquidGlass/`.
+Import LiquidGlass primitives via named exports from the public entry points listed in Section 3. Avoid namespace access (`LiquidGlass.Button`). Everything inside `src/components/LiquidGlass/internal/` is private to `src/components/LiquidGlass/`.
 
 For component selection criteria, physics, and props allocation, see [LiquidGlass Rules](./liquid-glass.md).
 
@@ -72,18 +65,11 @@ For component selection criteria, physics, and props allocation, see [LiquidGlas
 
 ## 5. Base UI Subpath Imports
 
-Import Base UI components directly from their specific subpath specifiers:
-- Dialogs: `@base-ui/react/dialog` (`Dialog.Root`, `Dialog.Portal`, `Dialog.Backdrop`, `Dialog.Popup`, `Dialog.Title`, `Dialog.Description`, `Dialog.Close`).
-- Tooltips: `@base-ui/react/tooltip`.
-- Toasts: `@base-ui/react/toast` (`Toast.Provider`, `Toast.Portal`, `Toast.Viewport`, `Toast.Root`, `Toast.Content`, `Toast.Title`, `Toast.Description`, `Toast.Close`, `Toast.useToastManager`, `Toast.createToastManager`).
-- Accordions: `@base-ui/react/accordion` (`Accordion.Root`, `Accordion.Item`, `Accordion.Header`, `Accordion.Trigger`, `Accordion.Panel`).
-
-Pass `keepMounted` to `<Dialog.Portal keepMounted>` when wrapping with `motion/react` `<AnimatePresence>` for exit transitions. See [Base UI Guidelines](./base-ui.md).
+Import Base UI components and utilities from direct subpath specifiers (`@base-ui/react/<primitive>`). For the authoritative subpath list, portal exit rules, and component standards, see [Base UI Guidelines](./base-ui.md).
 
 ---
 
-## 6. Shared Utilities (`cn`, `quicklink`, `idleCallback`)
+## 6. Shared Utilities
 
 - **Class Composition**: Use `cn(...)` from [`src/utils/cn.ts`](../../src/utils/cn.ts) (`clsx` + `twMerge`) for conditional class composition.
-- **Prefetching**: Import `prefetchAsset` from [`src/utils/quicklink.ts`](../../src/utils/quicklink.ts). Never import `prefetch` from `"quicklink"` directly because the wrapper deduplicates requests via an in-memory `Set`.
-- **Idle Scheduling**: Import `requestIdle` and `cancelIdle` from [`src/utils/idleCallback.ts`](../../src/utils/idleCallback.ts). Never call `window.requestIdleCallback` or `window.cancelIdleCallback` directly.
+- **Browser API Seams** (`prefetchAsset`, `requestIdle`, `cancelIdle`, etc.): See Canonical Browser API Seams in [Architecture Guide](./architecture.md).

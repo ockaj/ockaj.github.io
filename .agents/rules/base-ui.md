@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Base UI accessible primitives (@base-ui/react). Use when implementing or styling dialogs, tooltips, popovers, drawers, accordions, keepMounted portal exits, or data-starting-style transitions.
+description: Base UI accessible primitives (@base-ui/react). Use when implementing or styling any interactive UI primitive (dialogs, drawers, tooltips, popovers, toasts, avatars, menus, selects, tabs, accordions, switches) or keepMounted/data-starting-style transitions.
 ---
 
 # Base UI Guidelines
@@ -13,7 +13,14 @@ Source: https://base-ui.com/llms.txt
 ## 1. Core Rules
 
 - **Use Built-in Primitives**: Use `@base-ui/react` components for accessible UI elements. Do not create custom accessible widgets.
-- **Fetch Official Online Documentation First**: Before writing, planning, or modifying any Base UI component, fetch its online markdown documentation with `read_url_content` (e.g., `https://base-ui.com/react/components/<component>.md`). Treat fetched documentation as authoritative for component anatomy, props, and data attributes. Do not extrapolate API shapes from other component libraries.
+- **Fetch Official Online Documentation First**: Before writing, planning, or modifying any Base UI component, look up its official markdown documentation (e.g., `https://base-ui.com/react/components/<component>.md`) with `search_web`. Treat fetched documentation as authoritative for component anatomy, props, and data attributes. Do not extrapolate API shapes from other component libraries.
+- **Direct Subpath Imports**: Import Base UI primitives and utilities from their direct subpath specifiers:
+  - `@base-ui/react/accordion` (`Accordion.Root`, `Accordion.Item`, `Accordion.Header`, `Accordion.Trigger`, `Accordion.Panel`)
+  - `@base-ui/react/avatar` (`Avatar.Root`, `Avatar.Image`, `Avatar.Fallback`)
+  - `@base-ui/react/dialog` (`Dialog.Root`, `Dialog.Portal`, `Dialog.Backdrop`, `Dialog.Popup`, `Dialog.Title`, `Dialog.Description`, `Dialog.Close`)
+  - `@base-ui/react/toast` (`Toast.Provider`, `Toast.Portal`, `Toast.Viewport`, `Toast.Root`, `Toast.Content`, `Toast.Title`, `Toast.Description`, `Toast.Close`, `Toast.useToastManager`, `Toast.createToastManager`)
+  - `@base-ui/react/tooltip` (`Tooltip.*`)
+  - `@base-ui/react/merge-props` (`mergeProps`)
 - **Tailwind CSS v4 Compatibility**: Style Base UI components with Tailwind CSS v4 classes and data attributes.
 - **Data Attributes**: Target state data attributes such as `data-popup-open` or `data-starting-style` for state styling.
 - **Overlay Exits**: Retain mounted portals with `keepMounted` when animating overlay exits.
@@ -36,8 +43,10 @@ Source: https://base-ui.com/llms.txt
 ## 3. Relevant Component Documentation
 
 - [Accordion](https://base-ui.com/react/components/accordion.md): Collapsible panels with headings (used in FAQ).
-- [Dialog](https://base-ui.com/react/components/dialog.md): Accessible modal dialog primitive (used in modals and lightboxes).
+- [Avatar](https://base-ui.com/react/components/avatar.md): User avatar image and fallback primitive (used in Navbar and Journal).
+- [Dialog](https://base-ui.com/react/components/dialog.md): Accessible modal dialog primitive (used in modals, drawers, and lightboxes).
 - [Popover](https://base-ui.com/react/components/popover.md): Anchored popup container primitive.
+- [Toast](https://base-ui.com/react/components/toast.md): Managed toast notification primitive (used in BPMN hotkey toast).
 - [Tooltip](https://base-ui.com/react/components/tooltip.md): Informational hover tooltip primitive.
 
 ---
