@@ -187,6 +187,8 @@ export function useDraggableTabs({
   const isMotionReduced = Boolean(prefersReducedMotion);
 
   const pillCenterX = useMotionValue(0);
+  const targetPillWidth = useMotionValue(BASE_PILL_WIDTH);
+  const smoothPillWidth = useSpring(targetPillWidth, SPRING.dragWidth);
   const squishScaleX = useMotionValue(1);
   const squishScaleY = useMotionValue(1);
   const fallbackCapsuleOffsetX = useMotionValue(0);
@@ -283,6 +285,18 @@ export function useDraggableTabs({
     };
     controls.then(finish, finish);
   }, [isMotionReduced, resolvedCapsuleOffsetX, stopCapsuleReturn]);
+
+  const syncPillWidth = useCallback(
+    (width: number, immediate: boolean) => {
+      if (immediate || isMotionReduced) {
+        targetPillWidth.jump(width);
+        smoothPillWidth.jump(width);
+      } else {
+        targetPillWidth.set(width);
+      }
+    },
+    [isMotionReduced, smoothPillWidth, targetPillWidth],
+  );
 
   const stopPillAnimation = useCallback(() => {
     animGenRef.current += 1;
@@ -408,6 +422,7 @@ export function useDraggableTabs({
     if (!isMeasuredRef.current) {
       isMeasuredRef.current = true;
       pillCenterX.jump(targetRect.centerX);
+      syncPillWidth(targetRect.width, true);
       pillOpacity.jump(1);
       return;
     }
@@ -416,8 +431,10 @@ export function useDraggableTabs({
     if (!storeState.isDragging && !hasActiveGrabRef.current) {
       if (storeState.isPillAnimating || animControlsRef.current !== null) {
         animatePillTo(targetRect.centerX);
+        syncPillWidth(targetRect.width, false);
       } else {
         pillCenterX.jump(targetRect.centerX);
+        syncPillWidth(targetRect.width, true);
       }
     }
   }, [
@@ -429,6 +446,7 @@ export function useDraggableTabs({
     layoutVersionMv,
     pillCenterX,
     pillOpacity,
+    syncPillWidth,
   ]);
 
   const registerTabElement = useCallback(
@@ -510,6 +528,7 @@ export function useDraggableTabs({
     const handoffSpring = pendingSpringRef.current ?? SPRING.highlight;
     pendingSpringRef.current = null;
     animatePillTo(targetRect.centerX, handoffVelocity, handoffSpring);
+    syncPillWidth(targetRect.width, isMotionReduced);
   }, [
     enabled,
     isDragging,
@@ -517,6 +536,7 @@ export function useDraggableTabs({
     isMotionReduced,
     animatePillTo,
     controller,
+    syncPillWidth,
   ]);
 
   useLayoutEffect(() => {
@@ -564,7 +584,9 @@ export function useDraggableTabs({
 
       const containerRect = containerEl.getBoundingClientRect();
       const liveCenter = pillCenterX.get();
-      const liveWidth = interpolateTabField(liveCenter, tabs, "width", 120);
+      const liveWidth =
+        smoothPillWidth.get() ||
+        interpolateTabField(liveCenter, tabs, "width", 120);
       const liveHeight = interpolateTabField(
         liveCenter,
         tabs,
@@ -684,6 +706,10 @@ export function useDraggableTabs({
         const nearest = resolveNearestTab(step.center, currentTabs);
         if (nearest !== null) {
           controller.setDragPreview(nearest);
+          const nearestRect = currentTabs.find((t) => t.value === nearest);
+          if (nearestRect) {
+            syncPillWidth(nearestRect.width, isMotionReduced);
+          }
         }
       };
 
@@ -784,11 +810,13 @@ export function useDraggableTabs({
       onChange,
       pillCenterX,
       resolvedCapsuleOffsetX,
+      smoothPillWidth,
       squishScaleX,
       squishScaleY,
       stopCapsuleReturn,
       stopPillAnimation,
       stopSquishAnimation,
+      syncPillWidth,
       triggerRippleAt,
       velocitySampler,
     ],
@@ -808,6 +836,7 @@ export function useDraggableTabs({
 
   return {
     pillCenterX,
+    smoothPillWidth,
     squishScaleX,
     squishScaleY,
     smoothDragVelocity,

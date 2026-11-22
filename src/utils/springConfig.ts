@@ -18,6 +18,14 @@ export const SPRING = {
     mass: 0.7,
     restDelta: 0.001,
   },
+  /** Critically damped spring for smooth tab width morphing during drag */
+  dragWidth: {
+    type: "spring" as const,
+    stiffness: 600,
+    damping: 34.5,
+    mass: 0.5,
+    restDelta: 0.01,
+  },
   /** Drag stretch & fluid blob relaxation when pointer motion stops (Apple Design fluid blob) */
   fluidDragStretch: {
     type: "spring" as const,

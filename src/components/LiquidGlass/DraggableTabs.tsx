@@ -130,6 +130,7 @@ function DraggableTabsController({
       isTouchDevice={isTouchDevice}
       pillTargetValue={draggable.pillTargetValue}
       pillCenterX={draggable.pillCenterX}
+      smoothPillWidth={draggable.smoothPillWidth}
       smoothDragVelocity={draggable.smoothDragVelocity}
       pillOpacity={draggable.pillOpacity}
       layoutVersionMv={draggable.layoutVersionMv}

@@ -34,6 +34,7 @@ interface DraggableTabHighlightProps {
   isTouchDevice: boolean;
   pillTargetValue: TabValue;
   pillCenterX: MotionValue<number>;
+  smoothPillWidth: MotionValue<number>;
   smoothDragVelocity: MotionValue<number>;
   pillOpacity: MotionValue<number>;
   layoutVersionMv: MotionValue<number>;
@@ -63,6 +64,7 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
   isTouchDevice,
   pillTargetValue,
   pillCenterX,
+  smoothPillWidth,
   smoothDragVelocity,
   pillOpacity,
   layoutVersionMv,
@@ -130,8 +132,7 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
     layoutVersionMv.get();
     const tabs = getTabGeometries();
     const centerX = pillCenterX.get();
-    const width = interpolateTabField(centerX, tabs, "width", 120);
-    const morphX = width / BASE_PILL_WIDTH;
+    const morphX = smoothPillWidth.get() / BASE_PILL_WIDTH;
     const stretchedX = computeDragVelocityScaleX(
       smoothDragVelocity.get(),
       Math.max(tabs.length, 1),
