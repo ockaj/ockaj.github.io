@@ -274,7 +274,7 @@ function Hero() {
               onClick={handleViewCv}
               onPointerEnter={handleCvPreload}
               onFocus={handleCvPreload}
-              className="px-6 py-3.5 sm:px-8 sm:py-4"
+              className="p-optical-pill-3.5 pill-icon-end sm:p-optical-pill-4"
               ariaLabel="View CV"
             >
               View CV
@@ -283,7 +283,7 @@ function Hero() {
           </span>
           <LiquidGlassButton
             href="#work"
-            className="px-6 py-3.5 sm:px-8 sm:py-4"
+            className="p-optical-pill-3.5 sm:p-optical-pill-4"
             ariaLabel="View Case Studies"
             onClick={handleViewWork}
           >

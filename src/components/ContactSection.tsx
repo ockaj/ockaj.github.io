@@ -65,7 +65,7 @@ function ContactSection() {
               <div className="flex w-full max-w-sm justify-center sm:w-auto sm:max-w-none">
                 <LiquidGlassButton
                   href={`mailto:${CONTACT_EMAIL}`}
-                  className="group/email-btn w-full justify-center px-4 py-3.5 text-sm sm:w-auto sm:px-8 sm:py-4 sm:text-base sm:whitespace-nowrap"
+                  className="group/email-btn w-full justify-center p-optical-pill-3.5 text-sm pill-icon-end sm:w-auto sm:p-optical-pill-4 sm:text-base sm:whitespace-nowrap"
                   ariaLabel={`Send email to ${CONTACT_EMAIL}`}
                 >
                   <span className="flex w-full items-center justify-center gap-2">
@@ -89,7 +89,7 @@ function ContactSection() {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group/social-btn flex-1 px-4 py-3.5 text-sm whitespace-nowrap sm:flex-initial sm:px-8 sm:py-4"
+                    className="group/social-btn flex-1 p-optical-pill-3.5 text-sm whitespace-nowrap pill-icon-end pill-icon-start sm:flex-initial sm:p-optical-pill-4"
                     ariaLabel={`Visit ${social.label}`}
                   >
                     <span className="flex w-full items-center justify-center gap-2">

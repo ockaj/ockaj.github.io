@@ -69,3 +69,8 @@ Import named exports directly from `src/components/LiquidGlass/`.
    - Dual-stage physical springs (`glassPress`/`glassRelease` for mouse, `glassTouchPress`/`glassTouchRelease` for touch) deliver tactile physical feedback.
    - The specular highlight renders as a reactive inset bevel (`.liquid-glass-specular-bevel`) that shifts toward the cursor angle without any mask-composite exclude stencil cuts, rubber gaskets, or interior surface blobs.
    - Glass containers declare `isolation: isolate` (via Tailwind `isolate`) to bound visual blending to the element.
+7. **Optical Pill Padding**:
+   - Use `p-optical-pill-*` (defined in `src/index.css`) for primary `rounded-full` `LiquidGlassButton` CTAs.
+   - Use `p-optical-compact-*` for secondary `rounded-full` utility buttons (`Footer`, `FaqItem` action links, `ProcessDesktopControls`).
+   - Add `pill-icon-start` or `pill-icon-end` (or `-0.5` on `sm` pills) whenever a `lucide-react` icon sits at that edge of a pill button.
+   - Keep explicit `size-*` or `h-*` classes on icon-only buttons, height-matched pills (`InteractiveCvView` contact pills, `LightboxControls` zoom reset), and `rounded-lg` `Tabs` (`ProcessCardHeader`).

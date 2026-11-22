@@ -85,7 +85,7 @@ function Faq() {
                   type="button"
                   onClick={handleScrollToContact}
                   roundedClass="rounded-full"
-                  className="group/contact-btn flex min-h-11 cursor-pointer items-center justify-center px-7 py-3 text-sm font-semibold whitespace-nowrap text-text-primary shadow-sm transition-colors"
+                  className="group/contact-btn flex min-h-11 cursor-pointer items-center justify-center p-optical-pill-3 text-sm font-semibold whitespace-nowrap text-text-primary shadow-sm transition-colors pill-icon-end"
                   ariaLabel="Get in Touch — scroll to contact section"
                 >
                   <span className="flex items-center gap-2">

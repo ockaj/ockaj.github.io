@@ -231,7 +231,7 @@ const CaseStudyDrawer = memo(function CaseStudyDrawer({
         >
           <LiquidGlassButton
             href={`mailto:${CONTACT_EMAIL}`}
-            className="px-6 py-3.5 text-sm"
+            className="p-optical-pill-3.5 text-sm"
           >
             Request project details ↗
           </LiquidGlassButton>

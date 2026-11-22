@@ -83,7 +83,7 @@ const JournalDrawer = memo(function JournalDrawer({
         >
           <LiquidGlassButton
             href={`mailto:${CONTACT_EMAIL}?subject=Regarding Article: ${encodeURIComponent(article.title)}`}
-            className="px-6 py-3.5 text-sm"
+            className="p-optical-pill-3.5 text-sm pill-icon-end"
           >
             Discuss this thought piece
             <MessageSquare size={13} />

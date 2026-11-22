@@ -30,7 +30,7 @@ function Footer() {
         {/* Scroll to Top Styled as LiquidGlassButton */}
         <LiquidGlassButton
           onClick={scrollToTop}
-          className="group/top-btn px-4 py-3 text-sm"
+          className="group/top-btn p-optical-compact-3 text-sm pill-icon-end"
           ariaLabel="Scroll back to top"
         >
           <span className="flex items-center gap-1.5">

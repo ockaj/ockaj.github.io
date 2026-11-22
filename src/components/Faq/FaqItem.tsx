@@ -78,7 +78,7 @@ export const FaqItem = memo(function FaqItem({ item }: FaqItemProps) {
                     type="button"
                     onClick={() => handleAction(item.actionLink?.action)}
                     roundedClass="rounded-full"
-                    className="group/action-btn flex min-h-11 cursor-pointer items-center justify-center px-6 py-2.5 text-sm font-semibold text-text-primary shadow-sm transition-colors"
+                    className="group/action-btn flex min-h-11 cursor-pointer items-center justify-center p-optical-compact-2.5 text-sm font-semibold text-text-primary shadow-sm transition-colors pill-icon-end"
                     ariaLabel={item.actionLink.label}
                   >
                     <span className="flex items-center gap-2">

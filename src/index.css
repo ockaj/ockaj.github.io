@@ -603,6 +603,56 @@ p {
   min-height: 4.875rem;
 }
 
+@utility p-optical-pill-* {
+  --_py: --spacing(--value(number));
+  --_py: --value([length]);
+  --_px-start-trim: 0px;
+  --_px-end-trim: 0px;
+
+  /* 1.75:1 optical ratio floored at capsule radius R = py + 0.5lh */
+  --_px: max(
+    calc(var(--_py) + 1lh * 0.5),
+    calc((var(--_py) + (1lh - 1cap) / 2) * 1.75)
+  );
+
+  padding-block: var(--_py);
+  padding-inline-start: calc(var(--_px) - var(--_px-start-trim));
+  padding-inline-end: calc(var(--_px) - var(--_px-end-trim));
+}
+
+@utility p-optical-compact-* {
+  --_py: --spacing(--value(number));
+  --_py: --value([length]);
+  --_px-start-trim: 0px;
+  --_px-end-trim: 0px;
+
+  /* 1.5:1 optical ratio floored at capsule radius R = py + 0.5lh */
+  --_px: max(
+    calc(var(--_py) + 1lh * 0.5),
+    calc((var(--_py) + (1lh - 1cap) / 2) * 1.5)
+  );
+
+  padding-block: var(--_py);
+  padding-inline-start: calc(var(--_px) - var(--_px-start-trim));
+  padding-inline-end: calc(var(--_px) - var(--_px-end-trim));
+}
+
+@utility pill-icon-start {
+  --_px-start-trim: 0.25rem;
+}
+
+@utility pill-icon-start-* {
+  --_px-start-trim: --spacing(--value(number));
+}
+
+@utility pill-icon-end {
+  --_px-end-trim: 0.25rem;
+}
+
+@utility pill-icon-end-* {
+  --_px-end-trim: --spacing(--value(number));
+}
+
 .loading-grid-background {
   background-image:
     linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
