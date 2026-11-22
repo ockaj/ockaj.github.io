@@ -239,8 +239,8 @@ p {
   -webkit-mask-image: var(--mask-vertical-rim);
   mask-image: var(--mask-vertical-rim);
   transition:
-    background-color 450ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 450ms cubic-bezier(0.16, 1, 0.3, 1);
+    background-color 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 260ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Flat state when navbar is stationary - solid rgba(122, 123, 191, 0.2), inset border without CSS border */

@@ -323,11 +323,28 @@ export function useDraggableTabs({
         return;
       }
       const gen = ++animGenRef.current;
-      controller.setPillAnimating(true);
+      const targetTab = controller
+        .getTabGeometries()
+        .find((t) => Math.abs(t.centerX - targetX) < 1);
+      const settleThresholdPx = Math.max(2, (targetTab?.width ?? 100) * 0.03);
+      let settledEarly = Math.abs(targetX - currentX) <= settleThresholdPx;
+
+      controller.setPillAnimating(!settledEarly);
+
       const springConfig = customSpring ?? SPRING.highlight;
       const controls = animate(pillCenterX, targetX, {
         ...springConfig,
         velocity,
+        onUpdate: (latest) => {
+          if (
+            !settledEarly &&
+            animGenRef.current === gen &&
+            Math.abs(latest - targetX) <= settleThresholdPx
+          ) {
+            settledEarly = true;
+            controller.setPillAnimating(false);
+          }
+        },
       });
       animControlsRef.current = controls;
 
@@ -397,7 +414,7 @@ export function useDraggableTabs({
 
     const storeState = controller.store.getState();
     if (!storeState.isDragging && !hasActiveGrabRef.current) {
-      if (storeState.isPillAnimating) {
+      if (storeState.isPillAnimating || animControlsRef.current !== null) {
         animatePillTo(targetRect.centerX);
       } else {
         pillCenterX.jump(targetRect.centerX);

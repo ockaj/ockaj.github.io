@@ -7,9 +7,9 @@ import type { TabOrientation } from "./types";
 export type TabValue = string | number;
 type TabFlightPhase = "idle" | "flight" | "landing";
 
-export const TRAVEL_IMPULSE_MS = 140;
-export const FLIGHT_SETTLE_MS = 150;
-export const LANDING_PULSE_MS = 300;
+export const TRAVEL_IMPULSE_MS = 120;
+export const FLIGHT_SETTLE_MS = 120;
+export const LANDING_PULSE_MS = 140;
 export const REF_VELOCITY = 1800;
 
 export interface TabGeometry {
@@ -21,11 +21,11 @@ export interface TabGeometry {
   centerX: number;
 }
 
-/** Critically damped spring for gentle, non-bouncy settle to idle (zero undershoot) */
+/** Underdamped spring for tactile landing bounce and smooth settle to idle */
 export const SETTLE_SPRING = {
   type: "spring" as const,
-  stiffness: 160,
-  damping: 26,
+  stiffness: 260,
+  damping: 17.5,
   mass: 0.8,
 } as const;
 
