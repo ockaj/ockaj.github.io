@@ -103,8 +103,8 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
       scaleY.jump(snapshot.targetScaleY);
       return;
     }
-    animate(scaleX, snapshot.targetScaleX, snapshot.scaleSpring);
-    animate(scaleY, snapshot.targetScaleY, snapshot.scaleSpring);
+    animate(scaleX, snapshot.targetScaleX, snapshot.scaleSpringX);
+    animate(scaleY, snapshot.targetScaleY, snapshot.scaleSpringY);
     return () => {
       scaleX.stop();
       scaleY.stop();
@@ -115,7 +115,8 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
     scaleY,
     snapshot.targetScaleX,
     snapshot.targetScaleY,
-    snapshot.scaleSpring,
+    snapshot.scaleSpringX,
+    snapshot.scaleSpringY,
   ]);
 
   const pillX = useTransform(() => pillCenterX.get() - BASE_PILL_WIDTH / 2);

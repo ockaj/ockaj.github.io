@@ -66,9 +66,7 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       const workSnap = controller.getTabSnapshot("work", dimensions);
       expect(workSnap.isActive).toBe(false);
       expect(workSnap.showHighlight).toBe(false);
-      expect(
-        controller.getTabStateMaskFromState(initial, "work"),
-      ).toBe(0);
+      expect(controller.getTabStateMaskFromState(initial, "work")).toBe(0);
       expect(
         controller.getTabStateMaskFromState(
           controller.store.getInitialState(),
@@ -198,13 +196,17 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       expect(fastGlide.showHighlight).toBe(true);
       expect(fastGlide.targetScaleX).toBeGreaterThan(1 + 5 / 120);
       expect(fastGlide.targetScaleY).toBeLessThan(1 + 5 / 36);
+      expect(fastGlide.scaleSpringX).toBe(SPRING.glassScale);
+      expect(fastGlide.scaleSpringY).toBe(SPRING.glassScale);
 
-      // After impulse window expires, settles to resting hover expansion
+      // After impulse window expires, settles to resting hover expansion with out-of-phase wobble
       vi.advanceTimersByTime(TRAVEL_IMPULSE_MS);
       expect(controller.store.getState().hoverMoving).toBe(false);
       const restingHover = controller.getTabSnapshot("t2", dimensions);
       expect(restingHover.targetScaleX).toBeCloseTo(1 + 5 / 120, 4);
       expect(restingHover.targetScaleY).toBeCloseTo(1 + 5 / 36, 4);
+      expect(restingHover.scaleSpringX).toBe(SPRING.glassHoverX);
+      expect(restingHover.scaleSpringY).toBe(SPRING.glassHoverY);
 
       // Leaving tabs container resets velocity and returns highlight to active tab t1
       controller.leaveTabs();
@@ -845,8 +847,10 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
 
       // Expanded press state persists on dragPreviewValue ("faq")
       expect(
-        controller.getTabStateMaskFromState(controller.store.getState(), "faq") &
-          64,
+        controller.getTabStateMaskFromState(
+          controller.store.getState(),
+          "faq",
+        ) & 64,
       ).toBe(64);
       const faqDragSnap = controller.getTabSnapshot("faq", {
         width: 68,
@@ -928,13 +932,21 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
         5,
       );
       // Last tab is left=400, width=92, centerX=446 -> max right 497 => half 51 => scale 1.02
-      expect(
-        clampPillScaleXForTrack(446, 100, 1.15, mockTabs, 5),
-      ).toBeCloseTo(1.02, 5);
+      expect(clampPillScaleXForTrack(446, 100, 1.15, mockTabs, 5)).toBeCloseTo(
+        1.02,
+        5,
+      );
       // Edge tab narrower than BASE_PILL_WIDTH (100px) also clamps below 1.0 when pulled past edge
       const narrowLastTabs: TabGeometry[] = [
         { value: "home", left: 7, top: 7, width: 184, height: 42, centerX: 99 },
-        { value: "contact", left: 400, top: 7, width: 80, height: 42, centerX: 440 },
+        {
+          value: "contact",
+          left: 400,
+          top: 7,
+          width: 80,
+          height: 42,
+          centerX: 440,
+        },
       ];
       expect(
         clampPillScaleXForTrack(441.5, 100, 0.95, narrowLastTabs, 4.5),

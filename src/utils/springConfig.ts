@@ -82,6 +82,19 @@ export const SPRING = {
     damping: 15,
     mass: 0.6,
   },
+  /** Out-of-phase tab hover wobble (X leads faster, Y follows softer) */
+  glassHoverX: {
+    type: "spring" as const,
+    stiffness: 174,
+    damping: 8.6,
+    mass: 0.6,
+  },
+  glassHoverY: {
+    type: "spring" as const,
+    stiffness: 86,
+    damping: 4.9,
+    mass: 0.6,
+  },
   glassRipple: {
     type: "spring" as const,
     stiffness: 85,

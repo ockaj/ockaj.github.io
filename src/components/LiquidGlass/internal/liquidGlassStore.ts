@@ -9,7 +9,7 @@ type TabFlightPhase = "idle" | "flight" | "landing";
 
 export const TRAVEL_IMPULSE_MS = 120;
 export const FLIGHT_SETTLE_MS = 120;
-export const LANDING_PULSE_MS = 140;
+export const LANDING_PULSE_MS = 180;
 export const REF_VELOCITY = 1800;
 
 export interface TabGeometry {
@@ -317,6 +317,8 @@ export interface TabRenderSnapshot {
   targetScaleX: number;
   targetScaleY: number;
   scaleSpring: Transition;
+  scaleSpringX: Transition;
+  scaleSpringY: Transition;
 }
 
 export interface TabsPhysicsState {
@@ -478,10 +480,20 @@ export function computeTabSnapshotFromSlice(
     velocity: currentVelocity,
   });
 
+  const useHoverWobble =
+    (isHovered || isLanding) &&
+    !isPressed &&
+    !isTraveling &&
+    !slice.isDragging &&
+    !slice.isPillAnimating;
+
   const scaleSpring =
     isLanding || (targetScaleX === 1 && targetScaleY === 1)
       ? SETTLE_SPRING
       : SPRING.glassScale;
+
+  const scaleSpringX = useHoverWobble ? SPRING.glassHoverX : scaleSpring;
+  const scaleSpringY = useHoverWobble ? SPRING.glassHoverY : scaleSpring;
 
   return {
     isActive,
@@ -494,6 +506,8 @@ export function computeTabSnapshotFromSlice(
     targetScaleX,
     targetScaleY,
     scaleSpring,
+    scaleSpringX,
+    scaleSpringY,
   };
 }
 

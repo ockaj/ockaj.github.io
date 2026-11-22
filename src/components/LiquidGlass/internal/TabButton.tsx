@@ -168,7 +168,8 @@ function useTabScaleAnimation(
   scaleY: MotionValue<number>,
   targetScaleX: number,
   targetScaleY: number,
-  scaleSpring: Transition,
+  scaleSpringX: Transition,
+  scaleSpringY: Transition,
 ) {
   useLayoutEffect(() => {
     if (!showHighlight) return;
@@ -177,8 +178,8 @@ function useTabScaleAnimation(
       scaleY.jump(targetScaleY);
       return;
     }
-    animate(scaleX, targetScaleX, scaleSpring);
-    animate(scaleY, targetScaleY, scaleSpring);
+    animate(scaleX, targetScaleX, scaleSpringX);
+    animate(scaleY, targetScaleY, scaleSpringY);
     return () => {
       scaleX.stop();
       scaleY.stop();
@@ -190,7 +191,8 @@ function useTabScaleAnimation(
     scaleY,
     targetScaleX,
     targetScaleY,
-    scaleSpring,
+    scaleSpringX,
+    scaleSpringY,
   ]);
 }
 
@@ -292,7 +294,8 @@ export const TabButton = memo(function TabButton({
     willChange,
     targetScaleX,
     targetScaleY,
-    scaleSpring,
+    scaleSpringX,
+    scaleSpringY,
   } = computeTabSnapshotFromSlice(snapshotSlice, dimensions, {
     orientation,
     isMobileNav,
@@ -306,7 +309,8 @@ export const TabButton = memo(function TabButton({
     scaleY,
     targetScaleX,
     targetScaleY,
-    scaleSpring,
+    scaleSpringX,
+    scaleSpringY,
   );
 
   const handlePointerDown = useCallback(
