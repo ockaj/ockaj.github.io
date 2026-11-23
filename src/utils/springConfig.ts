@@ -109,7 +109,12 @@ export const SPRING = {
   },
   glassRelease: {
     stiffness: 230,
-    damping: 23.7,
+    damping: 14.5,
+    mass: 0.6,
+  },
+  glassReleaseY: {
+    stiffness: 150,
+    damping: 10.5,
     mass: 0.6,
   },
   glassTouchPress: {

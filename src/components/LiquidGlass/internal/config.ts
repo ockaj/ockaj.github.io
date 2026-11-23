@@ -13,11 +13,13 @@ export const glassFeel = {
     grow: 6,
     press: SPRING.glassPress,
     release: SPRING.glassRelease,
+    releaseY: SPRING.glassReleaseY,
   },
   touch: {
     grow: 10,
     press: SPRING.glassTouchPress,
     release: SPRING.glassTouchRelease,
+    releaseY: SPRING.glassTouchRelease,
   },
 } as const;
 

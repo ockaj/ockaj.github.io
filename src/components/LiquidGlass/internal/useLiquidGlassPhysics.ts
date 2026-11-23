@@ -570,12 +570,13 @@ export function useLiquidGlassPhysics({
 
   const activeFeel = glassFeel[pointerType === "touch" ? "touch" : "pointer"];
   const activeSpringConfig = isHolding ? activeFeel.press : activeFeel.release;
+  const activeScaleSpringY = isHolding ? activeFeel.press : activeFeel.releaseY;
   const activeSheenSpring = isHolding ? activeFeel.press : SPRING.glassMouse;
 
   const springPullX = useSpring(rawPullX, activeSpringConfig);
   const springPullY = useSpring(rawPullY, activeSpringConfig);
   const springScaleX = useSpring(rawScaleX, activeSpringConfig);
-  const springScaleY = useSpring(rawScaleY, activeSpringConfig);
+  const springScaleY = useSpring(rawScaleY, activeScaleSpringY);
   const springX = useSpring(mouseX, activeSheenSpring);
   const springY = useSpring(mouseY, activeSheenSpring);
   const sheenOpacity = useSpring(rawSheenOpacity, SPRING.glassOpacity);
