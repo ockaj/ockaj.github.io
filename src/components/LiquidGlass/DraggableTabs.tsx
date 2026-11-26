@@ -136,6 +136,7 @@ function DraggableTabsController({
       layoutVersionMv={draggable.layoutVersionMv}
       squishScaleX={draggable.squishScaleX}
       squishScaleY={draggable.squishScaleY}
+      wallPinSide={draggable.wallPinSide}
       scaleX={scaleX}
       scaleY={scaleY}
       getTabDimensionsForValue={draggable.getTabDimensionsForValue}

@@ -480,20 +480,18 @@ export function computeTabSnapshotFromSlice(
     velocity: currentVelocity,
   });
 
-  const useHoverWobble =
-    (isHovered || isLanding) &&
-    !isPressed &&
+  const useScaleWobble =
     !isTraveling &&
-    !slice.isDragging &&
-    !slice.isPillAnimating;
+    (slice.isDragging ||
+      ((isHovered || isLanding) && !isPressed && !slice.isPillAnimating));
 
   const scaleSpring =
     isLanding || (targetScaleX === 1 && targetScaleY === 1)
       ? SETTLE_SPRING
       : SPRING.glassScale;
 
-  const scaleSpringX = useHoverWobble ? SPRING.glassHoverX : scaleSpring;
-  const scaleSpringY = useHoverWobble ? SPRING.glassHoverY : scaleSpring;
+  const scaleSpringX = useScaleWobble ? SPRING.glassHoverX : scaleSpring;
+  const scaleSpringY = useScaleWobble ? SPRING.glassHoverY : scaleSpring;
 
   return {
     isActive,

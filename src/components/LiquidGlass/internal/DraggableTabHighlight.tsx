@@ -1,7 +1,15 @@
 import { memo, useLayoutEffect, useMemo, type CSSProperties } from "react";
 import { useStore } from "zustand";
 import { useShallow } from "zustand/react/shallow";
-import { animate, motion, useTransform, type MotionValue } from "motion/react";
+import {
+  animate,
+  clamp,
+  motion,
+  useSpring,
+  useTransform,
+  type MotionValue,
+} from "motion/react";
+import { SPRING } from "../../../utils/springConfig";
 import { cn } from "../../../utils/cn";
 import Ripple from "./Ripple";
 import {
@@ -40,6 +48,7 @@ interface DraggableTabHighlightProps {
   layoutVersionMv: MotionValue<number>;
   squishScaleX?: MotionValue<number>;
   squishScaleY?: MotionValue<number>;
+  wallPinSide?: MotionValue<number>;
   scaleX: MotionValue<number>;
   scaleY: MotionValue<number>;
   getTabDimensionsForValue: (val: TabValue) => {
@@ -70,6 +79,7 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
   layoutVersionMv,
   squishScaleX,
   squishScaleY,
+  wallPinSide,
   scaleX,
   scaleY,
   getTabDimensionsForValue,
@@ -119,7 +129,82 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
     snapshot.scaleSpringY,
   ]);
 
-  const pillX = useTransform(() => pillCenterX.get() - BASE_PILL_WIDTH / 2);
+  const targetVelStretchX = useTransform(() => {
+    layoutVersionMv.get();
+    const vel = smoothDragVelocity.get();
+    const pin = wallPinSide ? wallPinSide.get() : 0;
+    if (pin !== 0) return 1;
+    const tabs = getTabGeometries();
+    return computeDragVelocityScaleX(
+      vel,
+      Math.max(tabs.length, 1),
+      1,
+      isMotionReduced,
+      REF_VELOCITY,
+    );
+  });
+
+  const targetVelStretchY = useTransform(() => {
+    layoutVersionMv.get();
+    const vel = smoothDragVelocity.get();
+    const pin = wallPinSide ? wallPinSide.get() : 0;
+    if (pin !== 0) return 1;
+    const tabs = getTabGeometries();
+    return computeDragVelocityScaleY(
+      vel,
+      Math.max(tabs.length, 1),
+      1,
+      isMotionReduced,
+      REF_VELOCITY,
+    );
+  });
+
+  const velStretchX = useSpring(targetVelStretchX, SPRING.glassHoverX);
+  const velStretchY = useSpring(targetVelStretchY, SPRING.glassHoverY);
+
+  const totalScaleX = useTransform(() => {
+    layoutVersionMv.get();
+    const tabs = getTabGeometries();
+    const centerX = pillCenterX.get();
+    const morphX = smoothPillWidth.get() / BASE_PILL_WIDTH;
+    const liveStretchX = velStretchX.get();
+    const stretchX = isMotionReduced ? 1 : liveStretchX;
+    const squishX = squishScaleX ? squishScaleX.get() : 1;
+    const candidate = morphX * scaleX.get() * stretchX * squishX;
+    const pin = wallPinSide ? wallPinSide.get() : 0;
+    if (pin !== 0 && tabs.length > 0) {
+      return candidate;
+    }
+    return clampPillScaleXForTrack(centerX, BASE_PILL_WIDTH, candidate, tabs);
+  });
+
+  const pillX = useTransform(() => {
+    layoutVersionMv.get();
+    const centerX = pillCenterX.get();
+    const currentScaleX = scaleX.get();
+    const currentTotalScaleX = totalScaleX.get();
+    const pin = wallPinSide ? wallPinSide.get() : 0;
+    if (pin !== 0) {
+      const tabs = getTabGeometries();
+      if (tabs.length > 0) {
+        const halfW = (BASE_PILL_WIDTH * currentTotalScaleX) / 2;
+        if (pin < 0) {
+          const first = tabs[0];
+          const overhang = clamp(
+            0,
+            4.5,
+            (first.width * (currentScaleX - 1)) / 2,
+          );
+          return first.left - overhang + halfW - BASE_PILL_WIDTH / 2;
+        }
+        const last = tabs[tabs.length - 1];
+        const overhang = clamp(0, 4.5, (last.width * (currentScaleX - 1)) / 2);
+        return last.left + last.width + overhang - halfW - BASE_PILL_WIDTH / 2;
+      }
+    }
+    return centerX - BASE_PILL_WIDTH / 2;
+  });
+
   const pillY = useTransform(() => {
     layoutVersionMv.get();
     const tabs = getTabGeometries();
@@ -127,27 +212,6 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
     const top = interpolateTabField(x, tabs, "top", 0);
     const height = interpolateTabField(x, tabs, "height", BASE_PILL_HEIGHT);
     return top + height / 2 - BASE_PILL_HEIGHT / 2;
-  });
-
-  const totalScaleX = useTransform(() => {
-    layoutVersionMv.get();
-    const tabs = getTabGeometries();
-    const centerX = pillCenterX.get();
-    const morphX = smoothPillWidth.get() / BASE_PILL_WIDTH;
-    const stretchedX = computeDragVelocityScaleX(
-      smoothDragVelocity.get(),
-      Math.max(tabs.length, 1),
-      scaleX.get(),
-      isMotionReduced,
-      REF_VELOCITY,
-    );
-    const squishX = squishScaleX ? squishScaleX.get() : 1;
-    return clampPillScaleXForTrack(
-      centerX,
-      BASE_PILL_WIDTH,
-      morphX * stretchedX * squishX,
-      tabs,
-    );
   });
 
   const totalScaleY = useTransform(() => {
@@ -160,15 +224,10 @@ const DraggableTabHighlight = memo(function DraggableTabHighlight({
       BASE_PILL_HEIGHT,
     );
     const morphY = height / BASE_PILL_HEIGHT;
-    const stretchedY = computeDragVelocityScaleY(
-      smoothDragVelocity.get(),
-      Math.max(tabs.length, 1),
-      scaleY.get(),
-      isMotionReduced,
-      REF_VELOCITY,
-    );
+    const liveStretchY = velStretchY.get();
+    const stretchY = isMotionReduced ? 1 : liveStretchY;
     const squishY = squishScaleY ? squishScaleY.get() : 1;
-    return morphY * stretchedY * squishY;
+    return morphY * scaleY.get() * stretchY * squishY;
   });
 
   const rippleScaleX = useTransform(

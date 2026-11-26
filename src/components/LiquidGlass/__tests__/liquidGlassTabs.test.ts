@@ -858,6 +858,8 @@ describe("LiquidGlassTabs Physics Controller & Anisotropic Dynamics", () => {
       });
       expect(faqDragSnap.isDragPreview).toBe(true);
       expect(faqDragSnap.targetScaleY).toBeGreaterThan(1.15);
+      expect(faqDragSnap.scaleSpringX).toBe(SPRING.glassHoverX);
+      expect(faqDragSnap.scaleSpringY).toBe(SPRING.glassHoverY);
 
       // Commit drag and verify setActiveValue("faq") from React sync does NOT kill flightTimer
       controller.commitDrag("faq");
