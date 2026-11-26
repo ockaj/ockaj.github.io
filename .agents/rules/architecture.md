@@ -147,7 +147,8 @@ Enforce unified seams, strong typing, and modern React patterns across all modul
 - **Boneyard Suspense**: `src/bones/registry.ts` is imported in `src/main.tsx` (do not delete). Components check `isBoneyardBuild()` from `src/utils/boneyard.ts` (`window.__BONEYARD_BUILD`) to skip dynamic animations during skeleton capture.
 - **Bundler & React Compiler**:
   - Vite 8 uses the Rolldown bundler engine with chunk splitting rules configured in `rolldownOptions`.
+  - `tsconfig: "./tsconfig.app.json"` in `vite.config.ts` directs Vite's dependency scanner and bundler to the app TypeScript configuration.
   - LightningCSS handles CSS transformation and minification via `css.transformer: "lightningcss"`.
   - The React Compiler operates at build time via `@rolldown/plugin-babel` with `@vitejs/plugin-react` `reactCompilerPreset()`.
   - Avoid manual memoization hooks (`useMemo`, `useCallback`) unless profiling indicates a need.
-- **Security Invariants**: Static site hosted on GitHub Pages. BPMN SVGs must not contain inline event handlers. Markdown sources must contain no raw executable HTML.
+- **Security Invariants**: Static site hosted on GitHub Pages. `server.fs.strict: "extended"` enforces allow-list file-access checks on plugin-loaded modules in development. BPMN SVGs must not contain inline event handlers. Markdown sources must contain no raw executable HTML.

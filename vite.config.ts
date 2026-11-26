@@ -73,10 +73,14 @@ export default defineConfig(({ mode }) => ({
   css: {
     transformer: "lightningcss",
   },
+  tsconfig: "./tsconfig.app.json",
   resolve: {
     tsconfigPaths: true,
   },
   server: {
+    fs: {
+      strict: "extended",
+    },
     warmup: {
       clientFiles: ["./src/main.tsx", "./src/App.tsx", "./src/index.css"],
     },
