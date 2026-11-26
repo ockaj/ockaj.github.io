@@ -2,7 +2,6 @@ import js from "@eslint/js";
 import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
-import reactCompiler from "eslint-plugin-react-compiler";
 import eslintReact from "@eslint-react/eslint-plugin";
 import reactGoogleTranslate from "eslint-plugin-react-google-translate";
 import tseslint from "typescript-eslint";
@@ -37,7 +36,6 @@ export default tseslint.config(
     plugins: {
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
-      "react-compiler": reactCompiler,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -45,7 +43,6 @@ export default tseslint.config(
         "warn",
         { allowConstantExport: true },
       ],
-      "react-compiler/react-compiler": "error",
 
       // Custom React rule overrides
       "@eslint-react/no-missing-key": "error",
@@ -99,7 +96,6 @@ export default tseslint.config(
     rules: {
       "no-empty": ["error", { allowEmptyCatch: true }],
       "react-hooks/rules-of-hooks": "off",
-      "react-compiler/react-compiler": "off",
       "react-refresh/only-export-components": "off",
       "tailwindcss/no-arbitrary-value": "off",
       "tailwindcss/no-unnecessary-arbitrary-value": "off",
